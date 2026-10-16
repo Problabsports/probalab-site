@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080f">
+<meta name="robots" content="noindex, nofollow">
+<title>ProbaLab</title>
+<meta name="description" content="ProbaLab: NBA win predictions with a public, timestamped record.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: night-city terminal. One column of forecast "readouts" with clipped corners on a faint grid; neon reserved for the pick and the lights. Dark only, by design. */
+:root {
+  color-scheme: dark;
+  --bg: #07080f; --bg-2: #0c0e1a; --surface: #10131f; --surface-2: #161a2a;
+  --ink: #e8ecf8; --muted: #8b93b0; --line: #232a42; --line-hi: #343d5e;
+  --cyan: #19e3ff; --cyan-soft: rgba(25, 227, 255, 0.12);
+  --magenta: #ff2fc0; --magenta-soft: rgba(255, 47, 192, 0.12);
+  --yellow: #f5e900;
+  --super: #3dff8f; --super-soft: rgba(61, 255, 143, 0.12);
+  --green: #2fd7a0; --green-soft: rgba(47, 215, 160, 0.12);
+  --orange: #ffad33; --orange-soft: rgba(255, 173, 51, 0.12);
+  --red: #ff4f6e; --red-soft: rgba(255, 79, 110, 0.13);
+  --f-display: "Chakra Petch", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --cut: 14px;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  background-color: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  background-image:
+    linear-gradient(rgba(25, 227, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 227, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(1200px 500px at 85% -10%, rgba(255, 47, 192, 0.12), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(25, 227, 255, 0.10), transparent 60%);
+  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+/* scanlines */
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
+.wrap { max-width: 880px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--cyan); }
+:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* header */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg-2); }
+header.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(12, 14, 26, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+header.site::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, var(--magenta), var(--cyan) 40%, transparent 85%); }
+header.site .wrap { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 23px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 0; position: relative; }
+.brand b { color: var(--cyan); text-shadow: 0 0 12px rgba(25, 227, 255, 0.7); font-weight: 700; }
+.brand .p { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; margin-left: 10px; letter-spacing: 0.02em; text-transform: none; border: 1px solid var(--magenta); padding: 1px 6px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); }
+nav.tabs { display: flex; gap: 2px; margin-left: auto; }
+nav.tabs a { font-family: var(--f-display); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-decoration: none; padding: 6px 12px; border-bottom: 2px solid transparent; }
+nav.tabs a:hover { color: var(--ink); }
+nav.tabs a[aria-current="page"] { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: 0 0 10px rgba(25, 227, 255, 0.6); }
+
+.sample { background: repeating-linear-gradient(-45deg, rgba(245, 233, 0, 0.10) 0 10px, rgba(245, 233, 0, 0.04) 10px 20px); color: var(--ink); font-size: 13px; border-bottom: 1px solid rgba(245, 233, 0, 0.35); }
+.sample .wrap { padding-block: 8px; font-family: var(--f-mono); }
+.sample b { color: var(--yellow); }
+
+main { padding-block: 32px 64px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 5.4vw, 46px); font-weight: 700; line-height: 1.05; letter-spacing: 0.01em; text-transform: uppercase; }
+h1 em { font-style: normal; color: var(--magenta); text-shadow: 0 0 18px rgba(255, 47, 192, 0.55); }
+h2 { font-size: 18px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.lede { color: var(--muted); max-width: 62ch; margin: 12px 0 0; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
+.eyebrow::before { content: "// "; color: var(--magenta); }
+section.view { display: grid; gap: 28px; }
+.stack { display: grid; gap: 14px; }
+
+/* light chips */
+.chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; white-space: nowrap; border: 1px solid currentColor; }
+.chip::before { content: ""; width: 7px; height: 7px; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.chip.SUPER { background: var(--super-soft); color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.6); }
+.chip.GREEN { background: var(--green-soft); color: var(--green); }
+.chip.ORANGE { background: var(--orange-soft); color: var(--orange); }
+.chip.RED { background: var(--red-soft); color: var(--red); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+
+.day { display: grid; gap: 12px; }
+.day h2 { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; color: var(--ink); }
+.day h2 small { font-family: var(--f-mono); font-size: 12px; font-weight: 400; letter-spacing: 0.04em; text-transform: none; color: var(--muted); }
+
+/* forecast readout */
+.card { position: relative; background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); padding: 16px 18px; display: grid; gap: 12px;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut))); }
+.card.tip { border-color: rgba(25, 227, 255, 0.45); box-shadow: inset 0 0 0 1px rgba(25, 227, 255, 0.08), inset 0 0 40px rgba(25, 227, 255, 0.05); }
+.card.tip::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cyan); box-shadow: 0 0 14px var(--cyan); }
+.card.super::before { background: var(--super); box-shadow: 0 0 14px var(--super); }
+.card-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.time { font-family: var(--f-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card-top .chip { margin-left: auto; }
+.tipflag { font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bg); background: var(--cyan); padding: 2px 7px; }
+.card.super .tipflag { background: var(--super); }
+.teams { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 12px; }
+.team { min-width: 0; }
+.team.r { text-align: right; }
+.team .nm { font-family: var(--f-display); font-weight: 600; font-size: 17px; line-height: 1.15; letter-spacing: 0.02em; }
+.team .role { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.team .pc { font-family: var(--f-mono); font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; margin-top: 6px; }
+.team.picked .pc { color: var(--cyan); text-shadow: 0 0 14px rgba(25, 227, 255, 0.65); }
+.card.super .team.picked .pc { color: var(--super); text-shadow: 0 0 14px rgba(61, 255, 143, 0.6); }
+.team:not(.picked) .pc { color: var(--muted); font-size: 21px; font-weight: 500; }
+.at { font-family: var(--f-mono); color: var(--magenta); font-size: 13px; padding-bottom: 6px; }
+.bar { display: flex; height: 6px; background: #1b2136; gap: 2px; }
+.bar i { display: block; height: 100%; background: #2a3150; }
+.bar .pk { background: var(--cyan); box-shadow: 0 0 10px rgba(25, 227, 255, 0.7); }
+.card.super .bar .pk { background: var(--super); box-shadow: 0 0 10px rgba(61, 255, 143, 0.7); }
+.prices { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13.5px; margin: 0; }
+.prices div { display: flex; gap: 8px; align-items: baseline; }
+.prices dt { color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; }
+.prices dd { margin: 0; font-family: var(--f-mono); font-weight: 700; font-variant-numeric: tabular-nums; }
+.prices .value dd { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.35); }
+.meta { font-size: 11.5px; color: var(--muted); font-family: var(--f-mono); letter-spacing: 0.02em; }
+.wl { font-family: var(--f-mono); font-weight: 700; padding: 1px 8px; border: 1px solid currentColor; }
+.wl.W { background: var(--super-soft); color: var(--super); }
+.wl.L { background: var(--red-soft); color: var(--red); }
+
+/* results */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--magenta); padding: 14px; min-width: 0; }
+.stat:nth-child(2) { border-top-color: var(--cyan); }
+.stat:nth-child(3), .stat:nth-child(4) { border-top-color: var(--yellow); }
+.stat .k { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.stat .v { font-family: var(--f-mono); font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.stat .s { font-size: 12px; color: var(--muted); }
+.panel { background: rgba(16, 19, 31, 0.9); border: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.panel p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 65ch; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-family: var(--f-mono); font-weight: 500; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 8px; border-bottom: 1px solid var(--line-hi); white-space: nowrap; }
+td { padding: 9px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tbody tr:hover td { background: rgba(25, 227, 255, 0.04); }
+td.n, th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { font: 600 12px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line-hi); padding: 5px 12px; cursor: pointer; }
+.filters button[aria-pressed="true"] { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-soft); }
+.clv-pos { color: var(--super); } .clv-neg { color: var(--red); }
+
+/* about */
+.prose { max-width: 65ch; display: grid; gap: 14px; }
+.prose p, .prose li { margin: 0; }
+.prose b { color: var(--ink); }
+.prose ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.prose li::marker { color: var(--magenta); }
+.prose h2 { margin-top: 8px; color: var(--cyan); }
+.lights { display: grid; gap: 10px; }
+.lights div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: start; }
+.lights p { margin: 0; color: var(--muted); }
+
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; background: rgba(7, 8, 15, 0.85); }
+footer .wrap { padding-block: 22px 32px; display: grid; gap: 8px; }
+footer p { margin: 0; max-width: 75ch; }
+footer b { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  nav.tabs { margin-left: 0; width: 100%; }
+  .team .pc { font-size: 24px; }
+  .lights div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar i { transition: width .5s ease; }
+  .brand:hover b { animation: flick 0.6s steps(2) 1; }
+  @keyframes flick { 0%, 100% { opacity: 1; } 30% { opacity: 0.35; } 60% { opacity: 0.85; } }
+}
+</style>
+<style>
+/* additions: sport bar, sub-tabs, sidebar layout, date strip, game detail */
+.sports { background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.sports .wrap { display: flex; gap: 6px; padding-block: 8px; overflow-x: auto; scrollbar-width: none; }
+.sports .wrap::-webkit-scrollbar { display: none; }
+.sport { font: 600 12px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line-hi); padding: 6px 12px; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; text-decoration: none; }
+.sport.on { color: var(--bg); background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 14px rgba(25, 227, 255, 0.45); }
+.sport[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+.sport small { font-size: 9.5px; letter-spacing: 0.08em; color: var(--magenta); }
+.sport.on small { color: var(--bg); }
+
+.subtabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.subtabs::-webkit-scrollbar { display: none; }
+.subtabs a { font-family: var(--f-display); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-decoration: none; padding: 9px 14px; border-bottom: 2px solid transparent; white-space: nowrap; }
+.subtabs a:hover { color: var(--ink); }
+.subtabs a[aria-current="page"] { color: var(--cyan); border-bottom-color: var(--cyan); text-shadow: 0 0 10px rgba(25, 227, 255, 0.6); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
+.side { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); }
+.side h3 { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+
+/* date strip */
+.dates { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: stretch; }
+.dates .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.dates button { font-family: var(--f-mono); background: var(--surface); color: var(--muted); border: 1px solid var(--line); padding: 6px 2px; cursor: pointer; display: grid; gap: 1px; justify-items: center; min-width: 0; }
+.dates button b { font-size: 16px; color: var(--ink); font-weight: 700; }
+.dates button span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.dates button i { font-style: normal; font-size: 10px; color: var(--magenta); }
+.dates button[aria-pressed="true"] { border-color: var(--cyan); background: var(--cyan-soft); box-shadow: 0 0 12px rgba(25, 227, 255, 0.25); }
+.dates button[aria-pressed="true"] b { color: var(--cyan); }
+.dates .nav { padding: 0 10px; font-size: 16px; color: var(--cyan); }
+.tz { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
+
+.card { cursor: pointer; transition: border-color .15s; }
+.card:hover { border-color: var(--line-hi); }
+.card .more { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.06em; color: var(--cyan); margin-left: auto; text-transform: uppercase; }
+.card .result { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+.card .score { font-family: var(--f-mono); font-weight: 700; }
+
+/* mini lists in sidebar */
+.mini { background: rgba(16, 19, 31, 0.9); border: 1px solid var(--line); padding: 14px; display: grid; gap: 10px; }
+.mini .row { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.mini .row .t { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini .row .n { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.mini .feat { display: grid; gap: 6px; cursor: pointer; }
+.mini .feat .big { font-family: var(--f-mono); font-size: 28px; font-weight: 700; color: var(--super); text-shadow: 0 0 14px rgba(61, 255, 143, 0.5); line-height: 1; }
+.badge { display: inline-grid; place-items: center; width: 34px; height: 22px; font: 700 10.5px var(--f-mono); letter-spacing: 0.04em; border: 1px solid var(--line-hi); color: var(--ink); background: var(--surface-2); flex: none; }
+.form { display: inline-flex; gap: 3px; }
+.form i { font-style: normal; font: 700 10px var(--f-mono); width: 17px; height: 17px; display: grid; place-items: center; }
+.form i.W { background: var(--super-soft); color: var(--super); border: 1px solid rgba(61, 255, 143, 0.4); }
+.form i.L { background: var(--red-soft); color: var(--red); border: 1px solid rgba(255, 79, 110, 0.4); }
+
+/* game detail */
+.back { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); text-decoration: none; }
+.match { display: grid; gap: 16px; }
+.match .vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
+.match .side-t { display: grid; gap: 6px; justify-items: start; min-width: 0; }
+.match .side-t.r { justify-items: end; text-align: right; }
+.match .crest { width: 64px; height: 64px; display: grid; place-items: center; font: 700 17px var(--f-mono); color: var(--ink); background: var(--surface-2); border: 1px solid var(--line-hi); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+.match .side-t.picked .crest { border-color: var(--cyan); color: var(--cyan); box-shadow: inset 0 0 18px rgba(25, 227, 255, 0.2); }
+.match .tn { font-family: var(--f-display); font-weight: 700; font-size: clamp(18px, 3.4vw, 26px); line-height: 1.1; text-transform: uppercase; letter-spacing: 0.02em; }
+.match .pcbig { font-family: var(--f-mono); font-weight: 700; font-size: clamp(30px, 6vw, 46px); line-height: 1; }
+.match .side-t.picked .pcbig { color: var(--cyan); text-shadow: 0 0 18px rgba(25, 227, 255, 0.6); }
+.match .side-t:not(.picked) .pcbig { color: var(--muted); }
+.match .mid { display: grid; gap: 6px; justify-items: center; text-align: center; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.match .mid .x { color: var(--magenta); font-size: 18px; font-weight: 700; }
+.factors { display: grid; gap: 14px; }
+.factor { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 10px; align-items: center; }
+.factor .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; }
+.factor .v.r { text-align: right; }
+.factor .v.edge { color: var(--cyan); }
+.factor .mid { display: grid; gap: 5px; }
+.factor .lbl { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.factor .track { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; height: 6px; }
+.factor .track span { background: #1b2136; position: relative; }
+.factor .track span i { position: absolute; top: 0; bottom: 0; background: var(--cyan); box-shadow: 0 0 8px rgba(25, 227, 255, 0.6); }
+.factor .track span:first-child i { right: 0; }
+.factor .track span:last-child i { left: 0; }
+.out { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.out ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13.5px; }
+.out li { display: flex; gap: 8px; align-items: baseline; }
+.out li .st { font: 700 10.5px var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 6px; border: 1px solid currentColor; }
+.st.Out { color: var(--red); } .st.Doubtful { color: var(--orange); } .st.Questionable { color: var(--yellow); }
+.out li .m { margin-left: auto; font-family: var(--f-mono); color: var(--muted); font-size: 12px; }
+.timeline { display: grid; gap: 8px; font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); }
+.timeline div { display: flex; gap: 10px; }
+.timeline b { color: var(--ink); font-weight: 500; min-width: 120px; }
+.lbig { font-family: var(--f-display); font-size: 16px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.conf { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+td .tm { display: flex; gap: 8px; align-items: center; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; }
+}
+@media (max-width: 640px) {
+  .out, .conf { grid-template-columns: minmax(0, 1fr); }
+  .factor { grid-template-columns: 48px minmax(0, 1fr) 48px; }
+  .dates .days button:nth-child(n+6) { display: none; }
+  .dates .days { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .match .crest { width: 48px; height: 48px; font-size: 14px; }
+}
+</style>
+</head>
+<body>
+<style>
+/* v4 additions: month calendar, outcome marks, seg buttons, scores list, stats */
+[hidden] { display: none !important; }
+.statgrid > .panel { align-content: start; }
+.cal { display: grid; gap: 8px; }
+.cal-head { display: flex; align-items: center; gap: 6px; }
+.cal-head b { flex: 1; text-align: center; font-family: var(--f-display); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 13px; }
+.cal-head button, .daynav button { background: transparent; border: 1px solid var(--line-hi); color: var(--cyan); width: 30px; height: 30px; cursor: pointer; font: 700 15px var(--f-mono); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.cal-grid .dow { font: 600 10px var(--f-mono); letter-spacing: 0.06em; color: var(--muted); text-align: center; text-transform: uppercase; padding-bottom: 2px; }
+.cal-grid button { aspect-ratio: 1; max-width: 100%; background: var(--surface); border: 1px solid var(--line); color: var(--muted); font: 600 12px var(--f-mono); cursor: pointer; position: relative; padding: 0; }
+.cal-grid button.has { color: var(--ink); }
+.cal-grid button.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; background: var(--magenta); box-shadow: 0 0 6px var(--magenta); }
+.cal-grid button.today { border-color: var(--yellow); }
+.cal-grid button[aria-pressed="true"] { background: var(--cyan); color: var(--bg); border-color: var(--cyan); box-shadow: 0 0 12px rgba(25, 227, 255, 0.5); }
+.cal-grid button[aria-pressed="true"]::after { background: var(--bg); box-shadow: none; }
+.daynav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.daynav h2 { flex: 1; min-width: 0; }
+.daynav .calbtn { width: auto; padding: 0 10px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+#calInline { display: none; }
+#calInline.open { display: grid; }
+@media (min-width: 901px) { .daynav .calbtn { display: none; } #calInline.open { display: none; } }
+.daysum { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.daysum b { color: var(--ink); }
+
+.mark { width: 26px; height: 26px; display: grid; place-items: center; font: 700 14px var(--f-mono); border: 1px solid currentColor; margin-left: auto; }
+.mark.W { color: var(--super); background: var(--super-soft); box-shadow: 0 0 10px rgba(61, 255, 143, 0.3); }
+.mark.L { color: var(--red); background: var(--red-soft); }
+.card.done .chip { margin-left: 0; }
+
+.seg { display: inline-flex; border: 1px solid var(--line-hi); }
+.seg a, .seg button { font: 600 12px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: transparent; border: 0; padding: 7px 14px; text-decoration: none; cursor: pointer; }
+.seg [aria-current="page"], .seg [aria-pressed="true"] { color: var(--bg); background: var(--cyan); }
+.toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.toolbar .grow { flex: 1; }
+select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var(--ink); background: var(--surface); border: 1px solid var(--line-hi); padding: 6px 8px; }
+
+.scores { display: grid; }
+.scores .dh { font: 600 11.5px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); padding: 10px 8px 6px; border-bottom: 1px solid var(--line-hi); }
+.scores .sr { display: grid; grid-template-columns: 70px minmax(0, 1fr) 74px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 14px; }
+.scores .sr:hover { background: rgba(25, 227, 255, 0.04); }
+.scores .sr .tt { font: 12px var(--f-mono); color: var(--muted); }
+.scores .sr .a { text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.scores .sr .h { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.scores .sr .win { color: var(--ink); font-weight: 600; }
+.scores .sr.team { grid-template-columns: 96px minmax(0, 1fr) 74px 36px; }
+.scores .sr.team .a { text-align: left; }
+.scores .sr.team .tt { white-space: nowrap; }
+.scores .sr .sc { text-align: center; font: 700 14px var(--f-mono); color: var(--ink); background: var(--surface-2); border: 1px solid var(--line-hi); padding: 2px 0; }
+
+.formlist { display: grid; }
+.formlist .fr { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 4px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.formlist .fr .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dots { display: inline-flex; gap: 4px; align-items: center; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; }
+.dots i.W { background: var(--super); box-shadow: 0 0 6px rgba(61, 255, 143, 0.6); }
+.dots i.L { background: var(--red); box-shadow: 0 0 6px rgba(255, 79, 110, 0.5); }
+.dots small { font: 10px var(--f-mono); color: var(--muted); }
+
+.statgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.kv { display: grid; grid-template-columns: minmax(84px, 1.3fr) 44px minmax(40px, 1fr) 40px; gap: 10px; align-items: center; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.kv:last-child { border-bottom: 0; }
+.kv .num { font: 700 13.5px var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.kv .pc { font: 12px var(--f-mono); color: var(--muted); text-align: right; }
+.meter { height: 8px; background: #1b2136; border: 1px solid var(--line-hi); }
+.meter i { display: block; height: 100%; background: var(--cyan); box-shadow: 0 0 8px rgba(25, 227, 255, 0.5); }
+.meter.m i { background: var(--magenta); box-shadow: 0 0 8px rgba(255, 47, 192, 0.5); }
+.leaders { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.leaders ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.leaders li { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; }
+.leaders li .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.leaders li .nm small { color: var(--muted); font-family: var(--f-mono); font-size: 10.5px; margin-left: 4px; }
+.leaders li .v { font: 700 13px var(--f-mono); color: var(--cyan); }
+.leaders li:first-child .v { color: var(--yellow); text-shadow: 0 0 8px rgba(245, 233, 0, 0.4); }
+.note { font-size: 12px; color: var(--muted); font-family: var(--f-mono); }
+@media (max-width: 640px) {
+  .statgrid { grid-template-columns: minmax(0, 1fr); }
+  .scores .sr { grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); }
+  .scores .sr .tt { display: none; }
+  .scores .sr.team { grid-template-columns: minmax(0, 1fr) 70px 32px; }
+  /* phone: everything stacks in one long column */
+  .stats, .leaders, .statgrid, .conf, .out { grid-template-columns: minmax(0, 1fr); }
+  .toolbar select.season { flex: 1 1 140px; }
+  .tablewrap { overflow: visible; }
+  table.stk, table.stk tbody { display: block; width: 100%; }
+  table.stk thead { display: none; }
+  table.stk tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2px 18px; padding: 10px 2px; border-bottom: 1px solid var(--line-hi); }
+  table.stk td { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; border: 0; text-align: right; min-width: 0; }
+  table.stk td::before { content: attr(data-l); font: 600 10.5px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; }
+  table.stk td.hd { grid-column: 1 / -1; order: -1; justify-content: flex-start; font-weight: 600; font-size: 15px; padding-bottom: 6px; text-align: left; }
+  table.stk td.hd::before { content: attr(data-rk); font: 700 13px var(--f-mono); color: var(--cyan); letter-spacing: 0; }
+  table.stk td.rk { display: none; }
+}
+</style>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#nba-predictions">Proba<b>Lab</b><span class="p">p(win)=0.71</span></a>
+    <nav class="tabs" aria-label="Site">
+      <a href="#nba-predictions" data-top="sport">Predictions</a>
+      <a href="#about" data-top="about">How it works</a>
+    </nav>
+  </div>
+</header>
+<nav class="sports" aria-label="Sports">
+  <div class="wrap">
+    <a class="sport on" href="#nba-predictions">NBA <small>Live</small></a>
+    <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
+    <span class="sport" aria-disabled="true">EPL <small>Soon</small></span>
+    <span class="sport" aria-disabled="true">NFL <small>Soon</small></span>
+    <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
+  </div>
+</nav>
+<div class="sample" id="sampleBanner"><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
+
+<main class="wrap">
+  <section class="view" id="view-sport">
+    <div>
+      <div class="eyebrow">NBA · win predictions</div>
+      <h1>Who wins. <em>How likely.</em></h1>
+      <p class="lede">Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record.</p>
+    </div>
+    <nav class="subtabs" aria-label="NBA sections">
+      <a href="#nba-predictions" data-sub="predictions">Predictions</a>
+      <a href="#nba-record" data-sub="record">Our record</a>
+      <a href="#nba-trends" data-sub="trends">Trends</a>
+      <a href="#nba-table" data-sub="table">Standings &amp; scores</a>
+      <a href="#nba-stats" data-sub="stats">Stats</a>
+    </nav>
+    <div class="layout">
+      <div class="stack" id="main"></div>
+      <aside class="side" id="side"></aside>
+    </div>
+  </section>
+
+  <section class="view" id="view-game" hidden></section>
+
+  <section class="view" id="view-about" hidden>
+    <div>
+      <div class="eyebrow">Method</div>
+      <h1>How it works</h1>
+    </div>
+    <div class="prose">
+      <p>ProbaLab runs a proprietary data model for each sport. For the NBA it rates every player from recent box scores, weighted toward recent games. Before each game it reads the official injury report, works out the minutes each team is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent form, rest and back-to-backs to give each side a win probability.</p>
+      <p>The model was tested on the 2025–26 season game by game, using only information available before each tip-off. Its percentages lined up with real results: picks given 70–75% won 74% of the time.</p>
+      <h2>The lights</h2>
+      <div class="lights">
+        <div><span><i class="chip SUPER">Super green</i></span><p>The model is confident (60%+) and rates the team well above the market. Our strongest tips.</p></div>
+        <div><span><i class="chip GREEN">Green</i></span><p>The model gives the pick 65% or more. Also a tip.</p></div>
+        <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55–65%. Shown for completeness, not a tip.</p></div>
+        <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
+      </div>
+      <h2>Fair and value prices</h2>
+      <p><b>Fair price</b> is what the win probability is worth as decimal odds: 1 ÷ probability. A 70% pick has a fair price of $1.43. <b>Value at $X or better</b> adds a 3% margin. A price below it isn't worth taking on our numbers.</p>
+      <h2>Beating the close</h2>
+      <p>For tips, we compare the price at the time of the tip with the final market price at tip-off. Beating the close consistently is the clearest sign a prediction is ahead of the market. We show it as a percentage after each game.</p>
+      <h2>Our rules</h2>
+      <ul>
+        <li>Every pick is timestamped before tip-off and locked at tip-off.</li>
+        <li>Losses stay on the record. Nothing is removed.</li>
+        <li>We publish probabilities, not guarantees. A 70% pick loses three times in ten.</li>
+        <li>No bookmaker links, codes or affiliate deals.</li>
+        <li>All times are shown in your own time zone.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>For information and entertainment only.</b> Predictions are probabilities, not guarantees. You must be 18+ to gamble. If gambling is causing harm, call Gambling Help Online on <span class="mono">1800 858 858</span> or visit gamblinghelponline.org.au.</p>
+    <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA or any team or bookmaker.</p>
+  </div>
+</footer>
+
+<script>
+// ---------- data source ----------
+// FEED_URL = null uses built-in sample data (design preview). Set to the live feed to go live.
+const FEED_URL = null; // "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed"
+const VALUE_MARGIN = 0.03;
+const TEAMS = { ATL:"Atlanta Hawks", BOS:"Boston Celtics", BKN:"Brooklyn Nets", CHA:"Charlotte Hornets", CHI:"Chicago Bulls", CLE:"Cleveland Cavaliers", DAL:"Dallas Mavericks", DEN:"Denver Nuggets", DET:"Detroit Pistons", GS:"Golden State Warriors", HOU:"Houston Rockets", IND:"Indiana Pacers", LAC:"LA Clippers", LAL:"Los Angeles Lakers", MEM:"Memphis Grizzlies", MIA:"Miami Heat", MIL:"Milwaukee Bucks", MIN:"Minnesota Timberwolves", NO:"New Orleans Pelicans", NY:"New York Knicks", OKC:"Oklahoma City Thunder", ORL:"Orlando Magic", PHI:"Philadelphia 76ers", PHX:"Phoenix Suns", POR:"Portland Trail Blazers", SAC:"Sacramento Kings", SA:"San Antonio Spurs", TOR:"Toronto Raptors", UTAH:"Utah Jazz", WSH:"Washington Wizards" };
+const EAST = new Set(["ATL","BOS","BKN","CHA","CHI","CLE","DET","IND","MIA","MIL","NY","ORL","PHI","TOR","WSH"]);
+const SEASONS = { 2027: "2026–27", 2026: "2025–26" };
+
+function sampleFeed() {
+  let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const codes = Object.keys(TEAMS); const games = []; let id = 1;
+  const lightOf = (p, sup) => sup ? "SUPER" : p >= 0.65 ? "GREEN" : p >= 0.55 ? "ORANGE" : "RED";
+  const STAT = ["Out", "Doubtful", "Questionable"];
+  const missing = (n) => Array.from({ length: n }, (_, i) => ({ player: "Sample player " + (i + 1), status: STAT[Math.floor(rnd() * 3)], min: +(14 + rnd() * 20).toFixed(1) }));
+  function make(startMs, settled, season, withPick = true) {
+    const a = codes[Math.floor(rnd() * 30)]; let h = codes[Math.floor(rnd() * 30)]; if (h === a) h = codes[(codes.indexOf(a) + 7) % 30];
+    const ph = Math.min(0.9, Math.max(0.12, 0.55 + (rnd() - 0.5) * 0.75));
+    const pick = ph >= 0.5 ? h : a, pp = Math.max(ph, 1 - ph);
+    const light = lightOf(pp, pp >= 0.6 && rnd() < 0.18);
+    const g = { game_id: "S" + id++, sport: "NBA", season, start_utc: new Date(startMs).toISOString(), home: h, away: a, home_name: TEAMS[h], away_name: TEAMS[a],
+      status: settled ? "post" : "pre", home_score: null, away_score: null, won: null, clv: null, has_pick: withPick };
+    if (withPick) Object.assign(g, { pick, pick_name: TEAMS[pick], pick_p: +pp.toFixed(3), light, fair_price: +(1 / pp).toFixed(2), value_price: +((1 + VALUE_MARGIN) / pp).toFixed(2),
+      first_posted: new Date(startMs - (20 + rnd() * 20) * 3600e3).toISOString(), last_updated: new Date(startMs - (0.5 + rnd() * 3) * 3600e3).toISOString(),
+      detail: { tal_home: +(93 + (ph - 0.5) * 8 + (rnd() - 0.5) * 3).toFixed(1), tal_away: +(93 - (ph - 0.5) * 8 + (rnd() - 0.5) * 3).toFixed(1),
+        form_home: +((ph - 0.5) * 14 + (rnd() - 0.5) * 6).toFixed(1), form_away: +((0.5 - ph) * 10 + (rnd() - 0.5) * 6).toFixed(1),
+        rest_home: 1 + Math.floor(rnd() * 3), rest_away: 1 + Math.floor(rnd() * 3), missing_home: missing(Math.floor(rnd() * 3)), missing_away: missing(Math.floor(rnd() * 3)) } });
+    if (settled) {
+      const homeWins = rnd() < ph - 0.01;
+      const w = 104 + Math.floor(rnd() * 28), l = w - 1 - Math.floor(rnd() * 25);
+      g.home_score = homeWins ? w : l; g.away_score = homeWins ? l : w;
+      if (withPick) { g.won = (pick === h) === homeWins; if (light === "SUPER" || light === "GREEN") g.clv = +((rnd() - 0.42) * 0.06).toFixed(4); }
+    }
+    return g;
+  }
+  const base = new Date(); base.setUTCHours(23, 30, 0, 0);
+  const slots = [0, 0, 0.5, 1, 1, 1.5, 2, 3];
+  for (let d = -21; d <= 3; d++) {
+    const n = d >= 0 ? (d === 0 ? 8 : 6) : 5 + Math.floor(rnd() * 5);
+    for (let k = 0; k < n; k++) { const t = base.getTime() + d * 864e5 + slots[k % 8] * 3600e3; games.push(make(t, t < Date.now() - 3 * 3600e3, 2027)); }
+  }
+  // previous season: results only (no picks), for standings, scores and stats
+  const prevEnd = base.getTime() - 190 * 864e5;
+  for (let d = 0; d < 160; d++) for (let k = 0; k < 7; k++) games.push(make(prevEnd - d * 864e5 + k * 1800e3, true, 2026, false));
+  // placeholder player season averages (no real names in the sample)
+  const players = [];
+  for (const season of [2027, 2026]) codes.forEach((c) => { for (let i = 1; i <= 5; i++) {
+    const star = i === 1 ? 1 : i === 2 ? 0.75 : 0.5;
+    players.push({ season, team: c, player: `${c} player ${i}`, gp: season === 2027 ? 8 : 70, pts: +(8 + star * 20 * (0.6 + rnd() * 0.5)).toFixed(1), reb: +(2 + rnd() * 10 * star).toFixed(1),
+      ast: +(1 + rnd() * 8 * star).toFixed(1), stl: +(0.3 + rnd() * 1.6).toFixed(1), blk: +(0.1 + rnd() * 1.9 * (i > 3 ? 1 : 0.5)).toFixed(1) }); } });
+  return { generated_at: new Date().toISOString(), sport: "NBA", sample: true, games, players };
+}
+
+// ---------- formatting (viewer's own time zone) ----------
+const fmtDay = new Intl.DateTimeFormat(undefined, { weekday: "long", day: "numeric", month: "long" });
+const fmtShort = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
+const fmtMonth = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" });
+const fmtTime = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+const TZNAME = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local time";
+const keyOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
+const dateOfKey = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+const pct = (x) => Math.round(x * 100) + "%";
+const money = (x) => "$" + Number(x).toFixed(2);
+const sgn = (x, dp = 1) => (x > 0 ? "+" : "") + Number(x).toFixed(dp);
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const LNAME = { SUPER: "Super green", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
+const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
+const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
+const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
+const CUR = 2027;
+const picks = () => DATA.games.filter((g) => g.has_pick !== false && g.pick);
+const pickedDone = () => picks().filter((g) => g.status === "post" && g.won !== null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
+const finals = (season) => DATA.games.filter((g) => g.season === season && g.status === "post" && g.home_score != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
+
+// ---------- forecast card ----------
+function card(g) {
+  const pHome = pHomeOf(g), post = g.status === "post" && g.won !== null;
+  const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
+      <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
+  return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}
+      ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
+    <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
+    <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
+      <i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
+    <div class="card-top"><dl class="prices">
+      <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
+      ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)}+</dd></div>` : ""}
+      ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}
+    </dl><span class="more">Details →</span></div>
+  </article>`;
+}
+
+// ---------- calendar ----------
+let SEL = keyOf(Date.now()), CALM = null, CAL_OPEN = false;
+function calHtml() {
+  const has = new Set(picks().map((g) => keyOf(g.start_utc)));
+  const sel = dateOfKey(SEL); if (!CALM) CALM = new Date(sel.getFullYear(), sel.getMonth(), 1);
+  const first = new Date(CALM.getFullYear(), CALM.getMonth(), 1), lead = (first.getDay() + 6) % 7;
+  const n = new Date(CALM.getFullYear(), CALM.getMonth() + 1, 0).getDate(), today = keyOf(Date.now());
+  let cells = Array.from({ length: lead }, () => `<span></span>`).join("");
+  for (let d = 1; d <= n; d++) { const k = keyOf(new Date(CALM.getFullYear(), CALM.getMonth(), d, 12));
+    cells += `<button type="button" data-day="${k}" class="${has.has(k) ? "has" : ""} ${k === today ? "today" : ""}" aria-pressed="${k === SEL}" aria-label="${fmtDay.format(dateOfKey(k))}">${d}</button>`; }
+  return `<div class="cal"><div class="cal-head"><button type="button" data-cal="-1" aria-label="Previous month">‹</button><b>${fmtMonth.format(first)}</b><button type="button" data-cal="1" aria-label="Next month">›</button></div>
+    <div class="cal-grid">${["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((x) => `<span class="dow">${x}</span>`).join("")}${cells}</div></div>`;
+}
+
+// ---------- predictions ----------
+function renderPredictions() {
+  const list = picks().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const done = list.filter((g) => g.status === "post" && g.won !== null), tips = list.filter(isTip);
+  const w = (xs) => xs.filter((g) => g.won).length;
+  document.getElementById("main").innerHTML = `
+    <div class="daynav">
+      <button type="button" data-step="-1" aria-label="Previous day">‹</button>
+      <h2>${SEL === keyOf(Date.now()) ? "Today · " : ""}${fmtDay.format(dateOfKey(SEL))}</h2>
+      <button type="button" data-step="1" aria-label="Next day">›</button>
+      <button type="button" class="calbtn" id="calToggle" aria-expanded="${CAL_OPEN}">Calendar</button>
+    </div>
+    <div class="mini ${CAL_OPEN ? "open" : ""}" id="calInline">${calHtml()}</div>
+    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> tips</span>
+      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Tips <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
+      <span>Times in ${esc(TZNAME)}</span></div>
+    <div class="legend" aria-label="Light key">
+      <span><i class="chip SUPER">Super green</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
+      <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
+    </div>
+    ${list.length ? list.map(card).join("") : `<div class="panel"><h2>No games this day</h2><p>Pick another date in the calendar. Predictions appear about 48 hours before tip-off and update as injury news comes in.</p></div>`}`;
+}
+
+// ---------- our record ----------
+let FILTER = "all";
+function renderRecord() {
+  const done = pickedDone(), tips = done.filter(isTip);
+  const w = (xs) => xs.filter((g) => g.won).length, rate = (xs) => (xs.length ? pct(w(xs) / xs.length) : "–");
+  const clvs = tips.filter((g) => g.clv != null);
+  const clvAvg = clvs.length ? clvs.reduce((s, g) => s + g.clv, 0) / clvs.length : null;
+  const beat = clvs.length ? clvs.filter((g) => g.clv > 0).length / clvs.length : null;
+  const rows = (FILTER === "tips" ? tips : done).slice(0, 80);
+  document.getElementById("main").innerHTML = `
+    <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
+    <div class="stats">${[
+      ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
+      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} green + super green`],
+      ["Tips vs close", clvAvg == null ? "–" : sgn(clvAvg * 100) + "%", "average price beat"],
+      ["Beat the close", beat == null ? "–" : pct(beat), `of ${clvs.length} tips`],
+    ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
+    <div class="conf">
+      <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
+        <thead><tr><th>Light</th><th class="n">Picks</th><th class="n">Won</th><th class="n">Rate</th><th class="n">We said</th></tr></thead><tbody>
+        ${["SUPER", "GREEN", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l);
+          return `<tr><td>${chip(l)}</td><td class="n">${xs.length}</td><td class="n">${w(xs)}</td><td class="n">${rate(xs)}</td><td class="n">${xs.length ? pct(xs.reduce((s, g) => s + g.pick_p, 0) / xs.length) : "–"}</td></tr>`; }).join("")}
+      </tbody></table></div></div>
+      <div class="panel"><h2>Are the percentages honest?</h2><p>Dots near the dashed line mean our 70% picks win about 70% of the time.</p>${calibSvg(done)}</div>
+    </div>
+    <div class="panel">
+      <div class="toolbar"><h2 class="grow">Every pick</h2>
+        <div class="seg" id="filters"><button type="button" data-f="all" aria-pressed="${FILTER === "all"}">All</button><button type="button" data-f="tips" aria-pressed="${FILTER === "tips"}">Tips only</button></div></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th><th class="n">vs close</th></tr></thead><tbody>
+        ${rows.map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td>${fmtShort.format(new Date(g.start_utc))}</td><td>${g.away} @ ${g.home}</td><td>${esc(g.pick)}</td>
+          <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
+          <td class="n">${g.away_score}–${g.home_score}</td><td class="n ${g.clv == null ? "" : g.clv > 0 ? "clv-pos" : "clv-neg"}">${g.clv == null ? "–" : sgn(g.clv * 100) + "%"}</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>`;
+}
+function calibSvg(done) {
+  const bins = [[0.5, 0.55], [0.55, 0.6], [0.6, 0.65], [0.65, 0.7], [0.7, 0.75], [0.75, 0.8], [0.8, 0.95]];
+  const pts = bins.map(([lo, hi]) => { const xs = done.filter((g) => g.pick_p >= lo && g.pick_p < hi);
+    return xs.length ? { x: xs.reduce((s, g) => s + g.pick_p, 0) / xs.length, y: xs.filter((g) => g.won).length / xs.length, n: xs.length } : null; }).filter(Boolean);
+  const W = 320, H = 210, L = 40, R = 12, T = 14, B = 30;
+  const sx = (v) => L + (v - 0.5) / 0.5 * (W - L - R), sy = (v) => T + (1 - (v - 0.3) / 0.7) * (H - T - B);
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Predicted win chance against actual win rate">
+    ${[0.3, 0.5, 0.7, 0.9].map((v) => `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end">${pct(v)}</text>`).join("")}
+    ${[0.5, 0.6, 0.7, 0.8, 0.9, 1].map((v) => `<text x="${sx(v)}" y="${H - 10}" text-anchor="middle">${pct(v)}</text>`).join("")}
+    <line x1="${sx(0.5)}" y1="${sy(0.5)}" x2="${sx(1)}" y2="${sy(1)}" stroke="var(--magenta)" stroke-dasharray="4 4" stroke-width="1.2"/>
+    ${pts.map((p) => `<circle cx="${sx(p.x)}" cy="${sy(Math.max(0.3, p.y))}" r="${Math.min(9, 3 + Math.sqrt(p.n))}" fill="var(--cyan)" fill-opacity="0.85"><title>Said ${pct(p.x)}, won ${pct(p.y)} (${p.n} picks)</title></circle>`).join("")}
+  </svg>`;
+}
+
+// ---------- team table from scores ----------
+function table(season) {
+  const t = {}; Object.keys(TEAMS).forEach((c) => (t[c] = { c, w: 0, l: 0, pf: 0, pa: 0, res: [], hw: 0, hl: 0, aw: 0, al: 0 }));
+  finals(season).slice().reverse().forEach((g) => {
+    const hw = g.home_score > g.away_score;
+    const H = t[g.home], A = t[g.away];
+    H.w += hw; H.l += !hw; H.pf += g.home_score; H.pa += g.away_score; H.res.push(hw ? "W" : "L"); H.hw += hw; H.hl += !hw;
+    A.w += !hw; A.l += hw; A.pf += g.away_score; A.pa += g.home_score; A.res.push(hw ? "L" : "W"); A.aw += !hw; A.al += hw;
+  });
+  return Object.values(t).map((r) => { const gp = r.w + r.l, cur = r.res[r.res.length - 1]; let k = 0;
+    for (let i = r.res.length - 1; i >= 0 && r.res[i] === cur; i--) k++;
+    return { ...r, gp, pct: gp ? r.w / gp : 0, ppg: gp ? r.pf / gp : 0, oppg: gp ? r.pa / gp : 0, diff: gp ? (r.pf - r.pa) / gp : 0, l10: r.res.slice(-10), streak: cur ? cur + k : "–", sk: k * (cur === "W" ? 1 : -1) }; })
+    .sort((a, b) => b.pct - a.pct || b.diff - a.diff);
+}
+const formChips = (arr) => `<span class="form">${arr.slice(-5).map((x) => `<i class="${x}">${x}</i>`).join("")}</span>`;
+const dots = (arr) => `<span class="dots"><small>old</small>${arr.slice(-10).map((x) => `<i class="${x}" title="${x === "W" ? "Win" : "Loss"}"></i>`).join("")}<small>new</small></span>`;
+const teamCell = (c) => `<span class="tm"><span class="badge">${c}</span>${esc(TEAMS[c])}</span>`;
+let SEASON = CUR, TABLE_MODE = "standings", TEAM = "";
+const teamSel = () => `<select class="season" id="teamSel" aria-label="Team"><option value="">All teams</option>${Object.keys(TEAMS).sort((a, b) => TEAMS[a].localeCompare(TEAMS[b])).map((c) => `<option value="${c}" ${c === TEAM ? "selected" : ""}>${esc(TEAMS[c])}</option>`).join("")}</select>`;
+const ord = (n) => { const t = n % 100, u = n % 10; return n + (t >= 11 && t <= 13 ? "th" : u === 1 ? "st" : u === 2 ? "nd" : u === 3 ? "rd" : "th"); };
+const seasonSel = () => `<select class="season" id="seasonSel" aria-label="Season">${Object.entries(SEASONS).sort((a, b) => b[0] - a[0]).map(([k, v]) => `<option value="${k}" ${+k === SEASON ? "selected" : ""}>${v}</option>`).join("")}</select>`;
+
+// ---------- standings & scores ----------
+function renderTable() {
+  const head = `<div class="toolbar"><div class="seg grow" style="flex:none"><a href="#nba-table" aria-current="${TABLE_MODE === "standings" ? "page" : "false"}">Standings</a><a href="#nba-scores" aria-current="${TABLE_MODE === "scores" ? "page" : "false"}">Scores</a></div><span class="grow"></span>${seasonSel()}</div>`;
+  if (TABLE_MODE === "scores") {
+    const byDay = {}; finals(SEASON).forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
+    const days = Object.keys(byDay).sort().reverse().slice(0, 30);
+    document.getElementById("main").innerHTML = head + `<div class="panel"><h2>Scores · ${SEASONS[SEASON]}</h2><p>Final score of every game. Winner in white. Tap a game for details.</p>
+      <div class="scores">${days.map((k) => `<div class="dh">${fmtDay.format(dateOfKey(k))}</div>${byDay[k].sort((a, b) => a.start_utc.localeCompare(b.start_utc)).map((g) => { const hw = g.home_score > g.away_score;
+        return `<div class="sr" ${g.pick ? `data-game="${esc(g.game_id)}"` : ""}><span class="tt">${fmtTime.format(new Date(g.start_utc))}</span><span class="a ${hw ? "" : "win"}">${esc(g.away_name)}</span><span class="sc">${g.away_score}–${g.home_score}</span><span class="h ${hw ? "win" : ""}">${esc(g.home_name)}</span></div>`; }).join("")}`).join("")}</div>
+      <p class="note">Showing the most recent 30 game days.</p></div>`;
+    return;
+  }
+  const rows = table(SEASON);
+  const conf = (name, set) => { const xs = rows.filter((r) => set(r.c));
+    return `<div class="panel"><h2>${name}</h2><div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Team</th><th class="n">W</th><th class="n">L</th><th class="n">Pct</th><th class="n">Home</th><th class="n">Away</th><th class="n">Diff</th><th class="n">Strk</th><th>Last 5</th></tr></thead><tbody>
+      ${xs.map((r, i) => `<tr data-team="${r.c}" style="cursor:pointer" title="See ${esc(TEAMS[r.c])} stats"><td class="mono">${i + 1}</td><td>${teamCell(r.c)}</td><td class="n">${r.w}</td><td class="n">${r.l}</td><td class="n">${r.pct.toFixed(3).replace(/^0/, "")}</td>
+        <td class="n">${r.hw}–${r.hl}</td><td class="n">${r.aw}–${r.al}</td><td class="n ${r.diff >= 0 ? "clv-pos" : "clv-neg"}">${sgn(r.diff)}</td><td class="n">${r.streak}</td><td>${formChips(r.res)}</td></tr>`).join("")}
+      </tbody></table></div></div>`; };
+  document.getElementById("main").innerHTML = head + conf("Eastern Conference", (c) => EAST.has(c)) + conf("Western Conference", (c) => !EAST.has(c));
+}
+
+// ---------- trends ----------
+function renderTrends() {
+  const rows = table(CUR).filter((r) => r.gp);
+  const wins10 = (r) => r.l10.filter((x) => x === "W").length;
+  const hot = rows.slice().sort((a, b) => wins10(b) - wins10(a) || b.diff - a.diff).slice(0, 5);
+  const cold = rows.slice().sort((a, b) => wins10(a) - wins10(b) || a.diff - b.diff).slice(0, 5);
+  const strk = rows.slice().sort((a, b) => Math.abs(b.sk) - Math.abs(a.sk)).slice(0, 5);
+  const mini = (title, xs, val) => `<div class="panel"><h2>${title}</h2><div class="formlist">${xs.map((r) => `<div class="fr"><span class="badge">${r.c}</span><span class="t">${esc(TEAMS[r.c])}</span><span class="mono">${val(r)}</span></div>`).join("")}</div></div>`;
+  const today = picks().filter((g) => g.status !== "post" && keyOf(g.start_utc) === keyOf(Date.now()) && g.detail);
+  const tired = today.flatMap((g) => [g.detail.rest_away === 1 ? [g.away, g] : null, g.detail.rest_home === 1 ? [g.home, g] : null].filter(Boolean));
+  document.getElementById("main").innerHTML = `
+    <div><h2>Season trends · ${SEASONS[CUR]}</h2><p class="lede" style="margin-top:6px">Form, streaks and schedule across the league, updated after every game.</p></div>
+    <div class="statgrid">${mini("Hottest · last 10", hot, (r) => `${wins10(r)}–${r.l10.length - wins10(r)}`)}${mini("Coldest · last 10", cold, (r) => `${wins10(r)}–${r.l10.length - wins10(r)}`)}</div>
+    <div class="statgrid">${mini("Longest streaks", strk, (r) => r.streak)}
+      <div class="panel"><h2>Tired legs today</h2><p>Second night of a back-to-back. Our model marks them down.</p>
+        <div class="formlist">${tired.length ? tired.map(([c, g]) => `<div class="fr" data-game="${esc(g.game_id)}" style="cursor:pointer"><span class="badge">${c}</span><span class="t">${esc(g.away)} @ ${esc(g.home)}</span><span class="mono">${fmtTime.format(new Date(g.start_utc))}</span></div>`).join("") : `<p>None today.</p>`}</div></div></div>
+    <div class="panel"><h2>Form guide · all 30 teams</h2><p>Last 10 games, oldest to newest. Green win, red loss. Ordered by the standings.</p>
+      <div class="formlist">${rows.map((r, i) => `<div class="fr"><span class="mono" style="color:var(--muted)">${i + 1}</span><span class="t">${teamCell(r.c)}</span>${dots(r.res)}</div>`).join("")}</div></div>`;
+}
+
+// ---------- stats ----------
+const avg = (xs) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
+const kv = (label, num, share, m = "") => `<div class="kv"><span>${label}</span><span class="num">${num}</span><span class="meter ${m}"><i style="width:${Math.round(share * 100)}%"></i></span><span class="pc">${pct(share)}</span></div>`;
+const buckets = (xs, edges, lab, den = xs.length, m = "m") => edges.map(([lo, hi], i) => { const c = xs.filter((x) => x >= lo && x < hi).length; return kv(lab[i], c, c / (den || 1), m); }).join("");
+const TOT_EDGES = [[0, 200], [200, 210], [210, 220], [220, 230], [230, 240], [240, 999]], TOT_LAB = ["Under 200", "200–209", "210–219", "220–229", "230–239", "240+"];
+const tiles = (xs) => `<div class="stats">${xs.map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>`;
+function renderStats() {
+  if (TEAM) return renderTeamStats();
+  const gs = finals(SEASON), n = gs.length || 1;
+  const hw = gs.filter((g) => g.home_score > g.away_score).length;
+  const tot = gs.map((g) => g.home_score + g.away_score), mar = gs.map((g) => Math.abs(g.home_score - g.away_score));
+  const rows = table(SEASON).filter((r) => r.gp);
+  const pl = (DATA.players ?? []).filter((p) => p.season === SEASON);
+  const lead = (key, label) => `<div class="panel"><h2>${label}</h2><ol>${pl.slice().sort((a, b) => b[key] - a[key]).slice(0, 5).map((p, i) => `<li><span class="mono" style="color:var(--muted)">${i + 1}</span><span class="nm">${esc(p.player)}<small>${p.team}</small></span><span class="v">${p[key].toFixed(1)}</span></li>`).join("")}</ol></div>`;
+  document.getElementById("main").innerHTML = `
+    <div class="toolbar"><h2 class="grow">League stats</h2>${teamSel()}${seasonSel()}</div>
+    <div class="stats">${[["Games played", gs.length, SEASONS[SEASON]], ["Home win rate", pct(hw / n), `${hw} home wins`], ["Avg total points", avg(tot).toFixed(1), "both teams"], ["Avg winning margin", avg(mar).toFixed(1), "points"]]
+      .map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
+    <div class="statgrid">
+      <div class="panel"><h2>Home vs away</h2>${kv("Home wins", hw, hw / n)}${kv("Away wins", gs.length - hw, (gs.length - hw) / n)}
+        ${kv("Home points / game", avg(gs.map((g) => g.home_score)).toFixed(1), avg(gs.map((g) => g.home_score)) / (avg(tot) || 1))}${kv("Away points / game", avg(gs.map((g) => g.away_score)).toFixed(1), avg(gs.map((g) => g.away_score)) / (avg(tot) || 1))}</div>
+      <div class="panel"><h2>Winning margin</h2>${buckets(mar, [[0, 6], [6, 11], [11, 16], [16, 21], [21, 99]], ["1–5 pts", "6–10 pts", "11–15 pts", "16–20 pts", "21+ pts"])}</div>
+    </div>
+    <div class="panel"><h2>Total points per game</h2>${buckets(tot, TOT_EDGES, TOT_LAB)}</div>
+    <div class="panel"><h2>Team scoring</h2><p class="note">Tap a team for its full stats.</p><div class="tablewrap"><table>
+      <thead><tr><th>Team</th><th class="n">GP</th><th class="n">Pts for</th><th class="n">Pts against</th><th class="n">Diff</th><th class="n">Avg total</th><th class="n">Home</th><th class="n">Away</th></tr></thead><tbody>
+      ${rows.slice().sort((a, b) => b.diff - a.diff).map((r) => `<tr data-team="${r.c}" style="cursor:pointer" title="See ${esc(TEAMS[r.c])} stats"><td>${teamCell(r.c)}</td><td class="n">${r.gp}</td><td class="n">${r.ppg.toFixed(1)}</td><td class="n">${r.oppg.toFixed(1)}</td>
+        <td class="n ${r.diff >= 0 ? "clv-pos" : "clv-neg"}">${sgn(r.diff)}</td><td class="n">${(r.ppg + r.oppg).toFixed(1)}</td><td class="n">${r.hw}–${r.hl}</td><td class="n">${r.aw}–${r.al}</td></tr>`).join("")}
+      </tbody></table></div></div>
+    <div><h2>Player leaders · per game</h2></div>
+    <div class="leaders">${lead("pts", "Points")}${lead("reb", "Rebounds")}${lead("ast", "Assists")}${lead("stl", "Steals")}${lead("blk", "Blocks")}</div>
+    ${DATA.sample ? `<p class="note">Sample data uses placeholder player names.</p>` : ""}`;
+}
+
+function renderTeamStats() {
+  const c = TEAM, all = table(SEASON), r = all.find((x) => x.c === c);
+  const gs = finals(SEASON).filter((g) => g.home === c || g.away === c);
+  const mine = (g) => (g.home === c ? [g.home_score, g.away_score] : [g.away_score, g.home_score]);
+  const split = (xs, label) => { const w = xs.filter((g) => { const [f, a] = mine(g); return f > a; }).length;
+    const pf = avg(xs.map((g) => mine(g)[0])), pa = avg(xs.map((g) => mine(g)[1]));
+    return `<tr><td>${label}</td><td class="n">${xs.length}</td><td class="n">${w}–${xs.length - w}</td><td class="n">${xs.length ? pf.toFixed(1) : "–"}</td><td class="n">${xs.length ? pa.toFixed(1) : "–"}</td>
+      <td class="n">${xs.length ? (pf + pa).toFixed(1) : "–"}</td><td class="n ${pf - pa >= 0 ? "clv-pos" : "clv-neg"}">${xs.length ? sgn(pf - pa) : "–"}</td></tr>`; };
+  const confRows = all.filter((x) => EAST.has(x.c) === EAST.has(c)), confRank = confRows.findIndex((x) => x.c === c) + 1;
+  const played = all.filter((x) => x.gp);
+  const rankBy = (key, asc = false) => played.slice().sort((a, b) => asc ? a[key] - b[key] : b[key] - a[key]).findIndex((x) => x.c === c) + 1;
+  const wins = gs.map(mine).filter(([f, a]) => f > a).map(([f, a]) => f - a), losses = gs.map(mine).filter(([f, a]) => f < a).map(([f, a]) => a - f);
+  const MED = [[0, 6], [6, 11], [11, 99]], MLAB = ["1–5 pts", "6–10 pts", "11+ pts"];
+  const pl = (DATA.players ?? []).filter((p) => p.season === SEASON && p.team === c).sort((a, b) => b.pts - a.pts);
+  const el = document.getElementById("main");
+  if (!r || !r.gp) { el.innerHTML = `<div class="toolbar"><h2 class="grow">${esc(TEAMS[c])}</h2>${teamSel()}${seasonSel()}</div><div class="panel"><h2>No games yet</h2><p>Stats appear after this team's first game of the season.</p></div>`; return; }
+  el.innerHTML = `
+    <div class="toolbar"><h2 class="grow"><span class="badge">${c}</span> ${esc(TEAMS[c])}</h2>${teamSel()}${seasonSel()}</div>
+    ${tiles([["Record", `${r.w}–${r.l}`, `${ord(confRank)} in the ${EAST.has(c) ? "East" : "West"}`], ["Points for", r.ppg.toFixed(1), `${ord(rankBy("ppg"))} of ${played.length}`],
+      ["Points against", r.oppg.toFixed(1), `${ord(rankBy("oppg", true))} of ${played.length}`], ["Avg total", (r.ppg + r.oppg).toFixed(1), `diff ${sgn(r.diff)} / game`]])}
+    <div class="panel"><h2>Home vs away</h2><div class="tablewrap"><table>
+      <thead><tr><th></th><th class="n">GP</th><th class="n">W–L</th><th class="n">Pts for</th><th class="n">Pts against</th><th class="n">Avg total</th><th class="n">Diff</th></tr></thead><tbody>
+      ${split(gs.filter((g) => g.home === c), "Home")}${split(gs.filter((g) => g.away === c), "Away")}${split(gs, "<b>All</b>")}
+      </tbody></table></div></div>
+    <div class="statgrid">
+      <div class="panel"><h2>Form · last 10</h2><div style="display:grid;gap:12px"><div class="kv"><span>Current streak</span><span class="num">${r.streak}</span><span></span><span></span></div><div class="kv"><span>Last 10</span><span class="num">${r.l10.filter((x) => x === "W").length}–${r.l10.filter((x) => x === "L").length}</span><span></span><span></span></div>${dots(r.res)}</div>
+        <p class="note">Oldest to newest. Green win, red loss.</p></div>
+      <div class="panel"><h2>How they win and lose</h2>${buckets(wins, MED, MLAB.map((x) => "Won by " + x), gs.length, "")}${buckets(losses, MED, MLAB.map((x) => "Lost by " + x), gs.length)}<p class="note">Share of all ${gs.length} games.</p></div>
+    </div>
+    <div class="panel"><h2>Total points in their games</h2>${buckets(gs.map((g) => g.home_score + g.away_score), TOT_EDGES, TOT_LAB)}</div>
+    <div class="panel"><h2>Players · per game</h2><div class="tablewrap"><table>
+      <thead><tr><th>Player</th><th class="n">GP</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th><th class="n">Stl</th><th class="n">Blk</th></tr></thead><tbody>
+      ${pl.map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.gp}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td><td class="n">${p.stl.toFixed(1)}</td><td class="n">${p.blk.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="7">No player data yet.</td></tr>`}
+      </tbody></table></div>${DATA.sample ? `<p class="note">Sample data uses placeholder player names.</p>` : ""}</div>
+    <div class="panel"><h2>Recent games</h2><div class="scores">${gs.slice(0, 15).map((g) => { const [f, a] = mine(g), home = g.home === c, opp = home ? g.away : g.home;
+      return `<div class="sr team" ${g.pick ? `data-game="${esc(g.game_id)}"` : ""}><span class="tt">${fmtShort.format(new Date(g.start_utc))}</span><span class="a">${home ? "vs" : "@"} <b style="color:var(--ink)">${esc(TEAMS[opp])}</b></span><span class="sc">${f}–${a}</span><span class="h"><span class="wl ${f > a ? "W" : "L"}">${f > a ? "W" : "L"}</span></span></div>`; }).join("")}</div>
+      <p class="note">Up to the last 15 games. Score shown as ${c} first.</p></div>`;
+}
+
+// ---------- sidebar ----------
+function renderSide(sub) {
+  const up = picks().filter((g) => g.status !== "post").sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const feat = up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0];
+  const tips = pickedDone().filter(isTip), last7 = tips.filter((g) => Date.now() - new Date(g.start_utc) < 7 * 864e5);
+  const rows = table(CUR).filter((r) => r.gp).slice(0, 8);
+  document.getElementById("side").innerHTML = `
+    ${sub === "predictions" ? `<div class="mini" id="calSide">${calHtml()}</div>` : ""}
+    ${feat ? `<div class="mini"><h3>Tip of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
+      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
+      <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
+      <div class="row">${chip(feat.light)}<span class="n">Value at ${money(feat.value_price)}+</span></div></div></div>` : ""}
+    <div class="mini"><h3>Tips record</h3>
+      <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
+      <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
+      <a class="back" href="#nba-record">Our record →</a></div>
+    <div class="mini"><h3>Top of the table</h3>
+      ${rows.map((r, i) => `<div class="row"><span class="n">${i + 1}</span><span class="badge">${r.c}</span><span class="t">${esc(TEAMS[r.c])}</span><span class="n">${r.w}–${r.l}</span></div>`).join("")}
+      <a class="back" href="#nba-table">Standings &amp; scores →</a></div>`;
+}
+
+// ---------- game detail ----------
+function renderGame(id) {
+  const g = DATA.games.find((x) => x.game_id === id);
+  const el = document.getElementById("view-game");
+  if (!g || !g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← Back</a><div class="panel"><h2>Game not found</h2><p>It may be from an older season.</p></div>`; return; }
+  const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
+  const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
+      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
+  const factor = (label, a, h, fmt, higherBetter = true) => {
+    if (a == null || h == null) return "";
+    const span = Math.max(Math.abs(a), Math.abs(h), 1e-9), edgeH = higherBetter ? h > a : h < a;
+    const diff = Math.min(1, Math.abs(h - a) / (span * 0.15 + 1e-9));
+    return `<div class="factor"><div class="v ${!edgeH && a !== h ? "edge" : ""}">${fmt(a)}</div>
+      <div class="mid"><div class="lbl">${label}</div><div class="track"><span>${!edgeH && a !== h ? `<i style="width:${diff * 100}%"></i>` : ""}</span><span>${edgeH ? `<i style="width:${diff * 100}%"></i>` : ""}</span></div></div>
+      <div class="v r ${edgeH ? "edge" : ""}">${fmt(h)}</div></div>`; };
+  const outList = (arr) => arr && arr.length ? `<ul>${arr.map((m) => `<li><span class="st ${esc(m.status)}">${esc(m.status)}</span>${esc(m.player)}<span class="m">${m.min} min/gm</span></li>`).join("")}</ul>` : `<p>No one listed.</p>`;
+  const meet = finals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
+  const tab = table(g.season), rec = (c) => tab.find((r) => r.c === c);
+  const keyp = (c) => (DATA.players ?? []).filter((p) => p.season === g.season && p.team === c).sort((a, b) => b.pts - a.pts).slice(0, 3);
+  const kp = (c) => `<div class="panel"><h2>${esc(c)} key players</h2><div class="tablewrap"><table><thead><tr><th>Player</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th></tr></thead><tbody>
+      ${keyp(c).map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="4">No player data yet.</td></tr>`}
+    </tbody></table></div><p class="note">Season averages per game.</p></div>`;
+  el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>
+    <div class="panel match">
+      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}
+        ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
+      <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
+      <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
+        ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}
+        ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
+        ${g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
+    </div>
+    <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
+      <div class="factors">
+        ${factor("Team strength tonight", d.tal_away, d.tal_home, (v) => v.toFixed(1))}
+        ${factor("Recent form (pts / game)", d.form_away, d.form_home, (v) => sgn(v))}
+        ${factor("Days of rest", d.rest_away, d.rest_home, (v) => v + (v === 1 ? " · B2B" : ""))}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factor("Season win %", rec(g.away).pct * 100, rec(g.home).pct * 100, (v) => Math.round(v) + "%") : ""}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factor("Points for / game", rec(g.away).ppg, rec(g.home).ppg, (v) => v.toFixed(1)) : ""}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factor("Points against / game", rec(g.away).oppg, rec(g.home).oppg, (v) => v.toFixed(1), false) : ""}
+      </div></div>
+    <div class="out">${kp(g.away)}${kp(g.home)}</div>
+    <div class="out">
+      <div class="panel"><h2>${esc(g.away)} injury report</h2>${outList(d.missing_away)}</div>
+      <div class="panel"><h2>${esc(g.home)} injury report</h2>${outList(d.missing_home)}</div>
+    </div>
+    <div class="conf">
+      <div class="panel"><h2>Form · last 10</h2>
+        <div class="formlist"><div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)}</span>${dots(rec(g.away)?.res ?? [])}</div>
+        <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)}</span>${dots(rec(g.home)?.res ?? [])}</div></div></div>
+      <div class="panel"><h2>Meetings this season</h2>${meet.length ? `<div class="formlist">${meet.map((x) => `<div class="fr"><span></span><span class="t">${fmtShort.format(new Date(x.start_utc))}</span><span class="score mono">${x.away} ${x.away_score}–${x.home_score} ${x.home}</span></div>`).join("")}</div>` : `<p>First meeting this season.</p>`}</div>
+    </div>
+    <div class="panel"><h2>Pick timeline</h2><div class="timeline">
+      ${g.first_posted ? `<div><b>First posted</b>${fmtShort.format(new Date(g.first_posted))} ${fmtTime.format(new Date(g.first_posted))}</div>` : ""}
+      ${g.last_updated ? `<div><b>Last updated</b>${fmtShort.format(new Date(g.last_updated))} ${fmtTime.format(new Date(g.last_updated))}</div>` : ""}
+      <div><b>Locked at tip-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
+      <div style="color:var(--muted)">Times in ${esc(TZNAME)}</div></div></div>`;
+  window.scrollTo(0, 0);
+}
+
+// ---------- phone layout: label table cells so rows can stack as cards ----------
+function stackTables(root) {
+  root.querySelectorAll("table:not(.stk)").forEach((t) => {
+    const heads = [...t.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+    const hi = Math.max(0, heads.findIndex((h) => /^(team|player|game)$/i.test(h)));
+    t.querySelectorAll("tbody tr").forEach((tr) => {
+      const tds = [...tr.children];
+      tds.forEach((td, i) => { td.dataset.l = heads[i] ?? ""; if (heads[i] === "#") td.classList.add("rk"); });
+      const hd = tds[tds.length === 1 ? 0 : hi]; if (!hd) return; hd.classList.add("hd");
+      const rk = tds.find((td) => td.classList.contains("rk")); if (rk) hd.dataset.rk = rk.textContent.trim() + "  ";
+    });
+    t.classList.add("stk");
+  });
+}
+new MutationObserver(() => stackTables(document)).observe(document.querySelector("main"), { childList: true, subtree: true });
+
+// ---------- routing ----------
+let DATA = null;
+const SUBS = { predictions: renderPredictions, record: renderRecord, trends: renderTrends, table: renderTable, scores: renderTable, stats: renderStats };
+function route() {
+  const h = location.hash.slice(1) || "nba-predictions";
+  let v = "sport", sub = "predictions";
+  if (h === "about") v = "about"; else if (h.startsWith("game-")) v = "game";
+  else if (h.startsWith("nba-stats-") && TEAMS[h.slice(10)]) { sub = "stats"; TEAM = h.slice(10); }
+  else if (h.startsWith("nba-") && SUBS[h.slice(4)]) { sub = h.slice(4); if (sub === "stats") TEAM = ""; }
+  ["sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== v));
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", (a.dataset.top === "about") === (v === "about") ? "page" : "false"));
+  if (!DATA) return;
+  if (v === "game") return renderGame(h.slice(5));
+  if (v === "sport") {
+    if (sub === "table" || sub === "scores") TABLE_MODE = sub === "scores" ? "scores" : "standings";
+    if (sub === "trends" || sub === "record" || sub === "predictions") SEASON = CUR;
+    const tabKey = sub === "scores" ? "table" : sub;
+    document.querySelectorAll(".subtabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.sub === tabKey ? "page" : "false"));
+    SUBS[sub](); renderSide(sub);
+  }
+}
+function rerenderPred() { renderPredictions(); renderSide("predictions"); }
+window.addEventListener("hashchange", route);
+document.addEventListener("click", (e) => {
+  const day = e.target.closest("[data-day]"); if (day) { SEL = day.dataset.day; CAL_OPEN = false; rerenderPred(); return; }
+  const cm = e.target.closest("[data-cal]"); if (cm) { CALM = new Date(CALM.getFullYear(), CALM.getMonth() + Number(cm.dataset.cal), 1); const open = CAL_OPEN; rerenderPred(); CAL_OPEN = open; return; }
+  const st = e.target.closest("[data-step]"); if (st) { SEL = keyOf(dateOfKey(SEL).getTime() + Number(st.dataset.step) * 864e5); const d = dateOfKey(SEL); CALM = new Date(d.getFullYear(), d.getMonth(), 1); rerenderPred(); return; }
+  if (e.target.closest("#calToggle")) { CAL_OPEN = !CAL_OPEN; rerenderPred(); return; }
+  const f = e.target.closest("#filters [data-f]"); if (f) { FILTER = f.dataset.f; renderRecord(); return; }
+  const tm = e.target.closest("[data-team]"); if (tm) { location.hash = "nba-stats-" + tm.dataset.team; return; }
+  const gm = e.target.closest("[data-game]"); if (gm) location.hash = "game-" + gm.dataset.game;
+});
+document.addEventListener("change", (e) => { if (e.target.id === "teamSel") { location.hash = e.target.value ? "nba-stats-" + e.target.value : "nba-stats"; return; }
+  if (e.target.id === "seasonSel") { SEASON = Number(e.target.value); const h = location.hash.slice(1); (h.startsWith("nba-stats") ? renderStats : renderTable)(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.("[data-game]")) location.hash = "game-" + e.target.dataset.game; });
+document.getElementById("yr").textContent = new Date().getFullYear();
+
+(async function load() {
+  let feed;
+  if (FEED_URL) {
+    try { feed = await (await fetch(FEED_URL, { cache: "no-store" })).json(); }
+    catch { document.getElementById("main").innerHTML = `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
+  } else feed = sampleFeed();
+  DATA = feed;
+  document.getElementById("sampleBanner").hidden = !feed.sample;
+  route();
+})();
+route();
+</script>
+</body>
+</html>
