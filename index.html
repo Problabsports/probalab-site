@@ -398,7 +398,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
   </div>
 </nav>
-<div class="sample" id="sampleBanner"><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
+<div class="sample" id="sampleBanner" hidden><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
 
 <main class="wrap">
   <section class="view" id="view-sport">
@@ -463,10 +463,13 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <script>
 // ---------- data source ----------
 // FEED_URL = null uses built-in sample data (design preview). Set to the live feed to go live.
-const FEED_URL = null; // "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed"
+const FEED_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
+const PAST_SEASONS = [2026]; // finished seasons served as static files: data/nba-<season>.json
+const USE_SAMPLE = /[?&]sample\b/.test(location.search); // ?sample shows the design preview data
 const VALUE_MARGIN = 0.03;
 const TEAMS = { ATL:"Atlanta Hawks", BOS:"Boston Celtics", BKN:"Brooklyn Nets", CHA:"Charlotte Hornets", CHI:"Chicago Bulls", CLE:"Cleveland Cavaliers", DAL:"Dallas Mavericks", DEN:"Denver Nuggets", DET:"Detroit Pistons", GS:"Golden State Warriors", HOU:"Houston Rockets", IND:"Indiana Pacers", LAC:"LA Clippers", LAL:"Los Angeles Lakers", MEM:"Memphis Grizzlies", MIA:"Miami Heat", MIL:"Milwaukee Bucks", MIN:"Minnesota Timberwolves", NO:"New Orleans Pelicans", NY:"New York Knicks", OKC:"Oklahoma City Thunder", ORL:"Orlando Magic", PHI:"Philadelphia 76ers", PHX:"Phoenix Suns", POR:"Portland Trail Blazers", SAC:"Sacramento Kings", SA:"San Antonio Spurs", TOR:"Toronto Raptors", UTAH:"Utah Jazz", WSH:"Washington Wizards" };
 const EAST = new Set(["ATL","BOS","BKN","CHA","CHI","CLE","DET","IND","MIA","MIL","NY","ORL","PHI","TOR","WSH"]);
+const seasonLabel = (s) => `${s - 1}–${String(s).slice(2)}`;
 const SEASONS = { 2027: "2026–27", 2026: "2025–26" };
 
 function sampleFeed() {
@@ -529,7 +532,7 @@ const LNAME = { SUPER: "Super green", GREEN: "Green", ORANGE: "Orange", RED: "Re
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
 const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
-const CUR = 2027;
+let CUR = 2027, DEF = 2027; // DEF = season shown by default (last season until this one has results)
 const picks = () => DATA.games.filter((g) => g.has_pick !== false && g.pick);
 const pickedDone = () => picks().filter((g) => g.status === "post" && g.won !== null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
 const finals = (season) => DATA.games.filter((g) => g.season === season && g.status === "post" && g.home_score != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
@@ -556,7 +559,7 @@ function card(g) {
 // ---------- calendar ----------
 let SEL = keyOf(Date.now()), CALM = null, CAL_OPEN = false;
 function calHtml() {
-  const has = new Set(picks().map((g) => keyOf(g.start_utc)));
+  const has = new Set(curGames().map((g) => keyOf(g.start_utc)));
   const sel = dateOfKey(SEL); if (!CALM) CALM = new Date(sel.getFullYear(), sel.getMonth(), 1);
   const first = new Date(CALM.getFullYear(), CALM.getMonth(), 1), lead = (first.getDay() + 6) % 7;
   const n = new Date(CALM.getFullYear(), CALM.getMonth() + 1, 0).getDate(), today = keyOf(Date.now());
@@ -568,9 +571,20 @@ function calHtml() {
 }
 
 // ---------- predictions ----------
+const curGames = () => DATA.games.filter((g) => g.season === CUR);
+function cardSoon(g) {
+  const post = g.status === "post" && g.home_score != null;
+  return `<article class="card">
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span></div>
+    <div class="teams"><div class="team"><div class="nm">${esc(g.away_name)}</div><div class="role">Away${post ? ` · <b style="color:var(--ink)">${g.away_score}</b>` : ""}</div></div>
+      <div class="at">@</div><div class="team r"><div class="nm">${esc(g.home_name)}</div><div class="role">Home${post ? ` · <b style="color:var(--ink)">${g.home_score}</b>` : ""}</div></div></div>
+    <p class="note" style="margin:0">${post ? "No prediction was posted for this game." : "Prediction posted about 48 hours before tip-off."}</p>
+  </article>`;
+}
 function renderPredictions() {
-  const list = picks().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  const done = list.filter((g) => g.status === "post" && g.won !== null), tips = list.filter(isTip);
+  const list = curGames().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const pl = list.filter((g) => g.pick);
+  const done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip);
   const w = (xs) => xs.filter((g) => g.won).length;
   document.getElementById("main").innerHTML = `
     <div class="daynav">
@@ -587,7 +601,9 @@ function renderPredictions() {
       <span><i class="chip SUPER">Super green</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
     </div>
-    ${list.length ? list.map(card).join("") : `<div class="panel"><h2>No games this day</h2><p>Pick another date in the calendar. Predictions appear about 48 hours before tip-off and update as injury news comes in.</p></div>`}`;
+    ${list.length ? list.map((g) => (g.pick ? card(g) : cardSoon(g))).join("") : `<div class="panel"><h2>No games this day</h2><p>${SEL > keyOf(Date.now())
+      ? "Games and predictions appear here about two days before tip-off and update as injury news comes in."
+      : "Pick another date in the calendar. Days with games have a dot."}</p></div>`}`;
 }
 
 // ---------- our record ----------
@@ -599,6 +615,8 @@ function renderRecord() {
   const clvAvg = clvs.length ? clvs.reduce((s, g) => s + g.clv, 0) / clvs.length : null;
   const beat = clvs.length ? clvs.filter((g) => g.clv > 0).length / clvs.length : null;
   const rows = (FILTER === "tips" ? tips : done).slice(0, 80);
+  if (!done.length) { document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
+    <div class="panel"><h2>No results yet</h2><p>Our record starts with the first game of ${seasonLabel(CUR)}. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
@@ -686,7 +704,7 @@ function renderTable() {
 
 // ---------- trends ----------
 function renderTrends() {
-  const rows = table(CUR).filter((r) => r.gp);
+  const rows = table(DEF).filter((r) => r.gp);
   const wins10 = (r) => r.l10.filter((x) => x === "W").length;
   const hot = rows.slice().sort((a, b) => wins10(b) - wins10(a) || b.diff - a.diff).slice(0, 5);
   const cold = rows.slice().sort((a, b) => wins10(a) - wins10(b) || a.diff - b.diff).slice(0, 5);
@@ -695,7 +713,7 @@ function renderTrends() {
   const today = picks().filter((g) => g.status !== "post" && keyOf(g.start_utc) === keyOf(Date.now()) && g.detail);
   const tired = today.flatMap((g) => [g.detail.rest_away === 1 ? [g.away, g] : null, g.detail.rest_home === 1 ? [g.home, g] : null].filter(Boolean));
   document.getElementById("main").innerHTML = `
-    <div><h2>Season trends · ${SEASONS[CUR]}</h2><p class="lede" style="margin-top:6px">Form, streaks and schedule across the league, updated after every game.</p></div>
+    <div><h2>Season trends · ${SEASONS[DEF]}</h2><p class="lede" style="margin-top:6px">${DEF === CUR ? "Form, streaks and schedule across the league, updated after every game." : `${seasonLabel(CUR)} hasn't started yet. This is how ${seasonLabel(DEF)} finished; it switches over after the first games.`}</p></div>
     <div class="statgrid">${mini("Hottest · last 10", hot, (r) => `${wins10(r)}–${r.l10.length - wins10(r)}`)}${mini("Coldest · last 10", cold, (r) => `${wins10(r)}–${r.l10.length - wins10(r)}`)}</div>
     <div class="statgrid">${mini("Longest streaks", strk, (r) => r.streak)}
       <div class="panel"><h2>Tired legs today</h2><p>Second night of a back-to-back. Our model marks them down.</p>
@@ -782,7 +800,7 @@ function renderSide(sub) {
   const up = picks().filter((g) => g.status !== "post").sort((a, b) => a.start_utc.localeCompare(b.start_utc));
   const feat = up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0];
   const tips = pickedDone().filter(isTip), last7 = tips.filter((g) => Date.now() - new Date(g.start_utc) < 7 * 864e5);
-  const rows = table(CUR).filter((r) => r.gp).slice(0, 8);
+  const rows = table(DEF).filter((r) => r.gp).slice(0, 8);
   document.getElementById("side").innerHTML = `
     ${sub === "predictions" ? `<div class="mini" id="calSide">${calHtml()}</div>` : ""}
     ${feat ? `<div class="mini"><h3>Tip of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
@@ -793,7 +811,7 @@ function renderSide(sub) {
       <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
       <a class="back" href="#nba-record">Our record →</a></div>
-    <div class="mini"><h3>Top of the table</h3>
+    <div class="mini"><h3>Top of the table${DEF === CUR ? "" : ` · ${SEASONS[DEF]} final`}</h3>
       ${rows.map((r, i) => `<div class="row"><span class="n">${i + 1}</span><span class="badge">${r.c}</span><span class="t">${esc(TEAMS[r.c])}</span><span class="n">${r.w}–${r.l}</span></div>`).join("")}
       <a class="back" href="#nba-table">Standings &amp; scores →</a></div>`;
 }
@@ -802,7 +820,8 @@ function renderSide(sub) {
 function renderGame(id) {
   const g = DATA.games.find((x) => x.game_id === id);
   const el = document.getElementById("view-game");
-  if (!g || !g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← Back</a><div class="panel"><h2>Game not found</h2><p>It may be from an older season.</p></div>`; return; }
+  if (!g) { el.innerHTML = `<a class="back" href="#nba-predictions">← Back</a><div class="panel"><h2>Game not found</h2><p>It may be from an older season.</p></div>`; return; }
+  if (!g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${cardSoon(g)}`; window.scrollTo(0, 0); return; }
   const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
   const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
@@ -818,7 +837,7 @@ function renderGame(id) {
   const tab = table(g.season), rec = (c) => tab.find((r) => r.c === c);
   const keyp = (c) => (DATA.players ?? []).filter((p) => p.season === g.season && p.team === c).sort((a, b) => b.pts - a.pts).slice(0, 3);
   const kp = (c) => `<div class="panel"><h2>${esc(c)} key players</h2><div class="tablewrap"><table><thead><tr><th>Player</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th></tr></thead><tbody>
-      ${keyp(c).map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="4">No player data yet.</td></tr>`}
+      ${keyp(c).map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="4">Player stats start after ${esc(c)}'s first game.</td></tr>`}
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
   el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>
     <div class="panel match">
@@ -890,7 +909,7 @@ function route() {
   if (v === "game") return renderGame(h.slice(5));
   if (v === "sport") {
     if (sub === "table" || sub === "scores") TABLE_MODE = sub === "scores" ? "scores" : "standings";
-    if (sub === "trends" || sub === "record" || sub === "predictions") SEASON = CUR;
+    if (sub === "trends" || sub === "record" || sub === "predictions") SEASON = DEF;
     const tabKey = sub === "scores" ? "table" : sub;
     document.querySelectorAll(".subtabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.sub === tabKey ? "page" : "false"));
     SUBS[sub](); renderSide(sub);
@@ -912,13 +931,42 @@ document.addEventListener("change", (e) => { if (e.target.id === "teamSel") { lo
 document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.("[data-game]")) location.hash = "game-" + e.target.dataset.game; });
 document.getElementById("yr").textContent = new Date().getFullYear();
 
+// turn the live feed (+ static past seasons) into the shape the page uses
+function buildData(feed, pasts) {
+  const nm = (c) => TEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
+  const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: n(g.clv) }));
+  const players = (feed.players ?? []).map(([team, player, gp, pts, reb, ast, stl, blk]) =>
+    ({ season: feed.season, team, player, gp, pts: +pts, reb: +reb, ast: +ast, stl: +stl, blk: +blk }));
+  for (const p of pasts) {
+    SEASONS[p.season] = p.label ?? seasonLabel(p.season);
+    games.push(...p.games.map(([game_id, start_utc, home, away, home_score, away_score]) => ({ game_id, season: p.season, start_utc, home, away,
+      home_name: nm(home), away_name: nm(away), status: "post", home_score, away_score, has_pick: false, pick: null, won: null })));
+    players.push(...p.players.map(([team, player, gp, pts, reb, ast, stl, blk]) => ({ season: p.season, team, player, gp, pts, reb, ast, stl, blk })));
+  }
+  return { generated_at: feed.generated_at, season: feed.season, sample: false, games, players };
+}
 (async function load() {
   let feed;
-  if (FEED_URL) {
-    try { feed = await (await fetch(FEED_URL, { cache: "no-store" })).json(); }
-    catch { document.getElementById("main").innerHTML = `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
-  } else feed = sampleFeed();
+  if (USE_SAMPLE) feed = sampleFeed();
+  else {
+    try {
+      const [live, ...pasts] = await Promise.all([
+        fetch(FEED_URL, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+        ...PAST_SEASONS.map((y) => fetch(`data/nba-${y}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))]);
+      feed = buildData(live, pasts.filter(Boolean));
+    } catch { document.getElementById("main").innerHTML = `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
+  }
   DATA = feed;
+  CUR = feed.season ?? CUR;
+  SEASONS[CUR] = SEASONS[CUR] ?? seasonLabel(CUR);
+  const played = Object.keys(SEASONS).map(Number).filter((y) => finals(y).length);
+  DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
+  SEASON = DEF;
+  // open on today, or the next day with games
+  const days = [...new Set(DATA.games.filter((g) => g.season === CUR).map((g) => keyOf(g.start_utc)))].sort();
+  const today = keyOf(Date.now());
+  if (days.length && !days.includes(today)) SEL = days.find((d) => d > today) ?? days[days.length - 1];
   document.getElementById("sampleBanner").hidden = !feed.sample;
   route();
 })();
