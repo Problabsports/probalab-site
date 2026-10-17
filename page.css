@@ -1,0 +1,90 @@
+/* ProbaLab content pages (game previews, sport hubs, legal). Same tokens as the app. */
+:root {
+  --bg: #07080f; --surface: #10131f; --surface-2: #161a2a;
+  --ink: #e8ecf8; --muted: #8b93b0; --line: #232a42; --line-hi: #343d5e;
+  --cyan: #19e3ff; --magenta: #ff2fc0;
+  --super: #3dff8f; --green: #2fd7a0; --orange: #ffad33; --red: #ff4f6e;
+  --f-display: "Chakra Petch", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body);
+  background-image: linear-gradient(rgba(25,227,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(25,227,255,.035) 1px, transparent 1px);
+  background-size: 44px 44px; }
+a { color: var(--cyan); }
+a:hover { color: #7ff0ff; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+.mono { font-family: var(--f-mono); }
+
+header.top { border-bottom: 1px solid var(--line); background: rgba(7,8,15,.85); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(6px); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+.brand b { color: var(--cyan); text-shadow: 0 0 12px rgba(25,227,255,.7); }
+header nav { display: flex; gap: 18px; font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
+header nav a { color: var(--muted); text-decoration: none; }
+header nav a:hover { color: var(--ink); }
+
+main { padding: 22px 16px 40px; }
+.crumbs { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.crumbs a { color: var(--muted); }
+.eyebrow { font-family: var(--f-mono); color: var(--cyan); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 6px; }
+h1 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; font-size: clamp(28px, 6vw, 44px); line-height: 1.08; margin: 0 0 10px; }
+h2 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: 19px; margin: 0 0 10px; }
+.when { color: var(--muted); font-family: var(--f-mono); font-size: 14px; margin: 0 0 18px; }
+.panel { background: var(--surface); border: 1px solid var(--line); padding: 18px; margin: 0 0 16px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+.prose p { margin: 0 0 12px; }
+.note { color: var(--muted); font-size: 14px; }
+.pos { color: var(--green); } .neg { color: var(--red); }
+
+.pick .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pick .team { display: flex; flex-direction: column; font-family: var(--f-display); font-weight: 700; font-size: 18px; line-height: 1.2; min-width: 0; }
+.pick .team.r { text-align: right; align-items: flex-end; }
+.pick .team.on .pc { color: var(--cyan); text-shadow: 0 0 14px rgba(25,227,255,.6); }
+.pick .ab { font-family: var(--f-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line-hi); padding: 0 6px; align-self: flex-start; margin-bottom: 4px; }
+.pick .team.r .ab { align-self: flex-end; }
+.pick .pc { font-family: var(--f-mono); font-size: 30px; color: var(--muted); margin-top: 4px; }
+.pick .at { color: var(--magenta); font-family: var(--f-mono); }
+.bar { display: flex; height: 8px; background: var(--surface-2); margin: 14px 0; gap: 2px; }
+.bar i { display: block; background: var(--line-hi); }
+.bar i.pk { background: var(--cyan); box-shadow: 0 0 12px rgba(25,227,255,.6); }
+.kv { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; }
+.kv div { min-width: 0; }
+.kv dt { font-family: var(--f-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+.kv dd { margin: 0; font-weight: 600; }
+
+.chip { display: inline-block; font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; padding: 1px 7px; border: 1px solid; white-space: nowrap; }
+.chip.SUPER { color: var(--super); border-color: var(--super); background: rgba(61,255,143,.12); }
+.chip.GREEN { color: var(--green); border-color: var(--green); background: rgba(47,215,160,.12); }
+.chip.ORANGE { color: var(--orange); border-color: var(--orange); background: rgba(255,173,51,.12); }
+.chip.RED { color: var(--red); border-color: var(--red); background: rgba(255,79,110,.13); }
+
+ul.games { list-style: none; margin: 0; padding: 0; }
+ul.games li { border-top: 1px solid var(--line); }
+ul.games li:first-child { border-top: 0; }
+ul.games a { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 10px 0; color: var(--ink); text-decoration: none; }
+ul.games a:hover .m { color: var(--cyan); }
+ul.games .d { font-family: var(--f-mono); font-size: 12px; color: var(--muted); width: 96px; }
+ul.games .m { flex: 1 1 220px; min-width: 0; }
+ul.games .p { font-family: var(--f-mono); font-size: 14px; }
+ul.games .r { font-family: var(--f-mono); font-size: 13px; }
+
+.cta { margin: 18px 0; }
+.btn { display: inline-block; font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #07080f; background: var(--cyan); padding: 10px 18px; text-decoration: none; box-shadow: 0 0 18px rgba(25,227,255,.35); }
+.btn:hover { color: #07080f; background: #7ff0ff; }
+
+.legal h2 { margin-top: 26px; }
+.legal ul { padding-left: 20px; }
+.legal li { margin-bottom: 6px; }
+
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; padding: 20px 0 30px; }
+footer .links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+footer .links a { color: var(--muted); }
+@media (max-width: 520px) {
+  header nav { gap: 12px; font-size: 13px; }
+  .pick .team { font-size: 16px; }
+  .pick .pc { font-size: 24px; }
+  ul.games .d { width: auto; }
+}

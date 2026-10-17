@@ -1,2 +1,7 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+Disallow: /tools/
+
+Sitemap: https://probalabsports.com/sitemap.xml

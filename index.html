@@ -9,9 +9,22 @@
 <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<meta name="robots" content="noindex, nofollow">
-<title>ProbaLab</title>
-<meta name="description" content="ProbaLab: NBA win predictions with a public, timestamped record.">
+<title>ProbaLab: NBA &amp; NFL Predictions and Win Probabilities</title>
+<meta name="description" content="Win probabilities for every NBA and NFL game, posted before the start and kept on a public, timestamped record. Injuries, rest, form and quarterbacks included.">
+<link rel="canonical" href="https://probalabsports.com/">
+<meta property="og:site_name" content="ProbaLab">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
+<meta property="og:description" content="Who wins, how likely. A win chance for every NBA and NFL game, posted before the start, with every result on the record.">
+<meta property="og:url" content="https://probalabsports.com/">
+<meta property="og:image" content="https://probalabsports.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
+<meta name="twitter:description" content="Who wins, how likely. A win chance for every NBA and NFL game, with every result on the record.">
+<meta name="twitter:image" content="https://probalabsports.com/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"ProbaLab","url":"https://probalabsports.com/"},{"@type":"Organization","name":"ProbaLab","url":"https://probalabsports.com/","logo":"https://probalabsports.com/icon-512.png","email":"hello@probalabsports.com"}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -293,6 +306,10 @@ td .tm { display: flex; gap: 8px; align-items: center; }
 <style>
 /* v4 additions: month calendar, outcome marks, seg buttons, scores list, stats */
 .brandwrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.flinks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.flinks a { color: var(--muted); }
+.flinks a:hover { color: var(--cyan); }
+.permalink { font-family: var(--f-mono); font-size: 13px; margin: 4px 0 14px; }
 .toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
 .toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
 .toppick b { color: var(--ink); font-weight: 700; margin-right: 4px; }
@@ -536,7 +553,8 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <footer>
   <div class="wrap">
     <p><b>For information and entertainment only.</b> Predictions are probabilities, not guarantees. You must be 18+ to gamble. If gambling is causing harm, call Gambling Help Online on <span class="mono">1800 858 858</span> or visit gamblinghelponline.org.au.</p>
-    <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA or any team or bookmaker.</p>
+    <p class="flinks"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
+    <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, any team or any bookmaker.</p>
   </div>
 </footer>
 
@@ -1013,7 +1031,7 @@ function renderGame(id) {
   const kp = (c) => `<div class="panel"><h2>${esc(c)} key players</h2><div class="tablewrap"><table><thead><tr><th>Player</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th></tr></thead><tbody>
       ${keyp(c).map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="4">Player stats start after ${esc(c)}'s first game.</td></tr>`}
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
-  el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>
+  el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
       <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
@@ -1241,7 +1259,7 @@ function renderNflGame(id) {
       <div class="fr"><span></span><span class="t">Injury report</span><span class="mono">${esc(q.status ?? "–")}</span></div></div>` : `<p>No recent starter on record.</p>`}
       ${qbLine(team, q, flag)}</div>`;
   const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
-  el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>
+  el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
       <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
@@ -1325,6 +1343,21 @@ const nsig = (d) => JSON.stringify(d.games.filter((g) => g.season === d.season).
 // ---------- routing ----------
 let DATA = null;
 const SUBS = { predictions: renderPredictions, record: renderRecord, trends: renderTrends, table: renderTable, scores: renderTable, stats: renderStats };
+// crawlable game pages (rendered by Cloudflare Functions at /nba/... and /nfl/...)
+const slugify = (s) => String(s).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+const gameUrl = (g) => `/${g.sport === "NFL" ? "nfl" : "nba"}/${slugify(g.away_name)}-vs-${slugify(g.home_name)}-prediction-${etDay(g.start_utc)}-${g.game_id}`;
+const permalink = (g) => (g.pick ? `<p class="permalink"><a href="${gameUrl(g)}">Game preview page →</a></p>` : "");
+const SUB_TITLES = { predictions: "Predictions & Win Probabilities", record: "Prediction Record", trends: "Trends", table: "Standings", scores: "Scores", stats: "Stats" };
+function setTitle(v, sub) {
+  const base = "ProbaLab";
+  let t = `${base}: NBA & NFL Predictions and Win Probabilities`;
+  if (v === "about") t = `How It Works | ${base}`;
+  else if (v === "sport") t = `${SP.toUpperCase()} ${SUB_TITLES[sub] ?? "Predictions"} | ${base}`;
+  else if (v === "game") { const id = location.hash.slice(6), g = NFL?.byId[id] ?? DATA?.games.find((x) => x.game_id === id);
+    if (g) t = `${g.away_name} vs ${g.home_name} Prediction | ${g.sport === "NFL" ? "NFL" : "NBA"} | ${base}`; }
+  document.title = t;
+}
 function route() {
   const h = location.hash.slice(1);
   let v = "sport", sub = "predictions";
@@ -1339,6 +1372,7 @@ function route() {
   const topKey = v === "game" ? "sport" : v;
   document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === topKey ? "page" : "false"));
   if (!DATA && !NFL) return;
+  setTitle(v, sub);
   if (v === "home") return DATA ? renderHome() : null;
   if (v === "sport" && SP === "nfl") {
     const tabKey = sub === "scores" ? "table" : sub;
