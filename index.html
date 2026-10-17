@@ -310,6 +310,22 @@ td .tm { display: flex; gap: 8px; align-items: center; }
 .flinks a { color: var(--muted); }
 .flinks a:hover { color: var(--cyan); }
 .permalink { font-family: var(--f-mono); font-size: 13px; margin: 4px 0 14px; }
+table.cmp { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.cmp th, table.cmp td { padding: 9px 6px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+table.cmp thead th { font-family: var(--f-display); font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+table.cmp td.a, table.cmp th.a { text-align: left; width: 32%; font-family: var(--f-mono); font-size: 14px; }
+table.cmp td.h, table.cmp th.h { text-align: right; width: 32%; font-family: var(--f-mono); font-size: 14px; }
+table.cmp td.lbl { text-align: center; color: var(--muted); font-size: 13px; }
+table.cmp td small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+table.cmp td { overflow-wrap: anywhere; white-space: normal; }
+table.ptab td:first-child { white-space: normal; }
+@media (max-width: 520px) { table.ptab th, table.ptab td { padding: 7px 4px; font-size: 13px; } table.ptab .xs { display: none; } }
+@media (max-width: 520px) { table.cmp td.a, table.cmp td.h { font-size: 13px; width: 30%; } table.cmp td.lbl { font-size: 12px; } table.cmp td small { font-size: 10px; } }
+table.cmp td.edge { color: var(--cyan); font-weight: 700; text-shadow: 0 0 10px rgba(25, 227, 255, 0.35); }
+.inj { font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 0 5px; margin-left: 6px; border: 1px solid; vertical-align: 1px; }
+.inj.Out { color: var(--red); } .inj.Doubtful, .inj.Questionable { color: var(--orange); } .inj.Probable { color: var(--muted); }
+.seclead { margin: 6px 0 12px; }
+.teamlinks { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--f-mono); font-size: 13px; margin-top: 10px; }
 .signup { border: 1px solid var(--line-hi); background: var(--surface); padding: 16px; margin: 0 0 18px; color: var(--ink); max-width: 640px; }
 .signup label { display: block; margin-bottom: 8px; font-size: 15px; }
 .signup .srow { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -1025,6 +1041,63 @@ function renderSide(sub) {
 }
 
 // ---------- game detail ----------
+// ---------- full breakdown helpers (team comparison, players, totals) ----------
+// cmpTable rows: [label, awayText, homeText, awayNum, homeNum, higherIsBetter]  (nums null = no highlight)
+function cmpTable(aCode, hCode, rows) {
+  return `<div class="tablewrap"><table class="cmp"><thead><tr><th class="a">${esc(aCode)}</th><th></th><th class="h">${esc(hCode)}</th></tr></thead><tbody>
+    ${rows.map(([lbl, at, ht, an, hn, hib = true]) => { const ok = an != null && hn != null && an !== hn, aBetter = ok && (hib ? an > hn : an < hn), hBetter = ok && !aBetter;
+      return `<tr><td class="a ${aBetter ? "edge" : ""}">${at}</td><td class="lbl">${lbl}</td><td class="h ${hBetter ? "edge" : ""}">${ht}</td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+const wlS = (w, l) => `${w}–${l}`;
+function nbaProfile(c, season) {
+  const all = table(season), r = all.find((x) => x.c === c); if (!r || !r.gp) return null;
+  const gs = finals(season).filter((g) => g.home === c || g.away === c);
+  const mine = (g) => (g.home === c ? [g.home_score, g.away_score] : [g.away_score, g.home_score]);
+  const played = all.filter((x) => x.gp), rankBy = (k, asc) => played.slice().sort((a, b) => (asc ? a[k] - b[k] : b[k] - a[k])).findIndex((x) => x.c === c) + 1;
+  const conf = all.filter((x) => EAST.has(x.c) === EAST.has(c)), confRank = conf.findIndex((x) => x.c === c) + 1;
+  const m = gs.map(mine), l10 = r.res.slice(-10), tot = gs.map((g) => g.home_score + g.away_score);
+  const close = m.filter(([f, a]) => Math.abs(f - a) <= 5);
+  return { r, gs, tot, confRank, conf: EAST.has(c) ? "East" : "West", n: played.length,
+    rPpg: rankBy("ppg"), rOppg: rankBy("oppg", true), rDiff: rankBy("diff"),
+    l10w: l10.filter((x) => x === "W").length, l10n: l10.length,
+    big: m.filter(([f, a]) => f - a >= 11).length, bigL: m.filter(([f, a]) => a - f >= 11).length,
+    cw: close.filter(([f, a]) => f > a).length, cl: close.filter(([f, a]) => f < a).length,
+    hi: tot.filter((t) => t >= 230).length };
+}
+function nbaCompare(g, season) {
+  const A = nbaProfile(g.away, season), H = nbaProfile(g.home, season); if (!A || !H) return "";
+  const share = (k, P) => P.r.gp ? P[k] / P.r.gp : 0;
+  return cmpTable(g.away, g.home, [
+    ["Record", `${wlS(A.r.w, A.r.l)}<small>${ord(A.confRank)} in ${A.conf}</small>`, `${wlS(H.r.w, H.r.l)}<small>${ord(H.confRank)} in ${H.conf}</small>`, A.r.pct, H.r.pct],
+    ["Points for / game", `${A.r.ppg.toFixed(1)}<small>${ord(A.rPpg)} of ${A.n}</small>`, `${H.r.ppg.toFixed(1)}<small>${ord(H.rPpg)} of ${H.n}</small>`, A.r.ppg, H.r.ppg],
+    ["Points against / game", `${A.r.oppg.toFixed(1)}<small>${ord(A.rOppg)} of ${A.n}</small>`, `${H.r.oppg.toFixed(1)}<small>${ord(H.rOppg)} of ${H.n}</small>`, A.r.oppg, H.r.oppg, false],
+    ["Point diff / game", sgn(A.r.diff), sgn(H.r.diff), A.r.diff, H.r.diff],
+    ["Home record", wlS(A.r.hw, A.r.hl), wlS(H.r.hw, H.r.hl), A.r.hw / (A.r.hw + A.r.hl || 1), H.r.hw / (H.r.hw + H.r.hl || 1)],
+    ["Away record", wlS(A.r.aw, A.r.al), wlS(H.r.aw, H.r.al), A.r.aw / (A.r.aw + A.r.al || 1), H.r.aw / (H.r.aw + H.r.al || 1)],
+    [`Last ${Math.max(A.l10n, H.l10n)}`, wlS(A.l10w, A.l10n - A.l10w), wlS(H.l10w, H.l10n - H.l10w), A.l10w / (A.l10n || 1), H.l10w / (H.l10n || 1)],
+    ["Streak", A.r.streak, H.r.streak, A.r.sk, H.r.sk],
+    ["Close games (≤5 pts)", wlS(A.cw, A.cl), wlS(H.cw, H.cl), A.cw / (A.cw + A.cl || 1), H.cw / (H.cw + H.cl || 1)],
+    ["Won by 11+", pct(share("big", A)), pct(share("big", H)), share("big", A), share("big", H)],
+    ["Lost by 11+", pct(share("bigL", A)), pct(share("bigL", H)), share("bigL", A), share("bigL", H), false],
+    ["Avg total points", avg(A.tot).toFixed(1), avg(H.tot).toFixed(1), null, null],
+    ["Games with 230+ total", pct(A.hi / (A.r.gp || 1)), pct(H.hi / (H.r.gp || 1)), null, null],
+  ]);
+}
+function nbaPlayers(c, season, missing) {
+  const st = Object.fromEntries((missing ?? []).map((m) => [m.player, m.status]));
+  const pl = (DATA.players ?? []).filter((p) => p.season === season && p.team === c).sort((a, b) => b.pts - a.pts).slice(0, 10);
+  return `<div class="panel"><h2>${esc(TEAMS[c] ?? c)} · players</h2><div class="tablewrap"><table class="ptab">
+    <thead><tr><th>Player</th><th class="n">GP</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th><th class="n xs">Stl</th><th class="n xs">Blk</th></tr></thead><tbody>
+    ${pl.map((p) => `<tr><td>${esc(p.player)}${st[p.player] ? `<span class="inj ${esc(st[p.player])}">${esc(st[p.player])}</span>` : ""}</td><td class="n">${p.gp}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td><td class="n xs">${p.stl.toFixed(1)}</td><td class="n xs">${p.blk.toFixed(1)}</td></tr>`).join("")
+      || `<tr><td colspan="7">Player stats start after ${esc(TEAMS[c] ?? c)}'s first game.</td></tr>`}
+    </tbody></table></div><p class="note">Per game, ${esc(SEASONS[season] ?? "")}. Top 10 by points. Injury tags are for this game.</p></div>`;
+}
+function nbaTotals(c, season) {
+  const P = nbaProfile(c, season); if (!P) return "";
+  return `<div class="panel"><h2>${esc(c)} · total points in their games</h2>${buckets(P.tot, TOT_EDGES, TOT_LAB)}</div>`;
+}
+
 function renderGame(id) {
   if (NFL?.byId[id]) return renderNflGame(id);
   const g = DATA?.games.find((x) => x.game_id === id);
@@ -1044,6 +1117,7 @@ function renderGame(id) {
   const outList = (arr) => arr && arr.length ? `<ul>${arr.map((m) => `<li><span class="st ${esc(m.status)}">${esc(m.status)}</span>${esc(m.player)}<span class="m">${m.min} min/gm</span></li>`).join("")}</ul>` : `<p>No one listed.</p>`;
   const meet = finals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
   const tab = table(g.season), rec = (c) => tab.find((r) => r.c === c);
+  const SS = g.season === CUR && DEF !== CUR ? DEF : g.season; // stats season: last season until this one has results
   const keyp = (c) => (DATA.players ?? []).filter((p) => p.season === g.season && p.team === c).sort((a, b) => b.pts - a.pts).slice(0, 3);
   const kp = (c) => `<div class="panel"><h2>${esc(c)} key players</h2><div class="tablewrap"><table><thead><tr><th>Player</th><th class="n">Pts</th><th class="n">Reb</th><th class="n">Ast</th></tr></thead><tbody>
       ${keyp(c).map((p) => `<tr><td>${esc(p.player)}</td><td class="n">${p.pts.toFixed(1)}</td><td class="n">${p.reb.toFixed(1)}</td><td class="n">${p.ast.toFixed(1)}</td></tr>`).join("") || `<tr><td colspan="4">Player stats start after ${esc(c)}'s first game.</td></tr>`}
@@ -1068,15 +1142,20 @@ function renderGame(id) {
         ${rec(g.away)?.gp && rec(g.home)?.gp ? factor("Points for / game", rec(g.away).ppg, rec(g.home).ppg, (v) => v.toFixed(1)) : ""}
         ${rec(g.away)?.gp && rec(g.home)?.gp ? factor("Points against / game", rec(g.away).oppg, rec(g.home).oppg, (v) => v.toFixed(1), false) : ""}
       </div></div>
-    <div class="out">${kp(g.away)}${kp(g.home)}</div>
     <div class="out">
       <div class="panel"><h2>${esc(g.away)} injury report</h2>${outList(d.missing_away)}</div>
       <div class="panel"><h2>${esc(g.home)} injury report</h2>${outList(d.missing_home)}</div>
     </div>
+    ${nbaCompare(g, SS) ? `<div class="panel"><h2>Team comparison · ${esc(SEASONS[SS])}</h2>
+      <p class="note seclead">${SS === g.season ? "This season so far. The better number glows." : `${esc(seasonLabel(g.season))} hasn't started, so this is how ${esc(SEASONS[SS])} finished. It switches to this season after the first games. The better number glows.`}</p>
+      ${nbaCompare(g, SS)}
+      <div class="teamlinks"><a href="#nba-stats-${esc(g.away)}">${esc(g.away_name)} full stats →</a><a href="#nba-stats-${esc(g.home)}">${esc(g.home_name)} full stats →</a></div></div>` : ""}
+    <div class="out">${nbaPlayers(g.away, SS, d.missing_away)}${nbaPlayers(g.home, SS, d.missing_home)}</div>
+    <div class="out">${nbaTotals(g.away, SS)}${nbaTotals(g.home, SS)}</div>
     <div class="conf">
-      <div class="panel"><h2>Form · last 10</h2>
-        <div class="formlist"><div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)}</span>${dots(rec(g.away)?.res ?? [])}</div>
-        <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)}</span>${dots(rec(g.home)?.res ?? [])}</div></div></div>
+      <div class="panel"><h2>Form · last 10${SS === g.season ? "" : ` · end of ${esc(SEASONS[SS])}`}</h2>
+        <div class="formlist"><div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)}</span>${dots(table(SS).find((r) => r.c === g.away)?.res ?? [])}</div>
+        <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)}</span>${dots(table(SS).find((r) => r.c === g.home)?.res ?? [])}</div></div></div>
       <div class="panel"><h2>Meetings this season</h2>${meet.length ? `<div class="formlist">${meet.map((x) => `<div class="fr"><span></span><span class="t">${fmtShort.format(new Date(x.start_utc))}</span><span class="score mono">${x.away} ${x.away_score}–${x.home_score} ${x.home}</span></div>`).join("")}</div>` : `<p>First meeting this season.</p>`}</div>
     </div>
     <div class="panel"><h2>Pick timeline</h2><div class="timeline">
@@ -1089,7 +1168,7 @@ function renderGame(id) {
 
 // ---------- phone layout: label table cells so rows can stack as cards ----------
 function stackTables(root) {
-  root.querySelectorAll("table:not(.stk)").forEach((t) => {
+  root.querySelectorAll("table:not(.stk):not(.cmp):not(.ptab)").forEach((t) => {
     const heads = [...t.querySelectorAll("thead th")].map((th) => th.textContent.trim());
     const hi = Math.max(0, heads.findIndex((h) => /^(team|player|game)$/i.test(h)));
     t.querySelectorAll("tbody tr").forEach((tr) => {
@@ -1264,6 +1343,41 @@ function factorRow(label, a, h, fmt, higherBetter = true) {
     <div class="mid"><div class="lbl">${label}</div><div class="track"><span>${!edgeH && a !== h ? `<i style="width:${diff * 100}%"></i>` : ""}</span><span>${edgeH ? `<i style="width:${diff * 100}%"></i>` : ""}</span></div></div>
     <div class="v r ${edgeH ? "edge" : ""}">${fmt(h)}</div></div>`;
 }
+function nflProfile(c, season) {
+  const all = nflTable(season), r = all.find((x) => x.c === c); if (!r || !r.gp) return null;
+  const gs = nflFinals(season).filter((g) => (g.game_type ?? "REG") === "REG" && (g.home === c || g.away === c));
+  const m = gs.map((g) => (g.home === c ? [g.home_score, g.away_score] : [g.away_score, g.home_score]));
+  const played = all.filter((x) => x.gp), rankBy = (k, asc) => played.slice().sort((a, b) => (asc ? a[k] - b[k] : b[k] - a[k])).findIndex((x) => x.c === c) + 1;
+  const div = all.filter((x) => NDIV[x.c] === NDIV[c]), divRank = div.findIndex((x) => x.c === c) + 1;
+  const one = m.filter(([f, a]) => Math.abs(f - a) <= 8 && f !== a), l5 = r.res.slice(-5);
+  return { r, gs, tot: gs.map((g) => g.home_score + g.away_score), n: played.length, divRank, div: NDIV[c],
+    rPpg: rankBy("ppg"), rOppg: rankBy("oppg", true), l5w: l5.filter((x) => x === "W").length, l5n: l5.length,
+    ow: one.filter(([f, a]) => f > a).length, ol: one.filter(([f, a]) => f < a).length,
+    big: m.filter(([f, a]) => f - a >= 14).length, bigL: m.filter(([f, a]) => a - f >= 14).length };
+}
+function nflCompare(g, season) {
+  const A = nflProfile(g.away, season), H = nflProfile(g.home, season); if (!A || !H) return "";
+  const rt = (w, l, t) => (w + l + t ? (w + t / 2) / (w + l + t) : 0);
+  return cmpTable(g.away, g.home, [
+    ["Record", `${wlt(A.r.w, A.r.l, A.r.t)}<small>${ord(A.divRank)} in ${esc(A.div)}</small>`, `${wlt(H.r.w, H.r.l, H.r.t)}<small>${ord(H.divRank)} in ${esc(H.div)}</small>`, A.r.pct, H.r.pct],
+    ["Points for / game", `${A.r.ppg.toFixed(1)}<small>${ord(A.rPpg)} of ${A.n}</small>`, `${H.r.ppg.toFixed(1)}<small>${ord(H.rPpg)} of ${H.n}</small>`, A.r.ppg, H.r.ppg],
+    ["Points against / game", `${A.r.oppg.toFixed(1)}<small>${ord(A.rOppg)} of ${A.n}</small>`, `${H.r.oppg.toFixed(1)}<small>${ord(H.rOppg)} of ${H.n}</small>`, A.r.oppg, H.r.oppg, false],
+    ["Point diff / game", sgn(A.r.diff / A.r.gp), sgn(H.r.diff / H.r.gp), A.r.diff / A.r.gp, H.r.diff / H.r.gp],
+    ["Home record", wlt(A.r.hw, A.r.hl, A.r.ht), wlt(H.r.hw, H.r.hl, H.r.ht), rt(A.r.hw, A.r.hl, A.r.ht), rt(H.r.hw, H.r.hl, H.r.ht)],
+    ["Away record", wlt(A.r.aw, A.r.al, A.r.at), wlt(H.r.aw, H.r.al, H.r.at), rt(A.r.aw, A.r.al, A.r.at), rt(H.r.aw, H.r.al, H.r.at)],
+    ["Division record", wlt(A.r.dw, A.r.dl, A.r.dt), wlt(H.r.dw, H.r.dl, H.r.dt), rt(A.r.dw, A.r.dl, A.r.dt), rt(H.r.dw, H.r.dl, H.r.dt)],
+    [`Last ${Math.max(A.l5n, H.l5n)}`, wlS(A.l5w, A.l5n - A.l5w), wlS(H.l5w, H.l5n - H.l5w), A.l5w / (A.l5n || 1), H.l5w / (H.l5n || 1)],
+    ["Streak", A.r.streak, H.r.streak, null, null],
+    ["One-score games (≤8 pts)", wlS(A.ow, A.ol), wlS(H.ow, H.ol), A.ow / (A.ow + A.ol || 1), H.ow / (H.ow + H.ol || 1)],
+    ["Won by 14+", String(A.big), String(H.big), A.big / A.r.gp, H.big / H.r.gp],
+    ["Lost by 14+", String(A.bigL), String(H.bigL), A.bigL / A.r.gp, H.bigL / H.r.gp, false],
+    ["Avg total points", avg(A.tot).toFixed(1), avg(H.tot).toFixed(1), null, null],
+  ]);
+}
+function nflTotals(c, season) {
+  const P = nflProfile(c, season); if (!P) return "";
+  return `<div class="panel"><h2>${esc(c)} · total points in their games</h2>${buckets(P.tot, [[0, 35], [35, 45], [45, 55], [55, 999]], ["Under 35", "35–44", "45–54", "55+"])}</div>`;
+}
 function renderNflGame(id) {
   const g = NFL.byId[id], el = document.getElementById("view-game");
   if (!g.pick) { el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${cardSoon(g)}`; if (!SOFT) window.scrollTo(0, 0); return; }
@@ -1297,6 +1411,9 @@ function renderNflGame(id) {
         ${rec(g.away)?.gp && rec(g.home)?.gp ? factorRow("Points against / game", rec(g.away).oppg, rec(g.home).oppg, (v) => v.toFixed(1), false) : ""}
       </div></div>
     <div class="out">${qbCard(g.away, d.qb_away, d.qb_flag_away)}${qbCard(g.home, d.qb_home, d.qb_flag_home)}</div>
+    ${(() => { const SS = nflFinals(g.season).some((x) => (x.game_type ?? "REG") === "REG") ? g.season : (NFL.seasons.find((x) => x < g.season) ?? g.season), cmp = nflCompare(g, SS);
+      return cmp ? `<div class="panel"><h2>Team comparison · ${SS} season</h2><p class="note seclead">${SS === g.season ? "Regular season so far. The better number glows." : `The ${g.season} season hasn't started, so this is ${SS}. The better number glows.`}</p>${cmp}</div>
+        <div class="out">${nflTotals(g.away, SS)}${nflTotals(g.home, SS)}</div>` : ""; })()}
     <div class="conf">
       <div class="panel"><h2>Form · last 5</h2><div class="formlist">
         <div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)} <span class="note">${rec(g.away) ? wlt(rec(g.away).w, rec(g.away).l, rec(g.away).t) : ""}</span></span>${formChips(rec(g.away)?.res ?? [])}</div>

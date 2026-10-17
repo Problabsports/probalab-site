@@ -207,7 +207,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/#about">How it works</a></nav>
+  <nav aria-label="Main"><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/#about">How it works</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -257,7 +257,8 @@ export function renderGame(g, all, rec) {
       <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div>
         <div><dt>Fair price</dt><dd>${money(g.fair_price)}</dd></div>${isTip(g) && !post ? `<div><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}</dl>
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before tip-off"}. Check back soon.</p></section>`;
-  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
+  const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
   <p class="eyebrow">// ${S}${g.sport === "nfl" ? ` · ${wkLabel(g.week)}` : ""} · ${esc(dayET(g.start_utc))}</p>
   <h1>${esc(A)} vs ${esc(H)} prediction</h1>
   <p class="when">${g.sport === "nfl" ? "Kick-off" : "Tip-off"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
@@ -267,7 +268,7 @@ export function renderGame(g, all, rec) {
     <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "tip-off"}, then the pick is locked and stays on our public record, win or lose.`}</p>
     ${isTip(g) && !post ? `<p>This is one of our tips. Our fair price for ${esc(g.pick_name)} is ${money(g.fair_price)}; we'd only call it value at ${money(g.value_price)} or better.</p>` : ""}
   </section>` : ""}
-  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Open the full breakdown →</a></p>
+  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
   <p class="note">Probabilities come from ProbaLab's own model. They are not betting advice. <a href="/#about">How it works</a>.</p>`;
   const jsonld = {
@@ -305,7 +306,8 @@ export function renderHub(sport, data) {
   const intro = sport === "nfl"
     ? `<p>Every NFL game gets a win probability from our model. It rates each team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are posted up to 8 days before kick-off, update as quarterback news comes in, and lock at kick-off.</p>`
     : `<p>Every NBA game gets a win probability from our model. It rates each team on the players expected to play that night, then adjusts for injuries, rest and recent form. Picks are posted about 48 hours before tip-off, update as injury news comes in, and lock at tip-off.</p>`;
-  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>${S} predictions</span></nav>
+  const body = `<a class="back" href="/#${sport}-predictions">← Back to ${S} predictions</a>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>${S} predictions</span></nav>
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
   <h1>${S} predictions</h1>
   ${intro}

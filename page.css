@@ -27,6 +27,8 @@ header nav a { color: var(--muted); text-decoration: none; }
 header nav a:hover { color: var(--ink); }
 
 main { padding: 22px 16px 40px; }
+.back { display: inline-block; font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; color: var(--cyan); text-decoration: none; border: 1px solid var(--cyan); padding: 7px 14px; margin: 0 0 14px; background: rgba(25,227,255,.08); }
+.back:hover { background: rgba(25,227,255,.16); color: var(--ink); }
 .crumbs { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
 .crumbs a { color: var(--muted); }
 .eyebrow { font-family: var(--f-mono); color: var(--cyan); font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 6px; }
