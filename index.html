@@ -287,6 +287,11 @@ td .tm { display: flex; gap: 8px; align-items: center; }
 <body>
 <style>
 /* v4 additions: month calendar, outcome marks, seg buttons, scores list, stats */
+.brandwrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
+.toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+.toppick b { color: var(--ink); font-weight: 700; margin-right: 4px; }
+.toppick:hover { background: rgba(255, 47, 192, 0.12); }
 [hidden] { display: none !important; }
 .statgrid > .panel { align-content: start; }
 .cal { display: grid; gap: 8px; }
@@ -382,7 +387,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="#nba-predictions">Proba<b>Lab</b><span class="p">p(win)=0.71</span></a>
+    <div class="brandwrap"><a class="brand" href="#nba-predictions">Proba<b>Lab</b></a><a class="toppick" id="topPick" hidden></a></div>
     <nav class="tabs" aria-label="Site">
       <a href="#nba-predictions" data-top="sport">Predictions</a>
       <a href="#about" data-top="about">How it works</a>
@@ -795,10 +800,23 @@ function renderTeamStats() {
       <p class="note">Up to the last 15 games. Score shown as ${c} first.</p></div>`;
 }
 
+// ---------- featured pick (sidebar "Tip of the day" + header badge) ----------
+function featured() {
+  const up = picks().filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  return up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0] ?? null;
+}
+function renderTopPick() {
+  const el = document.getElementById("topPick"), f = featured();
+  el.hidden = !f; if (!f) return;
+  el.href = "#game-" + f.game_id;
+  el.innerHTML = `<small>Top pick</small><b>${esc(f.pick)}</b>${pct(f.pick_p)}`;
+  el.title = `Top pick: ${f.pick_name} ${pct(f.pick_p)} to win, ${f.away} @ ${f.home} · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}`;
+  el.setAttribute("aria-label", el.title);
+}
+
 // ---------- sidebar ----------
 function renderSide(sub) {
-  const up = picks().filter((g) => g.status !== "post").sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  const feat = up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0];
+  const feat = featured();
   const tips = pickedDone().filter(isTip), last7 = tips.filter((g) => Date.now() - new Date(g.start_utc) < 7 * 864e5);
   const rows = table(DEF).filter((r) => r.gp).slice(0, 8);
   document.getElementById("side").innerHTML = `
@@ -959,6 +977,7 @@ function buildData(feed, pasts) {
   }
   DATA = feed;
   CUR = feed.season ?? CUR;
+  setTimeout(renderTopPick, 0);
   SEASONS[CUR] = SEASONS[CUR] ?? seasonLabel(CUR);
   const played = Object.keys(SEASONS).map(Number).filter((y) => finals(y).length);
   DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
