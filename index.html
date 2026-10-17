@@ -310,6 +310,16 @@ td .tm { display: flex; gap: 8px; align-items: center; }
 .flinks a { color: var(--muted); }
 .flinks a:hover { color: var(--cyan); }
 .permalink { font-family: var(--f-mono); font-size: 13px; margin: 4px 0 14px; }
+.signup { border: 1px solid var(--line-hi); background: var(--surface); padding: 16px; margin: 0 0 18px; color: var(--ink); max-width: 640px; }
+.signup label { display: block; margin-bottom: 8px; font-size: 15px; }
+.signup .srow { display: flex; gap: 8px; flex-wrap: wrap; }
+.signup input[type=email] { flex: 1 1 220px; min-width: 0; background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi); padding: 10px 12px; font: 15px var(--f-body); }
+.signup input[type=email]:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.signup button { background: var(--cyan); color: #07080f; border: 0; padding: 10px 18px; font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+.signup button:disabled { opacity: .6; }
+.signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.signup .small { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }
 .toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
 .toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
 .toppick b { color: var(--ink); font-weight: 700; margin-right: 4px; }
@@ -552,6 +562,13 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 
 <footer>
   <div class="wrap">
+    <form class="signup" action="/api/subscribe" method="post" data-signup>
+      <label for="su-email"><b>Get our weekly picks and results by email</b></label>
+      <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="app">
+      <button type="submit">Sign up</button></div>
+      <p class="small">Weekly picks and results by email. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
+    </form>
     <p><b>For information and entertainment only.</b> Predictions are probabilities, not guarantees. You must be 18+ to gamble. If gambling is causing harm, call Gambling Help Online on <span class="mono">1800 858 858</span> or visit gamblinghelponline.org.au.</p>
     <p class="flinks"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, any team or any bookmaker.</p>
@@ -1393,6 +1410,14 @@ function route() {
 }
 function rerenderPred() { renderPredictions(); renderSide("predictions"); }
 window.addEventListener("hashchange", route);
+document.addEventListener("submit", (e) => {
+  const f = e.target.closest("form[data-signup]"); if (!f) return;
+  e.preventDefault(); const m = f.querySelector(".msg"), b = f.querySelector("button"); b.disabled = true; m.textContent = "Signing you up…";
+  f.source.value = "app:" + (location.hash.slice(1).split("-").slice(0, 2).join("-") || "home");
+  fetch("api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source.value }) })
+    .then((r) => r.json()).then((j) => { m.textContent = j.ok ? "Thanks, you're on the list." : (j.error || "Something went wrong. Please try again."); if (j.ok) f.email.value = ""; b.disabled = false; })
+    .catch(() => { m.textContent = "Something went wrong. Please try again."; b.disabled = false; });
+});
 window.addEventListener("popstate", route);
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-qbclose]") || e.target.id === "qbPop") { document.getElementById("qbPop").hidden = true; return; }

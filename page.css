@@ -88,3 +88,15 @@ footer .links a { color: var(--muted); }
   .pick .pc { font-size: 24px; }
   ul.games .d { width: auto; }
 }
+
+/* newsletter sign-up */
+.signup { border: 1px solid var(--line-hi); background: var(--surface); padding: 16px; margin: 0 0 18px; color: var(--ink); }
+.signup label { display: block; margin-bottom: 8px; font-size: 15px; }
+.signup .srow { display: flex; gap: 8px; flex-wrap: wrap; }
+.signup input[type=email] { flex: 1 1 220px; min-width: 0; background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi); padding: 10px 12px; font: 15px var(--f-body); }
+.signup input[type=email]:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.signup button { background: var(--cyan); color: #07080f; border: 0; padding: 10px 18px; font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+.signup button:disabled { opacity: .6; }
+.signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.signup .small { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+.signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }
