@@ -528,7 +528,10 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <script>
 // ---------- data source ----------
 // FEED_URL = null uses built-in sample data (design preview). Set to the live feed to go live.
-const FEED_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
+const FEED_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed"; // direct (fallback)
+const FEED_EDGE = "api/feed"; // same feed through Cloudflare's cache (preferred)
+const REFRESH_MS = 120000; // background refresh while the page is open
+let SOFT = false; // true while re-rendering after a background refresh
 const PAST_SEASONS = [2026]; // finished seasons served as static files: data/nba-<season>.json
 const USE_SAMPLE = /[?&]sample\b/.test(location.search); // ?sample shows the design preview data
 const VALUE_MARGIN = 0.03;
@@ -914,10 +917,10 @@ function renderHome() {
       </div></section>
     ${tiles([["Players rated", (DATA.players.filter((p) => p.season === DEF).length || 0).toLocaleString(), `${SEASONS[DEF]} season`], ["Injury check", "15 min", "around the clock"],
       ["Picks posted", picks().length.toLocaleString(), `${seasonLabel(CUR)} so far`], ["Picks deleted", "0", "losses stay on the record"]])}`;
-  window.scrollTo(0, 0);
+  if (!SOFT) window.scrollTo(0, 0);
   // count-up on the big number
   const num = document.getElementById("hpNum");
-  if (num && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (num && !SOFT && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const to = +num.dataset.to, t0 = performance.now(), bar = document.getElementById("hpBar"), full = bar.style.width;
     bar.style.width = "0%"; requestAnimationFrame(() => (bar.style.width = full));
     const step = (t) => { const k = Math.min(1, (t - t0) / 900), v = Math.round(50 + (to - 50) * (1 - Math.pow(1 - k, 3)));
@@ -965,7 +968,7 @@ function renderGame(id) {
   const g = DATA.games.find((x) => x.game_id === id);
   const el = document.getElementById("view-game");
   if (!g) { el.innerHTML = `<a class="back" href="#nba-predictions">← Back</a><div class="panel"><h2>Game not found</h2><p>It may be from an older season.</p></div>`; return; }
-  if (!g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${cardSoon(g)}`; window.scrollTo(0, 0); return; }
+  if (!g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${cardSoon(g)}`; if (!SOFT) window.scrollTo(0, 0); return; }
   const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
   const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
@@ -1019,7 +1022,7 @@ function renderGame(id) {
       ${g.last_updated ? `<div><b>Last updated</b>${fmtShort.format(new Date(g.last_updated))} ${fmtTime.format(new Date(g.last_updated))}</div>` : ""}
       <div><b>Locked at tip-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
       <div style="color:var(--muted)">Times in ${esc(TZNAME)}</div></div></div>`;
-  window.scrollTo(0, 0);
+  if (!SOFT) window.scrollTo(0, 0);
 }
 
 // ---------- phone layout: label table cells so rows can stack as cards ----------
@@ -1096,30 +1099,57 @@ function buildData(feed, pasts) {
   }
   return { generated_at: feed.generated_at, season: feed.season, sample: false, games, players };
 }
+let PASTS = [];
+async function fetchLive() {
+  const get = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  try { return await get(FEED_EDGE); } catch { return await get(FEED_URL); }
+}
+function applyData(feed) {
+  DATA = feed;
+  CUR = feed.season ?? CUR;
+  SEASONS[CUR] = SEASONS[CUR] ?? seasonLabel(CUR);
+  const played = Object.keys(SEASONS).map(Number).filter((y) => finals(y).length);
+  DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
+}
+const sig = (d) => JSON.stringify(d.games.filter((g) => g.season === CUR).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.clv])) + d.players.length;
+async function refresh() {
+  if (USE_SAMPLE || document.visibilityState !== "visible" || !DATA) return;
+  try {
+    const next = buildData(await fetchLive(), PASTS);
+    if (sig(next) === sig(DATA)) return;
+    const keepSeason = SEASON, oldDef = DEF, y = window.scrollY;
+    applyData(next);
+    if (keepSeason !== oldDef) SEASON = keepSeason;
+    SOFT = true; route(); renderTopPick(); SOFT = false;
+    window.scrollTo(0, y);
+  } catch { /* keep showing what we have; try again next time */ }
+}
 (async function load() {
   let feed;
   if (USE_SAMPLE) feed = sampleFeed();
   else {
     try {
-      const [live, ...pasts] = await Promise.all([
-        fetch(FEED_URL, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+      const [live, ...pasts] = await Promise.all([fetchLive(),
         ...PAST_SEASONS.map((y) => fetch(`data/nba-${y}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))]);
-      feed = buildData(live, pasts.filter(Boolean));
+      PASTS = pasts.filter(Boolean);
+      feed = buildData(live, PASTS);
     } catch { document.getElementById("main").innerHTML = `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
   }
-  DATA = feed;
-  CUR = feed.season ?? CUR;
-  setTimeout(renderTopPick, 0);
-  SEASONS[CUR] = SEASONS[CUR] ?? seasonLabel(CUR);
-  const played = Object.keys(SEASONS).map(Number).filter((y) => finals(y).length);
-  DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
+  applyData(feed);
   SEASON = DEF;
+  setTimeout(renderTopPick, 0);
   // open on today, or the next day with games
   const days = [...new Set(DATA.games.filter((g) => g.season === CUR).map((g) => keyOf(g.start_utc)))].sort();
   const today = keyOf(Date.now());
   if (days.length && !days.includes(today)) SEL = days.find((d) => d > today) ?? days[days.length - 1];
   document.getElementById("sampleBanner").hidden = !feed.sample;
   route();
+  setInterval(refresh, REFRESH_MS);
+  let hiddenAt = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") hiddenAt = Date.now();
+    else if (Date.now() - hiddenAt > REFRESH_MS) refresh();
+  });
 })();
 route();
 </script>
