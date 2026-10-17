@@ -388,18 +388,71 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
   table.stk td.hd::before { content: attr(data-rk); font: 700 13px var(--f-mono); color: var(--cyan); letter-spacing: 0; }
   table.stk td.rk { display: none; }
 }
+
+/* ---------- home page ---------- */
+.ticker { overflow: hidden; border-block: 1px solid var(--line-hi); background: rgba(10, 12, 24, 0.6); white-space: nowrap; font: 600 12.5px var(--f-mono); letter-spacing: 0.04em; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.ticker .track { display: inline-flex; gap: 40px; padding: 10px 0; animation: tick 45s linear infinite; }
+.ticker a { color: var(--muted); text-decoration: none; }
+.ticker a b { color: var(--ink); }
+.ticker a .pc { color: var(--cyan); text-shadow: 0 0 8px rgba(25, 227, 255, 0.5); margin-left: 6px; }
+.ticker a.tip .pc { color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.5); }
+.ticker a:hover b { color: var(--cyan); }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.home-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 6px; }
+.home-hero h1 { font-size: clamp(38px, 6.4vw, 72px); line-height: 0.98; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.btn { font: 700 13px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 13px 20px; border: 1px solid var(--cyan); color: var(--cyan); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: background 0.15s, color 0.15s; }
+.btn.primary { background: var(--cyan); color: var(--bg); box-shadow: 0 0 24px rgba(25, 227, 255, 0.35); }
+.btn:hover { background: var(--cyan); color: var(--bg); }
+.btn.primary:hover { background: #fff; border-color: #fff; }
+.hp-pick { position: relative; display: grid; gap: 10px; padding: 22px; border: 1px solid var(--magenta); background: linear-gradient(160deg, rgba(255, 47, 192, 0.10), rgba(25, 227, 255, 0.04) 60%), var(--surface); text-decoration: none; color: var(--ink); clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); box-shadow: 0 0 40px rgba(255, 47, 192, 0.12); }
+.hp-pick .lab { font: 600 11px var(--f-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--magenta); }
+.hp-pick .num { font: 700 clamp(72px, 13vw, 132px)/0.9 var(--f-display); color: var(--cyan); text-shadow: 0 0 28px rgba(25, 227, 255, 0.55); letter-spacing: -0.02em; }
+.hp-pick .num small { font-size: 0.42em; margin-left: 2px; }
+.hp-pick .who { font: 700 22px var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; }
+.hp-pick .vs { color: var(--muted); font-size: 13.5px; }
+.hp-pick .meter { height: 10px; }
+.hp-pick .meter i { transition: width 1.2s cubic-bezier(.2, .8, .2, 1); }
+.hp-pick:hover { box-shadow: 0 0 56px rgba(255, 47, 192, 0.25); }
+.sportgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.sport-tile { position: relative; display: grid; gap: 10px; align-content: start; min-height: 196px; padding: 18px 16px; border: 1px solid var(--line-hi); background: var(--surface); color: var(--ink); text-decoration: none; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s; }
+.sport-tile svg { width: 48px; height: 48px; }
+.sport-tile .nm { font: 700 26px var(--f-display); letter-spacing: 0.06em; }
+.sport-tile .lg { font-size: 12.5px; color: var(--muted); margin-top: -6px; }
+.sport-tile .st { font: 600 10.5px var(--f-mono); letter-spacing: 0.14em; text-transform: uppercase; position: absolute; top: 16px; right: 18px; padding: 2px 7px; border: 1px solid currentColor; }
+.sport-tile .info { font: 12.5px var(--f-mono); color: var(--muted); display: grid; gap: 4px; margin-top: auto; }
+.sport-tile .info b { color: var(--ink); }
+.sport-tile.live { border-color: var(--cyan); box-shadow: 0 0 30px rgba(25, 227, 255, 0.16), inset 0 0 40px rgba(25, 227, 255, 0.05); }
+.sport-tile.live .st { color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.6); }
+.sport-tile.live .go { font: 700 12px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); }
+.sport-tile.live:hover { transform: translateY(-4px); box-shadow: 0 0 44px rgba(25, 227, 255, 0.3); }
+.sport-tile.soon { color: var(--muted); }
+.sport-tile.soon svg { opacity: 0.45; filter: grayscale(0.6); }
+.sport-tile.soon .st { color: var(--magenta); }
+.sport-tile.soon:hover { border-color: var(--magenta); }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.steps .panel { position: relative; padding-top: 44px; }
+.steps .n { position: absolute; top: 12px; left: 18px; font: 700 13px var(--f-mono); color: var(--magenta); letter-spacing: 0.1em; }
+.home-sec { display: grid; gap: 14px; }
+.home-sec > .head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.home-sec > .head a { font: 600 12px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); text-decoration: none; }
+@media (max-width: 1000px) { .sportgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) { .home-hero { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
+@media (prefers-reduced-motion: reduce) { .ticker .track { animation: none; } .sport-tile, .hp-pick .meter i { transition: none; } }
 </style>
 
 <header class="site">
   <div class="wrap">
-    <div class="brandwrap"><a class="brand" href="#nba-predictions">Proba<b>Lab</b></a><a class="toppick" id="topPick" hidden></a></div>
+    <div class="brandwrap"><a class="brand" href="./" data-home>Proba<b>Lab</b></a><a class="toppick" id="topPick" hidden></a></div>
     <nav class="tabs" aria-label="Site">
+      <a href="./" data-home data-top="home">Home</a>
       <a href="#nba-predictions" data-top="sport">Predictions</a>
       <a href="#about" data-top="about">How it works</a>
     </nav>
   </div>
 </header>
-<nav class="sports" aria-label="Sports">
+<nav class="sports" id="sportBar" aria-label="Sports">
   <div class="wrap">
     <a class="sport on" href="#nba-predictions">NBA <small>Live</small></a>
     <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
@@ -411,7 +464,9 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <div class="sample" id="sampleBanner" hidden><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
 
 <main class="wrap">
-  <section class="view" id="view-sport">
+  <section class="view" id="view-home" hidden></section>
+
+  <section class="view" id="view-sport" hidden>
     <div>
       <div class="eyebrow">NBA · win predictions</div>
       <h1>Who wins. <em>How likely.</em></h1>
@@ -805,6 +860,72 @@ function renderTeamStats() {
       <p class="note">Up to the last 15 games. Score shown as ${c} first.</p></div>`;
 }
 
+const ICON = {
+  NBA: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><circle cx="24" cy="24" r="19" stroke="#ff9a3c" fill="rgba(255,154,60,.12)"/><path d="M5 24h38M24 5v38M10.5 10.5c7 6 7 21 0 27M37.5 10.5c-7 6-7 21 0 27" stroke="#ff9a3c"/></svg>`,
+  AFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="20" ry="12" transform="rotate(-35 24 24)" stroke="#ff4f6e" fill="rgba(255,79,110,.12)"/><path d="M16 32 32 16M20 24l4 4M22 21l5 5M25 18l5 5" stroke="#ff4f6e"/></svg>`,
+  EPL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><circle cx="24" cy="24" r="19" stroke="#eef2ff" fill="rgba(238,242,255,.08)"/><path d="M24 15l8 6-3 9h-10l-3-9z" stroke="#eef2ff" fill="rgba(238,242,255,.25)"/><path d="M24 15V6M32 21l8-3M29 30l5 8M19 30l-5 8M16 21l-8-3" stroke="#eef2ff"/></svg>`,
+  NFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><path d="M8 40C6 26 14 10 40 8c2 14-6 30-32 32z" stroke="#c98a4b" fill="rgba(201,138,75,.14)"/><path d="M18 30 30 18M21 24l3 3M24 21l3 3M27 18l3 3" stroke="#eef2ff"/></svg>`,
+  NRL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="19" ry="13" transform="rotate(30 24 24)" stroke="#3dff8f" fill="rgba(61,255,143,.10)"/><path d="M13 18c6 3 16 9 22 12" stroke="#3dff8f"/></svg>`,
+};
+const SPORTS = [["NBA", "Basketball"], ["AFL", "Aussie rules"], ["EPL", "Football"], ["NFL", "Gridiron"], ["NRL", "Rugby league"]];
+
+// ---------- home page ----------
+function renderHome() {
+  const el = document.getElementById("view-home");
+  const f = featured();
+  const upcoming = picks().filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const nextGames = curGames().filter((g) => g.status !== "post" && new Date(g.start_utc) > Date.now() - 3 * 3600e3);
+  const nextDay = nextGames.map((g) => keyOf(g.start_utc)).sort()[0];
+  const dayGames = nextDay ? nextGames.filter((g) => keyOf(g.start_utc) === nextDay) : [];
+  const done = pickedDone(), w = done.filter((g) => g.won).length;
+  const dayLabel = nextDay ? (nextDay === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(nextDay))) : "";
+  const tick = upcoming.slice(0, 14).map((g) => `<a href="#game-${esc(g.game_id)}" class="${isTip(g) ? "tip" : ""}"><b>${esc(g.pick)}</b> v ${esc(g.pick === g.home ? g.away : g.home)}<span class="pc">${pct(g.pick_p)}</span></a>`).join("");
+  const pickCard = f ? `<a class="hp-pick" href="#game-${esc(f.game_id)}">
+      <span class="lab">// Top pick · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}</span>
+      <span class="num" id="hpNum" data-to="${Math.round(f.pick_p * 100)}">${Math.round(f.pick_p * 100)}<small>%</small></span>
+      <span class="who">${esc(f.pick_name)} to win</span>
+      <span class="vs">${esc(f.away_name)} @ ${esc(f.home_name)}</span>
+      <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
+      <span>${chip(f.light)} <span class="note">Fair ${money(f.fair_price)} · value at ${money(f.value_price)}+</span></span>
+    </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
+  const tile = ([code, lg]) => code === "NBA"
+    ? `<a class="sport-tile live" href="#nba-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
+        <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(f.pick)} ${pct(f.pick_p)}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
+        <span class="go">Predictions →</span></a>`
+    : `<div class="sport-tile soon" aria-disabled="true">${ICON[code]}<span class="st">Soon</span><span class="nm">${code}</span><span class="lg">${lg}</span><span class="info"><span>In the lab</span></span></div>`;
+  el.innerHTML = `
+    ${tick ? `<div class="ticker" aria-label="Upcoming picks"><div class="track">${tick.repeat(Math.ceil(10 / Math.min(14, upcoming.length)) * 2)}</div></div>` : ""}
+    <div class="home-hero">
+      <div style="display:grid;gap:14px">
+        <div class="eyebrow">Probability lab · sports predictions</div>
+        <h1>Who wins.<br><em>How likely.</em></h1>
+        <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p>
+        <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn" href="#about">How it works</a></div>
+      </div>
+      ${pickCard}
+    </div>
+    <section class="home-sec"><div class="head"><h2>Pick a sport</h2><span class="note">More sports are in the lab.</span></div>
+      <div class="sportgrid">${SPORTS.map(tile).join("")}</div></section>
+    <section class="home-sec"><div class="head"><h2>How the lab works</h2><a href="#about">The full method →</a></div>
+      <div class="steps">
+        <div class="panel"><span class="n">01 · RATE</span><h2>Every player</h2><p>Each player is rated from recent box scores, weighted toward the games that matter most.</p></div>
+        <div class="panel"><span class="n">02 · CHECK</span><h2>Who's playing</h2><p>The injury report is read every 15 minutes, so the numbers move when a star sits.</p></div>
+        <div class="panel"><span class="n">03 · PREDICT</span><h2>One number</h2><p>Strength, form and schedule become a single win probability. Then the result goes on the record.</p></div>
+      </div></section>
+    ${tiles([["Players rated", (DATA.players.filter((p) => p.season === DEF).length || 0).toLocaleString(), `${SEASONS[DEF]} season`], ["Injury check", "15 min", "around the clock"],
+      ["Picks posted", picks().length.toLocaleString(), `${seasonLabel(CUR)} so far`], ["Picks deleted", "0", "losses stay on the record"]])}`;
+  window.scrollTo(0, 0);
+  // count-up on the big number
+  const num = document.getElementById("hpNum");
+  if (num && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const to = +num.dataset.to, t0 = performance.now(), bar = document.getElementById("hpBar"), full = bar.style.width;
+    bar.style.width = "0%"; requestAnimationFrame(() => (bar.style.width = full));
+    const step = (t) => { const k = Math.min(1, (t - t0) / 900), v = Math.round(50 + (to - 50) * (1 - Math.pow(1 - k, 3)));
+      num.innerHTML = `${v}<small>%</small>`; if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+}
+
 // ---------- featured pick (sidebar "Tip of the day" + header badge) ----------
 function featured() {
   const up = picks().filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
@@ -921,14 +1042,17 @@ new MutationObserver(() => stackTables(document)).observe(document.querySelector
 let DATA = null;
 const SUBS = { predictions: renderPredictions, record: renderRecord, trends: renderTrends, table: renderTable, scores: renderTable, stats: renderStats };
 function route() {
-  const h = location.hash.slice(1) || "nba-predictions";
+  const h = location.hash.slice(1);
   let v = "sport", sub = "predictions";
-  if (h === "about") v = "about"; else if (h.startsWith("game-")) v = "game";
+  if (h === "" || h === "home") v = "home"; else if (h === "about") v = "about"; else if (h.startsWith("game-")) v = "game";
   else if (h.startsWith("nba-stats-") && TEAMS[h.slice(10)]) { sub = "stats"; TEAM = h.slice(10); }
   else if (h.startsWith("nba-") && SUBS[h.slice(4)]) { sub = h.slice(4); if (sub === "stats") TEAM = ""; }
-  ["sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== v));
-  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", (a.dataset.top === "about") === (v === "about") ? "page" : "false"));
+  ["home", "sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== v));
+  document.getElementById("sportBar").hidden = v === "home";
+  const topKey = v === "game" ? "sport" : v;
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === topKey ? "page" : "false"));
   if (!DATA) return;
+  if (v === "home") return renderHome();
   if (v === "game") return renderGame(h.slice(5));
   if (v === "sport") {
     if (sub === "table" || sub === "scores") TABLE_MODE = sub === "scores" ? "scores" : "standings";
@@ -940,7 +1064,10 @@ function route() {
 }
 function rerenderPred() { renderPredictions(); renderSide("predictions"); }
 window.addEventListener("hashchange", route);
+window.addEventListener("popstate", route);
 document.addEventListener("click", (e) => {
+  const home = e.target.closest("[data-home]");
+  if (home) { e.preventDefault(); if (location.hash) history.pushState(null, "", location.pathname + location.search); route(); return; }
   const day = e.target.closest("[data-day]"); if (day) { SEL = day.dataset.day; CAL_OPEN = false; rerenderPred(); return; }
   const cm = e.target.closest("[data-cal]"); if (cm) { CALM = new Date(CALM.getFullYear(), CALM.getMonth() + Number(cm.dataset.cal), 1); const open = CAL_OPEN; rerenderPred(); CAL_OPEN = open; return; }
   const st = e.target.closest("[data-step]"); if (st) { SEL = keyOf(dateOfKey(SEL).getTime() + Number(st.dataset.step) * 864e5); const d = dateOfKey(SEL); CALM = new Date(d.getFullYear(), d.getMonth(), 1); rerenderPred(); return; }
