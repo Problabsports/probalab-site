@@ -93,7 +93,8 @@ function nbaPreview(g, rec) {
   const fa = d.form_away == null ? null : Number(d.form_away), fh = d.form_home == null ? null : Number(d.form_home);
   if (fa != null && fh != null && (fa !== 0 || fh !== 0)) {
     const f = (t, v) => `${esc(t)} have been ${v >= 0 ? "winning" : "losing"} by ${Math.abs(v).toFixed(1)} points a game`;
-    out.push(`<p>Recent form: ${f(A, fa)}, while ${f(H, fh)}.</p>`);
+    const played = (t) => { const x = rec[t]; return x ? x.w + x.l : 0; };
+    out.push(`<p>${played(g.away) + played(g.home) === 0 ? "Form at the end of last season" : "Recent form"}: ${f(A, fa)}, while ${f(H, fh)}.</p>`);
   }
   const ra = Number(d.rest_away ?? 0), rh = Number(d.rest_home ?? 0), restBits = [];
   if (ra === 1) restBits.push(`${esc(A)} are on the second night of a back-to-back`);
