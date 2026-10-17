@@ -629,7 +629,7 @@ function card(g) {
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
   return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
-    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${g.sport === "NFL" ? qbWarn(g) : ""}
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
@@ -686,6 +686,7 @@ function renderPredictions() {
     <div class="legend" aria-label="Light key">
       <span><i class="chip SUPER">Super green</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
+      ${noteLegend(list)}
     </div>
     ${list.length ? list.map((g) => (g.pick ? card(g) : cardSoon(g))).join("") : `<div class="panel"><h2>No games this day</h2><p>${SEL > keyOf(Date.now())
       ? "Games and predictions appear here about two days before tip-off and update as injury news comes in."
@@ -1014,7 +1015,7 @@ function renderGame(id) {
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
   el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>
     <div class="panel match">
-      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}
+      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
@@ -1109,13 +1110,17 @@ function nflTable(season) {
 const nteamCell = (c) => `<span class="tm"><span class="badge">${c}</span>${esc(NTEAMS[c] ?? c)}</span>`;
 const nseasonSel = (val, id = "nseasonSel") => `<select class="season" id="${id}" aria-label="Season">${NFL.seasons.map((s) => `<option value="${s}" ${s === val ? "selected" : ""}>${s} season</option>`).join("")}</select>`;
 
-// quarterback note (triangle button + pop-up)
+// important note (⚠ button + pop-up): only shown when something could change the pick
 const QB_OUT = /out|doubtful|injured reserve|suspend/i, QB_Q = /questionable/i;
-function qbWarn(g) {
-  const d = g.detail; if (!d || g.status === "post") return "";
-  const hot = d.qb_flag_home || d.qb_flag_away || [d.qb_home, d.qb_away].some((q) => QB_OUT.test(q?.status ?? "") || QB_Q.test(q?.status ?? ""));
-  return `<button type="button" class="qbwarn ${hot ? "hot" : ""}" data-qb="${esc(g.game_id)}" aria-label="Quarterback note" title="Quarterback note">⚠</button>`;
+const NBA_UNSURE = /questionable|doubtful/i, NBA_KEY_MIN = 20;
+const nbaUnsure = (arr) => (arr ?? []).filter((m) => NBA_UNSURE.test(m.status ?? "") && Number(m.min ?? 0) >= NBA_KEY_MIN);
+function hasNote(g) {
+  const d = g?.detail; if (!d || !g.pick || g.status === "post") return false;
+  if (g.sport === "NFL") return !!(d.qb_flag_home || d.qb_flag_away || [d.qb_home, d.qb_away].some((q) => QB_OUT.test(q?.status ?? "") || QB_Q.test(q?.status ?? "")));
+  return nbaUnsure(d.missing_home).length + nbaUnsure(d.missing_away).length > 0;
 }
+const noteBtn = (g) => hasNote(g) ? `<button type="button" class="qbwarn hot" data-qb="${esc(g.game_id)}" aria-label="Important note" title="Important note">⚠</button>` : "";
+const noteLegend = (games) => games.some(hasNote) ? `<span><b class="qbwarn hot" aria-hidden="true">⚠</b> IMPORTANT NOTE</span>` : "";
 function qbLine(team, q, flag) {
   if (!q?.name) return `<p><b>${team}:</b> no recent starter on record yet.</p>`;
   const st = q.status ?? "";
@@ -1124,15 +1129,24 @@ function qbLine(team, q, flag) {
   if (flag) return `<p><b>${team}:</b> we assume ${esc(q.name)} starts (their most recent starter). ${q.starts < 8 ? `He has ${q.starts} career start${q.starts === 1 ? "" : "s"}` : "He hasn't been their regular starter this season"}, so the model marks ${team} down a little.</p>`;
   return `<p><b>${team}:</b> we assume ${esc(q.name)} starts (their most recent starter).</p>`;
 }
+function nbaLine(team, arr) {
+  const xs = nbaUnsure(arr);
+  if (!xs.length) return "";
+  return `<p><b>${team}:</b> ${xs.map((m) => `${esc(m.player)} (<b>${esc(m.status)}</b>, ${Math.round(m.min)} min/gm)`).join(", ")}.</p>`;
+}
 function showQb(id) {
-  const g = NFL?.byId[id]; if (!g?.detail) return;
+  const g = NFL?.byId[id] ?? DATA?.games.find((x) => x.game_id === id); if (!g?.detail) return;
   let pop = document.getElementById("qbPop");
   if (!pop) { pop = document.createElement("div"); pop.id = "qbPop"; pop.className = "qbpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-modal", "true");
     pop.innerHTML = `<div class="qbbox"><button type="button" class="x" data-qbclose aria-label="Close">✕</button><div id="qbBody"></div></div>`; document.body.appendChild(pop); }
   const d = g.detail;
-  document.getElementById("qbBody").innerHTML = `<h3>⚠ Quarterback assumption</h3><div class="note">${esc(g.away_name)} @ ${esc(g.home_name)}</div>
+  document.getElementById("qbBody").innerHTML = g.sport === "NFL"
+    ? `<h3>⚠ Important note</h3><div class="note">${esc(g.away_name)} @ ${esc(g.home_name)} · quarterbacks</div>
     ${qbLine(g.away, d.qb_away, d.qb_flag_away)}${qbLine(g.home, d.qb_home, d.qb_flag_home)}
-    <p class="note">We assume each team's most recent starting quarterback plays unless the injury report says otherwise. If a different quarterback starts, this pick can change. We re-check every 30 minutes until kick-off.</p>`;
+    <p class="note">We assume each team's most recent starting quarterback plays unless the injury report says otherwise. If a different quarterback starts, this pick can change. We re-check every 30 minutes until kick-off.</p>`
+    : `<h3>⚠ Important note</h3><div class="note">${esc(g.away_name)} @ ${esc(g.home_name)} · players who may not play</div>
+    ${nbaLine(g.away, d.missing_away)}${nbaLine(g.home, d.missing_home)}
+    <p class="note">These regular players are listed questionable or doubtful. The model counts each one by how likely they are to play. If they play or sit out, this pick can change. We re-check every 15 minutes until tip-off.</p>`;
   pop.hidden = false; pop.querySelector(".x").focus();
 }
 
@@ -1153,7 +1167,7 @@ function renderNflPredictions() {
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
       <span><i class="chip GREEN">Green</i> 65%+</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
-      <span><b class="qbwarn hot" aria-hidden="true">⚠</b> quarterback note: tap it</span>
+      ${noteLegend(list)}
     </div>
     ${list.length ? Object.keys(byDay).sort().map((k) => `<div class="dayhead">${fmtDay.format(dateOfKey(k))}</div>${byDay[k].map((g) => (g.pick ? card(g) : cardSoon(g))).join("")}`).join("")
       : `<div class="panel"><h2>No games this week</h2></div>`}
@@ -1229,7 +1243,7 @@ function renderNflGame(id) {
   const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
   el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>
     <div class="panel match">
-      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${qbWarn(g)}
+      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
@@ -1398,7 +1412,7 @@ function applyData(feed) {
   const played = Object.keys(SEASONS).map(Number).filter((y) => finals(y).length);
   DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
 }
-const sig = (d) => JSON.stringify(d.games.filter((g) => g.season === CUR).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.clv])) + d.players.length;
+const sig = (d) => JSON.stringify(d.games.filter((g) => g.season === CUR).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.clv, (g.detail?.missing_home ?? []).map((m) => m.status).join(), (g.detail?.missing_away ?? []).map((m) => m.status).join()])) + d.players.length;
 async function refreshNfl() {
   try {
     const next = buildNfl(await fetchNfl(), NFL_PASTS);
