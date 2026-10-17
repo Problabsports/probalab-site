@@ -707,14 +707,14 @@ function renderRecord() {
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
-      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} green + super green`],
+      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green tips" : "green + super green"}`],
       ["Tips vs close", clvAvg == null ? "–" : sgn(clvAvg * 100) + "%", "average price beat"],
       ["Beat the close", beat == null ? "–" : pct(beat), `of ${clvs.length} tips`],
     ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
     <div class="conf">
       <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
         <thead><tr><th>Light</th><th class="n">Picks</th><th class="n">Won</th><th class="n">Rate</th><th class="n">We said</th></tr></thead><tbody>
-        ${["SUPER", "GREEN", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l);
+        ${(SP === "nfl" ? ["GREEN", "ORANGE", "RED"] : ["SUPER", "GREEN", "ORANGE", "RED"]).map((l) => { const xs = done.filter((g) => g.light === l);
           return `<tr><td>${chip(l)}</td><td class="n">${xs.length}</td><td class="n">${w(xs)}</td><td class="n">${rate(xs)}</td><td class="n">${xs.length ? pct(xs.reduce((s, g) => s + g.pick_p, 0) / xs.length) : "–"}</td></tr>`; }).join("")}
       </tbody></table></div></div>
       <div class="panel"><h2>Are the percentages honest?</h2><p>Dots near the dashed line mean our 70% picks win about 70% of the time.</p>${calibSvg(done)}</div>
@@ -1078,7 +1078,7 @@ function buildNfl(feed, pasts) {
   for (const [abbr, name, , div] of feed.teams ?? []) { NTEAMS[abbr] = name; NDIV[abbr] = div; }
   const nm = (c) => NTEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
   const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NFL", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
-    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: null }));
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: n(g.clv) }));
   for (const p of pasts) games.push(...p.games.map(([game_id, week, game_type, start_utc, home, away, home_score, away_score, neu]) => ({ game_id, sport: "NFL",
     season: p.season, week, game_type, start_utc, home, away, home_name: nm(home), away_name: nm(away), status: "post", home_score, away_score, neutral: !!neu, has_pick: false, pick: null, won: null })));
   return { season: feed.season, games, byId: Object.fromEntries(games.map((g) => [g.game_id, g])), seasons: [feed.season, ...pasts.map((p) => p.season)] };
@@ -1235,7 +1235,8 @@ function renderNflGame(id) {
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
         ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}
-        ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}</dl>
+        ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
+        ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
       ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
     </div>
     <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
@@ -1305,7 +1306,7 @@ async function loadNfl() {
     NFL_PASTS = pasts.filter(Boolean); NFL = buildNfl(live, NFL_PASTS); initNflState();
   } catch { /* NFL section shows a loading message */ }
 }
-const nsig = (d) => JSON.stringify(d.games.filter((g) => g.season === d.season).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.detail?.qb_home?.status, g.detail?.qb_away?.status]));
+const nsig = (d) => JSON.stringify(d.games.filter((g) => g.season === d.season).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.clv, g.detail?.qb_home?.status, g.detail?.qb_away?.status]));
 
 // ---------- routing ----------
 let DATA = null;
