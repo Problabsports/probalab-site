@@ -439,6 +439,20 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 @media (max-width: 1000px) { .sportgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) { .home-hero { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
+.qbwarn { display: inline-grid; place-items: center; width: 26px; height: 24px; margin-left: 4px; padding: 0; border: 0; background: transparent; color: rgba(245, 233, 0, 0.55); font-size: 17px; line-height: 1; cursor: pointer; }
+.qbwarn.hot { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.7); animation: qbpulse 2.4s ease-in-out infinite; }
+.qbwarn:hover, .qbwarn:focus-visible { color: var(--yellow); }
+@keyframes qbpulse { 50% { text-shadow: 0 0 2px rgba(245, 233, 0, 0.2); } }
+.legend b.qbwarn { width: auto; margin: 0 4px 0 0; animation: none; }
+.qbpop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(4, 5, 10, 0.72); backdrop-filter: blur(3px); }
+.qbbox { position: relative; width: 100%; max-width: 460px; display: grid; gap: 10px; padding: 22px 20px 18px; background: var(--surface); border: 1px solid var(--yellow); box-shadow: 0 0 40px rgba(245, 233, 0, 0.15); clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); }
+.qbbox h3 { margin: 0; font: 700 16px var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--yellow); }
+.qbbox p { margin: 0; font-size: 14px; line-height: 1.5; }
+.qbbox .x { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; border: 1px solid var(--line-hi); background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; }
+.dayhead { font: 600 12px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); padding: 6px 2px 0; border-bottom: 1px solid var(--line-hi); }
+.daynav select.season { flex: none; }
+.daynav button[disabled] { opacity: 0.3; cursor: default; }
+@media (prefers-reduced-motion: reduce) { .qbwarn.hot { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .ticker .track { animation: none; } .sport-tile, .hp-pick .meter i { transition: none; } }
 </style>
 
@@ -454,10 +468,10 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 </header>
 <nav class="sports" id="sportBar" aria-label="Sports">
   <div class="wrap">
-    <a class="sport on" href="#nba-predictions">NBA <small>Live</small></a>
+    <a class="sport on" href="#nba-predictions" data-sport="nba">NBA <small>Live</small></a>
     <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
     <span class="sport" aria-disabled="true">EPL <small>Soon</small></span>
-    <span class="sport" aria-disabled="true">NFL <small>Soon</small></span>
+    <a class="sport" href="#nfl-predictions" data-sport="nfl">NFL <small>Live</small></a>
     <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
   </div>
 </nav>
@@ -468,11 +482,11 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 
   <section class="view" id="view-sport" hidden>
     <div>
-      <div class="eyebrow">NBA · win predictions</div>
+      <div class="eyebrow" id="spEyebrow">NBA · win predictions</div>
       <h1>Who wins. <em>How likely.</em></h1>
-      <p class="lede">Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record.</p>
+      <p class="lede" id="spLede">Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record.</p>
     </div>
-    <nav class="subtabs" aria-label="NBA sections">
+    <nav class="subtabs" id="subtabs" aria-label="NBA sections">
       <a href="#nba-predictions" data-sub="predictions">Predictions</a>
       <a href="#nba-record" data-sub="record">Our record</a>
       <a href="#nba-trends" data-sub="trends">Trends</a>
@@ -495,6 +509,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <div class="prose">
       <p>ProbaLab runs a proprietary data model for each sport. For the NBA it rates every player from recent box scores, weighted toward recent games. Before each game it reads the official injury report, works out the minutes each team is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent form, rest and back-to-backs to give each side a win probability.</p>
       <p>The model was tested on the 2025–26 season game by game, using only information available before each tip-off. Its percentages lined up with real results: picks given 70–75% won 74% of the time.</p>
+      <p><b>NFL:</b> the model rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback (a backup or inexperienced starter counts against a team). Tested on the 2021–2025 seasons, it picked 65% of winners, and its percentages matched results: games rated 70–75% were won 73% of the time.</p>
       <h2>The lights</h2>
       <div class="lights">
         <div><span><i class="chip SUPER">Super green</i></span><p>The model is confident (60%+) and rates the team well above the market. Our strongest tips.</p></div>
@@ -532,6 +547,7 @@ const FEED_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab
 const FEED_EDGE = "api/feed"; // same feed through Cloudflare's cache (preferred)
 const REFRESH_MS = 120000; // background refresh while the page is open
 let SOFT = false; // true while re-rendering after a background refresh
+let SP = "nba"; // sport section being shown
 const PAST_SEASONS = [2026]; // finished seasons served as static files: data/nba-<season>.json
 const USE_SAMPLE = /[?&]sample\b/.test(location.search); // ?sample shows the design preview data
 const VALUE_MARGIN = 0.03;
@@ -601,7 +617,9 @@ const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
 const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
 let CUR = 2027, DEF = 2027; // DEF = season shown by default (last season until this one has results)
-const picks = () => DATA.games.filter((g) => g.has_pick !== false && g.pick);
+const SPD = () => (SP === "nfl" ? NFL : DATA);
+const picksOf = (d) => (d ? d.games.filter((g) => g.has_pick !== false && g.pick) : []);
+const picks = () => picksOf(SPD());
 const pickedDone = () => picks().filter((g) => g.status === "post" && g.won !== null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
 const finals = (season) => DATA.games.filter((g) => g.season === season && g.status === "post" && g.home_score != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
 
@@ -611,7 +629,7 @@ function card(g) {
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
   return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
-    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${g.sport === "NFL" ? qbWarn(g) : ""}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
@@ -684,7 +702,7 @@ function renderRecord() {
   const beat = clvs.length ? clvs.filter((g) => g.clv > 0).length / clvs.length : null;
   const rows = (FILTER === "tips" ? tips : done).slice(0, 80);
   if (!done.length) { document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
-    <div class="panel"><h2>No results yet</h2><p>Our record starts with the first game of ${seasonLabel(CUR)}. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p></div>`; return; }
+    <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
@@ -875,35 +893,42 @@ const SPORTS = [["NBA", "Basketball"], ["AFL", "Aussie rules"], ["EPL", "Footbal
 // ---------- home page ----------
 function renderHome() {
   const el = document.getElementById("view-home");
-  const f = featured();
-  const upcoming = picks().filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  SP = "nba";
+  const f = featured(DATA) ?? featured(NFL), fn = featured(NFL);
+  const upcoming = [...picksOf(DATA), ...picksOf(NFL)].filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const nflWeekGames = NFL ? nflSeasonGames(NFL.season).filter((g) => g.week === NWEEK) : [];
+  const nflDone = picksOf(NFL).filter((g) => g.status === "post" && g.won !== null), nw = nflDone.filter((g) => g.won).length;
   const nextGames = curGames().filter((g) => g.status !== "post" && new Date(g.start_utc) > Date.now() - 3 * 3600e3);
   const nextDay = nextGames.map((g) => keyOf(g.start_utc)).sort()[0];
   const dayGames = nextDay ? nextGames.filter((g) => keyOf(g.start_utc) === nextDay) : [];
   const done = pickedDone(), w = done.filter((g) => g.won).length;
   const dayLabel = nextDay ? (nextDay === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(nextDay))) : "";
-  const tick = upcoming.slice(0, 14).map((g) => `<a href="#game-${esc(g.game_id)}" class="${isTip(g) ? "tip" : ""}"><b>${esc(g.pick)}</b> v ${esc(g.pick === g.home ? g.away : g.home)}<span class="pc">${pct(g.pick_p)}</span></a>`).join("");
+  const tick = upcoming.slice(0, 16).map((g) => `<a href="#game-${esc(g.game_id)}" class="${isTip(g) ? "tip" : ""}"><small>${g.sport} </small><b>${esc(g.pick)}</b> v ${esc(g.pick === g.home ? g.away : g.home)}<span class="pc">${pct(g.pick_p)}</span></a>`).join("");
   const pickCard = f ? `<a class="hp-pick" href="#game-${esc(f.game_id)}">
-      <span class="lab">// Top pick · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}</span>
+      <span class="lab">// ${f.sport} top pick · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}</span>
       <span class="num" id="hpNum" data-to="${Math.round(f.pick_p * 100)}">${Math.round(f.pick_p * 100)}<small>%</small></span>
       <span class="who">${esc(f.pick_name)} to win</span>
       <span class="vs">${esc(f.away_name)} @ ${esc(f.home_name)}</span>
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
       <span>${chip(f.light)} <span class="note">Fair ${money(f.fair_price)} · value at ${money(f.value_price)}+</span></span>
     </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
-  const tile = ([code, lg]) => code === "NBA"
+  const tile = ([code, lg]) => code === "NFL" && NFL
+    ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
+        <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts this week"}</b></span></span>
+        <span class="go">Predictions →</span></a>`
+    : code === "NBA"
     ? `<a class="sport-tile live" href="#nba-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
-        <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(f.pick)} ${pct(f.pick_p)}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
+        <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(featured(DATA)?.pick ?? "")} ${featured(DATA) ? pct(featured(DATA).pick_p) : ""}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
     : `<div class="sport-tile soon" aria-disabled="true">${ICON[code]}<span class="st">Soon</span><span class="nm">${code}</span><span class="lg">${lg}</span><span class="info"><span>In the lab</span></span></div>`;
   el.innerHTML = `
-    ${tick ? `<div class="ticker" aria-label="Upcoming picks"><div class="track">${tick.repeat(Math.ceil(10 / Math.min(14, upcoming.length)) * 2)}</div></div>` : ""}
+    ${tick ? `<div class="ticker" aria-label="Upcoming picks"><div class="track">${tick.repeat(Math.ceil(10 / Math.min(16, upcoming.length)) * 2)}</div></div>` : ""}
     <div class="home-hero">
       <div style="display:grid;gap:14px">
         <div class="eyebrow">Probability lab · sports predictions</div>
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p>
-        <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn" href="#about">How it works</a></div>
+        <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn primary" href="#nfl-predictions">NFL predictions →</a><a class="btn" href="#about">How it works</a></div>
       </div>
       ${pickCard}
     </div>
@@ -916,7 +941,7 @@ function renderHome() {
         <div class="panel"><span class="n">03 · PREDICT</span><h2>One number</h2><p>Strength, form and schedule become a single win probability. Then the result goes on the record.</p></div>
       </div></section>
     ${tiles([["Players rated", (DATA.players.filter((p) => p.season === DEF).length || 0).toLocaleString(), `${SEASONS[DEF]} season`], ["Injury check", "15 min", "around the clock"],
-      ["Picks posted", picks().length.toLocaleString(), `${seasonLabel(CUR)} so far`], ["Picks deleted", "0", "losses stay on the record"]])}`;
+      ["Picks posted", (picksOf(DATA).length + picksOf(NFL).length).toLocaleString(), "NBA + NFL so far"], ["Picks deleted", "0", "losses stay on the record"]])}`;
   if (!SOFT) window.scrollTo(0, 0);
   // count-up on the big number
   const num = document.getElementById("hpNum");
@@ -930,12 +955,12 @@ function renderHome() {
 }
 
 // ---------- featured pick (sidebar "Tip of the day" + header badge) ----------
-function featured() {
-  const up = picks().filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+function featured(d = DATA) {
+  const up = picksOf(d).filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
   return up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0] ?? null;
 }
 function renderTopPick() {
-  const el = document.getElementById("topPick"), f = featured();
+  const el = document.getElementById("topPick"), f = featured(DATA) ?? featured(NFL);
   el.hidden = !f; if (!f) return;
   el.href = "#game-" + f.game_id;
   el.innerHTML = `<small>Top pick</small><b>${esc(f.pick)}</b>${pct(f.pick_p)}`;
@@ -965,7 +990,8 @@ function renderSide(sub) {
 
 // ---------- game detail ----------
 function renderGame(id) {
-  const g = DATA.games.find((x) => x.game_id === id);
+  if (NFL?.byId[id]) return renderNflGame(id);
+  const g = DATA?.games.find((x) => x.game_id === id);
   const el = document.getElementById("view-game");
   if (!g) { el.innerHTML = `<a class="back" href="#nba-predictions">← Back</a><div class="panel"><h2>Game not found</h2><p>It may be from an older season.</p></div>`; return; }
   if (!g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${cardSoon(g)}`; if (!SOFT) window.scrollTo(0, 0); return; }
@@ -1041,6 +1067,246 @@ function stackTables(root) {
 }
 new MutationObserver(() => stackTables(document)).observe(document.querySelector("main"), { childList: true, subtree: true });
 
+// ================================================================== NFL
+let NFL = null, NFL_PASTS = [], NWEEK = null, NSEASON = null, NSWEEK = null, NTABLE_MODE = "standings";
+const NFL_PAST_SEASONS = [2025];
+const NTEAMS = {}, NDIV = {};
+const NFL_DIVS = ["AFC East", "AFC North", "AFC South", "AFC West", "NFC East", "NFC North", "NFC South", "NFC West"];
+const wkLabel = (w) => (w <= 18 ? `Week ${w}` : { 19: "Wild Card", 20: "Divisional", 21: "Conference", 22: "Super Bowl" }[w] ?? `Week ${w}`);
+const wlt = (w, l, t) => (t ? `${w}–${l}–${t}` : `${w}–${l}`);
+function buildNfl(feed, pasts) {
+  for (const [abbr, name, , div] of feed.teams ?? []) { NTEAMS[abbr] = name; NDIV[abbr] = div; }
+  const nm = (c) => NTEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
+  const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NFL", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: null }));
+  for (const p of pasts) games.push(...p.games.map(([game_id, week, game_type, start_utc, home, away, home_score, away_score, neu]) => ({ game_id, sport: "NFL",
+    season: p.season, week, game_type, start_utc, home, away, home_name: nm(home), away_name: nm(away), status: "post", home_score, away_score, neutral: !!neu, has_pick: false, pick: null, won: null })));
+  return { season: feed.season, games, byId: Object.fromEntries(games.map((g) => [g.game_id, g])), seasons: [feed.season, ...pasts.map((p) => p.season)] };
+}
+const nflSeasonGames = (s) => NFL.games.filter((g) => g.season === s);
+const nflFinals = (s) => nflSeasonGames(s).filter((g) => g.status === "post" && g.home_score != null);
+const nflWeeks = (s) => [...new Set(nflSeasonGames(s).map((g) => g.week))].sort((a, b) => a - b);
+function initNflState() {
+  const cur = nflSeasonGames(NFL.season), open = cur.filter((g) => g.status !== "post").sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  if (NWEEK == null) NWEEK = open[0]?.week ?? Math.max(...nflWeeks(NFL.season));
+  if (NSEASON == null) NSEASON = nflFinals(NFL.season).length ? NFL.season : NFL.seasons[1] ?? NFL.season;
+  if (NSWEEK == null) { const ws = nflFinals(NSEASON).map((g) => g.week); NSWEEK = ws.length ? Math.max(...ws) : 1; }
+}
+function nflTable(season) {
+  const t = {}; Object.keys(NTEAMS).forEach((c) => (t[c] = { c, w: 0, l: 0, t: 0, pf: 0, pa: 0, res: [], hw: 0, hl: 0, ht: 0, aw: 0, al: 0, at: 0, dw: 0, dl: 0, dt: 0 }));
+  nflFinals(season).filter((g) => (g.game_type ?? "REG") === "REG").sort((a, b) => a.start_utc.localeCompare(b.start_utc)).forEach((g) => {
+    const H = t[g.home], A = t[g.away]; if (!H || !A) return;
+    const d = g.home_score - g.away_score, div = NDIV[g.home] === NDIV[g.away];
+    const rec = (X, r, home) => { const k = r === "W" ? "w" : r === "L" ? "l" : "t"; X[k]++; X[(home ? "h" : "a") + k]++; if (div) X["d" + k]++; X.res.push(r); };
+    rec(H, d > 0 ? "W" : d < 0 ? "L" : "T", true); rec(A, d < 0 ? "W" : d > 0 ? "L" : "T", false);
+    H.pf += g.home_score; H.pa += g.away_score; A.pf += g.away_score; A.pa += g.home_score;
+  });
+  return Object.values(t).map((r) => { const gp = r.w + r.l + r.t, cur = r.res[r.res.length - 1]; let k = 0;
+    for (let i = r.res.length - 1; i >= 0 && r.res[i] === cur; i--) k++;
+    return { ...r, gp, pct: gp ? (r.w + r.t / 2) / gp : 0, diff: r.pf - r.pa, ppg: gp ? r.pf / gp : 0, oppg: gp ? r.pa / gp : 0, streak: cur ? cur + k : "–" }; })
+    .sort((a, b) => b.pct - a.pct || b.diff - a.diff);
+}
+const nteamCell = (c) => `<span class="tm"><span class="badge">${c}</span>${esc(NTEAMS[c] ?? c)}</span>`;
+const nseasonSel = (val, id = "nseasonSel") => `<select class="season" id="${id}" aria-label="Season">${NFL.seasons.map((s) => `<option value="${s}" ${s === val ? "selected" : ""}>${s} season</option>`).join("")}</select>`;
+
+// quarterback note (triangle button + pop-up)
+const QB_OUT = /out|doubtful|injured reserve|suspend/i, QB_Q = /questionable/i;
+function qbWarn(g) {
+  const d = g.detail; if (!d || g.status === "post") return "";
+  const hot = d.qb_flag_home || d.qb_flag_away || [d.qb_home, d.qb_away].some((q) => QB_OUT.test(q?.status ?? "") || QB_Q.test(q?.status ?? ""));
+  return `<button type="button" class="qbwarn ${hot ? "hot" : ""}" data-qb="${esc(g.game_id)}" aria-label="Quarterback note" title="Quarterback note">⚠</button>`;
+}
+function qbLine(team, q, flag) {
+  if (!q?.name) return `<p><b>${team}:</b> no recent starter on record yet.</p>`;
+  const st = q.status ?? "";
+  if (QB_OUT.test(st)) return `<p><b>${team}:</b> ${esc(q.name)} is listed <b>${esc(st)}</b>. We've assumed a backup starts, which lowers ${team}'s chance.</p>`;
+  if (QB_Q.test(st)) return `<p><b>${team}:</b> ${esc(q.name)} is listed <b>Questionable</b>. We've counted half of the backup-quarterback effect.</p>`;
+  if (flag) return `<p><b>${team}:</b> we assume ${esc(q.name)} starts (their most recent starter). ${q.starts < 8 ? `He has ${q.starts} career start${q.starts === 1 ? "" : "s"}` : "He hasn't been their regular starter this season"}, so the model marks ${team} down a little.</p>`;
+  return `<p><b>${team}:</b> we assume ${esc(q.name)} starts (their most recent starter).</p>`;
+}
+function showQb(id) {
+  const g = NFL?.byId[id]; if (!g?.detail) return;
+  let pop = document.getElementById("qbPop");
+  if (!pop) { pop = document.createElement("div"); pop.id = "qbPop"; pop.className = "qbpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-modal", "true");
+    pop.innerHTML = `<div class="qbbox"><button type="button" class="x" data-qbclose aria-label="Close">✕</button><div id="qbBody"></div></div>`; document.body.appendChild(pop); }
+  const d = g.detail;
+  document.getElementById("qbBody").innerHTML = `<h3>⚠ Quarterback assumption</h3><div class="note">${esc(g.away_name)} @ ${esc(g.home_name)}</div>
+    ${qbLine(g.away, d.qb_away, d.qb_flag_away)}${qbLine(g.home, d.qb_home, d.qb_flag_home)}
+    <p class="note">We assume each team's most recent starting quarterback plays unless the injury report says otherwise. If a different quarterback starts, this pick can change. We re-check every 30 minutes until kick-off.</p>`;
+  pop.hidden = false; pop.querySelector(".x").focus();
+}
+
+// predictions by week
+function renderNflPredictions() {
+  const weeks = nflWeeks(NFL.season), list = nflSeasonGames(NFL.season).filter((g) => g.week === NWEEK).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const pl = list.filter((g) => g.pick), done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip), w = (xs) => xs.filter((g) => g.won).length;
+  const byDay = {}; list.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
+  document.getElementById("main").innerHTML = `
+    <div class="daynav">
+      <button type="button" data-wk="-1" aria-label="Previous week" ${NWEEK <= weeks[0] ? "disabled" : ""}>‹</button>
+      <h2>${wkLabel(NWEEK)} · ${NFL.season}</h2>
+      <button type="button" data-wk="1" aria-label="Next week" ${NWEEK >= weeks[weeks.length - 1] ? "disabled" : ""}>›</button>
+      <select class="season" id="nweekSel" aria-label="Week">${weeks.map((x) => `<option value="${x}" ${x === NWEEK ? "selected" : ""}>${wkLabel(x)}</option>`).join("")}</select>
+    </div>
+    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> tips</span>
+      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Tips <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
+      <span>Times in ${esc(TZNAME)}</span></div>
+    <div class="legend" aria-label="Light key">
+      <span><i class="chip GREEN">Green</i> 65%+</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
+      <span><b class="qbwarn hot" aria-hidden="true">⚠</b> quarterback note: tap it</span>
+    </div>
+    ${list.length ? Object.keys(byDay).sort().map((k) => `<div class="dayhead">${fmtDay.format(dateOfKey(k))}</div>${byDay[k].map((g) => (g.pick ? card(g) : cardSoon(g))).join("")}`).join("")
+      : `<div class="panel"><h2>No games this week</h2></div>`}
+    <p class="note">Picks are posted up to 8 days before kick-off and update as quarterback news comes in.</p>`;
+}
+
+// standings by division + scores by week
+function renderNflTable() {
+  const head = `<div class="toolbar"><div class="seg grow" style="flex:none"><a href="#nfl-table" aria-current="${NTABLE_MODE === "standings" ? "page" : "false"}">Standings</a><a href="#nfl-scores" aria-current="${NTABLE_MODE === "scores" ? "page" : "false"}">Scores</a></div><span class="grow"></span>${nseasonSel(NSEASON)}</div>`;
+  if (NTABLE_MODE === "scores") {
+    const ws = [...new Set(nflFinals(NSEASON).map((g) => g.week))].sort((a, b) => a - b);
+    if (!ws.includes(NSWEEK)) NSWEEK = ws[ws.length - 1];
+    const games = nflFinals(NSEASON).filter((g) => g.week === NSWEEK).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+    const byDay = {}; games.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
+    document.getElementById("main").innerHTML = head + `<div class="panel">
+      <div class="daynav"><button type="button" data-swk="-1" ${NSWEEK <= ws[0] ? "disabled" : ""} aria-label="Previous week">‹</button><h2>Scores · ${wkLabel(NSWEEK)}</h2>
+        <button type="button" data-swk="1" ${NSWEEK >= ws[ws.length - 1] ? "disabled" : ""} aria-label="Next week">›</button></div>
+      <div class="scores">${Object.keys(byDay).sort().map((k) => `<div class="dh">${fmtDay.format(dateOfKey(k))}</div>${byDay[k].map((g) => { const hw = g.home_score > g.away_score, aw = g.away_score > g.home_score;
+        return `<div class="sr" ${g.pick ? `data-game="${esc(g.game_id)}"` : ""}><span class="tt">${fmtTime.format(new Date(g.start_utc))}</span><span class="a ${aw ? "win" : ""}">${esc(g.away_name)}</span><span class="sc">${g.away_score}–${g.home_score}</span><span class="h ${hw ? "win" : ""}">${esc(g.home_name)}</span></div>`; }).join("")}`).join("") || `<p>No results yet.</p>`}</div></div>`;
+    return;
+  }
+  const rows = nflTable(NSEASON);
+  const panel = (div) => { const xs = rows.filter((r) => NDIV[r.c] === div);
+    return `<div class="panel"><h2>${div}</h2><div class="tablewrap"><table>
+      <thead><tr><th>#</th><th>Team</th><th class="n">W–L${xs.some((r) => r.t) ? "–T" : ""}</th><th class="n">Pct</th><th class="n">PF</th><th class="n">PA</th><th class="n">Diff</th><th class="n">Home</th><th class="n">Away</th><th class="n">Div</th><th class="n">Strk</th><th>Last 5</th></tr></thead><tbody>
+      ${xs.map((r, i) => `<tr><td class="mono">${i + 1}</td><td>${nteamCell(r.c)}</td><td class="n">${wlt(r.w, r.l, r.t)}</td><td class="n">${r.pct.toFixed(3).replace(/^0/, "")}</td><td class="n">${r.pf}</td><td class="n">${r.pa}</td>
+        <td class="n ${r.diff >= 0 ? "clv-pos" : "clv-neg"}">${r.diff > 0 ? "+" : ""}${r.diff}</td><td class="n">${wlt(r.hw, r.hl, r.ht)}</td><td class="n">${wlt(r.aw, r.al, r.at)}</td><td class="n">${wlt(r.dw, r.dl, r.dt)}</td><td class="n">${r.streak}</td><td>${formChips(r.res)}</td></tr>`).join("")}
+      </tbody></table></div></div>`; };
+  document.getElementById("main").innerHTML = head + `<div><h2>AFC</h2></div>${NFL_DIVS.slice(0, 4).map(panel).join("")}<div><h2>NFC</h2></div>${NFL_DIVS.slice(4).map(panel).join("")}
+    <p class="note">Regular season only. Ordered by win percentage, then points difference (not the NFL's full tie-break rules).</p>`;
+}
+
+// stats
+function renderNflStats() {
+  const gs = nflFinals(NSEASON).filter((g) => (g.game_type ?? "REG") === "REG"), n = gs.length || 1;
+  const hw = gs.filter((g) => g.home_score > g.away_score && !g.neutral).length, homeGames = gs.filter((g) => !g.neutral).length || 1;
+  const tot = gs.map((g) => g.home_score + g.away_score), mar = gs.map((g) => Math.abs(g.home_score - g.away_score));
+  const rows = nflTable(NSEASON).filter((r) => r.gp);
+  document.getElementById("main").innerHTML = `
+    <div class="toolbar"><h2 class="grow">NFL stats</h2>${nseasonSel(NSEASON)}</div>
+    ${tiles([["Games played", gs.length, `${NSEASON} regular season`], ["Home win rate", pct(hw / homeGames), `${hw} home wins`], ["Avg total points", avg(tot).toFixed(1), "both teams"], ["Avg winning margin", avg(mar).toFixed(1), "points"]])}
+    <div class="statgrid">
+      <div class="panel"><h2>Winning margin</h2>${buckets(mar, [[0, 4], [4, 8], [8, 15], [15, 999]], ["1–3 pts", "4–7 pts", "8–14 pts", "15+ pts"])}</div>
+      <div class="panel"><h2>Total points per game</h2>${buckets(tot, [[0, 35], [35, 45], [45, 55], [55, 999]], ["Under 35", "35–44", "45–54", "55+"])}</div>
+    </div>
+    <div class="panel"><h2>Team scoring</h2><div class="tablewrap"><table>
+      <thead><tr><th>Team</th><th class="n">GP</th><th class="n">W–L</th><th class="n">Pts for</th><th class="n">Pts against</th><th class="n">Diff / game</th><th class="n">Home</th><th class="n">Away</th></tr></thead><tbody>
+      ${rows.slice().sort((a, b) => b.diff - a.diff).map((r) => `<tr><td>${nteamCell(r.c)}</td><td class="n">${r.gp}</td><td class="n">${wlt(r.w, r.l, r.t)}</td><td class="n">${r.ppg.toFixed(1)}</td><td class="n">${r.oppg.toFixed(1)}</td>
+        <td class="n ${r.diff >= 0 ? "clv-pos" : "clv-neg"}">${sgn(r.diff / r.gp)}</td><td class="n">${wlt(r.hw, r.hl, r.ht)}</td><td class="n">${wlt(r.aw, r.al, r.at)}</td></tr>`).join("")}
+      </tbody></table></div></div>`;
+}
+
+// game detail
+function factorRow(label, a, h, fmt, higherBetter = true) {
+  if (a == null || h == null) return "";
+  const span = Math.max(Math.abs(a), Math.abs(h), 1e-9), edgeH = higherBetter ? h > a : h < a;
+  const diff = Math.min(1, Math.abs(h - a) / (span * 0.15 + 1e-9));
+  return `<div class="factor"><div class="v ${!edgeH && a !== h ? "edge" : ""}">${fmt(a)}</div>
+    <div class="mid"><div class="lbl">${label}</div><div class="track"><span>${!edgeH && a !== h ? `<i style="width:${diff * 100}%"></i>` : ""}</span><span>${edgeH ? `<i style="width:${diff * 100}%"></i>` : ""}</span></div></div>
+    <div class="v r ${edgeH ? "edge" : ""}">${fmt(h)}</div></div>`;
+}
+function renderNflGame(id) {
+  const g = NFL.byId[id], el = document.getElementById("view-game");
+  if (!g.pick) { el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${cardSoon(g)}`; if (!SOFT) window.scrollTo(0, 0); return; }
+  const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
+  const tab = nflTable(g.season), rec = (c) => tab.find((r) => r.c === c);
+  const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
+      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
+  const qbCard = (team, q, flag) => `<div class="panel"><h2>${team} quarterback</h2>${q?.name ? `<div class="formlist">
+      <div class="fr"><span class="badge">QB</span><span class="t"><b>${esc(q.name)}</b></span><span class="mono">${q.starts} starts</span></div>
+      <div class="fr"><span></span><span class="t">Injury report</span><span class="mono">${esc(q.status ?? "–")}</span></div></div>` : `<p>No recent starter on record.</p>`}
+      ${qbLine(team, q, flag)}</div>`;
+  const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
+  el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>
+    <div class="panel match">
+      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${qbWarn(g)}
+        ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
+      <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
+      <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
+        ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}
+        ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}</dl>
+      ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
+    </div>
+    <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
+      <div class="factors">
+        ${factorRow("Team rating", d.elo_away, d.elo_home, (v) => String(Math.round(v)))}
+        ${factorRow("Days of rest", d.rest_away, d.rest_home, (v) => v + (v >= 13 ? " · bye" : ""))}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factorRow("Season win %", rec(g.away).pct * 100, rec(g.home).pct * 100, (v) => Math.round(v) + "%") : ""}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factorRow("Points for / game", rec(g.away).ppg, rec(g.home).ppg, (v) => v.toFixed(1)) : ""}
+        ${rec(g.away)?.gp && rec(g.home)?.gp ? factorRow("Points against / game", rec(g.away).oppg, rec(g.home).oppg, (v) => v.toFixed(1), false) : ""}
+      </div></div>
+    <div class="out">${qbCard(g.away, d.qb_away, d.qb_flag_away)}${qbCard(g.home, d.qb_home, d.qb_flag_home)}</div>
+    <div class="conf">
+      <div class="panel"><h2>Form · last 5</h2><div class="formlist">
+        <div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)} <span class="note">${rec(g.away) ? wlt(rec(g.away).w, rec(g.away).l, rec(g.away).t) : ""}</span></span>${formChips(rec(g.away)?.res ?? [])}</div>
+        <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)} <span class="note">${rec(g.home) ? wlt(rec(g.home).w, rec(g.home).l, rec(g.home).t) : ""}</span></span>${formChips(rec(g.home)?.res ?? [])}</div></div></div>
+      <div class="panel"><h2>Meetings this season</h2>${meet.length ? `<div class="formlist">${meet.map((x) => `<div class="fr"><span></span><span class="t">${wkLabel(x.week)}</span><span class="score mono">${x.away} ${x.away_score}–${x.home_score} ${x.home}</span></div>`).join("")}</div>` : `<p>First meeting this season.</p>`}</div>
+    </div>
+    <div class="panel"><h2>Pick timeline</h2><div class="timeline">
+      ${g.first_posted ? `<div><b>First posted</b>${fmtShort.format(new Date(g.first_posted))} ${fmtTime.format(new Date(g.first_posted))}</div>` : ""}
+      ${g.last_updated ? `<div><b>Last updated</b>${fmtShort.format(new Date(g.last_updated))} ${fmtTime.format(new Date(g.last_updated))}</div>` : ""}
+      <div><b>Locked at kick-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
+      <div style="color:var(--muted)">Times in ${esc(TZNAME)}</div></div></div>`;
+  if (!SOFT) window.scrollTo(0, 0);
+}
+
+// sidebar
+function renderSideNfl() {
+  const feat = featured(NFL), tips = pickedDone().filter(isTip), last7 = tips.filter((g) => Date.now() - new Date(g.start_utc) < 7 * 864e5);
+  const ts = nflFinals(NFL.season).length ? NFL.season : NSEASON, rows = nflTable(ts).filter((r) => r.gp).slice(0, 8);
+  document.getElementById("side").innerHTML = `
+    ${feat ? `<div class="mini"><h3>Tip of the week</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
+      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
+      <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
+      <div class="row">${chip(feat.light)}<span class="n">Value at ${money(feat.value_price)}+</span></div></div></div>` : ""}
+    <div class="mini"><h3>Tips record</h3>
+      <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
+      <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
+      <a class="back" href="#nfl-record">Our record →</a></div>
+    <div class="mini"><h3>Best records${ts === NFL.season ? "" : ` · ${ts}`}</h3>
+      ${rows.map((r, i) => `<div class="row"><span class="n">${i + 1}</span><span class="badge">${r.c}</span><span class="t">${esc(NTEAMS[r.c])}</span><span class="n">${wlt(r.w, r.l, r.t)}</span></div>`).join("")}
+      <a class="back" href="#nfl-table">Standings &amp; scores →</a></div>`;
+}
+const NSUBS = { predictions: renderNflPredictions, record: renderRecord, table: renderNflTable, scores: renderNflTable, stats: renderNflStats };
+const SUBTABS = {
+  nba: [["predictions", "Predictions"], ["record", "Our record"], ["trends", "Trends"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
+  nfl: [["predictions", "Predictions"], ["record", "Our record"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
+};
+const HERO = {
+  nba: ["NBA · win predictions", "Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record."],
+  nfl: ["NFL · win predictions", "Every game gets a win probability from our proprietary data model. It rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are timestamped before kick-off, then locked. Every result stays on the record."],
+};
+function setSportChrome(sp, tabKey) {
+  document.getElementById("spEyebrow").textContent = HERO[sp][0];
+  document.getElementById("spLede").textContent = HERO[sp][1];
+  const st = document.getElementById("subtabs");
+  st.setAttribute("aria-label", `${sp.toUpperCase()} sections`);
+  st.innerHTML = SUBTABS[sp].map(([k, l]) => `<a href="#${sp}-${k}" data-sub="${k}" aria-current="${k === tabKey ? "page" : "false"}">${l}</a>`).join("");
+  document.querySelectorAll("#sportBar [data-sport]").forEach((a) => a.classList.toggle("on", a.dataset.sport === sp));
+}
+async function fetchNfl() {
+  const get = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  try { return await get(`${FEED_EDGE}?sport=nfl`); } catch { return await get(`${FEED_URL}?sport=nfl`); }
+}
+async function loadNfl() {
+  try {
+    const [live, ...pasts] = await Promise.all([fetchNfl(), ...NFL_PAST_SEASONS.map((y) => fetch(`data/nfl-${y}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))]);
+    NFL_PASTS = pasts.filter(Boolean); NFL = buildNfl(live, NFL_PASTS); initNflState();
+  } catch { /* NFL section shows a loading message */ }
+}
+const nsig = (d) => JSON.stringify(d.games.filter((g) => g.season === d.season).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.detail?.qb_home?.status, g.detail?.qb_away?.status]));
+
 // ---------- routing ----------
 let DATA = null;
 const SUBS = { predictions: renderPredictions, record: renderRecord, trends: renderTrends, table: renderTable, scores: renderTable, stats: renderStats };
@@ -1050,18 +1316,29 @@ function route() {
   if (h === "" || h === "home") v = "home"; else if (h === "about") v = "about"; else if (h.startsWith("game-")) v = "game";
   else if (h.startsWith("nba-stats-") && TEAMS[h.slice(10)]) { sub = "stats"; TEAM = h.slice(10); }
   else if (h.startsWith("nba-") && SUBS[h.slice(4)]) { sub = h.slice(4); if (sub === "stats") TEAM = ""; }
+  else if (h.startsWith("nfl-") && NSUBS[h.slice(4)]) { sub = h.slice(4); SP = "nfl"; }
+  if (v === "sport" && !h.startsWith("nfl-")) SP = "nba";
+  if (v === "game") SP = NFL?.byId[h.slice(5)] ? "nfl" : "nba";
   ["home", "sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== v));
   document.getElementById("sportBar").hidden = v === "home";
   const topKey = v === "game" ? "sport" : v;
   document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === topKey ? "page" : "false"));
+  if (!DATA && !NFL) return;
+  if (v === "home") return DATA ? renderHome() : null;
+  if (v === "sport" && SP === "nfl") {
+    const tabKey = sub === "scores" ? "table" : sub;
+    setSportChrome("nfl", tabKey);
+    if (!NFL) { document.getElementById("main").innerHTML = `<div class="panel"><h2>NFL predictions are loading</h2><p>Refresh the page in a minute.</p></div>`; document.getElementById("side").innerHTML = ""; return; }
+    if (sub === "table" || sub === "scores") NTABLE_MODE = sub === "scores" ? "scores" : "standings";
+    NSUBS[sub](); renderSideNfl(); return;
+  }
   if (!DATA) return;
-  if (v === "home") return renderHome();
   if (v === "game") return renderGame(h.slice(5));
   if (v === "sport") {
     if (sub === "table" || sub === "scores") TABLE_MODE = sub === "scores" ? "scores" : "standings";
     if (sub === "trends" || sub === "record" || sub === "predictions") SEASON = DEF;
     const tabKey = sub === "scores" ? "table" : sub;
-    document.querySelectorAll(".subtabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.sub === tabKey ? "page" : "false"));
+    setSportChrome("nba", tabKey);
     SUBS[sub](); renderSide(sub);
   }
 }
@@ -1069,6 +1346,10 @@ function rerenderPred() { renderPredictions(); renderSide("predictions"); }
 window.addEventListener("hashchange", route);
 window.addEventListener("popstate", route);
 document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-qbclose]") || e.target.id === "qbPop") { document.getElementById("qbPop").hidden = true; return; }
+  const qb = e.target.closest("[data-qb]"); if (qb) { e.preventDefault(); e.stopPropagation(); showQb(qb.dataset.qb); return; }
+  const wk = e.target.closest("[data-wk]"); if (wk) { NWEEK += Number(wk.dataset.wk); renderNflPredictions(); return; }
+  const swk = e.target.closest("[data-swk]"); if (swk) { NSWEEK += Number(swk.dataset.swk); renderNflTable(); return; }
   const home = e.target.closest("[data-home]");
   if (home) { e.preventDefault(); if (location.hash) history.pushState(null, "", location.pathname + location.search); route(); return; }
   const day = e.target.closest("[data-day]"); if (day) { SEL = day.dataset.day; CAL_OPEN = false; rerenderPred(); return; }
@@ -1079,9 +1360,14 @@ document.addEventListener("click", (e) => {
   const tm = e.target.closest("[data-team]"); if (tm) { location.hash = "nba-stats-" + tm.dataset.team; return; }
   const gm = e.target.closest("[data-game]"); if (gm) location.hash = "game-" + gm.dataset.game;
 });
-document.addEventListener("change", (e) => { if (e.target.id === "teamSel") { location.hash = e.target.value ? "nba-stats-" + e.target.value : "nba-stats"; return; }
+document.addEventListener("change", (e) => {
+  if (e.target.id === "nweekSel") { NWEEK = Number(e.target.value); renderNflPredictions(); return; }
+  if (e.target.id === "nseasonSel") { NSEASON = Number(e.target.value); NSWEEK = null; const ws = nflFinals(NSEASON).map((g) => g.week); NSWEEK = ws.length ? Math.max(...ws) : 1;
+    (location.hash.slice(1) === "nfl-stats" ? renderNflStats : renderNflTable)(); renderSideNfl(); return; }
+  if (e.target.id === "teamSel") { location.hash = e.target.value ? "nba-stats-" + e.target.value : "nba-stats"; return; }
   if (e.target.id === "seasonSel") { SEASON = Number(e.target.value); const h = location.hash.slice(1); (h.startsWith("nba-stats") ? renderStats : renderTable)(); } });
-document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches?.("[data-game]")) location.hash = "game-" + e.target.dataset.game; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.getElementById("qbPop")) { document.getElementById("qbPop").hidden = true; return; }
+  if (e.key === "Enter" && e.target.matches?.("[data-game]")) location.hash = "game-" + e.target.dataset.game; });
 document.getElementById("yr").textContent = new Date().getFullYear();
 
 // turn the live feed (+ static past seasons) into the shape the page uses
@@ -1112,8 +1398,18 @@ function applyData(feed) {
   DEF = finals(CUR).length || !played.length ? CUR : Math.max(...played);
 }
 const sig = (d) => JSON.stringify(d.games.filter((g) => g.season === CUR).map((g) => [g.game_id, g.status, g.home_score, g.away_score, g.pick, g.pick_p, g.light, g.won, g.clv])) + d.players.length;
+async function refreshNfl() {
+  try {
+    const next = buildNfl(await fetchNfl(), NFL_PASTS);
+    if (NFL && nsig(next) === nsig(NFL)) return false;
+    NFL = next; initNflState(); return true;
+  } catch { return false; }
+}
 async function refresh() {
-  if (USE_SAMPLE || document.visibilityState !== "visible" || !DATA) return;
+  if (document.visibilityState !== "visible") return;
+  const nflChanged = await refreshNfl();
+  if (nflChanged && (SP === "nfl" || !location.hash)) { const y = window.scrollY; SOFT = true; route(); renderTopPick(); SOFT = false; window.scrollTo(0, y); }
+  if (USE_SAMPLE || !DATA) return;
   try {
     const next = buildData(await fetchLive(), PASTS);
     if (sig(next) === sig(DATA)) return;
@@ -1125,6 +1421,7 @@ async function refresh() {
   } catch { /* keep showing what we have; try again next time */ }
 }
 (async function load() {
+  const nflP = loadNfl();
   let feed;
   if (USE_SAMPLE) feed = sampleFeed();
   else {
@@ -1133,8 +1430,9 @@ async function refresh() {
         ...PAST_SEASONS.map((y) => fetch(`data/nba-${y}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null))]);
       PASTS = pasts.filter(Boolean);
       feed = buildData(live, PASTS);
-    } catch { document.getElementById("main").innerHTML = `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
+    } catch { await nflP; route(); document.getElementById("main").innerHTML ||= `<div class="panel"><h2>Predictions are loading slowly</h2><p>Refresh the page in a minute.</p></div>`; return; }
   }
+  await nflP;
   applyData(feed);
   SEASON = DEF;
   setTimeout(renderTopPick, 0);
