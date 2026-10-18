@@ -2,6 +2,7 @@
 // Data comes from the same public feed as the app (/api/feed), through the same edge cache key.
 // Rules: no bookmaker names or prices; no third-party written text (injury statuses are our own labels).
 
+import { venueOf } from "./venues.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -271,15 +272,22 @@ export function renderGame(g, all, rec) {
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
   <p class="note">Probabilities come from ProbaLab's own model. They are not betting advice. <a href="/#about">How it works</a>.</p>`;
+  const venue = venueOf(g);
+  const league = g.sport === "nfl" ? { "@type": "SportsOrganization", name: "NFL", url: "https://www.nfl.com" }
+    : { "@type": "SportsOrganization", name: "NBA", url: "https://www.nba.com" };
+  const team = (n) => ({ "@type": "SportsTeam", name: n });
+  // full event data lives only on the game page (hub pages link here through an ItemList)
   const jsonld = {
     "@context": "https://schema.org", "@type": "SportsEvent",
     name: `${A} vs ${H}`, sport: g.sport === "nfl" ? "American football" : "Basketball",
     startDate: g.start_utc, url: ORIGIN + g.path,
     eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    homeTeam: { "@type": "SportsTeam", name: H }, awayTeam: { "@type": "SportsTeam", name: A },
-    competitor: [{ "@type": "SportsTeam", name: A }, { "@type": "SportsTeam", name: H }],
+    ...(venue ? { location: venue } : {}),
+    image: [`${ORIGIN}/og-image.png`, `${ORIGIN}/icon-512.png`],
     description,
-    organizer: { "@type": "SportsOrganization", name: S },
+    organizer: league,
+    homeTeam: team(H), awayTeam: team(A),
+    competitor: [team(A), team(H)], performer: [team(A), team(H)],
   };
   return shell({ title, description, path: g.path, body, jsonld, noindex: !g.pick, ogType: "article" });
 }
@@ -316,8 +324,11 @@ export function renderHub(sport, data) {
     : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before tip-off."}</p></section>`}
   ${recent.length ? `<section class="panel"><h2>Recent results</h2><ul class="games">${recent.map(gameRow).join("")}</ul></section>` : ""}
   <p class="cta"><a class="btn" href="/#${sport}-predictions">Open the ${S} app view →</a></p>`;
+  // list page: an ItemList of links to the game pages (no bare SportsEvent entries here)
+  const listed = [...upcoming, ...recent].slice(0, 40);
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions`, url: `${ORIGIN}/${sport}`, description,
-    hasPart: upcoming.slice(0, 20).map((g) => ({ "@type": "SportsEvent", name: `${g.away_name} vs ${g.home_name}`, startDate: g.start_utc, url: ORIGIN + g.path })) };
+    mainEntity: { "@type": "ItemList", numberOfItems: listed.length,
+      itemListElement: listed.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
   return shell({ title, description, path: `/${sport}`, body, jsonld });
 }
 
