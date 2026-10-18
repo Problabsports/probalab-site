@@ -281,6 +281,8 @@ export function renderGame(g, all, rec) {
     "@context": "https://schema.org", "@type": "SportsEvent",
     name: `${A} vs ${H}`, sport: g.sport === "nfl" ? "American football" : "Basketball",
     startDate: g.start_utc, url: ORIGIN + g.path,
+    // estimated end (typical game length): NBA ~2.5 h, NFL ~3.5 h
+    endDate: new Date(new Date(g.start_utc).getTime() + (g.sport === "nfl" ? 3.5 : 2.5) * 3600e3).toISOString(),
     eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     ...(venue ? { location: venue } : {}),
     image: [`${ORIGIN}/og-image.png`, `${ORIGIN}/icon-512.png`],
