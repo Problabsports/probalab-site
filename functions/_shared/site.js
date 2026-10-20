@@ -29,8 +29,8 @@ export function gamesOf(sport, feed) {
   const nm = (c) => names[c] ?? c;
   const games = (feed.games ?? []).filter((g) => g.season === feed.season).map((g) => ({
     ...g, sport, home_name: nm(g.home), away_name: nm(g.away), pick_name: g.pick ? nm(g.pick) : null,
-    pick_p: g.pick_p == null ? null : Number(g.pick_p), fair_price: g.fair_price == null ? null : Number(g.fair_price),
-    value_price: g.value_price == null ? null : Number(g.value_price), clv: g.clv == null ? null : Number(g.clv),
+    pick_p: g.pick_p == null ? null : Number(g.pick_p), clv: g.clv == null ? null : Number(g.clv),
+    fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site (John, 21 Oct)
   }));
   games.forEach((g) => (g.path = gamePath(g)));
   return { games, names, season: feed.season, teams: feed.teams ?? [] };
@@ -60,7 +60,6 @@ export const idFromSlug = (s) => (String(s).match(/-(\d+)$/) ?? [])[1] ?? null;
 // ------------------------------------------------------------------ formatting
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const pct = (p) => `${Math.round(p * 100)}%`;
-const money = (x) => (x == null ? "–" : `$${x.toFixed(2)}`);
 const sgn = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}`;
 const fmt = (iso, tz, opts) => new Intl.DateTimeFormat("en-AU", { timeZone: tz, ...opts }).format(new Date(iso));
 const dayET = (iso) => fmt(iso, "America/New_York", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -255,8 +254,7 @@ export function renderGame(g, all, rec) {
         <span class="at">@</span>
         <span class="team r ${g.pick === g.home ? "on" : ""}"><span class="ab">${esc(g.home)}</span>${esc(H)}<span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
-      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div>
-        <div><dt>Fair price</dt><dd>${money(g.fair_price)}</dd></div>${isTip(g) && !post ? `<div><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}</dl>
+      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div></dl>
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before tip-off"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
@@ -267,7 +265,7 @@ export function renderGame(g, all, rec) {
   ${resultHtml}
   ${paras.length ? `<section class="panel prose"><h2>${post ? "Our pre-game preview" : "Preview"}</h2>${paras.join("\n")}
     <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "tip-off"}, then the pick is locked and stays on our public record, win or lose.`}</p>
-    ${isTip(g) && !post ? `<p>This is one of our tips. Our fair price for ${esc(g.pick_name)} is ${money(g.fair_price)}; we'd only call it value at ${money(g.value_price)} or better.</p>` : ""}
+    ${isTip(g) && !post ? `<p>This is one of our tips: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
   </section>` : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}

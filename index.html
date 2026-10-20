@@ -560,8 +560,6 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55–65%. Shown for completeness, not a tip.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
       </div>
-      <h2>Fair and value prices</h2>
-      <p><b>Fair price</b> is what the win probability is worth as decimal odds: 1 ÷ probability. A 70% pick has a fair price of $1.43. <b>Value at $X or better</b> adds a 3% margin. A price below it isn't worth taking on our numbers.</p>
       <h2>Beating the close</h2>
       <p>For tips, we compare the price at the time of the tip with the final market price at tip-off. Beating the close consistently is the clearest sign a prediction is ahead of the market. We show it as a percentage after each game.</p>
       <h2>Our rules</h2>
@@ -620,7 +618,7 @@ function sampleFeed() {
     const light = lightOf(pp, pp >= 0.6 && rnd() < 0.18);
     const g = { game_id: "S" + id++, sport: "NBA", season, start_utc: new Date(startMs).toISOString(), home: h, away: a, home_name: TEAMS[h], away_name: TEAMS[a],
       status: settled ? "post" : "pre", home_score: null, away_score: null, won: null, clv: null, has_pick: withPick };
-    if (withPick) Object.assign(g, { pick, pick_name: TEAMS[pick], pick_p: +pp.toFixed(3), light, fair_price: +(1 / pp).toFixed(2), value_price: +((1 + VALUE_MARGIN) / pp).toFixed(2),
+    if (withPick) Object.assign(g, { pick, pick_name: TEAMS[pick], pick_p: +pp.toFixed(3), light,
       first_posted: new Date(startMs - (20 + rnd() * 20) * 3600e3).toISOString(), last_updated: new Date(startMs - (0.5 + rnd() * 3) * 3600e3).toISOString(),
       detail: { tal_home: +(93 + (ph - 0.5) * 8 + (rnd() - 0.5) * 3).toFixed(1), tal_away: +(93 - (ph - 0.5) * 8 + (rnd() - 0.5) * 3).toFixed(1),
         form_home: +((ph - 0.5) * 14 + (rnd() - 0.5) * 6).toFixed(1), form_away: +((0.5 - ph) * 10 + (rnd() - 0.5) * 6).toFixed(1),
@@ -686,8 +684,7 @@ function card(g) {
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
       <i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
     <div class="card-top"><dl class="prices">
-      <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
-      ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)}+</dd></div>` : ""}
+      <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
       ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}
     </dl><span class="more">Details →</span></div>
   </article>`;
@@ -962,11 +959,11 @@ function renderHome() {
       <span class="who">${esc(f.pick_name)} to win</span>
       <span class="vs">${esc(f.away_name)} @ ${esc(f.home_name)}</span>
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
-      <span>${chip(f.light)} <span class="note">Fair ${money(f.fair_price)} · value at ${money(f.value_price)}+</span></span>
+      <span>${chip(f.light)}</span>
     </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
   const tile = ([code, lg]) => code === "NFL" && NFL
     ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
-        <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts this week"}</b></span></span>
+        <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>starts soon</b></span></span>
         <span class="go">Predictions →</span></a>`
     : code === "NBA"
     ? `<a class="sport-tile live" href="#nba-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
@@ -1030,7 +1027,7 @@ function renderSide(sub) {
     ${feat ? `<div class="mini"><h3>Tip of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
-      <div class="row">${chip(feat.light)}<span class="n">Value at ${money(feat.value_price)}+</span></div></div></div>` : ""}
+      <div class="row">${chip(feat.light)}</div></div></div>` : ""}
     <div class="mini"><h3>Tips record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
@@ -1128,8 +1125,7 @@ function renderGame(id) {
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
-      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
-        ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
         ${g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
     </div>
@@ -1193,7 +1189,7 @@ function buildNfl(feed, pasts) {
   for (const [abbr, name, , div] of feed.teams ?? []) { NTEAMS[abbr] = name; NDIV[abbr] = div; }
   const nm = (c) => NTEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
   const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NFL", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
-    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: n(g.clv) }));
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv) }));
   for (const p of pasts) games.push(...p.games.map(([game_id, week, game_type, start_utc, home, away, home_score, away_score, neu]) => ({ game_id, sport: "NFL",
     season: p.season, week, game_type, start_utc, home, away, home_name: nm(home), away_name: nm(away), status: "post", home_score, away_score, neutral: !!neu, has_pick: false, pick: null, won: null })));
   return { season: feed.season, games, byId: Object.fromEntries(games.map((g) => [g.game_id, g])), seasons: [feed.season, ...pasts.map((p) => p.season)] };
@@ -1396,8 +1392,7 @@ function renderNflGame(id) {
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
-      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Fair</dt><dd>${money(g.fair_price)}</dd></div>
-        ${isTip(g) && !post ? `<div class="value"><dt>Value at</dt><dd>${money(g.value_price)} or better</dd></div>` : ""}
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
         ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
       ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
@@ -1436,7 +1431,7 @@ function renderSideNfl() {
     ${feat ? `<div class="mini"><h3>Tip of the week</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
-      <div class="row">${chip(feat.light)}<span class="n">Value at ${money(feat.value_price)}+</span></div></div></div>` : ""}
+      <div class="row">${chip(feat.light)}</div></div></div>` : ""}
     <div class="mini"><h3>Tips record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
@@ -1565,7 +1560,7 @@ document.getElementById("yr").textContent = new Date().getFullYear();
 function buildData(feed, pasts) {
   const nm = (c) => TEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
   const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
-    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), fair_price: n(g.fair_price), value_price: n(g.value_price), clv: n(g.clv) }));
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv) }));
   const players = (feed.players ?? []).map(([team, player, gp, pts, reb, ast, stl, blk]) =>
     ({ season: feed.season, team, player, gp, pts: +pts, reb: +reb, ast: +ast, stl: +stl, blk: +blk }));
   for (const p of pasts) {
