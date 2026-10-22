@@ -34,7 +34,7 @@ export async function onRequestPost(ctx) {
     }
   }
   if (!isForm) return new Response(JSON.stringify(out), { status: res.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
-  const msg = out.ok ? "Thanks — you're on the list. Watch your inbox for our weekly predictions and results." : (out.error || "Something went wrong.");
+  const msg = out.ok ? "Thanks — you're on the list. Watch your inbox for our predictions and results twice a week." : (out.error || "Something went wrong.");
   return new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Newsletter | ProbaLab</title><link rel="stylesheet" href="/page.css"><main class="wrap"><h1>${out.ok ? "You're in" : "Not quite"}</h1><section class="panel"><p>${msg.replace(/</g, "&lt;")}</p><p><a href="/">Back to ProbaLab</a></p></section></main>`,
     { status: out.ok ? 200 : res.status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
