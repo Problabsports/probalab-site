@@ -32,13 +32,14 @@
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
+  <a class="nlbtn" href="#newsletter" data-nl>Newsletter</a>
   <nav aria-label="Main"><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/#about">How it works</a></nav>
 </div></header>
 <main class="wrap">
 <h1>Page not found</h1><section class="panel"><p>That page doesn't exist.</p><p><a href="/nba">NBA predictions</a> · <a href="/nfl">NFL predictions</a> · <a href="/">Home</a></p></section>
 </main>
 <footer><div class="wrap">
-  <form class="signup" action="/api/subscribe" method="post" data-signup>
+  <form id="newsletter" class="signup" action="/api/subscribe" method="post" data-signup>
   <label for="su-email"><b>Get our predictions and results by email, twice a week</b></label>
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="404">
@@ -66,5 +67,6 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
   try { t.textContent = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(t.getAttribute("datetime"))); } catch (e) {}
 });
 </script>
+<script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
 </body>
 </html>
