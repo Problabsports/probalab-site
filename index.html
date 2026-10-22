@@ -37,7 +37,8 @@
   --cyan: #19e3ff; --cyan-soft: rgba(25, 227, 255, 0.12);
   --magenta: #ff2fc0; --magenta-soft: rgba(255, 47, 192, 0.12);
   --yellow: #f5e900;
-  --super: #3dff8f; --super-soft: rgba(61, 255, 143, 0.12);
+  --win: #3dff8f; --win-soft: rgba(61, 255, 143, 0.12);
+  --super: #b56cff; --super-soft: rgba(181, 108, 255, 0.14);
   --green: #2fd7a0; --green-soft: rgba(47, 215, 160, 0.12);
   --orange: #ffad33; --orange-soft: rgba(255, 173, 51, 0.12);
   --red: #ff4f6e; --red-soft: rgba(255, 79, 110, 0.13);
@@ -98,7 +99,7 @@ section.view { display: grid; gap: 28px; }
 /* light chips */
 .chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; white-space: nowrap; border: 1px solid currentColor; }
 .chip::before { content: ""; width: 7px; height: 7px; background: currentColor; box-shadow: 0 0 8px currentColor; }
-.chip.SUPER { background: var(--super-soft); color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.6); }
+.chip.SUPER { background: var(--super-soft); color: var(--super); text-shadow: 0 0 8px rgba(181, 108, 255, 0.6); }
 .chip.GREEN { background: var(--green-soft); color: var(--green); }
 .chip.ORANGE { background: var(--orange-soft); color: var(--orange); }
 .chip.RED { background: var(--red-soft); color: var(--red); }
@@ -128,13 +129,13 @@ section.view { display: grid; gap: 28px; }
 .team .role { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .team .pc { font-family: var(--f-mono); font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; margin-top: 6px; }
 .team.picked .pc { color: var(--cyan); text-shadow: 0 0 14px rgba(25, 227, 255, 0.65); }
-.card.super .team.picked .pc { color: var(--super); text-shadow: 0 0 14px rgba(61, 255, 143, 0.6); }
+.card.super .team.picked .pc { color: var(--super); text-shadow: 0 0 14px rgba(181, 108, 255, 0.6); }
 .team:not(.picked) .pc { color: var(--muted); font-size: 21px; font-weight: 500; }
 .at { font-family: var(--f-mono); color: var(--magenta); font-size: 13px; padding-bottom: 6px; }
 .bar { display: flex; height: 6px; background: #1b2136; gap: 2px; }
 .bar i { display: block; height: 100%; background: #2a3150; }
 .bar .pk { background: var(--cyan); box-shadow: 0 0 10px rgba(25, 227, 255, 0.7); }
-.card.super .bar .pk { background: var(--super); box-shadow: 0 0 10px rgba(61, 255, 143, 0.7); }
+.card.super .bar .pk { background: var(--super); box-shadow: 0 0 10px rgba(181, 108, 255, 0.7); }
 .prices { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13.5px; margin: 0; }
 .prices div { display: flex; gap: 8px; align-items: baseline; }
 .prices dt { color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -142,7 +143,7 @@ section.view { display: grid; gap: 28px; }
 .prices .value dd { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.35); }
 .meta { font-size: 11.5px; color: var(--muted); font-family: var(--f-mono); letter-spacing: 0.02em; }
 .wl { font-family: var(--f-mono); font-weight: 700; padding: 1px 8px; border: 1px solid currentColor; }
-.wl.W { background: var(--super-soft); color: var(--super); }
+.wl.W { background: var(--win-soft); color: var(--win); }
 .wl.L { background: var(--red-soft); color: var(--red); }
 
 /* results */
@@ -167,7 +168,7 @@ svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .filters button { font: 600 12px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line-hi); padding: 5px 12px; cursor: pointer; }
 .filters button[aria-pressed="true"] { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-soft); }
-.clv-pos { color: var(--super); } .clv-neg { color: var(--red); }
+.clv-pos { color: var(--win); } .clv-neg { color: var(--red); }
 
 /* about */
 .prose { max-width: 65ch; display: grid; gap: 14px; }
@@ -243,11 +244,11 @@ footer b { color: var(--ink); }
 .mini .row .t { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mini .row .n { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
 .mini .feat { display: grid; gap: 6px; cursor: pointer; }
-.mini .feat .big { font-family: var(--f-mono); font-size: 28px; font-weight: 700; color: var(--super); text-shadow: 0 0 14px rgba(61, 255, 143, 0.5); line-height: 1; }
+.mini .feat .big { font-family: var(--f-mono); font-size: 28px; font-weight: 700; color: var(--win); text-shadow: 0 0 14px rgba(61, 255, 143, 0.5); line-height: 1; }
 .badge { display: inline-grid; place-items: center; width: 34px; height: 22px; font: 700 10.5px var(--f-mono); letter-spacing: 0.04em; border: 1px solid var(--line-hi); color: var(--ink); background: var(--surface-2); flex: none; }
 .form { display: inline-flex; gap: 3px; }
 .form i { font-style: normal; font: 700 10px var(--f-mono); width: 17px; height: 17px; display: grid; place-items: center; }
-.form i.W { background: var(--super-soft); color: var(--super); border: 1px solid rgba(61, 255, 143, 0.4); }
+.form i.W { background: var(--win-soft); color: var(--win); border: 1px solid rgba(61, 255, 143, 0.4); }
 .form i.L { background: var(--red-soft); color: var(--red); border: 1px solid rgba(255, 79, 110, 0.4); }
 
 /* game detail */
@@ -364,7 +365,7 @@ table.cmp td.edge { color: var(--cyan); font-weight: 700; text-shadow: 0 0 10px 
 .daysum b { color: var(--ink); }
 
 .mark { width: 26px; height: 26px; display: grid; place-items: center; font: 700 14px var(--f-mono); border: 1px solid currentColor; margin-left: auto; }
-.mark.W { color: var(--super); background: var(--super-soft); box-shadow: 0 0 10px rgba(61, 255, 143, 0.3); }
+.mark.W { color: var(--win); background: var(--win-soft); box-shadow: 0 0 10px rgba(61, 255, 143, 0.3); }
 .mark.L { color: var(--red); background: var(--red-soft); }
 .card.done .chip { margin-left: 0; }
 
@@ -393,7 +394,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .formlist .fr .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dots { display: inline-flex; gap: 4px; align-items: center; }
 .dots i { width: 11px; height: 11px; border-radius: 50%; }
-.dots i.W { background: var(--super); box-shadow: 0 0 6px rgba(61, 255, 143, 0.6); }
+.dots i.W { background: var(--win); box-shadow: 0 0 6px rgba(61, 255, 143, 0.6); }
 .dots i.L { background: var(--red); box-shadow: 0 0 6px rgba(255, 79, 110, 0.5); }
 .dots small { font: 10px var(--f-mono); color: var(--muted); }
 
@@ -438,7 +439,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .ticker a { color: var(--muted); text-decoration: none; }
 .ticker a b { color: var(--ink); }
 .ticker a .pc { color: var(--cyan); text-shadow: 0 0 8px rgba(25, 227, 255, 0.5); margin-left: 6px; }
-.ticker a.tip .pc { color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.5); }
+.ticker a.tip .pc { color: var(--win); text-shadow: 0 0 8px rgba(61, 255, 143, 0.5); }
 .ticker a:hover b { color: var(--cyan); }
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 6px; }
@@ -466,7 +467,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .sport-tile .info { font: 12.5px var(--f-mono); color: var(--muted); display: grid; gap: 4px; margin-top: auto; }
 .sport-tile .info b { color: var(--ink); }
 .sport-tile.live { border-color: var(--cyan); box-shadow: 0 0 30px rgba(25, 227, 255, 0.16), inset 0 0 40px rgba(25, 227, 255, 0.05); }
-.sport-tile.live .st { color: var(--super); text-shadow: 0 0 8px rgba(61, 255, 143, 0.6); }
+.sport-tile.live .st { color: var(--win); text-shadow: 0 0 8px rgba(61, 255, 143, 0.6); }
 .sport-tile.live .go { font: 700 12px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); }
 .sport-tile.live:hover { transform: translateY(-4px); box-shadow: 0 0 44px rgba(25, 227, 255, 0.3); }
 .sport-tile.soon { color: var(--muted); }
@@ -555,7 +556,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <p><b>NFL:</b> the model rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback (a backup or inexperienced starter counts against a team). Tested on the 2021–2025 seasons, it picked 65% of winners, and its percentages matched results: games rated 70–75% were won 73% of the time.</p>
       <h2>The lights</h2>
       <div class="lights">
-        <div><span><i class="chip SUPER">Super green</i></span><p>The model is confident (60%+) and rates the team well above the market. Our strongest tips.</p></div>
+        <div><span><i class="chip SUPER">Super</i></span><p>The model is confident (60%+) and rates the team well above the market. Our strongest tips.</p></div>
         <div><span><i class="chip GREEN">Green</i></span><p>The model gives the pick 65% or more. Also a tip.</p></div>
         <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55–65%. Shown for completeness, not a tip.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
@@ -661,7 +662,7 @@ const pct = (x) => Math.round(x * 100) + "%";
 const money = (x) => "$" + Number(x).toFixed(2);
 const sgn = (x, dp = 1) => (x > 0 ? "+" : "") + Number(x).toFixed(dp);
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const LNAME = { SUPER: "Super green", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
+const LNAME = { SUPER: "Super", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
 const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
@@ -732,7 +733,7 @@ function renderPredictions() {
       ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Tips <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
-      <span><i class="chip SUPER">Super green</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
+      <span><i class="chip SUPER">Super</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
       ${noteLegend(list)}
     </div>
@@ -756,7 +757,7 @@ function renderRecord() {
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
-      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green tips" : "green + super green"}`],
+      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green tips" : "green + super"}`],
       ["Tips vs close", clvAvg == null ? "–" : sgn(clvAvg * 100) + "%", "average price beat"],
       ["Beat the close", beat == null ? "–" : pct(beat), `of ${clvs.length} tips`],
     ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>

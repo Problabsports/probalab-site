@@ -67,7 +67,7 @@ const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: 
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
 const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
 const LIGHT = {
-  SUPER: ["Super green", "our strongest tip"], GREEN: ["Green", "a 65%+ tip"],
+  SUPER: ["Super", "our strongest tip"], GREEN: ["Green", "a 65%+ tip"],
   ORANGE: ["Orange", "a lean (55–65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
 };
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";

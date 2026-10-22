@@ -3,7 +3,7 @@
   --bg: #07080f; --surface: #10131f; --surface-2: #161a2a;
   --ink: #e8ecf8; --muted: #8b93b0; --line: #232a42; --line-hi: #343d5e;
   --cyan: #19e3ff; --magenta: #ff2fc0;
-  --super: #3dff8f; --green: #2fd7a0; --orange: #ffad33; --red: #ff4f6e;
+  --super: #b56cff; --green: #2fd7a0; --orange: #ffad33; --red: #ff4f6e;
   --f-display: "Chakra Petch", "Arial Narrow", system-ui, sans-serif;
   --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -58,7 +58,7 @@ h2 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase;
 .kv dd { margin: 0; font-weight: 600; }
 
 .chip { display: inline-block; font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; padding: 1px 7px; border: 1px solid; white-space: nowrap; }
-.chip.SUPER { color: var(--super); border-color: var(--super); background: rgba(61,255,143,.12); }
+.chip.SUPER { color: var(--super); border-color: var(--super); background: rgba(181,108,255,.14); }
 .chip.GREEN { color: var(--green); border-color: var(--green); background: rgba(47,215,160,.12); }
 .chip.ORANGE { color: var(--orange); border-color: var(--orange); background: rgba(255,173,51,.12); }
 .chip.RED { color: var(--red); border-color: var(--red); background: rgba(255,79,110,.13); }
