@@ -152,11 +152,11 @@ function nflPreview(g, rec) {
 }
 
 export const signupForm = (source) => `<form class="signup" action="/api/subscribe" method="post" data-signup>
-  <label for="su-email"><b>Get our weekly picks and results by email</b></label>
+  <label for="su-email"><b>Get our weekly predictions and results by email</b></label>
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
   <button type="submit">Sign up</button></div>
-  <p class="small">Weekly picks and results by email. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
+  <p class="small">Weekly predictions and results by email. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
 </form>`;
 export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach(function (f) {
   f.addEventListener("submit", function (e) {
