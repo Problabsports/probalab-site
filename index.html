@@ -525,7 +525,6 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
   </div>
 </nav>
-<div class="sample" id="sampleBanner" hidden><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
 
 <main class="wrap">
   <section class="view" id="view-home" hidden></section>
@@ -1654,7 +1653,6 @@ async function refresh() {
   const days = [...new Set(DATA.games.filter((g) => g.season === CUR).map((g) => keyOf(g.start_utc)))].sort();
   const today = keyOf(Date.now());
   if (days.length && !days.includes(today)) SEL = days.find((d) => d > today) ?? days[days.length - 1];
-  document.getElementById("sampleBanner").hidden = !feed.sample;
   route();
   setInterval(refresh, REFRESH_MS);
   let hiddenAt = 0;
