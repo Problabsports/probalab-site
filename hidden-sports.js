@@ -10,7 +10,7 @@
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
   // EPL lights (GREEN 55%+, ORANGE 45-55%, RED <45%; from the 2023-26 walk-forward backtest) apply only to matches kicking off
   // from the switch-on time; earlier EPL picks keep no light (no re-colouring). NHL always has lights.
-  const EPL_LIGHTS_FROM = "2026-10-24T00:00:00Z";
+  const EPL_LIGHTS_FROM = "2026-10-23T23:42:00Z";
   const LIGHTS = true;
   const lchip = (l) => (l ? chip(l) : "");
   const H = { games: [], grades: {}, table: null, bt: null, ready: false };
