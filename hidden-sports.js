@@ -8,11 +8,13 @@
   const nm = (c) => (IS_EPL ? c : NHLN[c] ?? c);
   const [GT, OT] = IS_EPL ? [0.6, 0.5] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55 (John, 23 Oct)
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
+  const LIGHTS = !IS_EPL; // EPL is live with percentages only; lights come later (John, 24 Oct)
+  const lchip = (l) => (LIGHTS ? chip(l) : "");
   const H = { games: [], grades: {}, table: null, bt: null, ready: false };
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   async function load() {
-    const [raw, grades, table, bt, snap] = await Promise.all([get(`/data/${HS}-picks.json`, []), IS_EPL ? {} : get("/data/nhl-grades.json", {}), get(`/api/hidden-table?sport=${HS}`, null), IS_EPL ? null : get("/data/nhl-backtest.json", null), IS_EPL ? {} : get("/data/nhl-pretip.json", {})]);
+    const [raw, grades, table, bt, snap] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_EPL ? {} : get("/data/nhl-pretip.json", {})]);
     const SN = snap?.games ?? {};
     H.games = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
       const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); // NHL feed sends 0-100
@@ -45,14 +47,14 @@
     const last = IS_EPL ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
     const segs = IS_EPL ? [["home", g.p_home], ["draw", g.p_draw], ["away", g.p_away]] : [["away", g.p_away], ["home", g.p_home]];
     const status = post ? "Final" : g.finished ? "Result being checked" : fmtTime.format(new Date(g.start_utc));
-    return `<article class="card ${g.light === "GREEN" ? "tip" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.home_name)} and ${esc(g.away_name)}, details">
-    <div class="card-top"><span class="time">${status}</span>${chip(g.light)}${post ? `<span class="mark ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span>` : ""}</div>
+    return `<article class="card ${LIGHTS && g.light === "GREEN" ? "tip" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.home_name)} and ${esc(g.away_name)}, details">
+    <div class="card-top"><span class="time">${status}</span>${lchip(g.light)}${post ? `<span class="mark ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams" ${IS_EPL ? 'style="grid-template-columns:1fr auto 1fr"' : ""}>${first}${mid}${last}</div>
     <div class="bar">${segs.map(([k, p]) => `<i class="${g.pick === k ? "pk" : ""}" style="width:${p * 100}%"></i>`).join("")}</div>
     <div class="card-top"><dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div></dl><span class="more">Details →</span></div>
   </article>`;
   }
-  const legend = () => `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span></div>`;
+  const legend = () => (!LIGHTS ? "" : `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span></div>`);
 
   // ---------- predictions ----------
   function predictions() {
@@ -67,7 +69,7 @@
       <button type="button" data-hstep="1" aria-label="Next" ${i >= keys.length - 1 ? "disabled" : ""}>›</button>
       ${IS_EPL ? `<select class="season" id="hroundSel" aria-label="Round">${keys.map((k) => `<option value="${k}" ${k === cur ? "selected" : ""}>Round ${k}</option>`).join("")}</select>` : ""}
     </div>
-    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${gr.length}</b> green</span>${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
+    <div class="daysum"><span><b>${list.length}</b> games</span>${LIGHTS ? `<span><b>${gr.length}</b> green</span>` : ""}${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
     ${legend()}
     ${list.length ? Object.entries(byDay).map(([k, xs]) => `<div class="dayhead">${esc(fmtDay.format(new Date(k + "T12:00")))}</div>${xs.map(hcard).join("")}`).join("")
       : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_EPL ? "kick-off" : "puck drop"}.</p></div>`}`;
@@ -108,16 +110,30 @@
       </tbody></table></div>
     </div>`;
   }
+  // EPL record in the NBA/NFL record layout, percentages only (no lights yet). A result is marked only when ESPN and football-data agree.
   function recordPlain() {
-    const g = graded(), gr = g.filter((x) => x.light === "GREEN"), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (round 8, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p></div>`;
+    const done = graded().slice().reverse(), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
-    document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p></div>
-    ${g.length ? `<div class="panel"><table><thead><tr><th align="left"></th><th>Picks</th><th>Record</th><th>Rate</th></tr></thead><tbody>
-      <tr><td>All picks</td><td align="center">${g.length}</td><td align="center">${W(g)}–${g.length - W(g)}</td><td align="center"><b>${rate(g)}</b></td></tr>
-      ${["GREEN", "ORANGE", "RED"].map((l) => { const xs = g.filter((x) => x.light === l); return `<tr><td>${chip(l)}</td><td align="center">${xs.length}</td><td align="center">${W(xs)}–${xs.length - W(xs)}</td><td align="center"><b>${rate(xs)}</b></td></tr>`; }).join("")}</tbody></table>
-      ${pending ? `<p>${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : ""}</div>
-      <div class="stack">${g.slice().reverse().slice(0, 40).map(hcard).join("")}</div>`
-    : `<div class="panel"><h2>No results yet</h2><p>${pending ? `${pending} finished game${pending > 1 ? "s are" : " is"} waiting for a second score source before ${pending > 1 ? "they are" : "it is"} marked. ` : ""}Every pick stays on the record, right or wrong.</p></div>`}`;
+    const note = pending ? `<p class="note">${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : "";
+    if (!done.length) { document.getElementById("main").innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>Every pick stays on the record, right or wrong.</p></div>` + note; return; }
+    const draws = done.filter((g) => g.result === "draw" || (g.home_score != null && g.home_score === g.away_score)).length;
+    const said = done.reduce((t, g) => t + g.pick_p, 0) / done.length;
+    document.getElementById("main").innerHTML = lede + `
+    <div class="stats">${[["All picks", rate(done), `${W(done)}–${done.length - W(done)} from ${done.length} game${done.length > 1 ? "s" : ""}`], ["We said", pct(said), "average chance of our picks"], ["Draws", pct(draws / done.length), `${draws} of ${done.length} ended level`]]
+      .map(([k, v, s2]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s2}</div></div>`).join("")}</div>
+    <div class="panel"><h2>Are the percentages honest?</h2><p>Picks grouped by the chance we gave them. If the chances are honest, each group's "Right" sits close to "We said". It takes a few rounds before this means much.</p>
+      <div class="tablewrap"><table><thead><tr><th>Our chance</th><th class="n">Picks</th><th class="n">Right</th><th class="n">We said</th></tr></thead><tbody>
+      ${[["Under 45%", 0, 0.45], ["45–55%", 0.45, 0.55], ["55–65%", 0.55, 0.65], ["65% or more", 0.65, 2]].map(([l, a, b]) => { const xs = done.filter((g) => g.pick_p >= a && g.pick_p < b);
+        return `<tr><td>${l}</td><td class="n">${xs.length}</td><td class="n">${rate(xs)}</td><td class="n">${xs.length ? pct(xs.reduce((t, g) => t + g.pick_p, 0) / xs.length) : "–"}</td></tr>`; }).join("")}
+      </tbody></table></div></div>
+    ${note}
+    <div class="panel"><div class="toolbar"><h2 class="grow">Every pick</h2></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Result</th></tr></thead><tbody>
+        ${done.slice(0, 120).map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td style="white-space:normal">${esc(g.home_name)} <b>${g.home_score ?? "–"}–${g.away_score ?? "–"}</b> ${esc(g.away_name)}<br><small style="color:var(--muted)">${fmtShort.format(new Date(g.start_utc))}</small></td>
+          <td style="white-space:normal">${esc(g.pick_name)}</td><td class="n">${pct(g.pick_p)}</td><td><span class="wl ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span></td></tr>`).join("")}
+      </tbody></table></div></div>`;
   }
   // ---------- standings ----------
   function table() {
@@ -131,6 +147,14 @@
   function stats() {
     const bt = H.bt;
     if (!bt) { document.getElementById("main").innerHTML = `<div><h2>Stats</h2></div><div class="panel"><h2>Past-season testing</h2><p>Coming soon.</p></div>`; return; }
+    if (IS_EPL) {
+      const er = Object.entries(bt.seasons).map(([y, v]) => `<tr><td>${y}–${String(+y + 1).slice(2)}${v.tuned ? " *" : ""}</td><td align="center">${v.n}</td><td align="center"><b>${pct(v.c / v.n)}</b></td><td align="center">${pct(v.home / v.n)}</td><td align="center">${pct(v.draws / v.n)}</td></tr>`).join("");
+      document.getElementById("main").innerHTML = `<div><h2>Stats</h2></div><div class="panel"><h2>Past-season testing</h2>
+        <p><b>This is a re-run on past seasons, not the live record.</b> The model was run match by match through each season using only results from earlier days, then checked against the real results. "Always home" is how often simply picking the home team was right.</p>
+        <div style="overflow-x:auto"><table><thead><tr><th align="left">Season</th><th>Matches</th><th>Model right</th><th>Always home</th><th>Draws</th></tr></thead><tbody>${er}</tbody></table></div>
+        <p>* Seasons used to choose the model's settings, so they flatter it a little. 2023–24 onwards is a clean test. With three possible results, about half right is a good season; draws are the hardest to call.</p></div>`;
+      return;
+    }
     const rows = Object.entries(bt.seasons).map(([s, v]) => `<tr><td>${s}–${String(+s + 1).slice(2)}${v.n < 1000 ? " (so far)" : ""}</td><td align="center">${v.n}</td><td align="center"><b>${pct(v.c / v.n)}</b></td><td align="center">${pct(v.home / v.n)}</td>
       ${["GREEN", "ORANGE", "RED"].map((l) => `<td align="center">${v.lights[l][0] ? `${pct(v.lights[l][1] / v.lights[l][0])} <small>(${v.lights[l][0]})</small>` : "–"}</td>`).join("")}</tr>`).join("");
     document.getElementById("main").innerHTML = `<div><h2>Stats</h2></div><div class="panel"><h2>Past-season testing</h2>
@@ -181,7 +205,7 @@
     ${feat ? `<div class="mini"><h3>Top pick${IS_EPL ? " of the round" : ""}</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(IS_EPL ? `${feat.home_name} v ${feat.away_name}` : `${feat.away} @ ${feat.home}`)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
-      <div class="row">${chip(feat.light)}</div></div></div>` : ""}
+      ${LIGHTS ? `<div class="row">${chip(feat.light)}</div>` : ""}</div></div>` : ""}
     <div class="mini"><h3>Record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${g.length ? `${W(g)}–${g.length - W(g)}` : "–"}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.length ? `${W(last7)}–${last7.length - W(last7)}` : "–"}</span></div>
@@ -201,7 +225,7 @@
       <div class="panel"><h2>The model's chances</h2><table><tbody>
         ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
           .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}</tbody></table>
-        <p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p></div>
+        ${LIGHTS ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
       <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's locked.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
     window.scrollTo(0, 0);

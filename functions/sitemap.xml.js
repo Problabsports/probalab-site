@@ -2,7 +2,7 @@
 import { getFeed, gamesOf, ORIGIN, esc } from "./_shared/site.js";
 export async function onRequestGet(ctx) {
   const urls = [
-    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nhl", pri: "0.9", freq: "hourly" },
+    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nhl", pri: "0.9", freq: "hourly" }, { loc: "/epl", pri: "0.9", freq: "hourly" },
     { loc: "/privacy", pri: "0.2", freq: "yearly" }, { loc: "/terms", pri: "0.2", freq: "yearly" }, { loc: "/contact", pri: "0.2", freq: "yearly" },
   ];
   for (const sport of ["nba", "nfl"]) {
