@@ -1444,10 +1444,34 @@ function renderSideNfl() {
       ${rows.map((r, i) => `<div class="row"><span class="n">${i + 1}</span><span class="badge">${r.c}</span><span class="t">${esc(NTEAMS[r.c])}</span><span class="n">${wlt(r.w, r.l, r.t)}</span></div>`).join("")}
       <a class="back" href="#nfl-table">Standings &amp; scores →</a></div>`;
 }
-const NSUBS = { predictions: renderNflPredictions, record: renderRecord, table: renderNflTable, scores: renderNflTable, stats: renderNflStats };
+function renderNflTrends() {
+  // every figure computed from this season's finished regular-season results in the feed (ESPN scores)
+  const S = NFL.season, rows = nflTable(S).filter((r) => r.gp), fin = nflFinals(S).filter((g) => (g.game_type ?? "REG") === "REG");
+  const main = document.getElementById("main");
+  if (!rows.length) { main.innerHTML = `<div class="panel"><h2>No games yet</h2><p>Trends start after week 1.</p></div>`; return; }
+  const close = {}; fin.forEach((g) => { const d = g.home_score - g.away_score; if (Math.abs(d) > 7) return;
+    [[g.home, d], [g.away, -d]].forEach(([c, x]) => { const r = (close[c] ??= { w: 0, l: 0, t: 0 }); x > 0 ? r.w++ : x < 0 ? r.l++ : r.t++; }); });
+  const w5 = (r) => r.res.slice(-5).filter((x) => x === "W").length, n5 = (r) => r.res.slice(-5).length;
+  const sk = (r) => { const s = String(r.streak).match(/^([WLT])(\d+)$/); return s ? Number(s[2]) : 0; };
+  const mini = (title, xs, val, note = "") => `<div class="panel"><h2>${title}</h2>${note ? `<p>${note}</p>` : ""}<div class="formlist">${xs.map((r) => `<div class="fr"><span class="badge">${r.c}</span><span class="t">${esc(NTEAMS[r.c])}</span><span class="mono">${val(r)}</span></div>`).join("")}</div></div>`;
+  const by = (f, n = 5) => rows.slice().sort(f).slice(0, n), hp = (r) => (r.hw + r.ht / 2) / (r.hw + r.hl + r.ht || 1), ap = (r) => (r.aw + r.at / 2) / (r.aw + r.al + r.at || 1);
+  const pts = fin.reduce((a, g) => a + g.home_score + g.away_score, 0), homeW = fin.filter((g) => g.home_score > g.away_score).length, cl = fin.filter((g) => Math.abs(g.home_score - g.away_score) <= 7).length;
+  const cRows = rows.filter((r) => close[r.c]).map((r) => ({ ...r, cw: close[r.c].w, cl: close[r.c].l, ct: close[r.c].t }));
+  main.innerHTML = `
+    <div><h2>Season trends · ${S}</h2><p class="lede" style="margin-top:6px">Form, streaks and scoring across the league, from this season's regular-season results. ${fin.length} games played.</p></div>
+    ${tiles([["Points per game", (pts / fin.length).toFixed(1), `${pts} points in ${fin.length} games`], ["Home wins", pct(homeW / fin.length), `${homeW} of ${fin.length} games`], ["One-score games", pct(cl / fin.length), `${cl} games decided by 7 points or fewer`]])}
+    <div class="statgrid">${mini("Hottest · last 5", by((a, b) => w5(b) - w5(a) || b.diff - a.diff), (r) => `${w5(r)}–${n5(r) - w5(r)}`)}${mini("Coldest · last 5", by((a, b) => w5(a) - w5(b) || a.diff - b.diff), (r) => `${w5(r)}–${n5(r) - w5(r)}`)}</div>
+    <div class="statgrid">${mini("Longest streaks", by((a, b) => sk(b) - sk(a)), (r) => r.streak)}${mini("Best at home", by((a, b) => hp(b) - hp(a) || b.hw - a.hw), (r) => wlt(r.hw, r.hl, r.ht))}</div>
+    <div class="statgrid">${mini("Best on the road", by((a, b) => ap(b) - ap(a) || b.aw - a.aw), (r) => wlt(r.aw, r.al, r.at))}${mini("Most points per game", by((a, b) => b.ppg - a.ppg), (r) => r.ppg.toFixed(1))}</div>
+    <div class="statgrid">${mini("Fewest points allowed per game", by((a, b) => a.oppg - b.oppg), (r) => r.oppg.toFixed(1))}
+      ${mini("Close games", cRows.sort((a, b) => (b.cw + b.cl + b.ct) - (a.cw + a.cl + a.ct) || b.cw - a.cw).slice(0, 5), (r) => wlt(r.cw, r.cl, r.ct), "Most games decided by 7 points or fewer, with the team's record in them.")}</div>
+    <div class="panel"><h2>Form guide · all ${rows.length} teams</h2><p>Last games, oldest to newest. Green win, red loss. Ordered by the standings.</p>
+      <div class="formlist">${rows.map((r, i) => `<div class="fr"><span class="mono" style="color:var(--muted)">${i + 1}</span><span class="t">${nteamCell(r.c)}</span>${dots(r.res)}</div>`).join("")}</div></div>`;
+}
+const NSUBS = { predictions: renderNflPredictions, record: renderRecord, trends: renderNflTrends, table: renderNflTable, scores: renderNflTable, stats: renderNflStats };
 const SUBTABS = {
   nba: [["predictions", "Predictions"], ["record", "Our record"], ["trends", "Trends"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
-  nfl: [["predictions", "Predictions"], ["record", "Our record"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
+  nfl: [["predictions", "Predictions"], ["record", "Our record"], ["trends", "Trends"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
 };
 const HERO = {
   nba: ["NBA · win predictions", "Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record."],

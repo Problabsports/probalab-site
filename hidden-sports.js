@@ -98,6 +98,41 @@
       <div style="overflow-x:auto"><table><thead><tr><th align="left">Season</th><th>Games</th><th>Model right</th><th>Always home</th><th>Green</th><th>Orange</th><th>Red</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p>Light columns show how often picks with that light were right, with the number of games in brackets.</p></div>`;
   }
+  // ---------- trends (NHL): every figure computed from this season's official NHL API results ----------
+  let SEASONG = null;
+  async function trends() {
+    const main = document.getElementById("main");
+    if (!SEASONG) { main.innerHTML = `<div class="panel"><h2>Loading trends</h2></div>`; SEASONG = await get("/api/nhl-season", { games: [] }); if (!location.hash.endsWith("-trends")) return; }
+    const T = {};
+    const add = (c, r, gf, ga, home, last) => { const x = (T[c] ??= { c, res: [], w: 0, l: 0, otl: 0, hw: 0, hl: 0, aw: 0, al: 0, gf: 0, ga: 0, one: [0, 0], ot: [0, 0] });
+      x.res.push(r); x.gf += gf; x.ga += ga;
+      if (r === "W") { x.w++; home ? x.hw++ : x.aw++; } else { last === "REG" ? x.l++ : x.otl++; home ? x.hl++ : x.al++; }
+      if (Math.abs(gf - ga) === 1) x.one[r === "W" ? 0 : 1]++; if (last !== "REG") x.ot[r === "W" ? 0 : 1]++; };
+    for (const g of SEASONG.games) { const hw = g.hs > g.as; add(g.home, hw ? "W" : "L", g.hs, g.as, true, g.last); add(g.away, hw ? "L" : "W", g.as, g.hs, false, g.last); }
+    const rows = Object.values(T).map((x) => { const gp = x.res.length, cur = x.res[gp - 1]; let k = 0; for (let i = gp - 1; i >= 0 && x.res[i] === cur; i--) k++;
+      const l10 = x.res.slice(-10); return { ...x, gp, pts: 2 * x.w + x.otl, sk: cur === "W" ? k : -k, streak: cur ? `${cur}${k}` : "–", w10: l10.filter((r) => r === "W").length, n10: l10.length }; })
+      .sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga));
+    if (!rows.length) { main.innerHTML = `<div class="panel"><h2>No games yet</h2><p>Trends start after the first games of the season.</p></div>`; return; }
+    const rec = (w, l) => `${w}–${l}`, per = (n, gp) => (gp ? (n / gp).toFixed(2) : "–");
+    const mini = (title, xs, val, note = "") => `<div class="panel"><h2>${title}</h2>${note ? `<p>${note}</p>` : ""}<div class="formlist">${xs.map((r) => `<div class="fr"><span class="badge">${r.c}</span><span class="t">${esc(nm(r.c))}</span><span class="mono">${val(r)}</span></div>`).join("")}</div></div>`;
+    const by = (f, n = 5) => rows.slice().sort(f).slice(0, n);
+    const totalG = SEASONG.games.reduce((s, g) => s + g.hs + g.as, 0), n = SEASONG.games.length, otN = SEASONG.games.filter((g) => g.last !== "REG").length, homeW = SEASONG.games.filter((g) => g.hs > g.as).length;
+    const lab = `${SEASONG.season.slice(0, 4)}–${SEASONG.season.slice(6)}`;
+    main.innerHTML = `
+    <div><h2>Season trends · ${lab}</h2><p class="lede" style="margin-top:6px">Form, streaks and scoring across the league, from this season's official NHL results. ${n} games played.</p></div>
+    <div class="stats">${[["Goals per game", (totalG / n).toFixed(2), `${totalG} goals in ${n} games`], ["Home wins", pct(homeW / n), `${homeW} of ${n} games`], ["Past 60 minutes", pct(otN / n), `${otN} games went to overtime or a shootout`]]
+      .map(([k, v, s2]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s2}</div></div>`).join("")}</div>
+    <div class="statgrid">${mini("Hottest · last 10", by((a, b) => b.w10 - a.w10 || b.pts - a.pts), (r) => rec(r.w10, r.n10 - r.w10), "Wins in each team's last 10 games. Overtime and shootout losses count as losses here.")}
+      ${mini("Coldest · last 10", by((a, b) => a.w10 - b.w10 || a.pts - b.pts), (r) => rec(r.w10, r.n10 - r.w10))}</div>
+    <div class="statgrid">${mini("Longest streaks", by((a, b) => Math.abs(b.sk) - Math.abs(a.sk)), (r) => r.streak)}
+      ${mini("Best at home", by((a, b) => b.hw / (b.hw + b.hl || 1) - a.hw / (a.hw + a.hl || 1) || b.hw - a.hw), (r) => rec(r.hw, r.hl))}</div>
+    <div class="statgrid">${mini("Best on the road", by((a, b) => b.aw / (b.aw + b.al || 1) - a.aw / (a.aw + a.al || 1) || b.aw - a.aw), (r) => rec(r.aw, r.al))}
+      ${mini("Most goals per game", by((a, b) => b.gf / b.gp - a.gf / a.gp), (r) => per(r.gf, r.gp))}</div>
+    <div class="statgrid">${mini("Fewest goals allowed per game", by((a, b) => a.ga / a.gp - b.ga / b.gp), (r) => per(r.ga, r.gp))}
+      ${mini("One-goal games", by((a, b) => (b.one[0] + b.one[1]) - (a.one[0] + a.one[1]) || b.one[0] - a.one[0]), (r) => rec(r.one[0], r.one[1]), "Most games decided by a single goal, with the team's record in them.")}</div>
+    <div class="panel"><h2>Form guide · all ${rows.length} teams</h2><p>Last 10 games, oldest to newest. Green win, red loss (including overtime and shootout losses). Ordered by points.</p>
+      <div class="formlist">${rows.map((r, i) => `<div class="fr"><span class="mono" style="color:var(--muted)">${i + 1}</span><span class="t"><span class="tm"><span class="badge">${r.c}</span>${esc(nm(r.c))}</span></span>${dots(r.res)}</div>`).join("")}</div></div>`;
+  }
   // ---------- sidebar ----------
   function side() {
     const up = H.games.filter((g) => !g.finished), feat = up.slice().sort((a, b) => b.pick_p - a.pick_p)[0], g = graded();
@@ -132,8 +167,8 @@
     window.scrollTo(0, 0);
   }
   // ---------- routing (takes over the app router on this page only) ----------
-  const SUBS = { predictions, record, table, stats };
-  const TABS = [["predictions", "Predictions"], ["record", "Our record"], ["table", "Standings &amp; scores"], ["stats", "Stats"]];
+  const SUBS = IS_EPL ? { predictions, record, table, stats } : { predictions, record, trends, table, stats };
+  const TABS = [["predictions", "Predictions"], ["record", "Our record"], ...(IS_EPL ? [] : [["trends", "Trends"]]), ["table", "Standings &amp; scores"], ["stats", "Stats"]];
   const LEDE = IS_EPL ? "Every Premier League match gets three chances from our proprietary data model: home win, draw and away win. Picks refresh until kick-off, then they're locked. A result is marked only when two score sources agree."
     : "Every NHL game gets a win chance for each team from our proprietary data model. Picks refresh until puck drop, then they're locked. A result is marked only when two score sources agree.";
   function hroute() {
