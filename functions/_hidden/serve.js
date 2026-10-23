@@ -15,6 +15,9 @@ export async function serveHidden(ctx, sport) {
     .replace(/<title>[^<]*<\/title>/, `<title>${META[sport][0]}</title>`)
     .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${META[sport][1]}">`);
   else h = h.replace(/<link rel="canonical"[^>]*>/, "").replace("<head>", '<head>\n<meta name="robots" content="noindex, nofollow">');
-  h = h.replace(/<\/body>/, `<script>window.HIDDEN_SPORT=${JSON.stringify(sport)};</script>\n<script src="/hidden-sports.js?v=${encodeURIComponent(ctx.env.CF_PAGES_COMMIT_SHA ?? "1").slice(0, 8)}"></script>\n</body>`);
+  // version the sport script by its ETag, so every deploy is picked up straight away (no stale browser copy)
+  const js = await ctx.env.ASSETS.fetch(new URL("/hidden-sports.js", ctx.request.url), { method: "HEAD" }).catch(() => null);
+  const ver = encodeURIComponent((js?.headers.get("etag") ?? "1").replace(/\W/g, "").slice(0, 12));
+  h = h.replace(/<\/body>/, `<script>window.HIDDEN_SPORT=${JSON.stringify(sport)};</script>\n<script src="/hidden-sports.js?v=${ver}"></script>\n</body>`);
   return new Response(h, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=60", ...(live ? {} : { "x-robots-tag": "noindex, nofollow" }) } });
 }
