@@ -943,9 +943,32 @@ const ICON = {
   AFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="20" ry="12" transform="rotate(-35 24 24)" stroke="#ff4f6e" fill="rgba(255,79,110,.12)"/><path d="M16 32 32 16M20 24l4 4M22 21l5 5M25 18l5 5" stroke="#ff4f6e"/></svg>`,
   EPL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><circle cx="24" cy="24" r="19" stroke="#eef2ff" fill="rgba(238,242,255,.08)"/><path d="M24 15l8 6-3 9h-10l-3-9z" stroke="#eef2ff" fill="rgba(238,242,255,.25)"/><path d="M24 15V6M32 21l8-3M29 30l5 8M19 30l-5 8M16 21l-8-3" stroke="#eef2ff"/></svg>`,
   NFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><path d="M8 40C6 26 14 10 40 8c2 14-6 30-32 32z" stroke="#c98a4b" fill="rgba(201,138,75,.14)"/><path d="M18 30 30 18M21 24l3 3M24 21l3 3M27 18l3 3" stroke="#eef2ff"/></svg>`,
+  NHL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><path d="M30 6 22 34c-1 3-3 4-6 4H8v-5h8l8-27z" stroke="#19e3ff" fill="rgba(25,227,255,.12)"/><ellipse cx="34" cy="38" rx="7" ry="3" stroke="#eef2ff" fill="rgba(238,242,255,.25)"/></svg>`,
   NRL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="19" ry="13" transform="rotate(30 24 24)" stroke="#3dff8f" fill="rgba(61,255,143,.10)"/><path d="M13 18c6 3 16 9 22 12" stroke="#3dff8f"/></svg>`,
 };
-const SPORTS = [["NBA", "Basketball"], ["AFL", "Aussie rules"], ["EPL", "Football"], ["NFL", "Gridiron"], ["NRL", "Rugby league"]];
+// AFL tile parked for now (John, 24 Oct: "maybe replace AFL for now"). To bring it back, swap ["NHL", "Ice hockey"] for ["AFL", "Aussie rules"].
+const SPORTS = [["NBA", "Basketball"], ["NHL", "Ice hockey"], ["EPL", "Football"], ["NFL", "Gridiron"], ["NRL", "Rugby league"]];
+// NHL home tile: same files the /nhl page uses; record graded from the pre-puck-drop snapshots (/data/nhl-pretip.json)
+let NHLH = null;
+const NHL_P = Promise.all(["/data/nhl-picks.json", "/data/nhl-grades.json", "/data/nhl-pretip.json"].map((u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)))
+  .then(([raw, gr, snap]) => {
+    const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); gr = gr || {}; const SN = snap?.games ?? {};
+    const gs = (Array.isArray(raw) ? raw : raw?.games ?? []).map((g) => { const id = String(g.game_id ?? g.id), sn = SN[id], r = gr[id];
+      const won = sn && typeof sn.won === "boolean" ? sn.won : r?.graded ? r.correct : null;
+      return { id, t: g.start_utc ?? g.puck_drop_utc ?? g.date, pick: g.pick === "home" ? g.home : g.away, p: pc(g.pick === "home" ? g.p_home ?? g.home_pct : g.p_away ?? g.away_pct), won }; });
+    const done = gs.filter((g) => g.won !== null), w = done.filter((g) => g.won).length;
+    const next = gs.filter((g) => g.won === null && new Date(g.t) > Date.now() - 3 * 3600e3);
+    const day = next.map((g) => keyOf(g.t)).sort()[0], dg = day ? next.filter((g) => keyOf(g.t) === day) : [];
+    const top = dg.filter((g) => g.p != null).sort((a, b) => b.p - a.p)[0];
+    NHLH = { n: dg.length, day, top, w, l: done.length - w, d: done.length };
+    const el = document.getElementById("nhlTile"); if (el) el.outerHTML = nhlTile();
+  });
+function nhlTile() {
+  const h = NHLH, lbl = h?.day ? (h.day === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(h.day))) : "";
+  return `<a class="sport-tile live" id="nhlTile" href="/nhl">${ICON.NHL}<span class="st">● Live</span><span class="nm">NHL</span><span class="lg">Ice hockey</span>
+        <span class="info">${h?.n ? `<span><b>${h.n}</b> games ${lbl}</span>` : ""}${h?.top ? `<span>Top pick <b>${esc(h.top.pick)} ${pct(h.top.p)}</b></span>` : ""}<span>Record <b>${h?.d ? `${h.w}–${h.l}` : h ? "starts soon" : "loading"}</b></span></span>
+        <span class="go">Predictions →</span></a>`;
+}
 
 // ---------- home page ----------
 function renderHome() {
@@ -969,7 +992,7 @@ function renderHome() {
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
       <span>${chip(f.light)}</span>
     </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
-  const tile = ([code, lg]) => code === "NFL" && NFL
+  const tile = ([code, lg]) => code === "NHL" ? nhlTile() : code === "NFL" && NFL
     ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
         <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
