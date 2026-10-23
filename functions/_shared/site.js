@@ -214,9 +214,9 @@ ${body}
 </main>
 <footer><div class="wrap">
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
-  <p><b>For information and entertainment only.</b> Predictions are probabilities, not guarantees. You must be 18+ to gamble. If gambling is causing harm, call Gambling Help Online on <span class="mono">1800 858 858</span> or visit gamblinghelponline.org.au.</p>
+  <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="links"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
-  <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, any team or any bookmaker.</p>
+  <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL or any team.</p>
 </div></footer>
 <script>
 ${SIGNUP_JS}
