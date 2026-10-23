@@ -1,0 +1,6 @@
+/nhl
+  X-Robots-Tag: noindex, nofollow
+/nhl/*
+  X-Robots-Tag: noindex, nofollow
+/data/nhl-*
+  X-Robots-Tag: noindex, nofollow
