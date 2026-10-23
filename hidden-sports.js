@@ -1,5 +1,6 @@
 // Hidden EPL / NHL views inside the live app shell (served only at /epl and /nhl, noindex). Uses the app's own
-// components and CSS (card, daynav, legend, side .mini). Lights: GREEN >= 60%, ORANGE 50-60%, RED < 50%.
+// components and CSS (card, daynav, legend, side .mini). Lights: EPL GREEN >= 60%, ORANGE 50-60%; NHL GREEN >= 65%, ORANGE 55-65%, RED < 55%.
+// NHL record is graded from the pre-puck-drop snapshot records (/data/nhl-pretip.json).
 (function () {
   const HS = window.HIDDEN_SPORT; if (!HS) return;
   const IS_EPL = HS === "epl", LBL = HS.toUpperCase();
@@ -11,7 +12,8 @@
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   async function load() {
-    const [raw, grades, table, bt] = await Promise.all([get(`/data/${HS}-picks.json`, []), IS_EPL ? {} : get("/data/nhl-grades.json", {}), get(`/api/hidden-table?sport=${HS}`, null), IS_EPL ? null : get("/data/nhl-backtest.json", null)]);
+    const [raw, grades, table, bt, snap] = await Promise.all([get(`/data/${HS}-picks.json`, []), IS_EPL ? {} : get("/data/nhl-grades.json", {}), get(`/api/hidden-table?sport=${HS}`, null), IS_EPL ? null : get("/data/nhl-backtest.json", null), IS_EPL ? {} : get("/data/nhl-pretip.json", {})]);
+    const SN = snap?.games ?? {};
     H.games = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
       const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); // NHL feed sends 0-100
       const x = { ...g, game_id: String(g.game_id ?? g.id), start_utc: g.start_utc ?? g.kickoff_utc ?? g.puck_drop_utc ?? g.date, home_name: nm(g.home), away_name: nm(g.away),
@@ -19,8 +21,11 @@
       x.pick_p = Number(x.pick === "home" ? x.p_home : x.pick === "away" ? x.p_away : x.p_draw);
       x.pick_name = x.pick === "home" ? x.home_name : x.pick === "away" ? x.away_name : "Draw";
       x.light = lightOf(x.pick_p);
+      const sn = SN[x.game_id]; // pre-puck-drop snapshot: frozen pick, chance and light; record graded from it
+      if (sn) { x.pick = sn.pick === g.home ? "home" : "away"; x.pick_p = Number(sn.pick_p); x.pick_name = x.pick === "home" ? x.home_name : x.away_name; x.light = sn.light; }
       const gr = grades[x.game_id]; x.graded = !!gr?.graded; x.correct = gr?.graded ? gr.correct : null; x.flag = gr && !gr.graded ? gr.flag : null;
       if (gr?.graded) { x.home_score = gr.home_score; x.away_score = gr.away_score; }
+      if (sn && typeof sn.won === "boolean") { x.graded = true; x.correct = sn.won; x.flag = null; }
       x.finished = x.graded || x.status === "post" || new Date(x.start_utc).getTime() < Date.now() - 3 * 3600e3;
       return x; }).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
     H.grades = grades; H.table = table; H.bt = bt; H.ready = true;
@@ -34,7 +39,7 @@
   function hcard(g) {
     const post = g.graded;
     const team = (side, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${g.pick === side ? "picked" : ""}">
-      <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
+      <div class="nm">${esc(name)}</div><div class="role">${role}${post && g.home_score != null ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
     const mid = IS_EPL ? `<div class="team ${g.pick === "draw" ? "picked" : ""}" style="text-align:center"><div class="nm" style="font-size:13px;color:var(--magenta)">Draw</div><div class="role">&nbsp;</div><div class="pc">${pct(g.p_draw)}</div></div>` : `<div class="at">@</div>`;
     const first = IS_EPL ? team("home", g.home_name, "Home", g.p_home).replace('class="team r ', 'class="team ') : team("away", g.away_name, "Away", g.p_away);
     const last = IS_EPL ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
@@ -71,10 +76,10 @@
   function record() {
     const g = graded(), gr = g.filter((x) => x.light === "GREEN"), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
-    document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. A result is marked only when two independent score sources agree.</p></div>
-    ${g.length ? `<div class="panel"><table><thead><tr><th align="left"></th><th>Picks</th><th>Right</th><th>Rate</th></tr></thead><tbody>
-      <tr><td>All picks</td><td align="center">${g.length}</td><td align="center">${W(g)}</td><td align="center"><b>${rate(g)}</b></td></tr>
-      <tr><td>Green</td><td align="center">${gr.length}</td><td align="center">${W(gr)}</td><td align="center"><b>${rate(gr)}</b></td></tr></tbody></table>
+    document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p></div>
+    ${g.length ? `<div class="panel"><table><thead><tr><th align="left"></th><th>Picks</th><th>Record</th><th>Rate</th></tr></thead><tbody>
+      <tr><td>All picks</td><td align="center">${g.length}</td><td align="center">${W(g)}–${g.length - W(g)}</td><td align="center"><b>${rate(g)}</b></td></tr>
+      ${["GREEN", "ORANGE", "RED"].map((l) => { const xs = g.filter((x) => x.light === l); return `<tr><td>${chip(l)}</td><td align="center">${xs.length}</td><td align="center">${W(xs)}–${xs.length - W(xs)}</td><td align="center"><b>${rate(xs)}</b></td></tr>`; }).join("")}</tbody></table>
       ${pending ? `<p>${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : ""}</div>
       <div class="stack">${g.slice().reverse().slice(0, 40).map(hcard).join("")}</div>`
     : `<div class="panel"><h2>No results yet</h2><p>${pending ? `${pending} finished game${pending > 1 ? "s are" : " is"} waiting for a second score source before ${pending > 1 ? "they are" : "it is"} marked. ` : ""}Every pick stays on the record, right or wrong.</p></div>`}`;
