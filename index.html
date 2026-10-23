@@ -135,6 +135,9 @@ section.view { display: grid; gap: 28px; }
 .at { font-family: var(--f-mono); color: var(--magenta); font-size: 13px; padding-bottom: 6px; }
 .bar { display: flex; height: 6px; background: #1b2136; gap: 2px; }
 .bar i { display: block; height: 100%; background: #2a3150; }
+/* EPL 3-way bar: home, draw and away each get their own colour; the pick is always cyan */
+.bar .seg-draw { background: rgba(255, 47, 192, 0.45); }
+.bar .seg-away { background: #4a5680; }
 .bar .pk { background: var(--cyan); box-shadow: 0 0 10px rgba(25, 227, 255, 0.7); }
 .card.super .bar .pk { background: var(--super); box-shadow: 0 0 10px rgba(181, 108, 255, 0.7); }
 .prices { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13.5px; margin: 0; }
