@@ -6,10 +6,13 @@
   const IS_EPL = HS === "epl", LBL = HS.toUpperCase();
   const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
   const nm = (c) => (IS_EPL ? c : NHLN[c] ?? c);
-  const [GT, OT] = IS_EPL ? [0.6, 0.5] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55 (John, 23 Oct)
+  const [GT, OT] = IS_EPL ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55 (John, 23 Oct)
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
-  const LIGHTS = !IS_EPL; // EPL is live with percentages only; lights come later (John, 24 Oct)
-  const lchip = (l) => (LIGHTS ? chip(l) : "");
+  // EPL lights (GREEN 55%+, ORANGE 45-55%, RED <45%; from the 2023-26 walk-forward backtest) apply only to matches kicking off
+  // from the switch-on time; earlier EPL picks keep no light (no re-colouring). NHL always has lights.
+  const EPL_LIGHTS_FROM = "2026-10-23T23:42:00Z";
+  const LIGHTS = true;
+  const lchip = (l) => (l ? chip(l) : "");
   const H = { games: [], grades: {}, table: null, bt: null, ready: false };
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
@@ -22,7 +25,7 @@
         p_home: pc(g.p_home ?? g.home_pct), p_away: pc(g.p_away ?? g.away_pct), p_draw: pc(g.p_draw ?? g.draw_pct) };
       x.pick_p = Number(x.pick === "home" ? x.p_home : x.pick === "away" ? x.p_away : x.p_draw);
       x.pick_name = x.pick === "home" ? x.home_name : x.pick === "away" ? x.away_name : "Draw";
-      x.light = lightOf(x.pick_p);
+      x.light = !IS_EPL || x.start_utc >= EPL_LIGHTS_FROM ? lightOf(x.pick_p) : null;
       const sn = SN[x.game_id]; // pre-puck-drop snapshot: frozen pick, chance and light; record graded from it
       if (sn) { x.pick = sn.pick === g.home ? "home" : "away"; x.pick_p = Number(sn.pick_p); x.pick_name = x.pick === "home" ? x.home_name : x.away_name; x.light = sn.light; }
       const gr = grades[x.game_id]; x.graded = !!gr?.graded; x.correct = gr?.graded ? gr.correct : null; x.flag = gr && !gr.graded ? gr.flag : null;
@@ -205,7 +208,7 @@
     ${feat ? `<div class="mini"><h3>Top pick${IS_EPL ? " of the round" : ""}</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(IS_EPL ? `${feat.home_name} v ${feat.away_name}` : `${feat.away} @ ${feat.home}`)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
-      ${LIGHTS ? `<div class="row">${chip(feat.light)}</div>` : ""}</div></div>` : ""}
+      ${feat.light ? `<div class="row">${chip(feat.light)}</div>` : ""}</div></div>` : ""}
     <div class="mini"><h3>Record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${g.length ? `${W(g)}–${g.length - W(g)}` : "–"}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.length ? `${W(last7)}–${last7.length - W(last7)}` : "–"}</span></div>
@@ -225,7 +228,7 @@
       <div class="panel"><h2>The model's chances</h2><table><tbody>
         ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
           .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}</tbody></table>
-        ${LIGHTS ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
+        ${g.light ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
       <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's locked.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
     window.scrollTo(0, 0);

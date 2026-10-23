@@ -1,2 +1,6 @@
 /ads.txt
   Content-Type: text/plain; charset=utf-8
+
+# Always revalidate HTML and unversioned scripts/styles so a deploy shows straight away (no stale browser copy)
+/*
+  Cache-Control: no-cache, must-revalidate
