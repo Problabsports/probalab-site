@@ -486,6 +486,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .home-sec > .head a { font: 600 12px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); text-decoration: none; }
 @media (max-width: 1000px) { .sportgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) { .home-hero { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 801px) { .home-hero { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); } .cta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; } .cta .btn { text-align: center; white-space: nowrap; font-size: 11.5px; letter-spacing: 0.05em; padding: 13px 6px; } .cta .btn:not(.primary) { justify-self: start; padding-inline: 20px; } }
 @media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .sport-tile.soon:last-child { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
 .qbwarn { display: inline-grid; place-items: center; width: 26px; height: 24px; margin-left: 4px; padding: 0; border: 0; background: transparent; color: rgba(245, 233, 0, 0.55); font-size: 17px; line-height: 1; cursor: pointer; }
 .qbwarn.hot { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.7); animation: qbpulse 2.4s ease-in-out infinite; }
