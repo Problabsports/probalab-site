@@ -1,0 +1,51 @@
+name: NHL picks
+# Copies ProbaLab's NHL picks into data/nhl-picks.json every 30 minutes (and on demand).
+# Picks refresh until puck drop. Once a game has started, its entry in this file is never changed again.
+# No odds or prices. The site sets the lights and grades results.
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: nhl-picks
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch picks
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/nhl-picks-feed -o /tmp/nhl-new.json
+          # only accept a non-empty array of picks with the expected fields
+          jq -e 'type == "array" and length > 0 and all(.[]; has("id") and has("date") and has("home") and has("away") and has("home_pct")
+            and has("away_pct") and (.pick == "home" or .pick == "away") and has("pick_pct") and has("created_at") and .status == "pre")' /tmp/nhl-new.json > /dev/null
+          mkdir -p data
+          if [ -f data/nhl-picks.json ]; then cp data/nhl-picks.json /tmp/nhl-old.json; else echo '[]' > /tmp/nhl-old.json; fi
+          # merge:
+          #  - games that have started keep exactly what this file already says (never edited after puck drop)
+          #  - upcoming games take the new numbers; if only created_at moved (refresh with the same numbers), keep the old entry
+          jq -n --slurpfile n /tmp/nhl-new.json --slurpfile o /tmp/nhl-old.json --argjson now "$(date -u +%s)" '
+            $n[0] as $new | $o[0] as $old
+            | ($old | map({key: .id, value: .}) | from_entries) as $om
+            | ($old | map(select((.date | fromdateiso8601) <= $now))) as $frozen
+            | ($frozen | map(.id)) as $fids
+            | ($new | map(select(.id as $i | ($fids | index($i)) == null)
+                | . as $x | $om[$x.id] as $p
+                | if $p != null and (($p | del(.created_at)) == ($x | del(.created_at))) then $p else $x end)) as $fresh
+            | ($frozen + $fresh) | sort_by(.date, .id)' > data/nhl-picks.json
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/nhl-picks.json && git ls-files --error-unmatch data/nhl-picks.json >/dev/null 2>&1; then
+            echo "No change"; exit 0
+          fi
+          git config user.name "probalab-bot"
+          git config user.email "probalab-bot@users.noreply.github.com"
+          git add data/nhl-picks.json
+          git commit -m "NHL picks update"
+          git pull --rebase
+          git push
