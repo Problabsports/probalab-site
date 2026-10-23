@@ -2,11 +2,5 @@
   X-Robots-Tag: noindex, nofollow
 /epl/*
   X-Robots-Tag: noindex, nofollow
-/nhl
-  X-Robots-Tag: noindex, nofollow
-/nhl/*
-  X-Robots-Tag: noindex, nofollow
-/hidden-sports.js
-  X-Robots-Tag: noindex, nofollow
-/data/nhl-*
+/data/epl-picks.json
   X-Robots-Tag: noindex, nofollow

@@ -5,7 +5,8 @@
   const IS_EPL = HS === "epl", LBL = HS.toUpperCase();
   const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
   const nm = (c) => (IS_EPL ? c : NHLN[c] ?? c);
-  const lightOf = (p) => (p >= 0.6 ? "GREEN" : p >= 0.5 ? "ORANGE" : "RED");
+  const [GT, OT] = IS_EPL ? [0.6, 0.5] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55 (John, 23 Oct)
+  const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
   const H = { games: [], grades: {}, table: null, bt: null, ready: false };
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
@@ -33,7 +34,7 @@
     const team = (side, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${g.pick === side ? "picked" : ""}">
       <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
     const mid = IS_EPL ? `<div class="team ${g.pick === "draw" ? "picked" : ""}" style="text-align:center"><div class="nm" style="font-size:13px;color:var(--magenta)">Draw</div><div class="role">&nbsp;</div><div class="pc">${pct(g.p_draw)}</div></div>` : `<div class="at">@</div>`;
-    const first = IS_EPL ? team("home", g.home_name, "Home", g.p_home) : team("away", g.away_name, "Away", g.p_away);
+    const first = IS_EPL ? team("home", g.home_name, "Home", g.p_home).replace('class="team r ', 'class="team ') : team("away", g.away_name, "Away", g.p_away);
     const last = IS_EPL ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
     const segs = IS_EPL ? [["home", g.p_home], ["draw", g.p_draw], ["away", g.p_away]] : [["away", g.p_away], ["home", g.p_home]];
     const status = post ? "Final" : g.finished ? "Result being checked" : fmtTime.format(new Date(g.start_utc));
@@ -44,7 +45,7 @@
     <div class="card-top"><dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div></dl><span class="more">Details →</span></div>
   </article>`;
   }
-  const legend = `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> 60%+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under 50%</span></div>`;
+  const legend = () => `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span></div>`;
 
   // ---------- predictions ----------
   function predictions() {
@@ -60,7 +61,7 @@
       ${IS_EPL ? `<select class="season" id="hroundSel" aria-label="Round">${keys.map((k) => `<option value="${k}" ${k === cur ? "selected" : ""}>Round ${k}</option>`).join("")}</select>` : ""}
     </div>
     <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${gr.length}</b> green</span>${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
-    ${legend}
+    ${legend()}
     ${list.length ? Object.entries(byDay).map(([k, xs]) => `<div class="dayhead">${esc(fmtDay.format(new Date(k + "T12:00")))}</div>${xs.map(hcard).join("")}`).join("")
       : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_EPL ? "kick-off" : "puck drop"}.</p></div>`}`;
   }
@@ -123,7 +124,7 @@
       <div class="panel"><h2>The model's chances</h2><table><tbody>
         ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
           .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}</tbody></table>
-        <p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : "under 50%, so the game is open."}</p></div>
+        <p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p></div>
       <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's locked.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
     window.scrollTo(0, 0);
@@ -139,7 +140,7 @@
     const isGame = h.startsWith("game-"), sub = h.startsWith(HS + "-") && SUBS[h.slice(HS.length + 1)] ? h.slice(HS.length + 1) : "predictions";
     ["home", "sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== (isGame ? "game" : "sport")));
     document.getElementById("sportBar").hidden = false;
-    document.querySelectorAll("#sportBar [data-sport]").forEach((a) => a.classList.remove("on"));
+    document.querySelectorAll("#sportBar [data-sport]").forEach((a) => a.classList.toggle("on", a.dataset.sport === HS));
     document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === "sport" ? "page" : "false"));
     document.getElementById("spEyebrow").textContent = `${IS_EPL ? "Premier League" : "NHL"} · win predictions`;
     document.getElementById("spLede").textContent = LEDE;

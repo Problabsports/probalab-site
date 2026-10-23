@@ -67,8 +67,8 @@ const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: 
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
 const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
 const LIGHT = {
-  SUPER: ["Super", "our strongest tip"], GREEN: ["Green", "a 65%+ tip"],
-  ORANGE: ["Orange", "a lean (55–65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
+  SUPER: ["Super", "our strongest pick"], GREEN: ["Green", "a 65%+ top pick"],
+  ORANGE: ["Orange", "a lean (55 to 65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
 };
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const poss = (t) => `${esc(t)}${/s$/i.test(t) ? "'" : "'s"}`;
@@ -129,7 +129,7 @@ function nflPreview(g, rec) {
       ? `<p>The two teams have almost the same rating (${Math.round(ep)} to ${Math.round(eo)}), so ${pickHome && !g.neutral ? "home field" : "the quarterback situation and rest"} decide${pickHome && !g.neutral ? "s" : ""} the pick.</p>`
       : ep >= eo
       ? `<p>${esc(P)} have the higher team rating (${Math.round(ep)} to ${Math.round(eo)}), built from results and winning margins${g.neutral ? "" : pickHome ? ", and they also have home field" : ""}.</p>`
-      : `<p>${esc(O)} have the higher team rating (${Math.round(eo)} to ${Math.round(ep)}), but ${pickHome && !g.neutral ? "home field" : "the quarterback situation and rest"} tip the pick to ${esc(P)}.</p>`);
+      : `<p>${esc(O)} have the higher team rating (${Math.round(eo)} to ${Math.round(ep)}), but ${pickHome && !g.neutral ? "home field" : "the quarterback situation and rest"} push the pick to ${esc(P)}.</p>`);
   }
   const ra = Number(d.rest_away ?? 7), rh = Number(d.rest_home ?? 7), restBits = [];
   if (ra >= 13) restBits.push(`${esc(A)} are coming off a bye`);
@@ -246,7 +246,7 @@ export function renderGame(g, all, rec) {
   const paras = g.pick ? (g.sport === "nfl" ? nflPreview(g, rec) : nbaPreview(g, rec)) : [];
   const resultHtml = post && g.pick ? `<section class="panel"><h2>Result</h2>
       <p>Final: ${esc(A)} <b>${g.away_score}</b> – <b>${g.home_score}</b> ${esc(H)}. Our pick, ${esc(g.pick_name)}, ${g.won === true ? `<b class="pos">won ✓</b>` : g.won === false ? `<b class="neg">lost ✕</b>` : "was a tie"}.</p>
-      ${isTip(g) && g.clv != null ? `<p>Against the closing price, this tip was <b class="${g.clv > 0 ? "pos" : "neg"}">${sgn(g.clv * 100)}%</b>. Beating the close over many tips is the best sign the picks are worth following.</p>` : ""}
+      
       <p><a href="/#${g.sport}-record">See our full record →</a></p></section>` : "";
   const same = all.filter((x) => x.game_id !== g.game_id && x.pick && etDate(x.start_utc) === etDate(g.start_utc)).slice(0, 12);
   const pickCard = g.pick ? `<section class="panel pick">
@@ -265,7 +265,7 @@ export function renderGame(g, all, rec) {
   ${resultHtml}
   ${paras.length ? `<section class="panel prose"><h2>${post ? "Our pre-game preview" : "Preview"}</h2>${paras.join("\n")}
     <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "tip-off"}, then the pick is locked and stays on our public record, win or lose.`}</p>
-    ${isTip(g) && !post ? `<p>This is one of our tips: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
+    ${isTip(g) && !post ? `<p>This is one of our top picks: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
   </section>` : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
@@ -319,7 +319,7 @@ export function renderHub(sport, data) {
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
   <h1>${S} predictions</h1>
   ${intro}
-  <p>Green picks (65%+) are our tips. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; tips ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a></p>
+  <p>Green picks (65%+) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a></p>
   ${upcoming.length ? Object.entries(groups).map(([k, xs]) => `<section class="panel"><h2>${esc(k)}</h2><ul class="games">${xs.map(gameRow).join("")}</ul></section>`).join("")
     : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before tip-off."}</p></section>`}
   ${recent.length ? `<section class="panel"><h2>Recent results</h2><ul class="games">${recent.map(gameRow).join("")}</ul></section>` : ""}

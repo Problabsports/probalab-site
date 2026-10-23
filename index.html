@@ -521,6 +521,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
     <span class="sport" aria-disabled="true">EPL <small>Soon</small></span>
     <a class="sport" href="#nfl-predictions" data-sport="nfl">NFL <small>Live</small></a>
+    <a class="sport" href="/nhl" data-sport="nhl">NHL <small>Live</small></a>
     <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
   </div>
 </nav>
@@ -561,13 +562,13 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <p><b>NFL:</b> the model rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback (a backup or inexperienced starter counts against a team). Tested on the 2021–2025 seasons, it picked 65% of winners, and its percentages matched results: games rated 70–75% were won 73% of the time.</p>
       <h2>The lights</h2>
       <div class="lights">
-        <div><span><i class="chip SUPER">Super</i></span><p>The model is confident (60%+) and rates the team well above the market. Our strongest tips.</p></div>
-        <div><span><i class="chip GREEN">Green</i></span><p>The model gives the pick 65% or more. Also a tip.</p></div>
-        <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55–65%. Shown for completeness, not a tip.</p></div>
+        <div><span><i class="chip SUPER">Super</i></span><p>The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</p></div>
+        <div><span><i class="chip GREEN">Green</i></span><p>The model gives the pick 65% or more. One of our top picks.</p></div>
+        <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55 to 65%.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
       </div>
-      <h2>Beating the close</h2>
-      <p>For tips, we compare the price at the time of the tip with the final market price at tip-off. Beating the close consistently is the clearest sign a prediction is ahead of the market. We show it as a percentage after each game.</p>
+      <h2>Locked before the start</h2>
+      <p>Every pick is timestamped before the game starts and locked when it begins. It stays on the record, right or wrong.</p>
       <h2>Our rules</h2>
       <ul>
         <li>Every pick is timestamped before tip-off and locked at tip-off.</li>
@@ -683,14 +684,14 @@ function card(g) {
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm">${esc(name)}</div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
   return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
-    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
       <i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
     <div class="card-top"><dl class="prices">
       <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
-      ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}
+      
     </dl><span class="more">Details →</span></div>
   </article>`;
 }
@@ -733,11 +734,11 @@ function renderPredictions() {
       <button type="button" class="calbtn" id="calToggle" aria-expanded="${CAL_OPEN}">Calendar</button>
     </div>
     <div class="mini ${CAL_OPEN ? "open" : ""}" id="calInline">${calHtml()}</div>
-    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> tips</span>
-      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Tips <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
+    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> top picks</span>
+      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
-      <span><i class="chip SUPER">Super</i> strongest tip</span><span><i class="chip GREEN">Green</i> 65%+</span>
+      <span><i class="chip SUPER">Super</i> strongest pick</span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
       ${noteLegend(list)}
     </div>
@@ -761,9 +762,7 @@ function renderRecord() {
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
-      ["Tips", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green tips" : "green + super"}`],
-      ["Tips vs close", clvAvg == null ? "–" : sgn(clvAvg * 100) + "%", "average price beat"],
-      ["Beat the close", beat == null ? "–" : pct(beat), `of ${clvs.length} tips`],
+      ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + super"}`],
     ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
     <div class="conf">
       <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
@@ -775,12 +774,12 @@ function renderRecord() {
     </div>
     <div class="panel">
       <div class="toolbar"><h2 class="grow">Every pick</h2>
-        <div class="seg" id="filters"><button type="button" data-f="all" aria-pressed="${FILTER === "all"}">All</button><button type="button" data-f="tips" aria-pressed="${FILTER === "tips"}">Tips only</button></div></div>
+        <div class="seg" id="filters"><button type="button" data-f="all" aria-pressed="${FILTER === "all"}">All</button><button type="button" data-f="tips" aria-pressed="${FILTER === "tips"}">Top picks only</button></div></div>
       <div class="tablewrap"><table>
-        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th><th class="n">vs close</th></tr></thead><tbody>
+        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th></tr></thead><tbody>
         ${rows.map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td>${fmtShort.format(new Date(g.start_utc))}</td><td>${g.away} @ ${g.home}</td><td>${esc(g.pick)}</td>
           <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
-          <td class="n">${g.away_score}–${g.home_score}</td><td class="n ${g.clv == null ? "" : g.clv > 0 ? "clv-pos" : "clv-neg"}">${g.clv == null ? "–" : sgn(g.clv * 100) + "%"}</td></tr>`).join("")}
+          <td class="n">${g.away_score}–${g.home_score}</td></tr>`).join("")}
       </tbody></table></div>
     </div>`;
 }
@@ -1029,11 +1028,11 @@ function renderSide(sub) {
   const rows = table(DEF).filter((r) => r.gp).slice(0, 8);
   document.getElementById("side").innerHTML = `
     ${sub === "predictions" ? `<div class="mini" id="calSide">${calHtml()}</div>` : ""}
-    ${feat ? `<div class="mini"><h3>Tip of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
+    ${feat ? `<div class="mini"><h3>Pick of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
       <div class="row">${chip(feat.light)}</div></div></div>` : ""}
-    <div class="mini"><h3>Tips record</h3>
+    <div class="mini"><h3>Top picks record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
       <a class="back" href="#nba-record">Our record →</a></div>
@@ -1126,13 +1125,13 @@ function renderGame(id) {
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
   el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
+      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
-        ${g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
+        </dl>
     </div>
     <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
       <div class="factors">
@@ -1277,8 +1276,8 @@ function renderNflPredictions() {
       <button type="button" data-wk="1" aria-label="Next week" ${NWEEK >= weeks[weeks.length - 1] ? "disabled" : ""}>›</button>
       <select class="season" id="nweekSel" aria-label="Week">${weeks.map((x) => `<option value="${x}" ${x === NWEEK ? "selected" : ""}>${wkLabel(x)}</option>`).join("")}</select>
     </div>
-    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> tips</span>
-      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Tips <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
+    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> top picks</span>
+      ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
       <span><i class="chip GREEN">Green</i> 65%+</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
@@ -1393,13 +1392,13 @@ function renderNflGame(id) {
   const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
   el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Tip</span>` : ""}${chip(g.light)}${noteBtn(g)}
+      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
-        ${post && g.clv != null ? `<div><dt>vs close</dt><dd class="${g.clv > 0 ? "clv-pos" : "clv-neg"}">${sgn(g.clv * 100)}%</dd></div>` : ""}</dl>
+        </dl>
       ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
     </div>
     <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
@@ -1433,11 +1432,11 @@ function renderSideNfl() {
   const feat = featured(NFL), tips = pickedDone().filter(isTip), last7 = tips.filter((g) => Date.now() - new Date(g.start_utc) < 7 * 864e5);
   const ts = nflFinals(NFL.season).length ? NFL.season : NSEASON, rows = nflTable(ts).filter((r) => r.gp).slice(0, 8);
   document.getElementById("side").innerHTML = `
-    ${feat ? `<div class="mini"><h3>Tip of the week</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
+    ${feat ? `<div class="mini"><h3>Pick of the week</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
       <div class="row">${chip(feat.light)}</div></div></div>` : ""}
-    <div class="mini"><h3>Tips record</h3>
+    <div class="mini"><h3>Top picks record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${tips.filter((g) => g.won).length}–${tips.filter((g) => !g.won).length}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.filter((g) => g.won).length}–${last7.filter((g) => !g.won).length}</span></div>
       <a class="back" href="#nfl-record">Our record →</a></div>
