@@ -9,19 +9,19 @@
 <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<title>ProbaLab: NBA &amp; NFL Predictions and Win Probabilities</title>
-<meta name="description" content="Win probabilities for every NBA and NFL game, posted before the start and kept on a public, timestamped record. Injuries, rest, form and quarterbacks included.">
+<title>ProbaLab: NBA, NFL &amp; NHL Predictions and Win Probabilities</title>
+<meta name="description" content="Win probabilities for every NBA, NFL and NHL game, posted before the start and kept on a public, timestamped record. Injuries, rest, form and quarterbacks included.">
 <link rel="canonical" href="https://probalabsports.com/">
 <meta property="og:site_name" content="ProbaLab">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
-<meta property="og:description" content="Who wins, how likely. A win chance for every NBA and NFL game, posted before the start, with every result on the record.">
+<meta property="og:title" content="ProbaLab: NBA, NFL &amp; NHL Predictions and Win Probabilities">
+<meta property="og:description" content="Who wins, how likely. A win chance for every NBA, NFL and NHL game, posted before the start, with every result on the record.">
 <meta property="og:url" content="https://probalabsports.com/">
 <meta property="og:image" content="https://probalabsports.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
+<meta name="twitter:title" content="ProbaLab: NBA, NFL &amp; NHL Predictions and Win Probabilities">
 <meta name="twitter:description" content="Who wins, how likely. A win chance for every NBA and NFL game, with every result on the record.">
 <meta name="twitter:image" content="https://probalabsports.com/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"ProbaLab","url":"https://probalabsports.com/"},{"@type":"Organization","name":"ProbaLab","url":"https://probalabsports.com/","logo":"https://probalabsports.com/icon-512.png","email":"hello@probalabsports.com"}]}</script>
@@ -462,7 +462,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .hp-pick .meter { height: 10px; }
 .hp-pick .meter i { transition: width 1.2s cubic-bezier(.2, .8, .2, 1); }
 .hp-pick:hover { box-shadow: 0 0 56px rgba(255, 47, 192, 0.25); }
-.sportgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.sportgrid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .sport-tile { position: relative; display: grid; gap: 10px; align-content: start; min-height: 196px; padding: 18px 16px; border: 1px solid var(--line-hi); background: var(--surface); color: var(--ink); text-decoration: none; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s; }
 .sport-tile svg { width: 48px; height: 48px; }
 .sport-tile .nm { font: 700 26px var(--f-display); letter-spacing: 0.06em; }
@@ -486,7 +486,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .home-sec > .head a { font: 600 12px var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); text-decoration: none; }
 @media (max-width: 1000px) { .sportgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) { .home-hero { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
+@media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .sport-tile.soon:last-child { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
 .qbwarn { display: inline-grid; place-items: center; width: 26px; height: 24px; margin-left: 4px; padding: 0; border: 0; background: transparent; color: rgba(245, 233, 0, 0.55); font-size: 17px; line-height: 1; cursor: pointer; }
 .qbwarn.hot { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.7); animation: qbpulse 2.4s ease-in-out infinite; }
 .qbwarn:hover, .qbwarn:focus-visible { color: var(--yellow); }
@@ -939,9 +939,29 @@ const ICON = {
   AFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="20" ry="12" transform="rotate(-35 24 24)" stroke="#ff4f6e" fill="rgba(255,79,110,.12)"/><path d="M16 32 32 16M20 24l4 4M22 21l5 5M25 18l5 5" stroke="#ff4f6e"/></svg>`,
   EPL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><circle cx="24" cy="24" r="19" stroke="#eef2ff" fill="rgba(238,242,255,.08)"/><path d="M24 15l8 6-3 9h-10l-3-9z" stroke="#eef2ff" fill="rgba(238,242,255,.25)"/><path d="M24 15V6M32 21l8-3M29 30l5 8M19 30l-5 8M16 21l-8-3" stroke="#eef2ff"/></svg>`,
   NFL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><path d="M8 40C6 26 14 10 40 8c2 14-6 30-32 32z" stroke="#c98a4b" fill="rgba(201,138,75,.14)"/><path d="M18 30 30 18M21 24l3 3M24 21l3 3M27 18l3 3" stroke="#eef2ff"/></svg>`,
+  NHL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><path d="M30 6 22 34c-1 3-3 4-6 4H8v-5h8l8-27z" stroke="#19e3ff" fill="rgba(25,227,255,.12)"/><ellipse cx="34" cy="38" rx="7" ry="3" stroke="#eef2ff" fill="rgba(238,242,255,.25)"/></svg>`,
   NRL: `<svg viewBox="0 0 48 48" fill="none" stroke-width="2.2"><ellipse cx="24" cy="24" rx="19" ry="13" transform="rotate(30 24 24)" stroke="#3dff8f" fill="rgba(61,255,143,.10)"/><path d="M13 18c6 3 16 9 22 12" stroke="#3dff8f"/></svg>`,
 };
-const SPORTS = [["NBA", "Basketball"], ["AFL", "Aussie rules"], ["EPL", "Football"], ["NFL", "Gridiron"], ["NRL", "Rugby league"]];
+const SPORTS = [["NBA", "Basketball"], ["NFL", "Gridiron"], ["NHL", "Ice hockey"], ["AFL", "Aussie rules"], ["EPL", "Football"], ["NRL", "Rugby league"]];
+// NHL home tile: picks + grades loaded live from the same files the /nhl page uses
+let NHLH = null;
+const NHL_P = Promise.all(["/data/nhl-picks.json", "/data/nhl-grades.json"].map((u) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)))
+  .then(([raw, gr]) => {
+    const pc = (v) => (v == null ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); gr = gr || {};
+    const gs = (Array.isArray(raw) ? raw : raw?.games ?? []).map((g) => ({ id: String(g.id ?? g.game_id), t: g.start_utc ?? g.date, pick: g.pick === "home" ? g.home : g.away, p: pc(g.pick_pct ?? (g.pick === "home" ? g.home_pct : g.away_pct)), gr: gr[String(g.id ?? g.game_id)] }));
+    const done = gs.filter((g) => g.gr?.graded), w = done.filter((g) => g.gr.correct).length;
+    const next = gs.filter((g) => !g.gr?.graded && new Date(g.t) > Date.now() - 3 * 3600e3);
+    const day = next.map((g) => keyOf(g.t)).sort()[0], dg = day ? next.filter((g) => keyOf(g.t) === day) : [];
+    const top = dg.slice().sort((a, b) => b.p - a.p)[0];
+    NHLH = { n: dg.length, day, top, w, l: done.length - w, d: done.length };
+    const el = document.getElementById("nhlTile"); if (el) el.outerHTML = nhlTile();
+  });
+function nhlTile() {
+  const h = NHLH, lbl = h?.day ? (h.day === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(h.day))) : "";
+  return `<a class="sport-tile live" id="nhlTile" href="/nhl">${ICON.NHL}<span class="st">● Live</span><span class="nm">NHL</span><span class="lg">Ice hockey</span>
+        <span class="info">${h?.n ? `<span><b>${h.n}</b> games ${lbl}</span>` : ""}${h?.top ? `<span>Top pick <b>${esc(h.top.pick)} ${pct(h.top.p)}</b></span>` : ""}<span>Record <b>${h?.d ? `${h.w}–${h.l}` : h ? "starts soon" : "loading"}</b></span></span>
+        <span class="go">Predictions →</span></a>`;
+}
 
 // ---------- home page ----------
 function renderHome() {
@@ -965,7 +985,7 @@ function renderHome() {
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
       <span>${chip(f.light)}</span>
     </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
-  const tile = ([code, lg]) => code === "NFL" && NFL
+  const tile = ([code, lg]) => code === "NHL" ? nhlTile() : code === "NFL" && NFL
     ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
         <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
@@ -1508,7 +1528,7 @@ const permalink = (g) => (g.pick ? `<p class="permalink"><a href="${gameUrl(g)}"
 const SUB_TITLES = { predictions: "Predictions & Win Probabilities", record: "Prediction Record", trends: "Trends", table: "Standings", scores: "Scores", stats: "Stats" };
 function setTitle(v, sub) {
   const base = "ProbaLab";
-  let t = `${base}: NBA & NFL Predictions and Win Probabilities`;
+  let t = `${base}: NBA, NFL & NHL Predictions and Win Probabilities`;
   if (v === "about") t = `How It Works | ${base}`;
   else if (v === "sport") t = `${SP.toUpperCase()} ${SUB_TITLES[sub] ?? "Predictions"} | ${base}`;
   else if (v === "game") { const id = location.hash.slice(6), g = NFL?.byId[id] ?? DATA?.games.find((x) => x.game_id === id);
