@@ -217,7 +217,7 @@ ${body}
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="links"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
-  <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL or any team.</p>
+  <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
 ${SIGNUP_JS}

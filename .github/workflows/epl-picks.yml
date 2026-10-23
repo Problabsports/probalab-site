@@ -1,6 +1,7 @@
 name: EPL picks
-# Copies ProbaLab's EPL picks into data/epl-picks.json every 30 minutes (and on demand).
-# Picks refresh until kick-off, then freeze. No odds or prices. The site team grades results.
+# Copies ProbaLab's EPL picks into data/epl-picks.json and results into data/epl-grades.json every 30 minutes (and on demand).
+# Picks refresh until kick-off. Once a match has started, its entry in epl-picks.json is never changed again.
+# A result is in epl-grades.json only when two score sources (ESPN and football-data.co.uk) agree. No odds or prices.
 on:
   schedule:
     - cron: "7,37 * * * *"
@@ -19,19 +20,32 @@ jobs:
       - name: Fetch picks
         run: |
           set -euo pipefail
-          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/epl-picks-feed -o /tmp/epl-picks.json
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/epl-picks-feed -o /tmp/epl-new.json
           # only accept a non-empty array of picks with the expected fields
-          jq -e 'type == "array" and length > 0 and all(.[]; has("game_id") and has("round") and has("p_home") and has("p_draw") and has("p_away") and .status == "pre")' /tmp/epl-picks.json > /dev/null
+          jq -e 'type == "array" and length > 0 and all(.[]; has("game_id") and has("round") and has("start_utc") and has("p_home") and has("p_draw") and has("p_away") and .status == "pre")' /tmp/epl-new.json > /dev/null
           mkdir -p data
-          jq . /tmp/epl-picks.json > data/epl-picks.json
+          if [ -f data/epl-picks.json ]; then cp data/epl-picks.json /tmp/epl-old.json; else echo '[]' > /tmp/epl-old.json; fi
+          # matches that have started keep exactly what this file already says; upcoming matches take the new numbers
+          jq -n --slurpfile n /tmp/epl-new.json --slurpfile o /tmp/epl-old.json --argjson now "$(date -u +%s)" '
+            $n[0] as $new | $o[0] as $old
+            | ($old | map(select((.start_utc | fromdateiso8601) <= $now))) as $frozen
+            | ($frozen | map(.game_id)) as $fids
+            | ($new | map(select(.game_id as $i | ($fids | index($i)) == null))) as $fresh
+            | ($frozen + $fresh) | sort_by(.start_utc, .game_id)' > data/epl-picks.json
+      - name: Fetch results
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/epl-grades-feed -o /tmp/epl-grades.json
+          jq -e 'type == "object" and all(.[]; has("graded"))' /tmp/epl-grades.json > /dev/null
+          # a result, once marked, stays as first marked
+          if [ -f data/epl-grades.json ]; then jq -s '.[1] + (.[0] | with_entries(select(.value.graded)))' data/epl-grades.json /tmp/epl-grades.json > /tmp/epl-merged.json; else cp /tmp/epl-grades.json /tmp/epl-merged.json; fi
+          jq -S . /tmp/epl-merged.json > data/epl-grades.json
       - name: Commit if changed
         run: |
-          if git diff --quiet -- data/epl-picks.json && git ls-files --error-unmatch data/epl-picks.json >/dev/null 2>&1; then
-            echo "No change"; exit 0
-          fi
+          git add data/epl-picks.json data/epl-grades.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "probalab-bot"
           git config user.email "probalab-bot@users.noreply.github.com"
-          git add data/epl-picks.json
           git commit -m "EPL picks update"
           git pull --rebase
           git push

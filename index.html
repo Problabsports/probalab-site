@@ -520,7 +520,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
   <div class="wrap">
     <a class="sport on" href="#nba-predictions" data-sport="nba">NBA <small>Live</small></a>
     <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
-    <span class="sport" aria-disabled="true">EPL <small>Soon</small></span>
+    <a class="sport" href="/epl" data-sport="epl">EPL <small>Live</small></a>
     <a class="sport" href="#nfl-predictions" data-sport="nfl">NFL <small>Live</small></a>
     <a class="sport" href="/nhl" data-sport="nhl">NHL <small>Live</small></a>
     <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
@@ -592,7 +592,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
     <p class="flinks"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
-    <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL or any team.</p>
+    <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
   </div>
 </footer>
 
@@ -973,6 +973,10 @@ function renderHome() {
     : code === "NBA"
     ? `<a class="sport-tile live" href="#nba-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
         <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(featured(DATA)?.pick ?? "")} ${featured(DATA) ? pct(featured(DATA).pick_p) : ""}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
+        <span class="go">Predictions →</span></a>`
+    : code === "EPL"
+    ? `<a class="sport-tile live" href="/epl">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
+        <span class="info"><span>Home, draw and away chances</span><span>Every match, every round</span></span>
         <span class="go">Predictions →</span></a>`
     : `<div class="sport-tile soon" aria-disabled="true">${ICON[code]}<span class="st">Soon</span><span class="nm">${code}</span><span class="lg">${lg}</span><span class="info"><span>In the lab</span></span></div>`;
   el.innerHTML = `

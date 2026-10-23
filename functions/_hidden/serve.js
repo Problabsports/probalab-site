@@ -5,10 +5,15 @@ export async function serveHidden(ctx, sport) {
   if (parts.length) return Response.redirect(new URL(id ? `/${sport}#game-${id}` : `/${sport}`, ctx.request.url).toString(), 302);
   const r = await ctx.env.ASSETS.fetch(new URL("/", ctx.request.url));
   let h = await r.text();
-  const live = sport === "nhl"; // NHL is live (John, 23 Oct). EPL stays hidden.
-  if (live) h = h.replace(/<link rel="canonical"[^>]*>/, '<link rel="canonical" href="https://probalabsports.com/nhl">')
-    .replace(/<title>[^<]*<\/title>/, "<title>NHL Predictions Today: Win Probabilities for Every Game | ProbaLab</title>")
-    .replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="NHL predictions for every game: a win chance for each team, posted before puck drop, with every result on the record.">');
+  // NHL live (John, 23 Oct). EPL live with percentages only (John, 24 Oct).
+  const META = {
+    nhl: ["NHL Predictions Today: Win Probabilities for Every Game | ProbaLab", "NHL predictions for every game: a win chance for each team, posted before puck drop, with every result on the record."],
+    epl: ["Premier League Predictions: Home, Draw and Away Chances | ProbaLab", "Premier League predictions for every match: home win, draw and away win chances, posted before kick-off, with every result on the record."],
+  };
+  const live = !!META[sport];
+  if (live) h = h.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://probalabsports.com/${sport}">`)
+    .replace(/<title>[^<]*<\/title>/, `<title>${META[sport][0]}</title>`)
+    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${META[sport][1]}">`);
   else h = h.replace(/<link rel="canonical"[^>]*>/, "").replace("<head>", '<head>\n<meta name="robots" content="noindex, nofollow">');
   h = h.replace(/<\/body>/, `<script>window.HIDDEN_SPORT=${JSON.stringify(sport)};</script>\n<script src="/hidden-sports.js"></script>\n</body>`);
   return new Response(h, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=60", ...(live ? {} : { "x-robots-tag": "noindex, nofollow" }) } });

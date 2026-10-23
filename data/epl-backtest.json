@@ -1,0 +1,37 @@
+{
+ "note": "EPL past-season re-run: each match predicted from earlier days' results only (2020-21 used to warm up the ratings). 2021-22 and 2022-23 were used to choose the model's settings; 2023-24 to 2025-26 are a clean test. Not the live record.",
+ "seasons": {
+  "2021": {
+   "n": 380,
+   "c": 213,
+   "home": 163,
+   "draws": 88,
+   "tuned": true
+  },
+  "2022": {
+   "n": 380,
+   "c": 198,
+   "home": 184,
+   "draws": 87,
+   "tuned": true
+  },
+  "2023": {
+   "n": 380,
+   "c": 219,
+   "home": 175,
+   "draws": 82
+  },
+  "2024": {
+   "n": 380,
+   "c": 198,
+   "home": 155,
+   "draws": 93
+  },
+  "2025": {
+   "n": 380,
+   "c": 185,
+   "home": 162,
+   "draws": 104
+  }
+ }
+}
