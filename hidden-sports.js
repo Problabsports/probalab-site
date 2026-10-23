@@ -13,7 +13,9 @@
   async function load() {
     const [raw, grades, table, bt] = await Promise.all([get(`/data/${HS}-picks.json`, []), IS_EPL ? {} : get("/data/nhl-grades.json", {}), get(`/api/hidden-table?sport=${HS}`, null), IS_EPL ? null : get("/data/nhl-backtest.json", null)]);
     H.games = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
-      const x = { ...g, game_id: String(g.game_id), start_utc: g.start_utc ?? g.kickoff_utc ?? g.puck_drop_utc, home_name: nm(g.home), away_name: nm(g.away) };
+      const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); // NHL feed sends 0-100
+      const x = { ...g, game_id: String(g.game_id ?? g.id), start_utc: g.start_utc ?? g.kickoff_utc ?? g.puck_drop_utc ?? g.date, home_name: nm(g.home), away_name: nm(g.away),
+        p_home: pc(g.p_home ?? g.home_pct), p_away: pc(g.p_away ?? g.away_pct), p_draw: pc(g.p_draw ?? g.draw_pct) };
       x.pick_p = Number(x.pick === "home" ? x.p_home : x.pick === "away" ? x.p_away : x.p_draw);
       x.pick_name = x.pick === "home" ? x.home_name : x.pick === "away" ? x.away_name : "Draw";
       x.light = lightOf(x.pick_p);
