@@ -19,5 +19,5 @@ export async function serveHidden(ctx, sport) {
   const js = await ctx.env.ASSETS.fetch(new URL("/hidden-sports.js", ctx.request.url), { method: "HEAD" }).catch(() => null);
   const ver = encodeURIComponent((js?.headers.get("etag") ?? "1").replace(/\W/g, "").slice(0, 12));
   h = h.replace(/<\/body>/, `<script>window.HIDDEN_SPORT=${JSON.stringify(sport)};</script>\n<script src="/hidden-sports.js?v=${ver}"></script>\n</body>`);
-  return new Response(h, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=60", ...(live ? {} : { "x-robots-tag": "noindex, nofollow" }) } });
+  return new Response(h, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache, must-revalidate", ...(live ? {} : { "x-robots-tag": "noindex, nofollow" }) } });
 }
