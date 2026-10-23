@@ -15,3 +15,5 @@ export async function onRequestGet(ctx) {
     `  <url><loc>${esc(ORIGIN + u.loc)}</loc>${u.mod ? `<lastmod>${esc(new Date(u.mod).toISOString())}</lastmod>` : ""}<changefreq>${u.freq}</changefreq><priority>${u.pri}</priority></url>`).join("\n")}\n</urlset>\n`;
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=900" } });
 }
+// HEAD gets the same status and headers as GET, with no body
+export const onRequestHead = async (ctx) => { const r = await onRequestGet(ctx); return new Response(null, { status: r.status, headers: r.headers }); };
