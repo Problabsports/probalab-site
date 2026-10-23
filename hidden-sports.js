@@ -73,7 +73,42 @@
       : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_EPL ? "kick-off" : "puck drop"}.</p></div>`}`;
   }
   // ---------- record ----------
+  let HFILTER = "all";
   function record() {
+    if (!IS_EPL) return recordNHL();
+    return recordPlain();
+  }
+  // NHL record in the same layout as the NBA/NFL record tab (stats, by light, calibration, every pick); graded from /data/nhl-pretip.json snapshots
+  function recordNHL() {
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p></div>`;
+    const done = graded().slice().reverse(), tips = done.filter((x) => x.light === "GREEN"), w = W, rate = (xs) => (xs.length ? pct(w(xs) / xs.length) : "–");
+    const pending = H.games.filter((x) => x.finished && !x.graded).length;
+    if (!done.length) { document.getElementById("main").innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>Every pick stays on the record, right or wrong.</p></div>`; return; }
+    const rows = (HFILTER === "tips" ? tips : done).slice(0, 80);
+    document.getElementById("main").innerHTML = lede + `
+    <div class="stats">${[["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`], ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} green picks`]]
+      .map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
+    <div class="conf">
+      <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
+        <thead><tr><th>Light</th><th class="n">Picks</th><th class="n">Won</th><th class="n">Rate</th><th class="n">We said</th></tr></thead><tbody>
+        ${["GREEN", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l);
+          return `<tr><td>${chip(l)}</td><td class="n">${xs.length}</td><td class="n">${w(xs)}</td><td class="n">${rate(xs)}</td><td class="n">${xs.length ? pct(xs.reduce((s, g) => s + g.pick_p, 0) / xs.length) : "–"}</td></tr>`; }).join("")}
+      </tbody></table></div></div>
+      <div class="panel"><h2>Are the percentages honest?</h2><p>Dots near the dashed line mean our 70% picks win about 70% of the time.</p>${calibSvg(done.map((g) => ({ pick_p: g.pick_p, won: !!g.correct })))}</div>
+    </div>
+    ${pending ? `<p class="note">${pending} finished game${pending > 1 ? "s are" : " is"} still being checked.</p>` : ""}
+    <div class="panel">
+      <div class="toolbar"><h2 class="grow">Every pick</h2>
+        <div class="seg" id="hfilters"><button type="button" data-hf="all" aria-pressed="${HFILTER === "all"}">All</button><button type="button" data-hf="tips" aria-pressed="${HFILTER === "tips"}">Top picks only</button></div></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th></tr></thead><tbody>
+        ${rows.map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td>${fmtShort.format(new Date(g.start_utc))}</td><td>${esc(g.away)} @ ${esc(g.home)}</td><td>${esc(g.pick === "home" ? g.home : g.away)}</td>
+          <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span></td>
+          <td class="n">${g.away_score ?? "–"}–${g.home_score ?? "–"}</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>`;
+  }
+  function recordPlain() {
     const g = graded(), gr = g.filter((x) => x.light === "GREEN"), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p></div>
@@ -203,6 +238,7 @@
     else { const ks = [...new Set(H.games.map((g) => keyOf(g.start_utc)))].sort(); SELD = ks[Math.max(0, Math.min(ks.length - 1, ks.indexOf(SELD) + d))]; }
     predictions(); side();
   }, true);
+  document.addEventListener("click", (e) => { const f = e.target.closest("#hfilters [data-hf]"); if (!f) return; e.stopPropagation(); HFILTER = f.dataset.hf; record(); }, true);
   document.addEventListener("change", (e) => { if (e.target.id === "hroundSel") { SELR = Number(e.target.value); predictions(); side(); } });
   load().then(hroute); hroute();
 })();
