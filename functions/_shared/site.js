@@ -269,7 +269,7 @@ export function renderGame(g, all, rec) {
   </section>` : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
-  <p class="note">Probabilities come from ProbaLab's own model. They are not betting advice. <a href="/#about">How it works</a>.</p>`;
+  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. <a href="/#about">How it works</a>.</p>`;
   const venue = venueOf(g);
   const league = g.sport === "nfl" ? { "@type": "SportsOrganization", name: "NFL", url: "https://www.nfl.com" }
     : { "@type": "SportsOrganization", name: "NBA", url: "https://www.nba.com" };
