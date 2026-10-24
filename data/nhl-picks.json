@@ -1093,5 +1093,20 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020227",
+    "date": "2026-11-01T18:00:00Z",
+    "home": "CAR",
+    "away": "WPG",
+    "home_pct": 75.6,
+    "away_pct": 24.4,
+    "pick": "home",
+    "pick_pct": 75.6,
+    "created_at": "2026-10-24T18:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
