@@ -286,5 +286,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401879246",
+    "round": 9,
+    "start_utc": "2026-11-01T16:30:00Z",
+    "home": "Liverpool",
+    "away": "Arsenal",
+    "p_home": 0.277,
+    "p_draw": 0.276,
+    "p_away": 0.448,
+    "pick": "away",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
