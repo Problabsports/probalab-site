@@ -1033,5 +1033,50 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020223",
+    "date": "2026-10-31T23:00:00Z",
+    "home": "MTL",
+    "away": "PIT",
+    "home_pct": 52.21,
+    "away_pct": 47.79,
+    "pick": "home",
+    "pick_pct": 52.21,
+    "created_at": "2026-10-24T00:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020224",
+    "date": "2026-10-31T23:00:00Z",
+    "home": "VAN",
+    "away": "TOR",
+    "home_pct": 38.55,
+    "away_pct": 61.45,
+    "pick": "away",
+    "pick_pct": 61.45,
+    "created_at": "2026-10-24T00:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020225",
+    "date": "2026-11-01T00:00:00Z",
+    "home": "DAL",
+    "away": "CBJ",
+    "home_pct": 59.7,
+    "away_pct": 40.3,
+    "pick": "home",
+    "pick_pct": 59.7,
+    "created_at": "2026-10-24T00:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
