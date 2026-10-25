@@ -302,5 +302,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401878762",
+    "round": 9,
+    "start_utc": "2026-11-02T20:00:00Z",
+    "home": "Newcastle United",
+    "away": "Everton",
+    "p_home": 0.399,
+    "p_draw": 0.25,
+    "p_away": 0.35,
+    "pick": "home",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
