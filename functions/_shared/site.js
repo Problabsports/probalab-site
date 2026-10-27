@@ -85,10 +85,10 @@ function nbaPreview(g, rec) {
   if (ta != null && th != null) {
     const tp = pickHome ? th : ta, to = pickHome ? ta : th;
     out.push(Math.abs(tp - to) < 0.75
-      ? `<p>On the line-ups we expect, the teams rate almost level (${tp.toFixed(1)} to ${to.toFixed(1)} on our team-strength rating), so ${pickHome ? "home court" : "rest and form"} decide${pickHome ? "s" : ""} the pick.</p>`
+      ? `<p>On the rosters we expect, the teams rate almost level (${tp.toFixed(1)} to ${to.toFixed(1)} on our team-strength rating), so ${pickHome ? "home court" : "rest and form"} decide${pickHome ? "s" : ""} the pick.</p>`
       : tp >= to
-      ? `<p>On the line-ups we expect, ${esc(P)} rate as the stronger team (${tp.toFixed(1)} to ${to.toFixed(1)} on our team-strength rating), and that is the main reason for the pick.</p>`
-      : `<p>${esc(O)} rate slightly stronger on the line-ups we expect (${to.toFixed(1)} to ${tp.toFixed(1)} on our team-strength rating), but ${pickHome ? "home court" : "rest and form"} push the pick to ${esc(P)}.</p>`);
+      ? `<p>On the rosters we expect, ${esc(P)} rate as the stronger team (${tp.toFixed(1)} to ${to.toFixed(1)} on our team-strength rating), and that is the main reason for the pick.</p>`
+      : `<p>${esc(O)} rate slightly stronger on the rosters we expect (${to.toFixed(1)} to ${tp.toFixed(1)} on our team-strength rating), but ${pickHome ? "home court" : "rest and form"} push the pick to ${esc(P)}.</p>`);
   }
   const fa = d.form_away == null ? null : Number(d.form_away), fh = d.form_home == null ? null : Number(d.form_home);
   if (fa != null && fh != null && (fa !== 0 || fh !== 0)) {
@@ -256,17 +256,18 @@ export function renderGame(g, all, rec) {
         <span class="at">@</span>
         <span class="team r ${g.pick === g.home ? "on" : ""}"><span class="ab">${esc(g.home)}</span>${esc(H)}<span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
-      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div></dl>
-    </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before tip-off"}. Check back soon.</p></section>`;
+      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
+    </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
   <p class="eyebrow">// ${S}${g.sport === "nfl" ? ` · ${wkLabel(g.week)}` : ""} · ${esc(dayET(g.start_utc))}</p>
   <h1>${esc(A)} vs ${esc(H)} prediction</h1>
-  <p class="when">${g.sport === "nfl" ? "Kick-off" : "Tip-off"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
+  <p class="when">${g.sport === "nfl" ? "Kick-off" : "Start"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
   ${pickCard}
   ${resultHtml}
+  ${g.sport === "nba" ? trendsHtml(g, all) : ""}
   ${paras.length ? `<section class="panel prose"><h2>${post ? "Our pre-game preview" : "Preview"}</h2>${paras.join("\n")}
-    <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "tip-off"}, then the pick is locked and stays on our public record, win or lose.`}</p>
+    <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "game time"}, then the pick is frozen and stays on our public record, win or lose.`}</p>
     ${isTip(g) && !post ? `<p>This is one of our top picks: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
   </section>` : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
@@ -314,8 +315,8 @@ export function renderHub(sport, data) {
     ? "NFL predictions for every game this week: win probabilities, quarterback notes and a public, timestamped record of every pick."
     : "NBA predictions for every game: win probabilities that account for injuries, rest and form, with a public, timestamped record of every pick.";
   const intro = sport === "nfl"
-    ? `<p>Every NFL game gets a win probability from our model. It rates each team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are posted up to 8 days before kick-off, update as quarterback news comes in, and lock at kick-off.</p>`
-    : `<p>Every NBA game gets a win probability from our model. It rates each team on the players expected to play that night, then adjusts for injuries, rest and recent form. Picks are posted about 48 hours before tip-off, update as injury news comes in, and lock at tip-off.</p>`;
+    ? `<p>Every NFL game gets a win probability from our model. It rates each team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are posted up to 8 days before kick-off, update as quarterback news comes in, and are frozen at kick-off.</p>`
+    : `<p>Every NBA game gets a win probability from our model. It rates each team on the players expected to play that night, then adjusts for injuries, rest and recent form. Picks are posted about 48 hours before game time, update as injury news comes in, and are frozen at game time.</p>`;
   const body = `<a class="back" href="/#${sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>${S} predictions</span></nav>
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
@@ -323,7 +324,7 @@ export function renderHub(sport, data) {
   ${intro}
   <p>Green picks (65%+) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a></p>
   ${upcoming.length ? Object.entries(groups).map(([k, xs]) => `<section class="panel"><h2>${esc(k)}</h2><ul class="games">${xs.map(gameRow).join("")}</ul></section>`).join("")
-    : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before tip-off."}</p></section>`}
+    : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before game time."}</p></section>`}
   ${recent.length ? `<section class="panel"><h2>Recent results</h2><ul class="games">${recent.map(gameRow).join("")}</ul></section>` : ""}
   <p class="cta"><a class="btn" href="/#${sport}-predictions">Open the ${S} app view →</a></p>`;
   // list page: an ItemList of links to the game pages (no bare SportsEvent entries here)
@@ -332,6 +333,98 @@ export function renderHub(sport, data) {
     mainEntity: { "@type": "ItemList", numberOfItems: listed.length,
       itemListElement: listed.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
   return shell({ title, description, path: `/${sport}`, body, jsonld });
+}
+
+
+// ------------------------------------------------------------------ seo-preview additions
+const CONF = { SUPER: "Very high", GREEN: "High", ORANGE: "Medium", RED: "Low" };
+const confLabel = (l) => CONF[l] ?? "Not set";
+// last N finished games for a team before a given time, from the feed's own scores
+function lastGames(all, team, before, n = 5) {
+  return all.filter((x) => x.status === "post" && x.home_score != null && (x.home === team || x.away === team) && x.start_utc < before)
+    .sort((a, b) => b.start_utc.localeCompare(a.start_utc)).slice(0, n)
+    .map((x) => { const home = x.home === team, us = home ? x.home_score : x.away_score, them = home ? x.away_score : x.home_score;
+      return { win: us > them, margin: us - them, home, opp: home ? x.away : x.home, us, them }; });
+}
+function trendsHtml(g, all) {
+  const rows = [[g.away, g.away_name], [g.home, g.home_name]].map(([t, n]) => {
+    const xs = lastGames(all, t, g.start_utc);
+    if (!xs.length) return `<li><b>${esc(n)}</b>: no finished games yet this season.</li>`;
+    const w = xs.filter((x) => x.win).length, avg = xs.reduce((a, x) => a + x.margin, 0) / xs.length;
+    const seq = xs.map((x) => `${x.win ? "W" : "L"} ${x.us}–${x.them} ${x.home ? "v" : "@"} ${esc(x.opp)}`).join(", ");
+    return `<li><b>${esc(n)}</b>: ${w} win${w === 1 ? "" : "s"} from the last ${xs.length}, average margin ${sgn(avg)} points (${seq}).</li>`;
+  });
+  const meet = all.filter((x) => x.status === "post" && x.home_score != null && x.start_utc < g.start_utc && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
+  return `<section class="panel prose"><h2>Recent results</h2><ul>${rows.join("")}</ul>
+    <p>${meet.length ? `These teams have already met ${meet.length} time${meet.length === 1 ? "" : "s"} this season.` : "This is the first meeting between these teams this season."} Results are taken from final scores, most recent first.</p></section>`;
+}
+
+// /nba/today: today's games plus the rest of this week
+export function renderToday(sport, data) {
+  const S = sportName(sport), now = Date.now(), wk = now + 7 * 864e5;
+  const up = data.games.filter((g) => g.status !== "post" && new Date(g.start_utc).getTime() > now - 4 * 3600e3 && new Date(g.start_utc).getTime() < wk)
+    .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const picked = up.filter((g) => g.pick);
+  const groups = {}; up.forEach((g) => (groups[dayET(g.start_utc)] ??= []).push(g));
+  const days = Object.keys(groups);
+  const strongest = [...picked].sort((a, b) => b.pick_p - a.pick_p)[0];
+  const closest = [...picked].sort((a, b) => a.pick_p - b.pick_p)[0];
+  const byLight = (l) => picked.filter((g) => g.light === l).length;
+  const title = `${S} Predictions Today and This Week: Win Chances for ${up.length} Games | ProbaLab`;
+  const description = `${S} win chances for ${up.length} games over the next 7 days${strongest ? `, led by ${strongest.pick_name} at ${pct(strongest.pick_p)}` : ""}. Updated with injury news before every game.`;
+  const summary = picked.length ? `<p>Across the next seven days there are ${up.length} ${S} games on the schedule, and ${picked.length} already have a model prediction. ${strongest ? `The model's most confident call is ${esc(strongest.pick_name)} (${pct(strongest.pick_p)}) in ${esc(strongest.away_name)} vs ${esc(strongest.home_name)} on ${esc(shortDay(strongest.start_utc))}.` : ""} ${closest && closest !== strongest ? `The tightest game is ${esc(closest.away_name)} vs ${esc(closest.home_name)}, where ${esc(closest.pick_name)} are only ${pct(closest.pick_p)}.` : ""}</p>
+    <p>By confidence: ${byLight("SUPER")} very high, ${byLight("GREEN")} high, ${byLight("ORANGE")} medium and ${byLight("RED")} low. Games without a figure yet get one about 48 hours before the start.</p>`
+    : `<p>No ${S} predictions are posted for the next seven days yet.</p>`;
+  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${S} predictions</a> › <span>Today and this week</span></nav>
+  <p class="eyebrow">// ${S} · next 7 days · updated every 15 minutes</p>
+  <h1>${S} predictions today and this week</h1>
+  ${summary}
+  ${days.map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(gameRow).join("")}</ul></section>`).join("") || ""}
+  <p class="cta"><a class="btn" href="/${sport}/record">How accurate is the model? See the record →</a></p>
+  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
+  const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions today and this week`, url: `${ORIGIN}/${sport}/today`, description,
+    mainEntity: { "@type": "ItemList", numberOfItems: up.length, itemListElement: up.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
+  return shell({ title, description, path: `/${sport}/today`, body, jsonld, noindex: true });
+}
+
+// /nba/record: model record and calibration chart from finished games
+export function renderRecord(sport, data) {
+  const S = sportName(sport);
+  const done = data.games.filter((g) => g.pick && g.status === "post" && g.won != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
+  const n = done.length, w = done.filter((g) => g.won).length;
+  const bands = [[0.5, 0.55], [0.55, 0.6], [0.6, 0.65], [0.65, 0.7], [0.7, 0.8], [0.8, 1.01]].map(([lo, hi]) => {
+    const xs = done.filter((g) => g.pick_p >= lo && g.pick_p < hi);
+    return { lo, hi, n: xs.length, exp: xs.length ? xs.reduce((a, g) => a + g.pick_p, 0) / xs.length : null, hit: xs.length ? xs.filter((g) => g.won).length / xs.length : null };
+  });
+  const brier = n ? done.reduce((a, g) => a + (g.pick_p - (g.won ? 1 : 0)) ** 2, 0) / n : null;
+  const expW = done.reduce((a, g) => a + g.pick_p, 0);
+  const lights = ["SUPER", "GREEN", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l); return [l, xs.length, xs.filter((g) => g.won).length]; });
+  // SVG calibration chart: x = predicted chance, y = actual win rate, dot size = games
+  const W = 560, Hh = 360, pad = 44, X = (p) => pad + ((p - 0.5) / 0.5) * (W - 2 * pad), Y = (p) => Hh - pad - p * (Hh - 2 * pad);
+  const grid = [0, 0.25, 0.5, 0.75, 1].map((v) => `<line x1="${pad}" x2="${W - pad}" y1="${Y(v)}" y2="${Y(v)}" stroke="#232a42"/><text x="${pad - 8}" y="${Y(v) + 4}" text-anchor="end" fill="#8b93b0" font-size="11">${v * 100}%</text>`).join("")
+    + [0.5, 0.6, 0.7, 0.8, 0.9, 1].map((v) => `<text x="${X(v)}" y="${Hh - pad + 18}" text-anchor="middle" fill="#8b93b0" font-size="11">${Math.round(v * 100)}%</text>`).join("");
+  const dots = bands.filter((b) => b.n).map((b) => `<circle cx="${X(b.exp).toFixed(1)}" cy="${Y(b.hit).toFixed(1)}" r="${(4 + Math.sqrt(b.n) * 2).toFixed(1)}" fill="#19e3ff" fill-opacity=".75"><title>${Math.round(b.lo * 100)}–${Math.min(100, Math.round(b.hi * 100))}%: predicted ${pct(b.exp)}, happened ${pct(b.hit)} (${b.n} games)</title></circle>`).join("");
+  const chart = `<svg viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Calibration chart: predicted chance against how often it happened">${grid}
+    <line x1="${X(0.5)}" y1="${Y(0.5)}" x2="${X(1)}" y2="${Y(1)}" stroke="#ff2fc0" stroke-dasharray="5 5"/>${dots}
+    <text x="${W / 2}" y="${Hh - 6}" text-anchor="middle" fill="#8b93b0" font-size="12">Model's chance for the predicted winner</text>
+    <text x="14" y="${Hh / 2}" transform="rotate(-90 14 ${Hh / 2})" text-anchor="middle" fill="#8b93b0" font-size="12">How often it happened</text></svg>`;
+  const tbl = `<table class="cal"><thead><tr><th>Model chance</th><th>Games</th><th>Average prediction</th><th>Actually won</th></tr></thead><tbody>${bands.filter((b) => b.n).map((b) => `<tr><td>${Math.round(b.lo * 100)}–${Math.min(100, Math.round(b.hi * 100))}%</td><td>${b.n}</td><td>${pct(b.exp)}</td><td>${pct(b.hit)}</td></tr>`).join("")}</tbody></table>`;
+  const title = `${S} Prediction Record and Calibration ${data.season - 1}–${String(data.season).slice(2)} | ProbaLab`;
+  const description = `Every ${S} prediction ProbaLab has made this season: ${w} of ${n} correct (${n ? pct(w / n) : "0%"}), with a calibration chart showing how often each predicted chance came true.`;
+  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${S} predictions</a> › <span>Record</span></nav>
+  <p class="eyebrow">// ${S} · model record · ${n} finished games</p>
+  <h1>${S} prediction record</h1>
+  <p>Every ${S} prediction stays on this page once the game finishes, right or wrong. So far this season the model has named the winner in <b>${w} of ${n}</b> games (${n ? pct(w / n) : "0%"}). Its own figures said to expect about ${expW.toFixed(1)} correct, so it is running ${w >= expW ? `${(w - expW).toFixed(1)} ahead of` : `${(expW - w).toFixed(1)} behind`} what it forecast.</p>
+  <section class="panel"><h2>Calibration: when we said 70%, did it happen 70% of the time?</h2>
+    ${chart}
+    <p>Each dot groups games by the chance the model gave its predicted winner. A dot on the dashed diagonal means those chances came true exactly as often as stated; bigger dots hold more games. The accuracy score (average squared error, lower is better) is <b>${brier == null ? "n/a" : brier.toFixed(3)}</b>, against 0.250 for a coin flip.</p>
+    ${tbl}
+    <p class="small">Early-season groups are small, so single results move the dots a lot. The chart fills in as the season goes on.</p></section>
+  <section class="panel"><h2>By confidence level</h2><ul>${lights.filter(([, c]) => c).map(([l, c, k]) => `<li>${chip(l)} ${esc(confLabel(l))} confidence: ${k} of ${c} correct (${pct(k / c)})</li>`).join("")}</ul></section>
+  <section class="panel"><h2>Latest finished games</h2><ul class="games">${done.slice(0, 20).map(gameRow).join("")}</ul></section>
+  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
+  const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: `${S} prediction record`, url: `${ORIGIN}/${sport}/record`, description };
+  return shell({ title, description, path: `/${sport}/record`, body, jsonld, noindex: true });
 }
 
 export function notFound() {
@@ -350,6 +443,8 @@ export async function handleSport(ctx, sport) {
   }
   const data = gamesOf(sport, feed);
   if (!p.length || p[0] === "") return html(renderHub(sport, data));
+  if (p[0] === "today" && p.length === 1) return html(renderToday(sport, data));
+  if (p[0] === "record" && p.length === 1) return html(renderRecord(sport, data));
   if (p.length > 1) return notFound();
   const id = idFromSlug(p[0]);
   const g = id && data.games.find((x) => x.game_id === id);
