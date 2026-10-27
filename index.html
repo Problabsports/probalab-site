@@ -456,6 +456,9 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .btn { font: 700 13px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 13px 20px; border: 1px solid var(--cyan); color: var(--cyan); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: background 0.15s, color 0.15s; }
 .btn.primary { background: var(--cyan); color: var(--bg); box-shadow: 0 0 24px rgba(25, 227, 255, 0.35); }
 .btn:hover { background: var(--cyan); color: var(--bg); }
+.home-hero a.btn.today-btn { display: block; flex-basis: 100%; width: 100%; max-width: 440px; box-sizing: border-box; text-align: center; font-size: 22px; padding: 22px 28px; letter-spacing: 0.1em; background: var(--magenta, #ff2fc0); border-color: var(--magenta, #ff2fc0); color: #fff; box-shadow: 0 0 32px rgba(255, 47, 192, 0.55); }
+.home-hero a.btn.today-btn:hover { background: #fff; border-color: #fff; color: var(--bg); }
+@media (max-width: 640px) { .home-hero a.btn.today-btn { max-width: none; font-size: 20px; padding: 20px 18px; } }
 .btn.primary:hover { background: #fff; border-color: #fff; }
 .hp-pick { position: relative; display: grid; gap: 10px; padding: 22px; border: 1px solid var(--magenta); background: linear-gradient(160deg, rgba(255, 47, 192, 0.10), rgba(25, 227, 255, 0.04) 60%), var(--surface); text-decoration: none; color: var(--ink); clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); box-shadow: 0 0 40px rgba(255, 47, 192, 0.12); }
 .hp-pick .lab { font: 600 11px var(--f-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--magenta); }
@@ -515,6 +518,8 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <nav class="tabs" aria-label="Site">
       <a href="./" data-home data-top="home">Home</a>
       <a href="#nba-predictions" data-top="sport">Predictions</a>
+      <a href="/nba/today" data-top="today">Today</a>
+      <a href="/nba/record" data-top="record">Record</a>
       <a href="#about" data-top="about">How it works</a>
     </nav>
   </div>
@@ -1012,6 +1017,7 @@ function renderHome() {
         <div class="eyebrow">Probability lab · sports predictions</div>
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
+        <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
         <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn primary" href="#nfl-predictions">NFL predictions →</a><a class="btn" href="#about">How it works</a></div>
       </div>
       ${pickCard}

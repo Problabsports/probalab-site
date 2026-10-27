@@ -208,7 +208,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/#about">How it works</a></nav>
+  <nav aria-label="Main"><a href="/nba/today">Today</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/#about">How it works</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -234,8 +234,8 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 export const html = (s, status = 200, maxAge = 120) => new Response(s, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": maxAge ? `public, max-age=0, s-maxage=${maxAge}, must-revalidate` : "no-cache" } });
 
 // ------------------------------------------------------------------ game page
-const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
-const sportName = (s) => (s === "nfl" ? "NFL" : "NBA");
+export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
+export const sportName = (s) => (s === "nfl" ? "NFL" : "NBA");
 
 export function renderGame(g, all, rec) {
   const S = sportName(g.sport), A = g.away_name, H = g.home_name;
