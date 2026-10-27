@@ -237,6 +237,15 @@ export const html = (s, status = 200, maxAge = 120) => new Response(s, { status,
 export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
 export const sportName = (s) => (s === "nfl" ? "NFL" : "NBA");
 
+// the pre-game preview section: one code path for the game page (/nba/<game>) and the app's game view (via /api/preview)
+export function previewSection(g, all) {
+  const rec = records(all), post = g.status === "post" && g.home_score != null;
+  const paras = g.pick ? (g.sport === "nfl" ? nflPreview(g, rec) : nbaPreview(g, rec)) : [];
+  return paras.length ? `<section class="panel prose"><h2>${post ? "Our pre-game preview" : "Preview"}</h2>${paras.join("\n")}
+    <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "game time"}, then the pick is frozen and stays on our public record, win or lose.`}</p>
+    ${isTip(g) && !post ? `<p>This is one of our top picks: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
+  </section>` : "";
+}
 // post-game review from /data/<sport>-reviews.json (shown only when one exists for a finished game)
 function reviewHtml(r) {
   const part = (h, t) => (t ? `<h3>${h}</h3><p>${esc(t)}</p>` : "");
@@ -252,7 +261,6 @@ export function renderGame(g, all, rec, review = null) {
   const description = g.pick
     ? `${A} vs ${H} prediction: ${g.pick_name} ${pct(g.pick_p)} to win. ${post ? `Final ${g.away_score}–${g.home_score}. ` : ""}Team strength, ${g.sport === "nfl" ? "quarterbacks" : "injuries"}, rest and form, from ProbaLab's model.`
     : `${A} vs ${H}, ${dayET(g.start_utc)}. ProbaLab's prediction is posted before the game.`;
-  const paras = g.pick ? (g.sport === "nfl" ? nflPreview(g, rec) : nbaPreview(g, rec)) : [];
   const resultHtml = post && g.pick ? `<section class="panel"><h2>Result</h2>
       <p>Final: ${esc(A)} <b>${g.away_score}</b> – <b>${g.home_score}</b> ${esc(H)}. Our pick, ${esc(g.pick_name)}, ${g.won === true ? `<b class="pos">won ✓</b>` : g.won === false ? `<b class="neg">lost ✕</b>` : "was a tie"}.</p>
       
@@ -273,10 +281,7 @@ export function renderGame(g, all, rec, review = null) {
   ${pickCard}
   ${resultHtml}
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}
-  ${paras.length ? `<section class="panel prose"><h2>${post ? "Our pre-game preview" : "Preview"}</h2>${paras.join("\n")}
-    <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "game time"}, then the pick is frozen and stays on our public record, win or lose.`}</p>
-    ${isTip(g) && !post ? `<p>This is one of our top picks: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
-  </section>` : ""}
+  ${previewSection(g, all)}
   ${post && review ? reviewHtml(review) : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}

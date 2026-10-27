@@ -203,6 +203,8 @@ footer b { color: var(--ink); }
   .brand:hover b { animation: flick 0.6s steps(2) 1; }
   @keyframes flick { 0%, 100% { opacity: 1; } 30% { opacity: 0.35; } 60% { opacity: 0.85; } }
 }
+.conf .pg-preview { grid-column: 1 / -1; }
+.pg-preview .panel { margin: 0; }
 </style>
 <style>
 /* additions: sport bar, sub-tabs, sidebar layout, date strip, game detail */
@@ -1196,6 +1198,7 @@ function renderGame(id) {
       <div class="panel"><h2>Form · last 10${SS === g.season ? "" : ` · end of ${esc(SEASONS[SS])}`}</h2>
         <div class="formlist"><div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)}</span>${dots(table(SS).find((r) => r.c === g.away)?.res ?? [])}</div>
         <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)}</span>${dots(table(SS).find((r) => r.c === g.home)?.res ?? [])}</div></div></div>
+      <div class="pg-preview" data-pgpreview="${esc(g.game_id)}" hidden></div>
       <div class="panel"><h2>Meetings this season</h2>${meet.length ? `<div class="formlist">${meet.map((x) => `<div class="fr"><span></span><span class="t">${fmtShort.format(new Date(x.start_utc))}</span><span class="score mono">${x.away} ${x.away_score}–${x.home_score} ${x.home}</span></div>`).join("")}</div>` : `<p>First meeting this season.</p>`}</div>
     </div>
     <div class="panel"><h2>Pick timeline</h2><div class="timeline">
@@ -1457,6 +1460,7 @@ function renderNflGame(id) {
       <div class="panel"><h2>Form · last 5</h2><div class="formlist">
         <div class="fr"><span class="badge">${g.away}</span><span class="t">${esc(g.away_name)} <span class="note">${rec(g.away) ? wlt(rec(g.away).w, rec(g.away).l, rec(g.away).t) : ""}</span></span>${formChips(rec(g.away)?.res ?? [])}</div>
         <div class="fr"><span class="badge">${g.home}</span><span class="t">${esc(g.home_name)} <span class="note">${rec(g.home) ? wlt(rec(g.home).w, rec(g.home).l, rec(g.home).t) : ""}</span></span>${formChips(rec(g.home)?.res ?? [])}</div></div></div>
+      <div class="pg-preview" data-pgpreview="${esc(g.game_id)}" hidden></div>
       <div class="panel"><h2>Meetings this season</h2>${meet.length ? `<div class="formlist">${meet.map((x) => `<div class="fr"><span></span><span class="t">${wkLabel(x.week)}</span><span class="score mono">${x.away} ${x.away_score}–${x.home_score} ${x.home}</span></div>`).join("")}</div>` : `<p>First meeting this season.</p>`}</div>
     </div>
     <div class="panel"><h2>Pick timeline</h2><div class="timeline">
@@ -1707,5 +1711,20 @@ route();
 </script>
 <script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
+<script>
+// pre-game preview in the app's game view: same section as the /nba/<game> page, from /api/preview (no duplicated text)
+(function () {
+  function fill() {
+    document.querySelectorAll("[data-pgpreview]:not([data-done])").forEach(function (el) {
+      el.setAttribute("data-done", "1");
+      var id = encodeURIComponent(el.dataset.pgpreview);
+      var get = function (sp) { return fetch("/api/preview?sport=" + sp + "&id=" + id).then(function (r) { return r.json(); }); };
+      get("nba").then(function (j) { return j && j.html ? j : get("nfl"); })
+        .then(function (j) { if (j && j.html) { el.innerHTML = j.html; el.hidden = false; } }).catch(function () {});
+    });
+  }
+  new MutationObserver(fill).observe(document.body, { childList: true, subtree: true }); fill();
+})();
+</script>
 </body>
 </html>
