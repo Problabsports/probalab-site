@@ -17,7 +17,7 @@
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   async function load() {
-    const [raw, grades, table, bt, snap] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_EPL ? {} : get("/data/nhl-pretip.json", {})]);
+    const [raw, grades, table, bt, snap, w2] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_EPL ? {} : get("/data/nhl-pretip.json", {}), IS_EPL ? get("/data/epl-win2.json", {}) : {}]);
     const SN = snap?.games ?? {};
     H.games = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
       const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); // NHL feed sends 0-100
@@ -31,6 +31,8 @@
       const gr = grades[x.game_id]; x.graded = !!gr?.graded; x.correct = gr?.graded ? gr.correct : null; x.flag = gr && !gr.graded ? gr.flag : null;
       if (gr?.graded) { x.home_score = gr.home_score; x.away_score = gr.away_score; }
       if (sn && typeof sn.won === "boolean") { x.graded = true; x.correct = sn.won; x.flag = null; }
+      const w = IS_EPL ? w2?.games?.[x.game_id] : null; // model chance the higher-chance team wins by 2+ goals (dc_xg v1)
+      x.w2 = w && (w.side === "home" || w.side === "away") ? { name: w.side === "home" ? x.home_name : x.away_name, p: Number(w.p) } : null;
       x.finished = x.graded || x.status === "post" || new Date(x.start_utc).getTime() < Date.now() - 3 * 3600e3;
       return x; }).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
     H.grades = grades; H.table = table; H.bt = bt; H.ready = true;
@@ -55,6 +57,7 @@
     <div class="teams" ${IS_EPL ? 'style="grid-template-columns:1fr auto 1fr"' : ""}>${first}${mid}${last}</div>
     <div class="bar${IS_EPL ? " bar3" : ""}">${segs.map(([k, p]) => `<i class="seg-${k} ${g.pick === k ? "pk" : ""}" style="width:${p * 100}%"></i>`).join("")}</div>
     <div class="card-top"><dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div></dl><span class="more">Details →</span></div>
+    ${IS_EPL && g.w2 && !g.finished ? `<div class="card-top"><dl class="prices"><div><dt>Chance of winning by 2+</dt><dd>${esc(g.w2.name)} ${pct(g.w2.p)}</dd></div></dl></div>` : ""}
   </article>`;
   }
   const legend = () => (!LIGHTS ? "" : `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span></div>`);
@@ -227,7 +230,7 @@
       ${hcard(g).replace('role="link"', "")}
       <div class="panel"><h2>The model's chances</h2><table><tbody>
         ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
-          .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}</tbody></table>
+          .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}${IS_EPL && g.w2 && !g.finished ? `<tr><td>Chance of winning by 2+: ${esc(g.w2.name)}</td><td align="right"><b>${pct(g.w2.p)}</b></td></tr>` : ""}</tbody></table>
         ${g.light ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
       <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's locked.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
