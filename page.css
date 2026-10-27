@@ -110,3 +110,5 @@ header.top .wrap { justify-content: flex-start; }
 @media (max-width: 520px) { .nlbtn { padding: 3px 7px; font-size: 11px; margin-right: 4px; } header.top .brand { font-size: 17px; } header.top .wrap { gap: 8px; } header.top nav { gap: 9px; font-size: 12.5px; } }
 table.cal { width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0; }
 table.cal th, table.cal td { border-top: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+@media (max-width: 520px) { header.top .wrap { height: auto; min-height: 60px; flex-wrap: wrap; padding-block: 8px; row-gap: 6px; } header.top nav { flex-wrap: wrap; row-gap: 4px; } }
+@media (max-width: 360px) { header.top nav { gap: 7px; font-size: 11.5px; letter-spacing: .03em; } }
