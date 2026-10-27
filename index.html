@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta name="robots" content="noindex, nofollow"><!-- PREVIEW BRANCH ONLY -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9777350158785226" crossorigin="anonymous"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -202,6 +203,7 @@ footer b { color: var(--ink); }
   .brand:hover b { animation: flick 0.6s steps(2) 1; }
   @keyframes flick { 0%, 100% { opacity: 1; } 30% { opacity: 0.35; } 60% { opacity: 0.85; } }
 }
+.today-btn { font-size: 18px; padding: 14px 22px; justify-self: start; box-shadow: 0 0 18px rgba(25,227,255,.45); }
 </style>
 <style>
 /* additions: sport bar, sub-tabs, sidebar layout, date strip, game detail */
@@ -515,6 +517,8 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <nav class="tabs" aria-label="Site">
       <a href="./" data-home data-top="home">Home</a>
       <a href="#nba-predictions" data-top="sport">Predictions</a>
+      <a href="/nba/today" data-top="today">Today</a>
+      <a href="/nba/record" data-top="record">Record</a>
       <a href="#about" data-top="about">How it works</a>
     </nav>
   </div>
@@ -1012,6 +1016,7 @@ function renderHome() {
         <div class="eyebrow">Probability lab · sports predictions</div>
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
+        <a class="btn primary today-btn" href="/today">Today's games →</a>
         <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn primary" href="#nfl-predictions">NFL predictions →</a><a class="btn" href="#about">How it works</a></div>
       </div>
       ${pickCard}
