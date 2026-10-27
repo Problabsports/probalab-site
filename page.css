@@ -108,3 +108,5 @@ footer .links a { color: var(--muted); }
 .nlbtn:hover { background: rgba(25,227,255,.12); color: var(--ink); }
 header.top .wrap { justify-content: flex-start; }
 @media (max-width: 520px) { .nlbtn { padding: 3px 7px; font-size: 11px; margin-right: 4px; } header.top .brand { font-size: 17px; } header.top .wrap { gap: 8px; } header.top nav { gap: 9px; font-size: 12.5px; } }
+table.cal { width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0; }
+table.cal th, table.cal td { border-top: 1px solid var(--line); padding: 6px 8px; text-align: left; }
