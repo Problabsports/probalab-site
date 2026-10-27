@@ -182,7 +182,7 @@ export function shell({ title, description, path, body, jsonld, noindex = false,
 <meta name="theme-color" content="#07080f">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" href="${esc(url)}">`}
+<meta name="robots" content="noindex, nofollow"><!-- PREVIEW BRANCH ONLY -->
 <meta property="og:site_name" content="ProbaLab">
 <meta property="og:type" content="${ogType}">
 <meta property="og:title" content="${esc(title)}">
@@ -231,13 +231,20 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 </html>`;
 }
 
-export const html = (s, status = 200, maxAge = 120) => new Response(s, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": maxAge ? `public, max-age=0, s-maxage=${maxAge}, must-revalidate` : "no-cache" } });
+export const html = (s, status = 200, maxAge = 120) => new Response(s, { status, headers: { "x-robots-tag": "noindex, nofollow", "content-type": "text/html; charset=utf-8", "cache-control": maxAge ? `public, max-age=0, s-maxage=${maxAge}, must-revalidate` : "no-cache" } });
 
 // ------------------------------------------------------------------ game page
 export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
 export const sportName = (s) => (s === "nfl" ? "NFL" : "NBA");
 
-export function renderGame(g, all, rec) {
+// post-game review from /data/<sport>-reviews.json (shown only when one exists for a finished game)
+function reviewHtml(r) {
+  const part = (h, t) => (t ? `<h3>${h}</h3><p>${esc(t)}</p>` : "");
+  return `<section class="panel prose review" id="game-review"><h2>Game review</h2>
+    ${part("What happened", r.happened)}${part("What the model got right", r.right)}${part("What didn't work", r.missed)}${part("Why", r.why)}
+    <p class="small">Written after the game. Scores and stats are checked against two independent sources.</p></section>`;
+}
+export function renderGame(g, all, rec, review = null) {
   const S = sportName(g.sport), A = g.away_name, H = g.home_name;
   const post = g.status === "post" && g.home_score != null;
   const title = `${A} vs ${H} Prediction, ${shortDay(g.start_utc)} | ${S} | ProbaLab`;
@@ -270,6 +277,7 @@ export function renderGame(g, all, rec) {
     <p>${post ? "This preview was written from the data we had before the game." : `What could change the pick: late ${g.sport === "nfl" ? "quarterback" : "injury"} news. We re-check every ${g.sport === "nfl" ? 30 : 15} minutes until ${g.sport === "nfl" ? "kick-off" : "game time"}, then the pick is frozen and stays on our public record, win or lose.`}</p>
     ${isTip(g) && !post ? `<p>This is one of our top picks: ${esc(g.pick_name)} at ${pct(g.pick_p)} to win.</p>` : ""}
   </section>` : ""}
+  ${post && review ? reviewHtml(review) : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. <a href="/#about">How it works</a>.</p>`;
@@ -450,5 +458,7 @@ export async function handleSport(ctx, sport) {
   const g = id && data.games.find((x) => x.game_id === id);
   if (!g) return notFound();
   if (p[0] !== g.path.split("/").pop()) return Response.redirect(new URL(g.path, ctx.request.url).toString(), 301);
-  return html(renderGame(g, data.games, records(data.games)));
+  let review = null;
+  try { const r = await ctx.env.ASSETS.fetch(new URL(`/data/${sport}-reviews.json`, ctx.request.url)); if (r.ok) review = ((await r.json()).games ?? {})[g.game_id] ?? null; } catch (e) {}
+  return html(renderGame(g, data.games, records(data.games), review));
 }

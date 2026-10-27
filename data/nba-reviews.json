@@ -1,0 +1,26 @@
+{
+  "note": "Post-game reviews keyed by ESPN game id. Every fact is checked against ESPN and Basketball-Reference; see notes in the review log.",
+  "games": {
+    "401909871": {
+      "updated_utc": "2026-10-27T20:30:00Z",
+      "happened": "Dallas won 113–109 in Miami. Cooper Flagg led them with 29 points, 11 assists and 6 rebounds, and P.J. Washington added 20 points and 9 rebounds. Giannis Antetokounmpo did everything he could for Miami with 29 points, 14 rebounds and 11 assists.",
+      "right": "The model expected a close, low-margin game between two teams who had been losing by four to seven points a game, and it was: four points in it at the end. Naji Marshall did miss the game for Dallas, as the preview assumed.",
+      "missed": "The model rated Miami clearly stronger on paper and made them a 68% favourite, and that was wrong on the night. Dallas won the rebounding battle 51–42, and Miami made only 14 of 25 free throws while Dallas made 13 of 14. That free-throw gap alone was worth more than the final margin.",
+      "why": "Our team-strength rating doesn't account for a night where one side controls the boards and the other leaves points at the line. A 68% chance still means Miami lose about one game in three like this one, and this was one of them."
+    },
+    "401909876": {
+      "updated_utc": "2026-10-27T20:30:00Z",
+      "happened": "Golden State won 134–114 in Denver. Yaxel Lendeborg scored 31 points with 12 rebounds, and Stephen Curry added 24 points, making all 3 of his three-point attempts. Golden State made 22 of 44 from three; Denver made 10 of 29.",
+      "right": "Cameron Johnson didn't play for Denver, as the preview expected. Nikola Jokić still had 19 points, 7 rebounds and 11 assists.",
+      "missed": "This was our biggest miss of the night. The model made Denver a 72% favourite at home, and Golden State won by 20. They made 12 more threes than Denver and out-rebounded them 45–32.",
+      "why": "The model leaned on Denver's higher team-strength rating and better recent form. It has no way to see a night where one team shoots 50% from three, and Golden State's form coming in (losing by almost seven a game) didn't hint at it. We're keeping this result on the record, as we do every miss."
+    },
+    "401909870": {
+      "updated_utc": "2026-10-27T20:30:00Z",
+      "happened": "Boston beat Chicago 134–99. Payton Pritchard scored 28 points off the bench, making 7 of 10 threes, and Jayson Tatum added 23. Boston out-rebounded Chicago 54–40, and Chicago shot 33 of 84 from the field.",
+      "right": "The model gave Boston a 77% chance, mostly because of home court and the gap in recent form (Boston winning by four a game, Chicago losing by nine). Both showed up: Boston led from start to finish and won by 35.",
+      "missed": "The model rated Chicago slightly stronger on the rosters it expected, and that part didn't hold up on the night. Chicago's best scorer was Norman Powell with 20 points.",
+      "why": "Early-season form was a better guide here than our roster rating. Devin Carter missed the game for Boston, as expected, and it didn't matter."
+    }
+  }
+}

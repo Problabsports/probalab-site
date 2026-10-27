@@ -4,3 +4,7 @@
 # Always revalidate HTML and unversioned scripts/styles so a deploy shows straight away (no stale browser copy)
 /*
   Cache-Control: no-cache, must-revalidate
+
+# PREVIEW BRANCH ONLY
+/*
+  X-Robots-Tag: noindex, nofollow
