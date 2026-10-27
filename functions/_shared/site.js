@@ -384,7 +384,7 @@ export function renderToday(sport, data) {
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions today and this week`, url: `${ORIGIN}/${sport}/today`, description,
     mainEntity: { "@type": "ItemList", numberOfItems: up.length, itemListElement: up.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
-  return shell({ title, description, path: `/${sport}/today`, body, jsonld, noindex: true });
+  return shell({ title, description, path: `/${sport}/today`, body, jsonld });
 }
 
 // /nba/record: model record and calibration chart from finished games
@@ -424,7 +424,7 @@ export function renderRecord(sport, data) {
   <section class="panel"><h2>Latest finished games</h2><ul class="games">${done.slice(0, 20).map(gameRow).join("")}</ul></section>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: `${S} prediction record`, url: `${ORIGIN}/${sport}/record`, description };
-  return shell({ title, description, path: `/${sport}/record`, body, jsonld, noindex: true });
+  return shell({ title, description, path: `/${sport}/record`, body, jsonld });
 }
 
 export function notFound() {

@@ -232,15 +232,15 @@
         ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
           .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}${IS_EPL && g.w2 && !g.finished ? `<tr><td>Chance of winning by 2+: ${esc(g.w2.name)}</td><td align="right"><b>${pct(g.w2.p)}</b></td></tr>` : ""}</tbody></table>
         ${g.light ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
-      <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's locked.`}</p></div>
+      <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's frozen.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
     window.scrollTo(0, 0);
   }
   // ---------- routing (takes over the app router on this page only) ----------
   const SUBS = IS_EPL ? { predictions, record, table, stats } : { predictions, record, trends, table, stats };
   const TABS = [["predictions", "Predictions"], ["record", "Our record"], ...(IS_EPL ? [] : [["trends", "Trends"]]), ["table", "Standings &amp; scores"], ["stats", "Stats"]];
-  const LEDE = IS_EPL ? "Every Premier League match gets three chances from our proprietary data model: home win, draw and away win. Picks refresh until kick-off, then they're locked. A result is marked only when two score sources agree."
-    : "Every NHL game gets a win chance for each team from our proprietary data model. Picks refresh until puck drop, then they're locked. A result is marked only when two score sources agree.";
+  const LEDE = IS_EPL ? "Every Premier League match gets three chances from our proprietary data model: home win, draw and away win. Picks refresh until kick-off, then they're frozen. A result is marked only when two score sources agree."
+    : "Every NHL game gets a win chance for each team from our proprietary data model. Picks refresh until puck drop, then they're frozen. A result is marked only when two score sources agree.";
   function hroute() {
     const h = location.hash.slice(1);
     if (/^(nba|nfl)-|^about$|^home$/.test(h)) { location.href = "/#" + h; return; }

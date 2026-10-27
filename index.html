@@ -538,7 +538,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <div>
       <div class="eyebrow" id="spEyebrow">NBA · win predictions</div>
       <h1>Who wins. <em>How likely.</em></h1>
-      <p class="lede" id="spLede">Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record.</p>
+      <p class="lede" id="spLede">Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before game time, then frozen. Every result stays on the record.</p>
     </div>
     <nav class="subtabs" id="subtabs" aria-label="NBA sections">
       <a href="#nba-predictions" data-sub="predictions">Predictions</a>
@@ -562,7 +562,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     </div>
     <div class="prose">
       <p>ProbaLab runs a proprietary data model for each sport. For the NBA it rates every player from recent box scores, weighted toward recent games. Before each game it reads the official injury report, works out the minutes each team is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent form, rest and back-to-backs to give each side a win probability.</p>
-      <p>The model was tested on the 2025–26 season game by game, using only information available before each tip-off. Its percentages lined up with real results: picks given 70–75% won 74% of the time.</p>
+      <p>The model was tested on the 2025–26 season game by game, using only information available before each game time. Its percentages lined up with real results: picks given 70–75% won 74% of the time.</p>
       <p><b>NFL:</b> the model rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback (a backup or inexperienced starter counts against a team). Tested on the 2021–2025 seasons, it picked 65% of winners, and its percentages matched results: games rated 70–75% were won 73% of the time.</p>
       <h2>The lights</h2>
       <div class="lights">
@@ -571,11 +571,11 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55 to 65%.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
       </div>
-      <h2>Locked before the start</h2>
-      <p>Every pick is timestamped before the game starts and locked when it begins. It stays on the record, right or wrong.</p>
+      <h2>Frozen before the start</h2>
+      <p>Every pick is timestamped before the game starts and frozen when it begins. It stays on the record, right or wrong.</p>
       <h2>Our rules</h2>
       <ul>
-        <li>Every pick is timestamped before tip-off and locked at tip-off.</li>
+        <li>Every pick is timestamped before game time and frozen at game time.</li>
         <li>Losses stay on the record. Nothing is removed.</li>
         <li>We publish probabilities, not guarantees. A 70% pick loses three times in ten.</li>
         <li>All times are shown in your own time zone.</li>
@@ -722,7 +722,7 @@ function cardSoon(g) {
     <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span></div>
     <div class="teams"><div class="team"><div class="nm">${esc(g.away_name)}</div><div class="role">Away${post ? ` · <b style="color:var(--ink)">${g.away_score}</b>` : ""}</div></div>
       <div class="at">@</div><div class="team r"><div class="nm">${esc(g.home_name)}</div><div class="role">Home${post ? ` · <b style="color:var(--ink)">${g.home_score}</b>` : ""}</div></div></div>
-    <p class="note" style="margin:0">${post ? "No prediction was posted for this game." : "Prediction posted about 48 hours before tip-off."}</p>
+    <p class="note" style="margin:0">${post ? "No prediction was posted for this game." : "Prediction posted about 48 hours before game time."}</p>
   </article>`;
 }
 function renderPredictions() {
@@ -747,7 +747,7 @@ function renderPredictions() {
       ${noteLegend(list)}
     </div>
     ${list.length ? list.map((g) => (g.pick ? card(g) : cardSoon(g))).join("") : `<div class="panel"><h2>No games this day</h2><p>${SEL > keyOf(Date.now())
-      ? "Games and predictions appear here about two days before tip-off and update as injury news comes in."
+      ? "Games and predictions appear here about two days before game time and update as injury news comes in."
       : "Pick another date in the calendar. Days with games have a dot."}</p></div>`}`;
 }
 
@@ -761,7 +761,7 @@ function renderRecord() {
   const beat = clvs.length ? clvs.filter((g) => g.clv > 0).length / clvs.length : null;
   const rows = (FILTER === "tips" ? tips : done).slice(0, 80);
   if (!done.length) { document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
-    <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p></div>`; return; }
+    <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="stats">${[
@@ -991,7 +991,7 @@ function renderHome() {
       <span class="vs">${esc(f.away_name)} @ ${esc(f.home_name)}</span>
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
       <span>${chip(f.light)}</span>
-    </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before tip-off.</span></div>`;
+    </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before game time.</span></div>`;
   const tile = ([code, lg]) => code === "NHL" ? nhlTile() : code === "NFL" && NFL
     ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
         <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts soon"}</b></span></span>
@@ -1011,7 +1011,7 @@ function renderHome() {
       <div style="display:grid;gap:14px">
         <div class="eyebrow">Probability lab · sports predictions</div>
         <h1>Who wins.<br><em>How likely.</em></h1>
-        <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before tip-off, locked when the game starts and kept on the record, win or lose.</p>
+        <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
         <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn primary" href="#nfl-predictions">NFL predictions →</a><a class="btn" href="#about">How it works</a></div>
       </div>
       ${pickCard}
@@ -1192,7 +1192,7 @@ function renderGame(id) {
     <div class="panel"><h2>Pick timeline</h2><div class="timeline">
       ${g.first_posted ? `<div><b>First posted</b>${fmtShort.format(new Date(g.first_posted))} ${fmtTime.format(new Date(g.first_posted))}</div>` : ""}
       ${g.last_updated ? `<div><b>Last updated</b>${fmtShort.format(new Date(g.last_updated))} ${fmtTime.format(new Date(g.last_updated))}</div>` : ""}
-      <div><b>Locked at tip-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
+      <div><b>Frozen at game time</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
       <div style="color:var(--muted)">Times in ${esc(TZNAME)}</div></div></div>`;
   if (!SOFT) window.scrollTo(0, 0);
 }
@@ -1291,7 +1291,7 @@ function showQb(id) {
     <p class="note">We assume each team's most recent starting quarterback plays unless the injury report says otherwise. If a different quarterback starts, this pick can change. We re-check every 30 minutes until kick-off.</p>`
     : `<h3>⚠ Important note</h3><div class="note">${esc(g.away_name)} @ ${esc(g.home_name)} · players who may not play</div>
     ${nbaLine(g.away, d.missing_away)}${nbaLine(g.home, d.missing_home)}
-    <p class="note">These regular players are listed questionable or doubtful. The model counts each one by how likely they are to play. If they play or sit out, this pick can change. We re-check every 15 minutes until tip-off.</p>`;
+    <p class="note">These regular players are listed questionable or doubtful. The model counts each one by how likely they are to play. If they play or sit out, this pick can change. We re-check every 15 minutes until game time.</p>`;
   pop.hidden = false; pop.querySelector(".x").focus();
 }
 
@@ -1453,7 +1453,7 @@ function renderNflGame(id) {
     <div class="panel"><h2>Pick timeline</h2><div class="timeline">
       ${g.first_posted ? `<div><b>First posted</b>${fmtShort.format(new Date(g.first_posted))} ${fmtTime.format(new Date(g.first_posted))}</div>` : ""}
       ${g.last_updated ? `<div><b>Last updated</b>${fmtShort.format(new Date(g.last_updated))} ${fmtTime.format(new Date(g.last_updated))}</div>` : ""}
-      <div><b>Locked at kick-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
+      <div><b>Frozen at kick-off</b>${fmtShort.format(new Date(g.start_utc))} ${fmtTime.format(new Date(g.start_utc))}</div>
       <div style="color:var(--muted)">Times in ${esc(TZNAME)}</div></div></div>`;
   if (!SOFT) window.scrollTo(0, 0);
 }
@@ -1505,8 +1505,8 @@ const SUBTABS = {
   nfl: [["predictions", "Predictions"], ["record", "Our record"], ["trends", "Trends"], ["table", "Standings &amp; scores"], ["stats", "Stats"]],
 };
 const HERO = {
-  nba: ["NBA · win predictions", "Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before tip-off, then locked. Every result stays on the record."],
-  nfl: ["NFL · win predictions", "Every game gets a win probability from our proprietary data model. It rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are timestamped before kick-off, then locked. Every result stays on the record."],
+  nba: ["NBA · win predictions", "Every game gets a win probability from our proprietary data model. It rates every player from recent box scores, reads the live injury report, and blends team strength, form and schedule into one number. Picks are timestamped before game time, then frozen. Every result stays on the record."],
+  nfl: ["NFL · win predictions", "Every game gets a win probability from our proprietary data model. It rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are timestamped before kick-off, then frozen. Every result stays on the record."],
 };
 function setSportChrome(sp, tabKey) {
   document.getElementById("spEyebrow").textContent = HERO[sp][0];
