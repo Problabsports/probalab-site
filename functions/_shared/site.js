@@ -53,7 +53,10 @@ const recStr = (x) => (x ? `${x.w}–${x.l}${x.t ? `–${x.t}` : ""}` : "0–0")
 
 // ------------------------------------------------------------------ urls
 export const slug = (s) => String(s).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const etDate = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+// Intl.DateTimeFormat objects are expensive to build (~0.1ms each); building one per game per request
+// pushed /nfl over the Workers CPU limit (error 1102). Build each formatter once and reuse it.
+const ET_FMT = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+const etDate = (iso) => ET_FMT.format(new Date(iso));
 export const gamePath = (g) => `/${g.sport}/${slug(g.away_name)}-vs-${slug(g.home_name)}-prediction-${etDate(g.start_utc)}-${g.game_id}`;
 export const idFromSlug = (s) => (String(s).match(/-(\d+)$/) ?? [])[1] ?? null;
 
@@ -61,7 +64,13 @@ export const idFromSlug = (s) => (String(s).match(/-(\d+)$/) ?? [])[1] ?? null;
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const pct = (p) => `${Math.round(p * 100)}%`;
 const sgn = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}`;
-const fmt = (iso, tz, opts) => new Intl.DateTimeFormat("en-AU", { timeZone: tz, ...opts }).format(new Date(iso));
+const FMTS = new Map();
+const fmt = (iso, tz, opts) => {
+  const k = tz + "|" + JSON.stringify(opts ?? {});
+  let f = FMTS.get(k);
+  if (!f) { f = new Intl.DateTimeFormat("en-AU", { timeZone: tz, ...opts }); FMTS.set(k, f); }
+  return f.format(new Date(iso));
+};
 const dayET = (iso) => fmt(iso, "America/New_York", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: "2-digit", hour12: true }).replace(" ", "").toLowerCase();
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
@@ -446,7 +455,22 @@ export function notFound() {
 }
 
 // ------------------------------------------------------------------ sport route handler
+// Rendered pages are cached at the edge for 60s, so most hits skip the feed parse and render entirely.
+const PAGE_TTL = 60;
 export async function handleSport(ctx, sport) {
+  const u = new URL(ctx.request.url);
+  const pkey = new Request(`${u.origin}${u.pathname}`, { method: "GET" });
+  const cache = typeof caches !== "undefined" ? caches.default : null;
+  if (cache) { const hit = await cache.match(pkey); if (hit) return hit; }
+  const res = await renderSport(ctx, sport);
+  if (cache && res.status === 200) {
+    const toCache = new Response(res.clone().body, res);
+    toCache.headers.set("cache-control", `public, max-age=${PAGE_TTL}`);
+    ctx.waitUntil(cache.put(pkey, toCache));
+  }
+  return res;
+}
+async function renderSport(ctx, sport) {
   const parts = ctx.params.path ?? [];
   const p = Array.isArray(parts) ? parts : [parts];
   let feed;
