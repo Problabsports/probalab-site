@@ -1393,5 +1393,35 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020247",
+    "date": "2026-11-05T00:30:00Z",
+    "home": "BUF",
+    "away": "OTT",
+    "home_pct": 48.22,
+    "away_pct": 51.78,
+    "pick": "away",
+    "pick_pct": 51.78,
+    "created_at": "2026-10-28T00:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020248",
+    "date": "2026-11-05T00:30:00Z",
+    "home": "FLA",
+    "away": "CHI",
+    "home_pct": 66.55,
+    "away_pct": 33.45,
+    "pick": "home",
+    "pick_pct": 66.55,
+    "created_at": "2026-10-28T00:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
