@@ -243,5 +243,54 @@
   "away_score": 4,
   "result": "away",
   "correct": false
+ },
+ "2026020189": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 1,
+  "result": "home",
+  "correct": true
+ },
+ "2026020190": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 1,
+  "result": "home",
+  "correct": true
+ },
+ "2026020191": {
+  "graded": true,
+  "home_score": 0,
+  "away_score": 2,
+  "result": "away",
+  "correct": false
+ },
+ "2026020192": {
+  "graded": true,
+  "home_score": 3,
+  "away_score": 4,
+  "result": "away",
+  "correct": false
+ },
+ "2026020193": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 5,
+  "result": "away",
+  "correct": false
+ },
+ "2026020194": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 5,
+  "result": "away",
+  "correct": true
+ },
+ "2026020195": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 3,
+  "result": "away",
+  "correct": true
  }
 }
