@@ -318,5 +318,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401879242",
+    "round": 10,
+    "start_utc": "2026-11-06T20:00:00Z",
+    "home": "Everton",
+    "away": "Coventry City",
+    "p_home": 0.553,
+    "p_draw": 0.243,
+    "p_away": 0.203,
+    "pick": "home",
+    "light": "ORANGE",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
