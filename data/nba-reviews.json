@@ -364,6 +364,34 @@
       "right": "The model gave the Grizzlies a 59% chance on the road, mainly because of rest and form, with the teams rated almost level (94.9 to 94.6), and they won by 5. Recent form pointed the same way: the Grizzlies had been losing by 6.9 points a game, the Jazz losing by 9.9. Jaxson Hayes missed the game for the Jazz, as the preview expected.",
       "missed": "Not much went against the model in this one. The Jazz won the rebounding battle 49–42 and still lost.",
       "why": "The result fits what the model leaned on, rest and form. One win doesn't prove the model right: at 59%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909877": {
+      "updated_utc": "2026-10-29T05:45:00Z",
+      "happened": "The Celtics beat the Nets 125–124 at home. Jayson Tatum led them with 40 points, 5 rebounds and 8 assists, and Paul George added 20. For the Nets, Michael Porter Jr. had 27 points and 12 rebounds, making 6 of 12 threes.",
+      "right": "The model gave the Celtics an 83% chance at home, mainly because of their higher team-strength rating (90.0 to 85.1), and they won by 1. Recent form pointed the same way: the Celtics had been winning by 7.3 points a game, the Nets losing by 14.4.",
+      "missed": "The pick came through, but only just: a 1-point game is closer than an 83% chance suggests. The Nets made more threes (17 to 11) and still lost.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 83%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909878": {
+      "updated_utc": "2026-10-29T05:45:00Z",
+      "happened": "The Knicks beat the Pistons 111–97 at home. Karl-Anthony Towns led them with 27 points and 20 rebounds, and Jalen Brunson added 23. For the Pistons, Paul Reed had 22 points and 9 rebounds.",
+      "right": "The model gave the Knicks a 62% chance at home, mainly because of their higher team-strength rating (90.2 to 89.4), and they won by 14. Jalen Duren missed the game for the Pistons, as the preview expected.",
+      "missed": "Not much went against the model in this one. Paul Reed's 22 points for the Pistons weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 62%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909879": {
+      "updated_utc": "2026-10-29T05:45:00Z",
+      "happened": "The Spurs beat the Kings 130–103 at home. Victor Wembanyama led them with 29 points and 10 rebounds, and Julian Champagnie added 26. For the Kings, De'Andre Hunter had 24 points and 6 rebounds, making 5 of 9 threes.",
+      "right": "The model gave the Spurs an 88% chance at home, mainly because of their higher team-strength rating (91.6 to 87.8), and they won by 27. Recent form pointed the same way: the Spurs had been winning by 4.2 points a game, the Kings losing by 10.8. Keegan Murray missed the game for the Kings, as the preview expected.",
+      "missed": "Not much went against the model in this one. De'Andre Hunter's 24 points for the Kings weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 88%, about 1 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909880": {
+      "updated_utc": "2026-10-29T05:45:00Z",
+      "happened": "The Trail Blazers beat the Lakers 136–129 on the road. Deni Avdija and Ja Morant led them with 23 points each. For the Lakers, Luka Doncic had 41 points, 5 rebounds and 9 assists, making 6 of 15 threes.",
+      "right": "Shaedon Sharpe missed the game for the Trail Blazers, as the preview expected. The preview did show the Trail Blazers as the team in better recent form (the Lakers had been winning by 3.1 points a game, the Trail Blazers winning by 5.7), and they won.",
+      "missed": "The model made the Lakers a slight favourite at 63%, and that was wrong: the Trail Blazers won by 7. The Trail Blazers out-rebounded the Lakers 38–31. Our team-strength rating had the Lakers ahead (101.3 to 96.5), and that didn't hold up.",
+      "why": "The pick rested mostly on our team-strength rating, which has no way to see a night like this one coming. Even at 63%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
     }
   }
 }
