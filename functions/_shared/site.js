@@ -31,7 +31,7 @@ export function gamesOf(sport, feed) {
   const games = (feed.games ?? []).filter((g) => g.season === feed.season).map((g) => ({
     ...g, sport, home_name: nm(g.home), away_name: nm(g.away), pick_name: g.pick ? nm(g.pick) : null,
     pick_p: g.pick_p == null ? null : Number(g.pick_p), clv: g.clv == null ? null : Number(g.clv),
-    fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site (John, 21 Oct)
+    fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
   games.forEach((g) => (g.path = gamePath(g)));
   return { games, names, season: feed.season, teams: feed.teams ?? [] };

@@ -6,7 +6,7 @@
   const IS_EPL = HS === "epl", LBL = HS.toUpperCase();
   const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
   const nm = (c) => (IS_EPL ? c : NHLN[c] ?? c);
-  const [GT, OT] = IS_EPL ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55 (John, 23 Oct)
+  const [GT, OT] = IS_EPL ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
   // EPL lights (GREEN 55%+, ORANGE 45-55%, RED <45%; from the 2023-26 walk-forward backtest) apply only to matches kicking off
   // from the switch-on time; earlier EPL picks keep no light (no re-colouring). NHL always has lights.

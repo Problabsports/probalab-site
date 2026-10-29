@@ -14,4 +14,12 @@ export const WRITTEN = {
     "Our model gives Toronto a 69% chance to win, which is a GREEN pick. With both teams short-handed, the model's lean comes mostly from Orlando losing two starters at once.",
     "A 69% pick still loses about three times in ten. Tip-off is 10:30am Saturday in Toronto.",
   ],
+  "401909278": [ // CHI @ BOS, Sat 31 Oct 10:30am AEDT
+    "Devin Carter is out for Boston (mono).",
+    "This is the second time in five days these two have met at TD Garden. The first one, on Tuesday 27 October Sydney time, was one-sided, with Boston winning 134-99.",
+    "The Celtics are 3-1 and have won three straight since an opening-night loss in Detroit. Chicago are 1-4 after a 133-127 home loss to New York, and their only win came in Milwaukee.",
+    "Boston will again be without Devin Carter, who has mononucleosis and no timetable for a return.",
+    "Our model gives Boston an 82% chance, the strongest GREEN on Saturday's slate. A home team on a winning run against a side that has lost four of five is about as clear a lean as the model gives this early in the season.",
+    "Even so, an 82% pick loses roughly one time in five. Tip-off is 10:30am Saturday.",
+  ],
 };
