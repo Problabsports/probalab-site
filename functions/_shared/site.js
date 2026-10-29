@@ -1,3 +1,4 @@
+import { WRITTEN } from "./written.js";
 // Shared server-side rendering for ProbaLab's crawlable pages (game previews, sport hubs, sitemap).
 // Data comes from the same public feed as the app (/api/feed), through the same edge cache key.
 // Rules: no bookmaker names or prices; no third-party written text (injury statuses are our own labels).
@@ -160,6 +161,15 @@ function nflPreview(g, rec) {
   return out;
 }
 
+export const signupMain = (source) => `<form class="signup main" action="/api/subscribe" method="post" data-signup>
+  <label for="su-email-${esc(source)}"><b>Get every prediction and result by email</b></label>
+  <p>Twice a week, Monday and Thursday: the model's GREEN calls, how the last batch went, wins and misses both. Free.</p>
+  <div class="srow"><input id="su-email-${esc(source)}" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
+  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
+  <button type="submit">Sign me up</button></div>
+  <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
+</form>`;
+export const AMAZON_DISCLOSURE = `As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.`;
 export const signupForm = (source) => `<form class="signup" action="/api/subscribe" method="post" data-signup>
   <label for="su-email"><b>Get our predictions and results by email, twice a week</b></label>
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
@@ -217,7 +227,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/nba/today">Today</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/#about">How it works</a></nav>
+  <nav aria-label="Main"><a href="/nba/today">Today</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -225,7 +235,8 @@ ${body}
 <footer><div class="wrap">
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
   <p><b>Predictions for entertainment, not advice.</b></p>
-  <p class="links"><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
+  <p class="small">${AMAZON_DISCLOSURE}</p>
+  <p class="links"><a href="/about">About</a><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
@@ -290,7 +301,9 @@ export function renderGame(g, all, rec, review = null) {
   ${pickCard}
   ${resultHtml}
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}
+  ${!post && WRITTEN[g.game_id] ? `<section class="panel prose"><h2>Game preview</h2>${WRITTEN[g.game_id].map((t) => `<p>${esc(t)}</p>`).join("\n")}</section>` : ""}
   ${previewSection(g, all)}
+  ${post ? "" : signupMain("game")}
   ${post && review ? reviewHtml(review) : ""}
   <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
@@ -443,6 +456,7 @@ export function renderRecord(sport, data) {
     ${tbl}
     <p class="small">Early-season groups are small, so single results move the dots a lot. The chart fills in as the season goes on.</p></section>
   <section class="panel"><h2>By confidence level</h2><ul>${lights.filter(([, c]) => c).map(([l, c, k]) => `<li>${chip(l)} ${esc(confLabel(l))} confidence: ${k} of ${c} correct (${pct(k / c)})</li>`).join("")}</ul></section>
+  ${signupMain("record")}
   <section class="panel"><h2>Latest finished games</h2><ul class="games">${done.slice(0, 20).map(gameRow).join("")}</ul></section>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: `${S} prediction record`, url: `${ORIGIN}/${sport}/record`, description };
