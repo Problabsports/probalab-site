@@ -392,6 +392,90 @@
       "right": "Shaedon Sharpe missed the game for the Trail Blazers, as the preview expected. The preview did show the Trail Blazers as the team in better recent form (the Lakers had been winning by 3.1 points a game, the Trail Blazers winning by 5.7), and they won.",
       "missed": "The model made the Lakers a slight favourite at 63%, and that was wrong: the Trail Blazers won by 7. The Trail Blazers out-rebounded the Lakers 38–31. Our team-strength rating had the Lakers ahead (101.3 to 96.5), and that didn't hold up.",
       "why": "The pick rested mostly on our team-strength rating, which has no way to see a night like this one coming. Even at 63%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909882": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Cavaliers beat the Wizards 121–111 at home. Evan Mobley led them with 24 points and 12 rebounds, making 5 of 6 threes, and Peyton Watson added 22. For the Wizards, AJ Dybantsa had 19 points.",
+      "right": "The model gave the Cavaliers an 82% chance at home, mainly because of their higher team-strength rating (94.3 to 90.1), and they won by 10. Recent form pointed the same way: the Cavaliers had been losing by 2.3 points a game, the Wizards losing by 9.0. Justin Champagnie and Tre Johnson for the Wizards both missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. AJ Dybantsa's 19 points for the Wizards weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 82%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909883": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Pistons beat the Hornets 97–89 at home. Cade Cunningham led them with 30 points, 5 rebounds and 7 assists, and Paul Reed added 16. For the Hornets, Brandon Miller had 31 points and 12 rebounds.",
+      "right": "The model gave the Pistons a 65% chance at home, mainly because of their higher team-strength rating (88.3 to 83.8), and they won by 8. Recent form pointed the same way: the Pistons had been winning by 5.1 points a game, the Hornets winning by 2.1. Jalen Duren missed the game for the Pistons, as the preview expected.",
+      "missed": "Not much went against the model in this one. The Hornets won the rebounding battle 45–33 and still lost.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 65%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909881": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Heat beat the Hawks 129–117 on the road. Giannis Antetokounmpo and Bam Adebayo led them with 24 points each. For the Hawks, Nickeil Alexander-Walker had 23 points, making 5 of 9 threes.",
+      "right": "Our team-strength rating also had the Heat as the stronger side (96.6 to 89.8). Beyond that, not much went the model's way on the night.",
+      "missed": "The model made the Hawks a slight favourite at 64%, and that was wrong: the Heat won by 12. The Heat out-rebounded the Hawks 52–40.",
+      "why": "The Heat already rated stronger on paper, so the pick leaned on home court, which is a thin margin. Even at 64%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909884": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The 76ers beat the Pacers 114–109 on the road. Tyrese Maxey led them with 27 points and 5 rebounds, and Joel Embiid added 21. For the Pacers, Pascal Siakam had 26 points and 11 rebounds.",
+      "right": "The model gave the 76ers a 68% chance on the road, mainly because of their higher team-strength rating (95.5 to 86.7), and they won by 5. Tyrese Haliburton and Ivica Zubac for the Pacers both missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. Pascal Siakam's 26 points for the Pacers weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 68%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909885": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Raptors beat the Magic 129–99 at home. Scottie Barnes led them with 28 points and 6 rebounds, and RJ Barrett added 25. For the Magic, Tristan da Silva had 20 points.",
+      "right": "The model gave the Raptors a 64% chance at home, mainly because of their higher team-strength rating (88.1 to 82.7), and they won by 30. Recent form pointed the same way: the Raptors had been winning by 5.2 points a game, the Magic losing by 3.4. Paolo Banchero and Jalen Suggs for the Magic, and Kawhi Leonard for the Raptors, all missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. Tristan da Silva's 20 points for the Magic weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 64%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909888": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Warriors beat the Timberwolves 119–114 on the road. Stephen Curry led them with 44 points, 8 rebounds and 6 assists, making 6 of 16 threes, and Yaxel Lendeborg added 26. For the Timberwolves, Jonathan Kuminga had 20 points and 5 assists.",
+      "right": "Gui Santos for the Warriors, and Anthony Edwards for the Timberwolves, both missed the game, as the preview expected. Our team-strength rating also had the Warriors as the stronger side (95.3 to 85.3).",
+      "missed": "The model made the Timberwolves a slight favourite at 63%, and that was wrong: the Warriors won by 5. The Warriors out-rebounded the Timberwolves 53–42.",
+      "why": "The Warriors already rated stronger on paper, so the pick leaned on home court, which is a thin margin. Even at 63%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909889": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Nuggets beat the Pelicans 104–91 on the road. Jamal Murray led them with 23 points and 6 assists, making 5 of 11 threes, and Nikola Jokic added 21. For the Pelicans, Zion Williamson had 25 points and 5 rebounds.",
+      "right": "The model gave the Nuggets a 56% chance on the road, mainly because of their higher team-strength rating (98.3 to 97.4), and they won by 13. Recent form pointed the same way: the Nuggets had been losing by 1.2 points a game, the Pelicans losing by 3.1. Alpha Diallo for the Nuggets, and Yves Missi for the Pelicans, both missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. Zion Williamson's 25 points for the Pelicans weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 56%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909887": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Rockets beat the Bucks 132–100 on the road. Fred VanVleet led them with 24 points, 6 rebounds and 5 assists, and Amen Thompson added 23. For the Bucks, Tyler Herro had 23 points.",
+      "right": "The model gave the Rockets a 60% chance on the road, mainly because of rest and form, even though the Bucks rated stronger (91.1 to 86.1), and they won by 32. Recent form pointed the same way: the Rockets had been winning by 6.0 points a game, the Bucks losing by 7.9. Alperen Sengun and Marcus Smart for the Rockets both missed the game, as the preview expected.",
+      "missed": "Our rating had the Bucks stronger on paper, and on the night that didn't decide it. Tyler Herro's 23 points for the Bucks weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, rest and form. One win doesn't prove the model right: at 60%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909886": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Knicks beat the Bulls 133–127 on the road. Jalen Brunson led them with 38 points and 7 assists, making 6 of 10 threes, and OG Anunoby added 23. For the Bulls, Norman Powell had 30 points.",
+      "right": "The model gave the Knicks a 71% chance on the road, mainly because of rest and form, with the teams rated almost level (90.0 to 90.2), and they won by 6. Recent form pointed the same way: the Knicks had been winning by 6.1 points a game, the Bulls losing by 11.8.",
+      "missed": "Not much went against the model in this one. Norman Powell's 30 points for the Bulls weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, rest and form. One win doesn't prove the model right: at 71%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909890": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Spurs beat the Jazz 117–111 on the road. Victor Wembanyama led them with 36 points, 14 rebounds and 5 assists, and Devin Vassell added 21. For the Jazz, Keyonte George had 31 points, making 5 of 12 threes.",
+      "right": "The model gave the Spurs a 76% chance on the road, mainly because of their higher team-strength rating (93.4 to 88.4), and they won by 6. Recent form pointed the same way: the Spurs had been winning by 6.5 points a game, the Jazz losing by 9.6. Lauri Markkanen and Jaren Jackson Jr. for the Jazz both missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. Keyonte George's 31 points for the Jazz weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 76%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909891": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Mavericks beat the Thunder 120–96 at home. Cooper Flagg led them with 26 points, 5 rebounds and 8 assists, and P.J. Washington added 18. For the Thunder, Ajay Mitchell had 29 points.",
+      "right": "Jalen Williams, Chet Holmgren, Alex Caruso and Cason Wallace for the Thunder, and Naji Marshall for the Mavericks, all missed the game, as the preview expected. Our team-strength rating also had the Mavericks as the stronger side (88.3 to 83.5).",
+      "missed": "The model made the Thunder the favourite at 67%, and that was wrong: the Mavericks won by 24. The Mavericks made 16 of 45 from three; the Thunder made 5 of 32.",
+      "why": "The Mavericks already rated stronger on paper, so the pick leaned on rest and form, which is a thin margin. Even at 67%, about 3 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909892": {
+      "updated_utc": "2026-10-30T05:45:00Z",
+      "happened": "The Lakers beat the Clippers 103–87 on the road. Quentin Grimes led them with 23 points and 5 assists, and Collin Sexton added 21. For the Clippers, Keaton Wagler had 21 points.",
+      "right": "Luka Doncic and Ziaire Williams for the Lakers, and Rui Hachimura for the Clippers, all missed the game, as the preview expected. Beyond that, not much went the model's way on the night.",
+      "missed": "The model made the Clippers a slight favourite at 63%, and that was wrong: the Lakers won by 16. The Lakers out-rebounded the Clippers 48–41. Our team-strength rating had the Clippers ahead (82.0 to 81.0), and that didn't hold up.",
+      "why": "The pick rested on a team-strength edge of just 1.0 point (82.0 to 81.0), plus home court, and that was far too thin to hold up on a night when the Lakers were much better. Even at 63%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
     }
   }
 }

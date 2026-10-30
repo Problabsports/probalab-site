@@ -189,6 +189,13 @@
       "right": "Both starting quarterbacks were the ones the preview expected: Dak Prescott for the Cowboys and Tanner McKee for the Eagles. Beyond that, not much went the model's way on the day.",
       "missed": "The model leaned to the Eagles at 52%, close to a coin flip, and it got this one wrong: the Cowboys won by 17. The Cowboys out-gained the Eagles 416 yards to 321. Our team rating had the Eagles ahead (1470 to 1419), and that didn't hold up.",
       "why": "The pick rested mostly on our team rating, which is built from past results and can't see how a single game will go. At 52% it was close to a coin flip, so a result like this happens almost half the time. It stays on our record like every other result."
+    },
+    "401873023": {
+      "updated_utc": "2026-10-30T05:50:00Z",
+      "happened": "The Packers beat the Panthers 27–19 at home. Jordan Love completed 30 of 41 passes for 288 yards with 3 touchdowns and 1 interception, and Christian Watson caught 8 passes for 113 yards. For the Panthers, Bryce Young completed 23 of 41 passes for 209 yards with 1 touchdown and 1 interception.",
+      "right": "The model gave the Packers a 66% chance at home, mainly because of their higher team rating (1524 to 1449), plus home field, and they won by 8. Both starting quarterbacks were the ones the preview expected: Bryce Young for the Panthers and Jordan Love for the Packers.",
+      "missed": "Not much went against the model in this one. The Panthers kept it to a one-score game, so it was never comfortable.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 66%, about 3 in 10 games like this go the other way, and every result stays on our record."
     }
   }
 }
