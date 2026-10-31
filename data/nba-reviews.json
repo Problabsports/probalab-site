@@ -476,6 +476,27 @@
       "right": "Luka Doncic and Ziaire Williams for the Lakers, and Rui Hachimura for the Clippers, all missed the game, as the preview expected. Beyond that, not much went the model's way on the night.",
       "missed": "The model made the Clippers a slight favourite at 63%, and that was wrong: the Lakers won by 16. The Lakers out-rebounded the Clippers 48–41. Our team-strength rating had the Clippers ahead (82.0 to 81.0), and that didn't hold up.",
       "why": "The pick rested on a team-strength edge of just 1.0 point (82.0 to 81.0), plus home court, and that was far too thin to hold up on a night when the Lakers were much better. Even at 63%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909894": {
+      "updated_utc": "2026-10-31T06:15:00Z",
+      "happened": "The Pelicans beat the Kings 132–120 at home. Zion Williamson and Jeremiah Fears led them with 22 points each. For the Kings, Darius Acuff Jr. had 34 points, 6 rebounds and 14 assists.",
+      "right": "The model gave the Pelicans a 62% chance at home, mainly because of home court, with the teams rated almost level (87.8 to 87.3), and they won by 12. Recent form pointed the same way: the Pelicans had been losing by 4.5 points a game, the Kings losing by 12.3. Keegan Murray, Maxime Raynaud and Dylan Cardwell for the Kings, and Dejounte Murray, Yves Missi and Jordan Poole for the Pelicans, all missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. Darius Acuff Jr.'s 34 points for the Kings weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, home court. One win doesn't prove the model right: at 62%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909893": {
+      "updated_utc": "2026-10-31T06:15:00Z",
+      "happened": "The Hawks beat the Cavaliers 114–111 at home. Onyeka Okongwu led them with 29 points and 12 rebounds, and Nickeil Alexander-Walker added 25. For the Cavaliers, James Harden had 24 points and 5 rebounds.",
+      "right": "The model gave the Hawks a 54% chance at home, mainly because of home court, even though the Cavaliers rated slightly stronger (92.7 to 90.4), and they won by 3. Recent form pointed the same way: the Hawks had been winning by 0.6 points a game, the Cavaliers losing by 1.2. Meleek Thomas missed the game for the Cavaliers, as the preview expected.",
+      "missed": "Our rating had the Cavaliers slightly stronger on paper, and on the night that didn't decide it. James Harden's 24 points for the Cavaliers weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, home court. One win doesn't prove the model right: at 54% this was close to a coin flip, so it could easily have gone the other way, and every result stays on our record."
+    },
+    "401909895": {
+      "updated_utc": "2026-10-31T06:15:00Z",
+      "happened": "The Grizzlies beat the Trail Blazers 124–103 on the road. Cameron Boozer and Isaiah Stewart led them with 18 points each. For the Trail Blazers, Deni Avdija had 24 points, 9 rebounds and 7 assists.",
+      "right": "Robert Williams III and Shaedon Sharpe for the Trail Blazers both missed the game, as the preview expected. Beyond that, not much went the model's way on the night.",
+      "missed": "The model made the Trail Blazers a slight favourite at 62%, and that was wrong: the Grizzlies won by 21. The Grizzlies made 18 of 42 from three; the Trail Blazers made 12 of 49. Our team-strength rating had the Trail Blazers ahead (95.8 to 93.9), and that didn't hold up.",
+      "why": "The pick rested mostly on our team-strength rating, which has no way to see a night like this one coming. Even at 62%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
     }
   }
 }
