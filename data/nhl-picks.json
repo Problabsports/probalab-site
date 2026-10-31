@@ -1843,5 +1843,20 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020277",
+    "date": "2026-11-08T18:00:00Z",
+    "home": "BOS",
+    "away": "FLA",
+    "home_pct": 66,
+    "away_pct": 34,
+    "pick": "home",
+    "pick_pct": 66,
+    "created_at": "2026-10-31T18:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
