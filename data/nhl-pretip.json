@@ -1,6 +1,6 @@
 {
  "note": "NHL pre-puck-drop records. Pick and chance as frozen at puck drop (same values as pretip_snapshots), lights GREEN 65%+, ORANGE 55-65%, RED under 55%; result from the official NHL API. Auto-updated hourly by the box job export_nhl_pretip.py; rows are locked once written.",
- "exported_utc": "2026-11-02T01:52:12Z",
+ "exported_utc": "2026-11-03T07:16:54Z",
  "games": {
   "2026020154": {
    "pick": "BOS",
@@ -468,7 +468,31 @@
    "pick": "ANA",
    "pick_p": 0.5418,
    "light": "RED",
-   "won": null
+   "won": true
+  },
+  "2026020232": {
+   "pick": "VGK",
+   "pick_p": 0.5095,
+   "light": "RED",
+   "won": false
+  },
+  "2026020233": {
+   "pick": "FLA",
+   "pick_p": 0.5556,
+   "light": "ORANGE",
+   "won": false
+  },
+  "2026020234": {
+   "pick": "COL",
+   "pick_p": 0.734,
+   "light": "GREEN",
+   "won": true
+  },
+  "2026020235": {
+   "pick": "SJS",
+   "pick_p": 0.5179,
+   "light": "RED",
+   "won": false
   }
  }
 }
