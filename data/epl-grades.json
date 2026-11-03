@@ -6,6 +6,13 @@
     "home_score": 2,
     "result": "home"
   },
+  "401878762": {
+    "away_score": 1,
+    "correct": false,
+    "graded": true,
+    "home_score": 0,
+    "result": "away"
+  },
   "401878763": {
     "away_score": 2,
     "correct": false,
