@@ -628,5 +628,19 @@
   "away_score": 2,
   "result": "home",
   "correct": false
+ },
+ "2026020239": {
+  "graded": true,
+  "home_score": 4,
+  "away_score": 3,
+  "result": "home",
+  "correct": true
+ },
+ "2026020245": {
+  "graded": true,
+  "home_score": 4,
+  "away_score": 1,
+  "result": "home",
+  "correct": false
  }
 }
