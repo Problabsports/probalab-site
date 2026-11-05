@@ -120,6 +120,7 @@
     const warnings=items.filter(a=>['warn','error'].includes(String(a.severity).toLowerCase()));
     const info=items.filter(a=>String(a.severity).toLowerCase()==='info');
     const item=a=>'<div class="attn '+esc(a.severity)+'"><b>'+esc(String(a.severity).toUpperCase())+'</b> '+esc(a.message)+(a.game?' <span class="muted">('+esc(a.sport||'')+' · '+esc(a.game)+')</span>':'')+'</div>';
+    $("attnPanel").classList.toggle("hidden", !warnings.length);
     $("attention").innerHTML=(warnings.length?warnings.map(item).join(''):'<p class="muted">No warnings.</p>')
       +(info.length?'<details><summary>'+info.length+' informational notes</summary>'+info.map(item).join('')+'</details>':'');
   }

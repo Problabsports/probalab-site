@@ -22,7 +22,7 @@ export async function onRequestGet() {
       <p id="meta" class="subline"></p>
       <p id="loadMsg" class="msg"></p>
 
-      <section class="panel">
+      <section class="panel" id="attnPanel">
         <h2>Needs attention</h2>
         <div id="attention"></div>
       </section>
