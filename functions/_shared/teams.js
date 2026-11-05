@@ -51,7 +51,8 @@ function teamLogoHtml(sport, team, cls = "team-logo") {
   const abbr = esc(team.abbr);
   const name = esc(team.name);
   const size = cls.includes("sm") ? 28 : 48;
-  return `<img class="${cls}" src="${esc(src)}" alt="${name}" width="${size}" height="${size}" loading="lazy" decoding="async" onerror="this.outerHTML='<span class=\'ab team-logo-fallback\'>${abbr}</span>'" />`;
+  // data-abbr keeps the fallback free of nested-quote breakage in the HTML attribute
+  return `<img class="${cls}" src="${esc(src)}" alt="${name}" data-abbr="${abbr}" width="${size}" height="${size}" loading="lazy" decoding="async" onerror="var s=document.createElement('span');s.className='ab team-logo-fallback';s.textContent=this.dataset.abbr;this.replaceWith(s)" />`;
 }
 
 
