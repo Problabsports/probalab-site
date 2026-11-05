@@ -1,0 +1,51 @@
+/* Private tips page — mobile first, matches ProbaLab tokens */
+.tips-app { max-width: 1100px; }
+.tips-app .muted { color: var(--muted); }
+.tips-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
+.tips-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.tips-tabs button, .tips-toolbar button, .tips-filters button {
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; border: 1px solid var(--line-hi); background: var(--surface-2); color: var(--muted);
+  padding: 8px 12px; cursor: pointer;
+}
+.tips-tabs button.on, .tips-filters button.on { color: #07080f; background: var(--cyan); border-color: var(--cyan); }
+.tips-tabs button:hover, .tips-toolbar button:hover { color: var(--ink); border-color: var(--cyan); }
+.tips-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; align-items: end; }
+.tips-filters label { display: flex; flex-direction: column; gap: 4px; font-family: var(--f-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.tips-filters select, .tips-filters input {
+  background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi); padding: 8px 10px; font: 14px var(--f-body); min-width: 120px;
+}
+.login-box input[type=email] {
+  width: 100%; max-width: 360px; background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi);
+  padding: 10px 12px; font: 15px var(--f-body); margin: 0 0 10px;
+}
+.login-box .btn, .tips-toolbar .btn {
+  display: inline-block; border: 0; cursor: pointer;
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: #07080f; background: var(--cyan); padding: 10px 18px;
+}
+.cards { display: grid; grid-template-columns: 1fr; gap: 12px; margin: 0 0 16px; }
+@media (min-width: 720px) { .cards.cols-3 { grid-template-columns: repeat(3, 1fr); } .cards.cols-2 { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--surface); border: 1px solid var(--line); padding: 14px; }
+.stat-card h3 { margin: 0 0 8px; font-size: 15px; }
+.stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px 12px; }
+.stat-grid dt { font-family: var(--f-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.stat-grid dd { margin: 0; font-family: var(--f-mono); font-weight: 600; font-size: 15px; }
+.badge { display: inline-block; font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border: 1px solid; margin-left: 4px; }
+.badge.ok { color: var(--green); border-color: var(--green); background: rgba(47,215,160,.12); }
+.badge.taken { color: var(--cyan); border-color: var(--cyan); background: rgba(25,227,255,.1); }
+.badge.warn { color: var(--orange); border-color: var(--orange); background: rgba(255,173,51,.12); }
+.badge.break { color: var(--red); border-color: var(--red); background: rgba(255,79,110,.12); }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.tips { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+table.tips th, table.tips td { border-top: 1px solid var(--line); padding: 8px 8px; text-align: left; white-space: nowrap; }
+table.tips th { font-family: var(--f-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 500; }
+table.tips td.game { white-space: normal; min-width: 120px; }
+.attn { border-left: 3px solid var(--orange); padding-left: 10px; margin: 0 0 8px; }
+.attn.error { border-left-color: var(--red); }
+.attn.info { border-left-color: var(--cyan); }
+.hidden { display: none !important; }
+.pos { color: var(--green); } .neg { color: var(--red); }
+.subline { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.sport-block { margin: 0 0 14px; }
+.sport-block h3 { margin: 0 0 8px; }
