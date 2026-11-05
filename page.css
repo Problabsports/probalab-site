@@ -114,3 +114,21 @@ table.cal th, table.cal td { border-top: 1px solid var(--line); padding: 6px 8px
 @media (max-width: 360px) { header.top nav { gap: 7px; font-size: 11.5px; letter-spacing: .03em; } }
 .signup.main p { margin: 0 0 10px; color: var(--muted); }
 .reading li { margin-bottom: 10px; }
+
+/* /today: fair / market / value columns (Betfair-style ratings) */
+ul.games.today-games .head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 4px 0 8px; color: var(--muted); font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--line); margin-bottom: 2px; pointer-events: none; }
+ul.games.today-games .head .chip-slot { width: 52px; }
+ul.games.today-games .fp, ul.games.today-games .mk, ul.games.today-games .gap { font-family: var(--f-mono); font-size: 13px; color: var(--muted); min-width: 52px; text-align: right; }
+ul.games.today-games .fp { color: var(--ink); font-weight: 600; }
+ul.games.today-games .gap.pos { color: var(--green); }
+ul.games.today-games .gap.neg { color: var(--red); }
+ul.games.today-games li.best-value { background: rgba(47,215,160,.08); border-radius: 8px; }
+ul.games.today-games li.best-value a { padding-left: 8px; padding-right: 8px; }
+ul.games.today-games .best-tag, .best-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); background: rgba(47,215,160,.12); vertical-align: middle; }
+.best-line { margin: 0 0 10px; font-size: 14px; }
+.howto .howto-list { margin: 8px 0 0; padding-left: 18px; line-height: 1.55; }
+.howto .howto-list li { margin: 6px 0; }
+@media (max-width: 640px) {
+  ul.games.today-games .fp, ul.games.today-games .mk, ul.games.today-games .gap { min-width: 44px; font-size: 12px; }
+  ul.games.today-games .head .chip-slot { display: none; }
+}

@@ -228,7 +228,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/nba/today">Today</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/accuracy">Accuracy</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a></nav>
 </div></header>
 <main class="wrap">
 ${body}

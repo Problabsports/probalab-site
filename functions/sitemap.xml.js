@@ -2,7 +2,7 @@
 import { getFeed, gamesOf, ORIGIN, esc } from "./_shared/site.js";
 export async function onRequestGet(ctx) {
   const urls = [
-    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nba/today", pri: "0.9", freq: "hourly" }, { loc: "/nba/record", pri: "0.7", freq: "daily" }, { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nhl", pri: "0.9", freq: "hourly" }, { loc: "/epl", pri: "0.9", freq: "hourly" },
+    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/today", pri: "0.95", freq: "hourly" }, { loc: "/accuracy", pri: "0.8", freq: "daily" }, { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nba/today", pri: "0.9", freq: "hourly" }, { loc: "/nba/record", pri: "0.7", freq: "daily" }, { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nfl/today", pri: "0.9", freq: "hourly" }, { loc: "/nfl/record", pri: "0.7", freq: "daily" }, { loc: "/nhl", pri: "0.9", freq: "hourly" }, { loc: "/epl", pri: "0.9", freq: "hourly" },
     { loc: "/privacy", pri: "0.2", freq: "yearly" }, { loc: "/terms", pri: "0.2", freq: "yearly" }, { loc: "/contact", pri: "0.2", freq: "yearly" },
   ];
   for (const sport of ["nba", "nfl"]) {
