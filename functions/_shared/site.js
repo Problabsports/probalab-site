@@ -63,7 +63,7 @@ export const idFromSlug = (s) => (String(s).match(/-(\d+)$/) ?? [])[1] ?? null;
 
 // ------------------------------------------------------------------ formatting
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const pct = (p) => `${Math.round(p * 100)}%`;
+export const pct = (p) => (p == null || !Number.isFinite(Number(p)) ? "—" : `${Math.round(Number(p) * 100)}%`);
 const sgn = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}`;
 const FMTS = new Map();
 const fmt = (iso, tz, opts) => {
@@ -75,7 +75,7 @@ const fmt = (iso, tz, opts) => {
 const dayET = (iso) => fmt(iso, "America/New_York", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: "2-digit", hour12: true }).replace(" ", "").toLowerCase();
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
-const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
+export const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
 const LIGHT = {
   SUPER: ["Super", "our strongest pick"], GREEN: ["Green", "a 65%+ top pick"],
   ORANGE: ["Orange", "a lean (55 to 65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
@@ -256,7 +256,7 @@ export const html = (s, status = 200, maxAge = 120) => new Response(s, { status,
 
 // ------------------------------------------------------------------ game page
 export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
-export const sportName = (s) => (s === "nfl" ? "NFL" : "NBA");
+export const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League" }[s] ?? String(s).toUpperCase());
 
 // the pre-game preview section: one code path for the game page (/nba/<game>) and the app's game view (via /api/preview)
 export function previewSection(g, all) {
@@ -288,9 +288,9 @@ export function renderGame(g, all, rec, review = null) {
       <p><a href="/#${g.sport}-record">See our full record →</a></p></section>` : "";
   const same = all.filter((x) => x.game_id !== g.game_id && x.pick && etDate(x.start_utc) === etDate(g.start_utc)).slice(0, 12);
   const pickCard = g.pick ? `<section class="panel pick">
-      <div class="row"><span class="team ${g.pick === g.away ? "on" : ""}"><span class="ab">${esc(g.away)}</span>${esc(A)}<span class="pc">${pct(pAway)}</span></span>
+      <div class="row"><span class="team ${g.pick === g.away ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(A)}"><span class="ab">${esc(g.away)}</span>${esc(A)}</a><span class="pc">${pct(pAway)}</span></span>
         <span class="at">@</span>
-        <span class="team r ${g.pick === g.home ? "on" : ""}"><span class="ab">${esc(g.home)}</span>${esc(H)}<span class="pc">${pct(1 - pAway)}</span></span></div>
+        <span class="team r ${g.pick === g.home ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(H)}"><span class="ab">${esc(g.home)}</span>${esc(H)}</a><span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
       <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
@@ -358,7 +358,7 @@ export function renderHub(sport, data) {
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
   <h1>${S} predictions</h1>
   ${intro}
-  <p>Green picks (65%+) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a></p>
+  <p>Green picks (65%+) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a> · <a href="/${sport}/team">All ${S} teams →</a></p>
   ${upcoming.length ? Object.entries(groups).map(([k, xs]) => `<section class="panel"><h2>${esc(k)}</h2><ul class="games">${xs.map(gameRow).join("")}</ul></section>`).join("")
     : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before game time."}</p></section>`}
   ${recent.length ? `<section class="panel"><h2>Recent results</h2><ul class="games">${recent.map(gameRow).join("")}</ul></section>` : ""}
@@ -417,6 +417,7 @@ export function renderToday(sport, data) {
   ${summary}
   ${days.map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(gameRow).join("")}</ul></section>`).join("") || ""}
   <p class="cta"><a class="btn" href="/${sport}/record">How accurate is the model? See the record →</a></p>
+  <p class="small"><a href="/${sport}/team">All ${S} teams →</a></p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions today and this week`, url: `${ORIGIN}/${sport}/today`, description,
     mainEntity: { "@type": "ItemList", numberOfItems: up.length, itemListElement: up.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
@@ -497,6 +498,14 @@ async function renderSport(ctx, sport) {
   if (!p.length || p[0] === "") return html(renderHub(sport, data));
   if (p[0] === "today" && p.length === 1) return html(renderToday(sport, data));
   if (p[0] === "record" && p.length === 1) return html(renderRecord(sport, data));
+  if (p[0] === "team" && (p.length === 1 || p.length === 2)) {
+    const { renderTeamIndex, renderTeamPage, resolveTeamSlug } = await import("./teams.js");
+    if (p.length === 1) return html(renderTeamIndex(sport, data));
+    const hit = resolveTeamSlug(sport, data, p[1]);
+    if (!hit) return notFound();
+    if (hit.redirect) return Response.redirect(new URL(hit.redirect, ctx.request.url).toString(), 301);
+    return html(renderTeamPage(sport, data, hit.team));
+  }
   if (p.length > 1) return notFound();
   const id = idFromSlug(p[0]);
   const g = id && data.games.find((x) => x.game_id === id);

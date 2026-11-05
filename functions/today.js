@@ -3,7 +3,10 @@
  // and value % (model chance minus market chance). Best-value game per sport is highlighted.
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
  // (built on the box from existing comparison CSVs — no new Odds API credits).
-import { getFeed, gamesOf, shell, html, esc, chip } from "./_shared/site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, slug } from "./_shared/site.js";
+
+const teamHref = (sport, name) => `/${sport}/team/${slug(name)}`;
+const teamA = (sport, name) => `<a class="team-link" href="${esc(teamHref(sport, name))}">${esc(name)}</a>`;
 
 const TZ = "Australia/Sydney";
 const WINDOW_MS = 24 * 3600e3;
@@ -76,14 +79,17 @@ function todayRow(g) {
   }
   const gapTxt = v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v * 100).toFixed(1)}%`;
   const valued = qualifiesValue(g);
-  return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}><a href="${esc(g.href)}">
-    <span class="d">${esc(g.when)}</span>
-    <span class="m">${esc(g.match)}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
-    <span class="p">${esc(g.pick)}</span>${chip(g.light)}
-    <span class="fp" title="Fair price = 1 ÷ model win chance">${esc(fair(g.modelP))}</span>
-    <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
-    <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>
-  </a></li>`;
+  const matchHtml = g.matchHtml || esc(g.match);
+  return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
+    <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
+    <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
+    <a class="row-rest" href="${esc(g.href)}">
+      <span class="p">${esc(g.pick)}</span>${chip(g.light)}
+      <span class="fp" title="Fair price = 1 ÷ model win chance">${esc(fair(g.modelP))}</span>
+      <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
+      <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>
+    </a>
+  </li>`;
 }
 
 function section(id, name, games, links, extra) {
@@ -149,6 +155,7 @@ export async function onRequestGet(ctx) {
         href: g.path,
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${g.away_name} @ ${g.home_name}`,
+        matchHtml: `${teamA(sport, g.away_name)} @ ${teamA(sport, g.home_name)}`,
         pick: g.pick ? `${g.pick_name} ${pct(modelP)}` : "soon",
         pickName: g.pick_name,
         light: g.light,
@@ -158,7 +165,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/${sport}/record">${S} record →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/${sport}/record">${S} record →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
   {
@@ -190,6 +197,7 @@ export async function onRequestGet(ctx) {
         href: `/nhl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${NHLN[g.away] ?? g.away} @ ${NHLN[g.home] ?? g.home}`,
+        matchHtml: `${teamA("nhl", NHLN[g.away] ?? g.away)} @ ${teamA("nhl", NHLN[g.home] ?? g.home)}`,
         pick: `${g.pickName} ${pct(g.p)}`,
         pickName: g.pickName,
         light: g.light,
@@ -199,7 +207,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("nhl", "NHL", games, `<a href="/nhl">All NHL games →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("nhl", "NHL", games, `<a href="/nhl">All NHL games →</a> · <a href="/nhl/team">NHL teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
   {
@@ -229,6 +237,7 @@ export async function onRequestGet(ctx) {
         href: `/epl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${g.home} v ${g.away}`,
+        matchHtml: `${teamA("epl", g.home)} v ${teamA("epl", g.away)}`,
         pick: `${g.pickName} ${pct(g.p)}`,
         pickName: g.pickName,
         light: g.light,
@@ -238,7 +247,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
   const marketNote = market.generated

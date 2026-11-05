@@ -120,7 +120,18 @@ ul.games.today-games { display: block; }
 ul.games.today-games > li { border-top: 1px solid var(--line); }
 ul.games.today-games > li:first-child { border-top: 0; }
 ul.games.today-games > li.head,
-ul.games.today-games > li > a {
+ul.games.today-games > li:not(.head) {
+  display: grid;
+  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 52px 58px 64px;
+  align-items: center;
+  column-gap: 10px;
+  padding: 10px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+ul.games.today-games > li:not(.head) > a.row-rest { display: contents; color: inherit; text-decoration: none; }
+ul.games.today-games > li:not(.head) > .d a { color: inherit; text-decoration: none; }
+ul.games.today-games > li > a:not(.row-rest) {
   display: grid;
   grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 52px 58px 64px;
   align-items: center;
@@ -159,6 +170,7 @@ ul.games.today-games .gap.pos { color: var(--muted); } /* small positives stay n
 ul.games.today-games .gap.pos-strong { color: var(--green); } /* +3.0 pts or more */
 ul.games.today-games .gap.neg { color: var(--red); }
 ul.games.today-games li.has-value { background: rgba(47,215,160,.08); border-radius: 8px; }
+ul.games.today-games li.has-value { padding-left: 8px; padding-right: 8px; }
 ul.games.today-games li.has-value > a { padding-left: 8px; padding-right: 8px; }
 ul.games.today-games .best-tag, .best-tag {
   display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
@@ -174,14 +186,16 @@ ul.games.today-games .best-tag, .best-tag {
 .legend-example { margin: 10px 0 0; padding: 10px 12px; border: 1px dashed var(--line-hi); background: var(--surface); font-size: 14px; line-height: 1.5; }
 @media (max-width: 860px) {
   ul.games.today-games > li.head,
-  ul.games.today-games > li > a {
+  ul.games.today-games > li:not(.head),
+  ul.games.today-games > li > a:not(.row-rest) {
     grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 56px 48px 52px 58px;
     column-gap: 8px;
   }
 }
 @media (max-width: 640px) {
   ul.games.today-games > li.head,
-  ul.games.today-games > li > a {
+  ul.games.today-games > li:not(.head),
+  ul.games.today-games > li > a:not(.row-rest) {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "time match"
@@ -201,7 +215,40 @@ ul.games.today-games .best-tag, .best-tag {
   ul.games.today-games > li.head .fp::before { content: "Fair "; text-transform: none; letter-spacing: 0; color: var(--muted); }
   ul.games.today-games > li.head .mk::before { content: "Market "; text-transform: none; letter-spacing: 0; color: var(--muted); }
   ul.games.today-games > li.head .gap::before { content: "Value "; text-transform: none; letter-spacing: 0; color: var(--muted); }
-  ul.games.today-games > li > a .fp::before { content: "Fair "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
-  ul.games.today-games > li > a .mk::before { content: "Market "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
-  ul.games.today-games > li > a .gap::before { content: "Value "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  ul.games.today-games .fp::before { content: "Fair "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  ul.games.today-games .mk::before { content: "Market "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  ul.games.today-games .gap::before { content: "Value "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+}
+
+/* Team pages */
+a.team-link { color: inherit; text-decoration: none; }
+a.team-link:hover { color: var(--green); text-decoration: underline; }
+.pick a.team-link { color: inherit; text-decoration: none; display: contents; }
+.pick a.team-link .ab { display: inline-block; }
+.pick a.team-link:hover { color: var(--green); }
+ul.team-index { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0; }
+ul.team-index li { border-top: 1px solid var(--line); }
+ul.team-index li:first-child { border-top: 0; }
+ul.team-index a { display: grid; grid-template-columns: 48px 1fr auto; gap: 10px; align-items: center; padding: 10px 4px; color: var(--ink); text-decoration: none; }
+ul.team-index a:hover { background: rgba(47,215,160,.06); }
+ul.team-index .ab { font-family: var(--f-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line-hi); padding: 0 6px; text-align: center; }
+ul.team-index .nm { font-weight: 600; }
+ul.team-index .rec { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.form-strip { font-family: var(--f-mono); font-size: 14px; letter-spacing: .04em; margin: 0 0 12px; }
+.form-strip .form-w { color: var(--green); font-weight: 700; }
+.form-strip .form-l { color: var(--red); font-weight: 700; }
+.form-strip .form-d { color: var(--muted); font-weight: 700; }
+ul.games.team-upcoming > li.head,
+ul.games.team-upcoming > li > a {
+  grid-template-columns: 108px minmax(140px, 1.6fr) minmax(100px, 1fr) 64px 52px;
+}
+@media (max-width: 640px) {
+  ul.games.team-upcoming > li.head,
+  ul.games.team-upcoming > li > a {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "time match"
+      "pick chip"
+      "fair fair";
+  }
 }
