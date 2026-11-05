@@ -1,5 +1,5 @@
 // Public members waitlist — coming soon. No results/profit claims. No prices. Not in nav.
-import { shell, html, esc } from "../_shared/site.js";
+import { shell, html } from "../_shared/site.js";
 
 export async function onRequestGet() {
   const body = `
@@ -37,11 +37,13 @@ export async function onRequestGet() {
 
   <section class="panel" id="memberSignIn">
     <h2>Already a member?</h2>
-    <p class="note">If you already have access, sign in with a magic link.</p>
+    <p class="note">Sign in with your members email and password to open the tips desk.</p>
     <form id="memberLoginForm" class="login-box">
       <label for="memberEmail">Email</label><br>
-      <input id="memberEmail" type="email" required autocomplete="username" placeholder="you@example.com" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px">
-      <div><button class="btn" type="submit" style="display:inline-block;border:0;cursor:pointer;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#07080f;background:var(--cyan);padding:10px 18px">Email me a login link</button></div>
+      <input id="memberEmail" type="email" required autocomplete="username" placeholder="you@example.com" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px"><br>
+      <label for="memberPassword">Password</label><br>
+      <input id="memberPassword" type="password" required autocomplete="current-password" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px">
+      <div><button class="btn" type="submit" style="display:inline-block;border:0;cursor:pointer;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#07080f;background:var(--cyan);padding:10px 18px">Open tips desk</button></div>
       <p id="memberLoginMsg" class="msg muted"></p>
     </form>
   </section>
@@ -53,7 +55,6 @@ export async function onRequestGet() {
       var dn = document.getElementById("deniedNote");
       if (dn) dn.style.display = "block";
     }
-
     var f = document.getElementById("waitlistForm");
     if (f) f.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -79,16 +80,23 @@ export async function onRequestGet() {
     var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
     var lf = document.getElementById("memberLoginForm");
     if (lf && window.supabase) {
-      var sb = window.supabase.createClient(SB_URL, SB_ANON);
+      var sb = window.supabase.createClient(SB_URL, SB_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+      sb.auth.getSession().then(function (res) {
+        if (res.data && res.data.session) location.replace("/members/tips");
+      });
       lf.addEventListener("submit", function (e) {
         e.preventDefault();
         var msg = document.getElementById("memberLoginMsg");
-        msg.textContent = "Sending magic link…";
-        sb.auth.signInWithOtp({
+        msg.textContent = "Signing in…";
+        sb.auth.signInWithPassword({
           email: document.getElementById("memberEmail").value.trim(),
-          options: { emailRedirectTo: window.location.origin + "/members/tips" }
+          password: document.getElementById("memberPassword").value
         }).then(function (res) {
-          msg.textContent = res.error ? res.error.message : "Check your email for the login link.";
+          if (res.error) { msg.textContent = res.error.message; return; }
+          msg.textContent = "Signed in — opening tips desk…";
+          location.replace("/members/tips");
         });
       });
     }
@@ -103,10 +111,7 @@ export async function onRequestGet() {
     noindex: false,
     signup: false,
   });
-  // Public page but keep out of sitemap/nav for now; allow indexing of waitlist is ok, or noindex?
-  // Parent: no link from public nav. Indexing the waitlist page is fine for discovery later; leave indexable.
-  const res = html(page, 200, 60);
-  return res;
+  return html(page, 200, 60);
 }
 
 export const onRequestHead = async (ctx) => {
