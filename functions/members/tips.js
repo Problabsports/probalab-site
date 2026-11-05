@@ -1,4 +1,5 @@
 // Private tips desk. Magic-link auth via Supabase. Noindex. Not in sitemap. No public links.
+// Logged-out visitors are redirected to /members (waitlist) by the client app.
 import { shell, html } from "../_shared/site.js";
 
 export async function onRequestGet() {
@@ -6,17 +7,11 @@ export async function onRequestGet() {
   <div class="tips-app">
     <p class="eyebrow">// private · members · units only</p>
     <h1>Tips desk</h1>
-    <p class="note">John-only for now. Bankroll never shown. Replaces the Google tips sheet.</p>
+    <p class="note">Units only. Bankroll never shown.</p>
 
-    <section id="loginPane" class="panel login-box">
-      <h2>Sign in</h2>
-      <p>Use your allowlisted email. We'll email a one-time magic link.</p>
-      <form id="loginForm">
-        <label for="email">Email</label><br>
-        <input id="email" name="email" type="email" required autocomplete="username" placeholder="you@example.com">
-        <div><button class="btn" type="submit">Email me a login link</button></div>
-      </form>
-      <p id="loginMsg" class="msg muted"></p>
+    <section id="bootPane" class="panel">
+      <p class="muted">Checking your sign-in…</p>
+      <p class="note"><a href="/members">Members waitlist</a></p>
     </section>
 
     <div id="appPane" class="hidden">

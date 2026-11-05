@@ -1,4 +1,4 @@
-/* Private tips desk client. Units only. */
+/* Private tips desk client. Units only. Logged-out users go to /members. */
 (function () {
   const SB_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
@@ -26,7 +26,7 @@
   function statsHtml(title, st) {
     st = st || {};
     const wl = (st.wins ?? 0) + "-" + (st.losses ?? 0) + ((st.ties || st.voids) ? "-" + ((st.ties || 0) + (st.voids || 0)) : "");
-    return '<div class="stat-card"><h3>' + esc(title) + "</h3><dl class=\"stat-grid\">"
+    return '<div class="stat-card"><h3>' + esc(title) + '</h3><dl class="stat-grid">'
       + "<div><dt>Bets</dt><dd>" + dash(st.bets) + "</dd></div>"
       + "<div><dt>W-L</dt><dd>" + esc(wl) + "</dd></div>"
       + '<div><dt>Units</dt><dd class="' + clsU(st.units) + '">' + fmtU(st.units) + "</dd></div>"
@@ -55,7 +55,7 @@
     const nr = st && st.nba_rule;
     if (!nr) return "";
     return '<div class="subline">NBA_RULE_V2 follow ' + fmtU((nr.follow || {}).units)
-      + " · break <span class=\"" + clsU((nr.break || {}).units) + "\">" + fmtU((nr.break || {}).units) + "</span></div>";
+      + ' · break <span class="' + clsU((nr.break || {}).units) + '">' + fmtU((nr.break || {}).units) + "</span></div>";
   }
   function renderSummary() {
     const sum = data.summary || {};
@@ -66,7 +66,7 @@
       + statsHtml("All bets (first)", all)
       + statsHtml("Closing Line", cl)
       + statsHtml("ProbaLab", pl)
-      + "</div><div class=\"panel\">" + sportLines(all) + lightLines(all) + nbaRuleLines(all)
+      + '</div><div class="panel">' + sportLines(all) + lightLines(all) + nbaRuleLines(all)
       + '<div class="subline" style="margin-top:8px">CL and PL stay side by side — never merged.</div></div>';
   }
   function renderAttention() {
@@ -200,25 +200,28 @@
     renderAll();
   }
   function setAuthed(on, email) {
-    $("loginPane").classList.toggle("hidden", on);
+    const boot = $("bootPane");
+    if (boot) boot.classList.toggle("hidden", on);
     $("appPane").classList.toggle("hidden", !on);
     $("who").textContent = on ? ("Signed in as " + email) : "";
+  }
+  function hasAuthParams() {
+    const h = location.hash || "";
+    const q = location.search || "";
+    return /access_token|refresh_token|type=magiclink|type=recovery|type=signup|code=/.test(h + q);
+  }
+  function goWaitlist() {
+    if (hasAuthParams()) return;
+    location.replace("/members");
   }
   async function boot() {
     sb = window.supabase.createClient(SB_URL, SB_ANON, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
-    $("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      $("loginMsg").textContent = "Sending magic link…";
-      const email = $("email").value.trim();
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.origin + "/members/tips" }
-      });
-      $("loginMsg").textContent = error ? error.message : "Check your email for the login link.";
+    $("signOut").addEventListener("click", async () => {
+      await sb.auth.signOut();
+      location.replace("/members");
     });
-    $("signOut").addEventListener("click", async () => { await sb.auth.signOut(); setAuthed(false); });
     document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
     ["fSport", "fSystem", "fLight", "fFrom", "fTo", "showEpl"].forEach((id) => {
       $(id).addEventListener("change", () => {
@@ -226,13 +229,19 @@
       });
     });
     showTab("today");
+
+    let sawSession = false;
     sb.auth.onAuthStateChange(async (_event, session) => {
-      if (!session) { setAuthed(false); return; }
+      if (!session) {
+        setAuthed(false);
+        setTimeout(() => { if (!sawSession) goWaitlist(); }, hasAuthParams() ? 2500 : 400);
+        return;
+      }
+      sawSession = true;
       const ok = await ensureProfile(session);
       if (!ok) {
-        $("loginMsg").textContent = "This email is not on the members list.";
         await sb.auth.signOut();
-        setAuthed(false);
+        location.replace("/members?denied=1");
         return;
       }
       setAuthed(true, session.user.email);
