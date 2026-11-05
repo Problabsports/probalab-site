@@ -18,10 +18,30 @@
   const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(l) + "</span>" : "—");
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const dash = (v) => (v == null || v === "" ? "—" : esc(v));
-  const flags = (arr) => (arr || []).map((f) => {
-    const br = /BREAK|UNDER_MIN/i.test(f);
-    return '<span class="badge ' + (br ? "break" : "ok") + '">' + esc(f) + "</span>";
-  }).join(" ");
+  // Same rule as the live site's Important note (index.html hasNote/qbLine/nbaLine).
+  const QB_OUT = /out|doubtful|injured reserve|suspend/i, QB_Q = /questionable/i, NBA_UNSURE = /questionable|doubtful/i;
+  let feedById = {};
+  function injuryText(sport, pickId) {
+    const g = feedById[(String(pickId || "").match(/(\d+)$/) || [])[1]];
+    const d = g && g.detail; if (!d || !g.pick || g.status === "post") return "";
+    if (String(sport).toUpperCase() === "NFL") {
+      return [[g.away, d.qb_away, d.qb_flag_away], [g.home, d.qb_home, d.qb_flag_home]].filter(([, q, f]) => f || QB_OUT.test((q && q.status) || "") || QB_Q.test((q && q.status) || ""))
+        .map(([t, q, f]) => t + " QB " + ((q && q.name) || "unknown") + (q && q.status ? " (" + q.status + ")" : f ? " (starter flagged)" : "")).join("; ");
+    }
+    return [[g.away, d.missing_away], [g.home, d.missing_home]].flatMap(([t, xs]) => (xs || []).filter((m) => NBA_UNSURE.test(m.status || "") && Number(m.min || 0) >= 20)
+      .map((m) => t + " " + m.player + " (" + m.status + ", " + Math.round(m.min) + " min)")).join("; ");
+  }
+  const warnTag = (r) => { const t = injuryText(r.sport, r.pick_id); return t ? '<span class="badge warn" title="' + esc(t) + '">⚠️ ' + esc(t) + "</span>" : ""; };
+  function betFlags(r) {
+    const f = r.rule_flags || [];
+    const no = f.some((x) => /BREAK|UNDER_MIN/.test(x)), yes = f.includes("NBA_RULE_V2");
+    return (no ? '<span class="badge break">NO</span>' : yes ? '<span class="badge ok">QUALIFIES</span>' : "") + " " + (r.result === "open" || r.result == null ? warnTag(r) : "");
+  }
+  async function loadInjuries() {
+    for (const sp of ["nba", "nfl"]) {
+      try { const f = await (await fetch("/api/feed?sport=" + sp)).json(); (f.games || []).forEach((g) => { feedById[String(g.game_id)] = g; }); } catch (_) {}
+    }
+  }
   const sports = ["NBA", "NFL", "NHL", "EPL"];
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
@@ -117,8 +137,8 @@
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
         const q = qualifies(p);
-        const qBadge = q === true ? '<span class="badge ok">qualifies</span>' : q === false ? '<span class="badge warn">no</span>' : "";
-        const taken = p.taken ? '<span class="badge taken">taken</span>' : "";
+        const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break">NO</span>' : "";
+        const taken = p.taken ? '<span class="badge taken">TAKEN</span>' : "";
         return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
           + '<td class="game">' + esc(p.game) + "</td>"
           + "<td>" + esc(p.selection) + "</td>"
@@ -126,7 +146,7 @@
           + "<td>" + fmtPct(p.win_pct) + "</td>"
           + "<td>" + fmtOdds(p.min_price) + "</td>"
           + "<td>" + fmtOdds(p.current_price) + "</td>"
-          + "<td>" + qBadge + " " + taken + " " + flags(p.rule_flags) + "</td></tr>";
+          + "<td>" + qBadge + " " + taken + " " + warnTag(p) + "</td></tr>";
       }).join("");
       return '<div class="sport-block panel"><h3>' + esc(sport) + '</h3><div class="table-wrap"><table class="tips"><thead><tr>'
         + "<th>Tip-off</th><th>Game</th><th>Pick</th><th>Light</th><th>Win %</th><th>Min</th><th>Price</th><th>Flags</th>"
@@ -148,7 +168,7 @@
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
         + "<td>" + fmtU(r.units) + "</td>"
-        + "<td>" + flags(r.rule_flags) + "</td></tr>").join("")
+        + "<td>" + betFlags(r) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function renderResults() {
@@ -169,7 +189,7 @@
         + "<td>" + esc(r.result) + "</td>"
         + "<td>" + fmtU(r.units) + "</td>"
         + '<td class="' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
-        + "<td>" + flags(r.rule_flags) + "</td></tr>").join("")
+        + "<td>" + betFlags(r) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function showTab(name) {
@@ -202,6 +222,7 @@
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
+    await loadInjuries();
     data = row.payload;
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
     renderAll();
