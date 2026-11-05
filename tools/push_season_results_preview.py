@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Commit + push NHL/EPL season result JSON to preview/team-pages ONLY. Never touches main."""
+"""Commit + push NHL/EPL season result JSON to main only.
+
+Safety:
+- refuses if the working tree is dirty beyond these season files
+- git pull --ff-only origin main before commit/push
+- never force-pushes
+"""
 from __future__ import annotations
 import subprocess, sys
 from pathlib import Path
 
 SITE = Path("/workspace/probalab-site")
-BRANCH = "preview/team-pages"
+BRANCH = "main"
 FILES = ["data/nhl-season.json", "data/epl-season.json"]
 
 def git(*a):
