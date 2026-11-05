@@ -1,9 +1,7 @@
 {
-  "generated_utc": "2026-11-05T12:12:29Z",
-  "note": "Market chances only (no book names or prices). Built from local comparison CSVs; no Odds API call.",
-  "gaps": [
-    "nhl: no comparison CSV on the box yet"
-  ],
+  "generated_utc": "2026-11-05T12:29:04Z",
+  "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
+  "gaps": [],
   "games": [
     {
       "sport": "nba",
@@ -28,7 +26,7 @@
       "game_id": "401873037",
       "away": "JAX",
       "home": "BAL",
-      "start_utc": "2026-11-06T01:15Z",
+      "start_utc": "2026-11-06T01:15:00Z",
       "market_home": 0.1977,
       "market_away": 0.8023
     },
@@ -37,7 +35,7 @@
       "game_id": "401873038",
       "away": "CIN",
       "home": "ATL",
-      "start_utc": "2026-11-08T14:30Z",
+      "start_utc": "2026-11-08T14:30:00Z",
       "market_home": 0.3892,
       "market_away": 0.6108
     },
@@ -46,7 +44,7 @@
       "game_id": "401873040",
       "away": "DAL",
       "home": "IND",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.3176,
       "market_away": 0.6824
     },
@@ -55,7 +53,7 @@
       "game_id": "401873045",
       "away": "NYJ",
       "home": "KC",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.7875,
       "market_away": 0.2125
     },
@@ -64,7 +62,7 @@
       "game_id": "401873042",
       "away": "DET",
       "home": "MIA",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.2739,
       "market_away": 0.7261
     },
@@ -73,7 +71,7 @@
       "game_id": "401873039",
       "away": "CLE",
       "home": "NO",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.597,
       "market_away": 0.403
     },
@@ -82,7 +80,7 @@
       "game_id": "401873044",
       "away": "NYG",
       "home": "PHI",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.3857,
       "market_away": 0.6143
     },
@@ -91,7 +89,7 @@
       "game_id": "401873043",
       "away": "LAR",
       "home": "WSH",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.3303,
       "market_away": 0.6697
     },
@@ -100,7 +98,7 @@
       "game_id": "401873041",
       "away": "DEN",
       "home": "CAR",
-      "start_utc": "2026-11-08T18:00Z",
+      "start_utc": "2026-11-08T18:00:00Z",
       "market_home": 0.4278,
       "market_away": 0.5722
     },
@@ -109,7 +107,7 @@
       "game_id": "401873046",
       "away": "HOU",
       "home": "LAC",
-      "start_utc": "2026-11-08T21:05Z",
+      "start_utc": "2026-11-08T21:05:00Z",
       "market_home": 0.3257,
       "market_away": 0.6743
     },
@@ -118,7 +116,7 @@
       "game_id": "401873049",
       "away": "GB",
       "home": "NE",
-      "start_utc": "2026-11-08T21:25Z",
+      "start_utc": "2026-11-08T21:25:00Z",
       "market_home": 0.6074,
       "market_away": 0.3926
     },
@@ -127,7 +125,7 @@
       "game_id": "401873047",
       "away": "LV",
       "home": "SF",
-      "start_utc": "2026-11-08T21:25Z",
+      "start_utc": "2026-11-08T21:25:00Z",
       "market_home": 0.7875,
       "market_away": 0.2125
     },
@@ -136,7 +134,7 @@
       "game_id": "401873048",
       "away": "ARI",
       "home": "SEA",
-      "start_utc": "2026-11-08T21:25Z",
+      "start_utc": "2026-11-08T21:25:00Z",
       "market_home": 0.7664,
       "market_away": 0.2336
     },
@@ -145,7 +143,7 @@
       "game_id": "401873050",
       "away": "TB",
       "home": "CHI",
-      "start_utc": "2026-11-09T01:20Z",
+      "start_utc": "2026-11-09T01:20:00Z",
       "market_home": 0.7063,
       "market_away": 0.2937
     },
@@ -154,7 +152,7 @@
       "game_id": "401873051",
       "away": "BUF",
       "home": "MIN",
-      "start_utc": "2026-11-10T01:15Z",
+      "start_utc": "2026-11-10T01:15:00Z",
       "market_home": 0.3848,
       "market_away": 0.6152
     },
@@ -257,6 +255,127 @@
       "market_home": 0.4408,
       "market_draw": 0.2513,
       "market_away": 0.3079
+    },
+    {
+      "sport": "nhl",
+      "game_id": "9e57c39752bfbc587ce341650fcd5a19",
+      "away": "BOS",
+      "home": "PIT",
+      "away_name": "Boston Bruins",
+      "home_name": "Pittsburgh Penguins",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.5039,
+      "market_away": 0.4961
+    },
+    {
+      "sport": "nhl",
+      "game_id": "18dd8ea86db020028f8d1c130b99d616",
+      "away": "CAR",
+      "home": "NYI",
+      "away_name": "Carolina Hurricanes",
+      "home_name": "New York Islanders",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.382,
+      "market_away": 0.618
+    },
+    {
+      "sport": "nhl",
+      "game_id": "fc2cccfb47dffb4677b85d247c768ae9",
+      "away": "CHI",
+      "home": "TBL",
+      "away_name": "Chicago Blackhawks",
+      "home_name": "Tampa Bay Lightning",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.7794,
+      "market_away": 0.2206
+    },
+    {
+      "sport": "nhl",
+      "game_id": "f05e184ffd9a6192d19ceee27d51a9de",
+      "away": "DAL",
+      "home": "CBJ",
+      "away_name": "Dallas Stars",
+      "home_name": "Columbus Blue Jackets",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.4604,
+      "market_away": 0.5396
+    },
+    {
+      "sport": "nhl",
+      "game_id": "6828fb175fa928f75d7978128372c817",
+      "away": "VGK",
+      "home": "DET",
+      "away_name": "Vegas Golden Knights",
+      "home_name": "Detroit Red Wings",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.4211,
+      "market_away": 0.5789
+    },
+    {
+      "sport": "nhl",
+      "game_id": "cb757b1c9cf684423578700bb6aef492",
+      "away": "UTA",
+      "home": "MTL",
+      "away_name": "Utah Mammoth",
+      "home_name": "Montr\u00e9al Canadiens",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.4718,
+      "market_away": 0.5282
+    },
+    {
+      "sport": "nhl",
+      "game_id": "eefdb55d84dd6a95ef53b76d3935f3c9",
+      "away": "St Louis Blues",
+      "home": "NJD",
+      "away_name": "St Louis Blues",
+      "home_name": "New Jersey Devils",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.6265,
+      "market_away": 0.3735
+    },
+    {
+      "sport": "nhl",
+      "game_id": "b945b7133224c704b734e04becd109f0",
+      "away": "PHI",
+      "home": "NYR",
+      "away_name": "Philadelphia Flyers",
+      "home_name": "New York Rangers",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.5815,
+      "market_away": 0.4185
+    },
+    {
+      "sport": "nhl",
+      "game_id": "5d5b6a0f376a8d9bd4f5e46891e6c6d8",
+      "away": "VAN",
+      "home": "WPG",
+      "away_name": "Vancouver Canucks",
+      "home_name": "Winnipeg Jets",
+      "start_utc": "2026-11-06T00:10:00Z",
+      "market_home": 0.6462,
+      "market_away": 0.3538
+    },
+    {
+      "sport": "nhl",
+      "game_id": "c672f144ecbb937d3b15b483847129d2",
+      "away": "ANA",
+      "home": "EDM",
+      "away_name": "Anaheim Ducks",
+      "home_name": "Edmonton Oilers",
+      "start_utc": "2026-11-06T01:10:00Z",
+      "market_home": 0.6171,
+      "market_away": 0.3829
+    },
+    {
+      "sport": "nhl",
+      "game_id": "446de9651d2d2948326d970e9f858a33",
+      "away": "NSH",
+      "home": "COL",
+      "away_name": "Nashville Predators",
+      "home_name": "Colorado Avalanche",
+      "start_utc": "2026-11-06T02:40:00Z",
+      "market_home": 0.6636,
+      "market_away": 0.3364
     }
   ]
 }

@@ -115,20 +115,93 @@ table.cal th, table.cal td { border-top: 1px solid var(--line); padding: 6px 8px
 .signup.main p { margin: 0 0 10px; color: var(--muted); }
 .reading li { margin-bottom: 10px; }
 
-/* /today: fair / market / value columns (Betfair-style ratings) */
-ul.games.today-games .head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 4px 0 8px; color: var(--muted); font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--line); margin-bottom: 2px; pointer-events: none; }
-ul.games.today-games .head .chip-slot { width: 52px; }
-ul.games.today-games .fp, ul.games.today-games .mk, ul.games.today-games .gap { font-family: var(--f-mono); font-size: 13px; color: var(--muted); min-width: 52px; text-align: right; }
+/* /today: fixed columns so FAIR / MARKET / VALUE never drift */
+ul.games.today-games { display: block; }
+ul.games.today-games > li { border-top: 1px solid var(--line); }
+ul.games.today-games > li:first-child { border-top: 0; }
+ul.games.today-games > li.head,
+ul.games.today-games > li > a {
+  display: grid;
+  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 52px 58px 64px;
+  align-items: center;
+  column-gap: 10px;
+  padding: 10px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+ul.games.today-games > li.head {
+  padding: 4px 0 8px;
+  color: var(--muted);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 2px;
+  pointer-events: none;
+}
+ul.games.today-games .d { font-family: var(--f-mono); font-size: 12px; color: var(--muted); width: auto; }
+ul.games.today-games .m { min-width: 0; overflow-wrap: anywhere; }
+ul.games.today-games .p { font-family: var(--f-mono); font-size: 14px; }
+ul.games.today-games .chip { justify-self: start; }
+ul.games.today-games .fp,
+ul.games.today-games .mk,
+ul.games.today-games .gap {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+  min-width: 0;
+  white-space: nowrap;
+}
 ul.games.today-games .fp { color: var(--ink); font-weight: 600; }
-ul.games.today-games .gap.pos { color: var(--green); }
+ul.games.today-games .gap.pos { color: var(--muted); } /* small positives stay neutral */
+ul.games.today-games .gap.pos-strong { color: var(--green); } /* +3.0 pts or more */
 ul.games.today-games .gap.neg { color: var(--red); }
-ul.games.today-games li.best-value { background: rgba(47,215,160,.08); border-radius: 8px; }
-ul.games.today-games li.best-value a { padding-left: 8px; padding-right: 8px; }
-ul.games.today-games .best-tag, .best-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); background: rgba(47,215,160,.12); vertical-align: middle; }
+ul.games.today-games li.has-value { background: rgba(47,215,160,.08); border-radius: 8px; }
+ul.games.today-games li.has-value > a { padding-left: 8px; padding-right: 8px; }
+ul.games.today-games .best-tag, .best-tag {
+  display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--green); border: 1px solid var(--green);
+  background: rgba(47,215,160,.12); vertical-align: middle;
+}
 .best-line { margin: 0 0 10px; font-size: 14px; }
 .howto .howto-list { margin: 8px 0 0; padding-left: 18px; line-height: 1.55; }
 .howto .howto-list li { margin: 6px 0; }
+.legend-lights { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 10px 0 4px; align-items: center; }
+.legend-lights .chip { margin-right: 2px; }
+.legend-example { margin: 10px 0 0; padding: 10px 12px; border: 1px dashed var(--line-hi); background: var(--surface); font-size: 14px; line-height: 1.5; }
+@media (max-width: 860px) {
+  ul.games.today-games > li.head,
+  ul.games.today-games > li > a {
+    grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 56px 48px 52px 58px;
+    column-gap: 8px;
+  }
+}
 @media (max-width: 640px) {
-  ul.games.today-games .fp, ul.games.today-games .mk, ul.games.today-games .gap { min-width: 44px; font-size: 12px; }
-  ul.games.today-games .head .chip-slot { display: none; }
+  ul.games.today-games > li.head,
+  ul.games.today-games > li > a {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "time match"
+      "pick chip"
+      "fair market"
+      "value value";
+    row-gap: 4px;
+    column-gap: 10px;
+  }
+  ul.games.today-games .d { grid-area: time; }
+  ul.games.today-games .m { grid-area: match; }
+  ul.games.today-games .p { grid-area: pick; }
+  ul.games.today-games .chip, ul.games.today-games .chip-slot { grid-area: chip; }
+  ul.games.today-games .fp { grid-area: fair; text-align: left; }
+  ul.games.today-games .mk { grid-area: market; text-align: left; }
+  ul.games.today-games .gap { grid-area: value; text-align: left; }
+  ul.games.today-games > li.head .fp::before { content: "Fair "; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  ul.games.today-games > li.head .mk::before { content: "Market "; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  ul.games.today-games > li.head .gap::before { content: "Value "; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  ul.games.today-games > li > a .fp::before { content: "Fair "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  ul.games.today-games > li > a .mk::before { content: "Market "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
+  ul.games.today-games > li > a .gap::before { content: "Value "; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-right: 6px; }
 }

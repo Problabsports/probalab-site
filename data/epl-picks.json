@@ -10,10 +10,10 @@
     "p_away": 0.448,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 1,
+    "away_score": 1,
+    "result": "draw"
   },
   {
     "game_id": "401879256",
@@ -26,10 +26,10 @@
     "p_away": 0.527,
     "pick": "away",
     "light": "ORANGE",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 1,
+    "result": "home"
   },
   {
     "game_id": "401878768",
@@ -42,10 +42,10 @@
     "p_away": 0.152,
     "pick": "home",
     "light": "GREEN",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401879255",
@@ -58,10 +58,10 @@
     "p_away": 0.434,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 1,
+    "result": "away"
   },
   {
     "game_id": "401878767",
@@ -74,10 +74,10 @@
     "p_away": 0.262,
     "pick": "home",
     "light": "ORANGE",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 2,
+    "result": "away"
   },
   {
     "game_id": "401878765",
@@ -90,10 +90,10 @@
     "p_away": 0.418,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401878766",
@@ -106,10 +106,10 @@
     "p_away": 0.456,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 1,
+    "away_score": 1,
+    "result": "draw"
   },
   {
     "game_id": "401879252",
@@ -122,10 +122,10 @@
     "p_away": 0.289,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 3,
+    "result": "away"
   },
   {
     "game_id": "401879254",
@@ -138,10 +138,10 @@
     "p_away": 0.38,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 2,
+    "result": "away"
   },
   {
     "game_id": "401878764",
@@ -154,10 +154,10 @@
     "p_away": 0.38,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 0,
+    "result": "draw"
   },
   {
     "game_id": "401879248",
@@ -170,10 +170,10 @@
     "p_away": 0.393,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401878763",
@@ -186,10 +186,10 @@
     "p_away": 0.328,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 2,
+    "result": "draw"
   },
   {
     "game_id": "401879245",
@@ -202,10 +202,10 @@
     "p_away": 0.274,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 1,
+    "result": "away"
   },
   {
     "game_id": "401879247",
@@ -218,10 +218,10 @@
     "p_away": 0.392,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 3,
+    "away_score": 1,
+    "result": "home"
   },
   {
     "game_id": "401879249",
@@ -234,10 +234,10 @@
     "p_away": 0.311,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401879251",
@@ -250,10 +250,10 @@
     "p_away": 0.258,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401878761",
@@ -266,10 +266,10 @@
     "p_away": 0.254,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 2,
+    "away_score": 0,
+    "result": "home"
   },
   {
     "game_id": "401879250",
@@ -282,10 +282,10 @@
     "p_away": 0.292,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 1,
+    "away_score": 1,
+    "result": "draw"
   },
   {
     "game_id": "401879246",
@@ -298,10 +298,10 @@
     "p_away": 0.428,
     "pick": "away",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 1,
+    "result": "away"
   },
   {
     "game_id": "401878762",
@@ -314,10 +314,10 @@
     "p_away": 0.337,
     "pick": "home",
     "light": "RED",
-    "status": "pre",
-    "home_score": null,
-    "away_score": null,
-    "result": null
+    "status": "post",
+    "home_score": 0,
+    "away_score": 1,
+    "result": "away"
   },
   {
     "game_id": "401879242",

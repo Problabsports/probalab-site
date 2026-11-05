@@ -328,7 +328,7 @@ export function renderGame(g, all, rec, review = null) {
     homeTeam: team(H), awayTeam: team(A),
     competitor: [team(A), team(H)], performer: [team(A), team(H)],
   };
-  return shell({ title, description, path: g.path, body, jsonld, noindex: !g.pick, ogType: "article" });
+  return shell({ title, description, path: g.path, body, jsonld, noindex: !g.pick, ogType: "article", signup: post }); // pre-game body has signupMain; finished games keep footer only
 }
 
 export function gameRow(g) {
@@ -461,7 +461,7 @@ export function renderRecord(sport, data) {
   <section class="panel"><h2>Latest finished games</h2><ul class="games">${done.slice(0, 20).map(gameRow).join("")}</ul></section>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: `${S} prediction record`, url: `${ORIGIN}/${sport}/record`, description };
-  return shell({ title, description, path: `/${sport}/record`, body, jsonld });
+  return shell({ title, description, path: `/${sport}/record`, body, jsonld, signup: false }); // body has signupMain
 }
 
 export function notFound() {

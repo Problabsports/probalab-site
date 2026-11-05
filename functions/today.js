@@ -25,9 +25,14 @@ function marketIndex(raw) {
   const byId = new Map(), byMatch = new Map();
   for (const g of raw?.games ?? []) {
     if (g.game_id) byId.set(`${g.sport}:${String(g.game_id)}`, g);
-    if (g.away && g.home) {
-      byMatch.set(`${g.sport}:${abbrKey(g.away)}@${abbrKey(g.home)}`, g);
-      byMatch.set(`${g.sport}:${nameKey(g.away)}@${nameKey(g.home)}`, g);
+    const pairs = [
+      [g.away, g.home],
+      [g.away_name, g.home_name],
+    ];
+    for (const [a, h] of pairs) {
+      if (!a || !h) continue;
+      byMatch.set(`${g.sport}:${abbrKey(a)}@${abbrKey(h)}`, g);
+      byMatch.set(`${g.sport}:${nameKey(a)}@${nameKey(h)}`, g);
     }
   }
   return { byId, byMatch, generated: raw?.generated_utc ?? null, gaps: raw?.gaps ?? [] };
@@ -56,28 +61,29 @@ function valueOf(modelP, marketP) {
 
 const HEAD = `<li class="head" aria-hidden="true"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span><span class="mk">Market</span><span class="gap">Value</span></li>`;
 
-function todayRow(g, best) {
+// Value badge: GREEN/SUPER and model−market ≥ +3.0 percentage points.
+const VALUE_MIN = 0.03;
+const isTipLight = (l) => l === "GREEN" || l === "SUPER";
+const qualifiesValue = (g) => isTipLight(g.light) && g.value != null && g.value >= VALUE_MIN;
+
+function todayRow(g) {
   const v = g.value;
-  const gapCls = v == null ? "" : v > 0.005 ? "pos" : v < -0.005 ? "neg" : "";
+  let gapCls = "";
+  if (v != null) {
+    if (v >= VALUE_MIN) gapCls = "pos-strong";
+    else if (v > 0.005) gapCls = "pos"; // small positive: neutral (not green)
+    else if (v < -0.005) gapCls = "neg";
+  }
   const gapTxt = v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v * 100).toFixed(1)}%`;
-  const isBest = best && g.key === best.key && v != null;
-  return `<li class="${isBest ? "best-value" : ""}"${isBest ? ` title="Best value in ${esc(g.sportName)} today"` : ""}><a href="${esc(g.href)}">
+  const valued = qualifiesValue(g);
+  return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}><a href="${esc(g.href)}">
     <span class="d">${esc(g.when)}</span>
-    <span class="m">${esc(g.match)}${isBest ? ` <span class="best-tag">Best value</span>` : ""}</span>
+    <span class="m">${esc(g.match)}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
     <span class="p">${esc(g.pick)}</span>${chip(g.light)}
     <span class="fp" title="Fair price = 1 ÷ model win chance">${esc(fair(g.modelP))}</span>
     <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
     <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>
   </a></li>`;
-}
-
-function bestValue(games) {
-  let best = null;
-  for (const g of games) {
-    if (g.value == null || g.value <= 0) continue; // only mark when the model is above the market
-    if (!best || g.value > best.value) best = g;
-  }
-  return best;
 }
 
 function section(id, name, games, links, extra) {
@@ -86,29 +92,33 @@ function section(id, name, games, links, extra) {
       <p>No ${esc(name)} games tip off in the next 24 hours.</p>
       <p class="small">${links}</p></section>`;
   }
-  const best = bestValue(games);
-  const withMarket = games.filter((g) => g.value != null).length;
-  const bestNote = best
-    ? `<p class="best-line">Best value today: <b>${esc(best.pickName || best.pick)}</b> in ${esc(best.match)} at ${esc(fair(best.modelP))} fair · value +${(best.value * 100).toFixed(1)}%.</p>`
-    : withMarket
-      ? `<p class="best-line small">No positive value in ${esc(name)} in this window (model at or below the market on every game with a market chance).</p>`
-      : `<p class="best-line small">Best value needs a market chance on file for at least one game.</p>`;
-  const rows = HEAD + games.map((g) => todayRow(g, best)).join("");
+  const valued = games.filter(qualifiesValue);
+  const withMarket = games.some((g) => g.value != null);
+  const valueNote = valued.length
+    ? `<p class="best-line">${valued.length} value pick${valued.length === 1 ? "" : "s"} (GREEN/SUPER and at least +3.0 vs the market).</p>`
+    : `<p class="best-line small">No standout value today${withMarket ? "" : " — market chances not on file for these games yet"}.</p>`;
+  const rows = HEAD + games.map(todayRow).join("");
   return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
-  ${bestNote}
+  ${valueNote}
   <ul class="games today-games">${rows}</ul>
   <p class="small">${links}</p></section>`;
 }
 
 const HOW_TO = `<section class="panel howto" id="how-to-read">
   <h2>How to read this</h2>
+  <div class="legend-lights" aria-label="Light colours">
+    ${chip("SUPER")}<span>our strongest pick</span>
+    ${chip("GREEN")}<span>65%+ top pick</span>
+    ${chip("ORANGE")}<span>lean (55 to 65%)</span>
+    ${chip("RED")}<span>close to a coin flip (under 55%)</span>
+  </div>
   <ul class="howto-list">
-    <li><b>Pick · chance</b> — the side the model likes, and its win chance (the coloured light is the confidence band).</li>
-    <li><b>Fair</b> — the fair price implied by that chance (1 ÷ chance). A 60% call is 1.67; a 75% call is 1.33.</li>
-    <li><b>Market</b> — the market's implied chance for the same side, when we already have a price on file. Blank means no market figure yet.</li>
-    <li><b>Value</b> — model chance minus market chance. Positive means the model is higher than the market; the largest positive in each sport is marked <span class="best-tag">Best value</span>.</li>
+    <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is 1.67; a 75% call is 1.33.</li>
+    <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>
+    <li><b>Value</b> — our chance minus the market chance. Positive means we rate the team higher than the bookies. A <span class="best-tag">Value</span> badge appears on GREEN or SUPER picks with at least <b>+3.0</b> points of value (there can be several, or none).</li>
   </ul>
-  <p class="small">Figures are for entertainment, not advice. Fair prices are from the model alone, not from any book.</p>
+  <p class="legend-example"><b>Example:</b> we make the home team 68% (fair 1.47, GREEN). The market has them at 62%. Value = +6.0. That pick gets a Value badge. A RED pick at +0.5 does not — the number still shows, in a neutral colour.</p>
+  <p class="small">Figures are for entertainment, not advice. Fair prices are from the model alone.</p>
 </section>`;
 
 export async function onRequestGet(ctx) {
@@ -239,7 +249,7 @@ export async function onRequestGet(ctx) {
   <p class="eyebrow">// next 24 hours · Australia/Sydney</p>
   <h1>Today's NBA, NFL, NHL &amp; EPL predictions</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
-  Each row shows the model's pick and win chance, its fair price, the light colour, the market chance for the same side when we have it, and the value % (model minus market). The largest value in each sport is marked.</p>
+  Each row shows the model's pick and win chance, its fair price, the light colour, the market chance for the same side when we have it, and the value % (our chance minus the market). GREEN/SUPER picks with at least +3.0 value get a Value badge.</p>
   <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
   ${out.join("\n")}
