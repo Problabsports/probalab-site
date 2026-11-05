@@ -4,3 +4,6 @@
 # Always revalidate HTML and unversioned scripts/styles so a deploy shows straight away (no stale browser copy)
 /*
   Cache-Control: no-cache, must-revalidate
+
+/img/logos/*
+  Cache-Control: public, max-age=604800, immutable
