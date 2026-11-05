@@ -2,13 +2,15 @@
 (function () {
   const SB_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
-  const HIDDEN = new Set(["EPL"]);
+  const M = window.TipsModel;
+  const selectedColours = new Set(M.colours);
+  const summarySports = new Set(["NBA", "NFL", "NHL", "EPL"]);
   let sb, data = null, tab = "today";
   const $ = (id) => document.getElementById(id);
-  const fmtPct = (x) => (x == null || Number.isNaN(Number(x)) ? "—" : (Number(x) * 100).toFixed(1).replace(/\.0$/, "") + "%");
-  const fmtOdds = (x) => (x == null || Number.isNaN(Number(x)) ? "—" : Number(x).toFixed(2));
+  const fmtPct = (x) => (M.number(x) == null ? "—" : (Number(x) * 100).toFixed(1).replace(/\.0$/, "") + "%");
+  const fmtOdds = (x) => (M.number(x) == null ? "—" : Number(x).toFixed(2));
   const fmtU = (x) => {
-    if (x == null || Number.isNaN(Number(x))) return "—";
+    if (M.number(x) == null) return "—";
     const n = Number(x);
     return (n > 0 ? "+" : "") + n.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1") + "u";
   };
@@ -20,75 +22,94 @@
     const br = /BREAK|UNDER_MIN/i.test(f);
     return '<span class="badge ' + (br ? "break" : "ok") + '">' + esc(f) + "</span>";
   }).join(" ");
-  const showEpl = () => !!($("showEpl") && $("showEpl").checked);
-  const sportOk = (s) => showEpl() || !HIDDEN.has(String(s || "").toUpperCase());
-
-  function statsHtml(title, st) {
-    st = st || {};
-    const wl = (st.wins ?? 0) + "-" + (st.losses ?? 0) + ((st.ties || st.voids) ? "-" + ((st.ties || 0) + (st.voids || 0)) : "");
-    return '<div class="stat-card"><h3>' + esc(title) + '</h3><dl class="stat-grid">'
-      + "<div><dt>Bets</dt><dd>" + dash(st.bets) + "</dd></div>"
-      + "<div><dt>W-L</dt><dd>" + esc(wl) + "</dd></div>"
-      + '<div><dt>Units</dt><dd class="' + clsU(st.units) + '">' + fmtU(st.units) + "</dd></div>"
-      + "<div><dt>ROI</dt><dd>" + fmtPct(st.roi) + "</dd></div>"
-      + "<div><dt>Avg odds</dt><dd>" + fmtOdds(st.avg_odds) + "</dd></div>"
-      + "<div><dt>Avg CLV</dt><dd>" + fmtPct(st.avg_clv) + "</dd></div>"
-      + (st.open_bets != null ? "<div><dt>Open</dt><dd>" + dash(st.open_bets) + "</dd></div>" : "")
-      + "</dl></div>";
+  const sports = ["NBA", "NFL", "NHL", "EPL"];
+  const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
+  function colourControls() {
+    $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Unrated':c)+'</button>').join('');
+    document.querySelectorAll('[data-colour]').forEach(b => b.addEventListener('click', () => {
+      const c=b.dataset.colour; selectedColours.has(c) ? selectedColours.delete(c) : selectedColours.add(c);
+      colourControls(); renderAll();
+    }));
   }
-  function sportLines(st) {
-    const by = (st && st.by_sport) || {};
-    const keys = Object.keys(by).filter(sportOk);
-    if (!keys.length) return "";
-    return '<div class="subline">' + keys.map((k) => {
-      const s = by[k] || {};
-      return esc(k) + ": " + fmtU(s.units) + " (" + (s.wins ?? 0) + "-" + (s.losses ?? 0) + ")";
-    }).join(" · ") + "</div>";
+  function inRange(r) {
+    const d=M.date(r), from=$("fFrom").value, to=$("fTo").value;
+    return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
-  function lightLines(st) {
-    const by = (st && st.by_light) || {};
-    const keys = Object.keys(by);
-    if (!keys.length) return "";
-    return '<div class="subline">By light: ' + keys.map((k) => esc(k) + " " + fmtU((by[k] || {}).units)).join(" · ") + "</div>";
+  function filtered(rows, summary=false) {
+    return rows.filter(r => M.visible(r) && selectedColours.has(M.colour(r)) && inRange(r)
+      && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
   }
-  function nbaRuleLines(st) {
-    const nr = st && st.nba_rule;
-    if (!nr) return "";
-    return '<div class="subline">NBA_RULE_V2 follow ' + fmtU((nr.follow || {}).units)
-      + ' · break <span class="' + clsU((nr.break || {}).units) + '">' + fmtU((nr.break || {}).units) + "</span></div>";
+  function statsHtml(title, rows) {
+    const st=M.stats(rows);
+    return '<div class="stat-card"><h3>'+esc(title)+'</h3><dl class="stat-grid">'
+      +'<div><dt>Settled</dt><dd>'+st.bets+'</dd></div><div><dt>W–L</dt><dd>'+st.wins+'–'+st.losses+'</dd></div>'
+      +'<div><dt>Win %</dt><dd>'+fmtPct(st.win_pct)+'</dd></div><div><dt>Net units</dt><dd class="'+clsU(st.units)+'">'+fmtU(st.units)+'</dd></div>'
+      +'<div><dt>ROI</dt><dd>'+fmtPct(st.roi)+'</dd></div></dl><p class="note">Units/ROI coverage: '+st.covered+'/'+st.bets+' settled.</p></div>';
+  }
+  function chartHtml(john, pl) {
+    const a=M.series(john), b=M.series(pl), dates=[...new Set([...a,...b].map(p=>p.date))].sort();
+    if(!dates.length) return '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+    const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
+    const values=[0,...a.map(p=>p.units),...b.map(p=>p.units)], low=Math.min(...values), high=Math.max(...values);
+    const x=d=>62+(Date.parse(d)-start)/Math.max(86400000,end-start)*704;
+    const y=v=>222-(v-low)/Math.max(1,high-low)*190;
+    function line(points, colour, label) {
+      if(!points.length) return '';
+      let path='M '+x(dates[0])+' '+y(0);
+      points.forEach(p=>{path+=' H '+x(p.date)+' V '+y(p.units);});
+      path+=' H '+x(dates[dates.length-1]);
+      return '<path d="'+path+'" fill="none" stroke="'+colour+'" stroke-width="3"><title>'+label+'</title></path><circle cx="'+x(points[points.length-1].date)+'" cy="'+y(points[points.length-1].units)+'" r="4" fill="'+colour+'"/>';
+    }
+    return '<svg class="units-chart" viewBox="0 0 800 270" role="img" aria-label="Cumulative net units: My bets and PL site picks"><title>Cumulative net units</title>'
+      +'<line x1="62" y1="'+y(0)+'" x2="766" y2="'+y(0)+'" stroke="#69758a" stroke-dasharray="4 4"/>'
+      +'<text x="4" y="32">'+esc(fmtU(high))+'</text><text x="4" y="224">'+esc(fmtU(low))+'</text>'
+      +line(a,'#63b3ff','My bets')+line(b,'#39d98a','PL site picks')
+      +'<text x="62" y="255">'+dates[0]+'</text><text x="766" y="255" text-anchor="end">'+dates[dates.length-1]+'</text></svg>'
+      +'<p class="note"><span style="color:#63b3ff">● My bets'+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>';
   }
   function renderSummary() {
-    const sum = data.summary || {};
-    const all = sum.all || {};
-    const cl = (sum.by_system || {}).CL || {};
-    const pl = (sum.by_system || {}).PL || {};
-    $("summary").innerHTML = '<div class="cards cols-3">'
-      + statsHtml("All bets (first)", all)
-      + statsHtml("Closing Line", cl)
-      + statsHtml("ProbaLab", pl)
-      + '</div><div class="panel">' + sportLines(all) + lightLines(all) + nbaRuleLines(all)
-      + '<div class="subline" style="margin-top:8px">CL and PL stay side by side — never merged.</div></div>';
+    const john=filtered(data.results || [],true), pl=filtered(data.pl_results || [],true);
+    const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
+      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
+    const rows=M.colours.filter(c=>selectedColours.has(c)).map(c=>{
+      const a=M.stats(john.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
+      const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
+      return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
+    }).join('');
+    $("summary").innerHTML=controls+'<p class="note">Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
+      +'<div class="cards cols-2">'+statsHtml('My settled bets',john)+statsHtml('PL site picks',pl)+'</div>'
+      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(john,pl)+'</section>'
+      +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">My settled bets</th><th colspan="5">All PL site picks</th></tr><tr>'
+      +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+      +'<p class="note">Win % excludes ties/voids. My bets use recorded stakes and net P/L (including commission where recorded). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Counts include all settled picks, not only picks I took. Coverage shows results with known units. No fair-price odds are substituted.</p>'
+      +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Unknown-colour bets are Unrated, never guessed. Captured PL history only; no pre-capture backtest.</p>'
+      +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
+      const sp=b.dataset.summarySport;
+      if(sp==='all') { const all=summarySports.size===4; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }
+      else summarySports.has(sp)?summarySports.delete(sp):summarySports.add(sp);
+      renderSummary();
+    }));
   }
   function renderAttention() {
-    const items = (data.needs_attention || []).filter((a) => sportOk(a.sport));
-    if (!items.length) { $("attention").innerHTML = '<p class="muted">Nothing needs attention.</p>'; return; }
-    $("attention").innerHTML = items.map((a) =>
-      '<div class="attn ' + esc(a.severity || "warn") + '"><b>' + esc((a.severity || "warn").toUpperCase())
-      + "</b> " + esc(a.message)
-      + (a.game ? ' <span class="muted">(' + esc(a.sport || "") + " · " + esc(a.game) + ")</span>" : "")
-      + "</div>"
-    ).join("");
+    const hiddenIds=new Set([...(data.open_bets||[]),...(data.results||[])].filter(r=>String(r.tag).toUpperCase()==='CL').map(r=>r.bet_id));
+    const items=(data.needs_attention||[]).filter(a=>!hiddenIds.has(a.bet_id) && String(a.tag||'').toUpperCase()!=='CL');
+    const warnings=items.filter(a=>['warn','error'].includes(String(a.severity).toLowerCase()));
+    const info=items.filter(a=>String(a.severity).toLowerCase()==='info');
+    const item=a=>'<div class="attn '+esc(a.severity)+'"><b>'+esc(String(a.severity).toUpperCase())+'</b> '+esc(a.message)+(a.game?' <span class="muted">('+esc(a.sport||'')+' · '+esc(a.game)+')</span>':'')+'</div>';
+    $("attention").innerHTML=(warnings.length?warnings.map(item).join(''):'<p class="muted">No warnings.</p>')
+      +(info.length?'<details><summary>'+info.length+' informational notes</summary>'+info.map(item).join('')+'</details>':'');
   }
   function qualifies(p) {
     if (typeof p.qualifies === "boolean") return p.qualifies;
     if (String(p.sport).toUpperCase() !== "NBA") return null;
-    const lightOk = p.light === "GREEN" || p.light === "SUPER";
-    const price = p.current_price ?? p.min_price;
+    const lightOk = p.light === "GREEN";
+    const price = p.current_price;
     if (!lightOk || price == null || p.min_price == null) return null;
     return price >= p.min_price && price <= 1.49;
   }
   function renderToday() {
-    const rows = (data.today || []).filter((p) => sportOk(p.sport));
+    const rows = filtered(data.today || []);
     const by = {};
     rows.forEach((p) => { (by[p.sport] ??= []).push(p); });
     const order = ["NBA", "NFL", "NHL", "EPL"].filter((s) => by[s]);
@@ -98,7 +119,7 @@
         const q = qualifies(p);
         const qBadge = q === true ? '<span class="badge ok">qualifies</span>' : q === false ? '<span class="badge warn">no</span>' : "";
         const taken = p.taken ? '<span class="badge taken">taken</span>' : "";
-        return "<tr><td>" + dash(p.tipoff_aedt || p.tipoff_utc) + "</td>"
+        return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
           + '<td class="game">' + esc(p.game) + "</td>"
           + "<td>" + esc(p.selection) + "</td>"
           + "<td>" + chip(p.light) + "</td>"
@@ -112,34 +133,18 @@
         + "</tr></thead><tbody>" + body + "</tbody></table></div></div>";
     }).join("");
   }
-  function betFilter(rows) {
-    const sport = $("fSport").value;
-    const system = $("fSystem").value;
-    const light = $("fLight").value;
-    const from = $("fFrom").value;
-    const to = $("fTo").value;
-    return rows.filter((r) => {
-      if (!sportOk(r.sport)) return false;
-      if (sport && r.sport !== sport) return false;
-      if (system && r.tag !== system) return false;
-      if (light && r.light !== light) return false;
-      const d = (r.placed_utc || r.kickoff_utc || "").slice(0, 10);
-      if (from && d && d < from) return false;
-      if (to && d && d > to) return false;
-      return true;
-    });
-  }
+  function betFilter(rows) { return filtered(rows); }
   function renderOpen() {
     const rows = betFilter(data.open_bets || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">No open bets in this filter.</p>'; return; }
     $("open").innerHTML = '<div class="table-wrap"><table class="tips"><thead><tr>'
-      + "<th>Placed</th><th>Sport</th><th>Game</th><th>Pick</th><th>Tag</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
+      + "<th>Placed</th><th>Sport</th><th>Game</th><th>Pick</th><th>Record</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + dash((r.placed_utc || "").replace("T", " ").replace("Z", "")) + "</td>"
+      + rows.map((r) => "<tr><td>" + esc(dateTime(r.placed_utc)) + "</td>"
         + "<td>" + esc(r.sport) + "</td>"
         + '<td class="game">' + esc(r.game) + "</td>"
         + "<td>" + esc(r.selection) + "</td>"
-        + "<td>" + esc(r.tag) + "</td>"
+        + "<td>" + esc(r.tag === "OTHER" ? "My bet" : "PL") + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
         + "<td>" + fmtU(r.units) + "</td>"
@@ -150,19 +155,20 @@
     const rows = betFilter(data.results || []);
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="table-wrap"><table class="tips"><thead><tr>'
-      + "<th>Date</th><th>Sport</th><th>Game</th><th>Pick</th><th>Tag</th><th>Light</th><th>Taken</th><th>Close</th><th>CLV</th><th>Result</th><th>P/L</th><th>Flags</th>"
+      + "<th>Date</th><th>Sport</th><th>Game</th><th>Pick</th><th>Record</th><th>Light</th><th>Taken</th><th>Close</th><th>CLV</th><th>Result</th><th>Stake</th><th>P/L</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + dash((r.placed_utc || "").slice(0, 10)) + "</td>"
+      + rows.map((r) => "<tr><td>" + dash(M.date(r)) + "</td>"
         + "<td>" + esc(r.sport) + "</td>"
         + '<td class="game">' + esc(r.game) + "</td>"
         + "<td>" + esc(r.selection) + "</td>"
-        + "<td>" + esc(r.tag) + "</td>"
+        + "<td>" + esc(r.tag === "OTHER" ? "My bet" : "PL") + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
         + "<td>" + fmtOdds(r.closing_price) + "</td>"
         + "<td>" + fmtPct(r.clv_pct) + "</td>"
         + "<td>" + esc(r.result) + "</td>"
-        + '<td class="' + clsU(r.pnl_units) + '">' + fmtU(r.pnl_units) + "</td>"
+        + "<td>" + fmtU(r.units) + "</td>"
+        + '<td class="' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
         + "<td>" + flags(r.rule_flags) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
@@ -173,11 +179,12 @@
       const b = document.querySelector('[data-tab="' + t + '"]');
       if (b) b.classList.toggle("on", t === name);
     });
-    $("filters").classList.toggle("hidden", name !== "open" && name !== "results");
+    $("filters").classList.remove("hidden");
+    $("fSport").disabled = name === "summary";
   }
   function renderAll() {
-    const gen = data.generated_at ? String(data.generated_at) : "—";
-    $("meta").textContent = "Updated " + gen + " · units only · EPL hidden unless toggled";
+    const gen = dateTime(data.generated_at);
+    $("meta").textContent = "Updated " + gen + " · units only · PL picks and my bets";
     renderAttention();
     renderSummary();
     renderToday();
@@ -223,15 +230,17 @@
       location.replace("/members");
     });
     document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
-    ["fSport", "fSystem", "fLight", "fFrom", "fTo", "showEpl"].forEach((id) => {
+    ["fSport", "fFrom", "fTo"].forEach((id) => {
       $(id).addEventListener("change", () => {
         renderAttention(); renderSummary(); renderToday(); renderOpen(); renderResults();
       });
     });
+    colourControls();
     showTab("today");
 
     let sawSession = false;
-    sb.auth.onAuthStateChange(async (_event, session) => {
+    sb.auth.onAuthStateChange((_event, session) => {
+      setTimeout(async () => {
       if (!session) {
         setAuthed(false);
         setTimeout(() => { if (!sawSession) goWaitlist(); }, hasAuthParams() ? 2500 : 400);
@@ -247,6 +256,7 @@
       setAuthed(true, session.user.email);
       try { await loadTips(); $("loadMsg").textContent = ""; }
       catch (err) { $("loadMsg").textContent = "Could not load tips: " + (err.message || err); }
+      }, 0);
     });
   }
   boot();

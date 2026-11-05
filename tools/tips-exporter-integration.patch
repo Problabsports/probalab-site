@@ -1,0 +1,11 @@
+--- a/scripts/tips_page/export_tips.py
++++ b/scripts/tips_page/export_tips.py
+@@ -240,0 +241,8 @@
++    # Site-owned additive v1 extension; retain the original CL arrays/summaries.
++    import importlib.util
++    enrich_path = os.environ.get("TIPS_SNAPSHOT_ENRICHER", os.path.join(HERE, "tips_snapshot_enrichment.py"))
++    if os.path.isfile(enrich_path):
++        spec = importlib.util.spec_from_file_location("tips_snapshot_enrichment", enrich_path)
++        module = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(module)
++        doc = module.enrich_snapshot(doc, pl_latest, P.row_sport)

@@ -18,7 +18,6 @@ export async function onRequestGet() {
       <div class="tips-toolbar">
         <span id="who" class="muted"></span>
         <button type="button" id="signOut">Sign out</button>
-        <label style="margin-left:auto;font-size:12px;color:var(--muted)"><input type="checkbox" id="showEpl"> Show EPL</label>
       </div>
       <p id="meta" class="subline"></p>
       <p id="loadMsg" class="msg"></p>
@@ -30,27 +29,27 @@ export async function onRequestGet() {
 
       <div class="tips-tabs" role="tablist">
         <button type="button" data-tab="today" class="on">Today</button>
-        <button type="button" data-tab="open">Open bets</button>
+        <button type="button" data-tab="open">My open bets</button>
         <button type="button" data-tab="results">Results</button>
         <button type="button" data-tab="summary">Summary</button>
       </div>
 
       <div id="filters" class="tips-filters hidden">
         <label>Sport<select id="fSport"><option value="">All</option><option>NBA</option><option>NFL</option><option>NHL</option><option>EPL</option></select></label>
-        <label>System<select id="fSystem"><option value="">All</option><option value="CL">CL</option><option value="PL">PL</option><option value="CL+PL">CL+PL</option><option value="OTHER">OTHER</option></select></label>
-        <label>Light<select id="fLight"><option value="">All</option><option>SUPER</option><option>GREEN</option><option>ORANGE</option><option>RED</option></select></label>
+        <div id="colourFilters" class="colour-filters" role="group" aria-label="Pick colours"></div>
         <label>From<input id="fFrom" type="date"></label>
         <label>To<input id="fTo" type="date"></label>
       </div>
 
       <section id="todayPane"><div id="today"></div></section>
-      <section id="openPane" class="hidden panel"><div id="open"></div></section>
+      <section id="openPane" class="hidden panel"><p class="note">Bets I have already placed, awaiting settlement — not bets to make.</p><div id="open"></div></section>
       <section id="resultsPane" class="hidden panel"><div id="results"></div></section>
       <section id="summaryPane" class="hidden"><div id="summary"></div></section>
     </div>
   </div>
   <link rel="stylesheet" href="/members-tips.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/members-tips-model.js"></script>
   <script src="/members-tips-app.js"></script>`;
 
   const page = shell({
