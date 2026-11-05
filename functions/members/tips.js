@@ -28,7 +28,7 @@ export async function onRequestGet() {
       </section>
 
       <div class="tips-tabs" role="tablist">
-        <button type="button" data-tab="today" class="on">Today</button>
+        <button type="button" data-tab="today" class="on">Upcoming</button>
         <button type="button" data-tab="open">My open bets</button>
         <button type="button" data-tab="results">Results</button>
         <button type="button" data-tab="summary">Summary</button>

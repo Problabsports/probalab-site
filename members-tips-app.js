@@ -132,11 +132,12 @@
     return price >= p.min_price && price <= 1.49;
   }
   function renderToday() {
-    const rows = filtered(data.today || []);
+    const now = Date.now();
+    const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
     rows.forEach((p) => { (by[p.sport] ??= []).push(p); });
     const order = ["NBA", "NFL", "NHL", "EPL"].filter((s) => by[s]);
-    if (!order.length) { $("today").innerHTML = '<p class="muted">No captured picks for today.</p>'; return; }
+    if (!order.length) { $("today").innerHTML = '<p class="muted">No upcoming picks.</p>'; return; }
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
         const q = qualifies(p);
@@ -175,7 +176,7 @@
   }
   function renderResults() {
     const rows = betFilter(data.results || []);
-    if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
+    if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>' + plResultsHtml(); return; }
     $("results").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Date</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
@@ -188,6 +189,13 @@
         + '<td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
         + '<td class="opt">' + fmtPct(r.clv_pct) + "</td>"
         + '<td class="opt fl">' + betFlags(r) + "</td></tr>").join("")
+      + "</tbody></table></div>" + plResultsHtml();
+  }
+  function plResultsHtml() {
+    const rows = filtered(data.pl_results || []).sort((a, b) => M.date(b).localeCompare(M.date(a)));
+    if (!rows.length) return "";
+    return '<h3 style="margin-top:18px">PL site picks · finished</h3><div class="table-wrap"><table class="tips compact"><thead><tr><th>Date</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>P/L (1u)</th></tr></thead><tbody>'
+      + rows.map((r) => "<tr><td>" + esc(shortDate(M.date(r))) + "</td>" + gameCell(r) + "<td>" + esc(shortSel(r.selection)) + "</td><td>" + chip(r.light) + "</td><td>" + fmtOdds(r.price_taken) + "</td><td>" + esc(r.result) + '</td><td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function showTab(name) {
