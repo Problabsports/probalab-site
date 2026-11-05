@@ -12,7 +12,7 @@ const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres"
 const pct = (p) => (p == null || !Number.isFinite(p) ? "—" : `${Math.round(p * 100)}%`);
 const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? "—" : (1 / p).toFixed(2));
 const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).then((r) => (r.ok ? r.json() : d)).catch(() => d);
-const tAEDT = (iso) => new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)).replace(" ", "").toLowerCase();
+const tAEDT = (iso) => { const parts = new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).formatToParts(new Date(iso)); const get = (t) => parts.find((p) => p.type === t)?.value ?? ""; return `${get("weekday")} ${get("hour")}:${get("minute")}${get("dayPeriod").toLowerCase()}`; };
 const dayAEDT = (iso) => new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "long", day: "numeric", month: "long" }).format(new Date(iso));
 const inWindow = (iso, now) => {
   const t = new Date(iso).getTime();
@@ -74,7 +74,7 @@ function todayRow(g, best) {
 function bestValue(games) {
   let best = null;
   for (const g of games) {
-    if (g.value == null) continue;
+    if (g.value == null || g.value <= 0) continue; // only mark when the model is above the market
     if (!best || g.value > best.value) best = g;
   }
   return best;
@@ -87,9 +87,12 @@ function section(id, name, games, links, extra) {
       <p class="small">${links}</p></section>`;
   }
   const best = bestValue(games);
-  const bestNote = best && best.value != null
-    ? `<p class="best-line">Best value today: <b>${esc(best.pickName || best.pick)}</b> in ${esc(best.match)} at ${esc(fair(best.modelP))} fair · value ${best.value > 0 ? "+" : ""}${(best.value * 100).toFixed(1)}%.</p>`
-    : `<p class="best-line small">Best value needs a market chance on file for at least one game.</p>`;
+  const withMarket = games.filter((g) => g.value != null).length;
+  const bestNote = best
+    ? `<p class="best-line">Best value today: <b>${esc(best.pickName || best.pick)}</b> in ${esc(best.match)} at ${esc(fair(best.modelP))} fair · value +${(best.value * 100).toFixed(1)}%.</p>`
+    : withMarket
+      ? `<p class="best-line small">No positive value in ${esc(name)} in this window (model at or below the market on every game with a market chance).</p>`
+      : `<p class="best-line small">Best value needs a market chance on file for at least one game.</p>`;
   const rows = HEAD + games.map((g) => todayRow(g, best)).join("");
   return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
   ${bestNote}
