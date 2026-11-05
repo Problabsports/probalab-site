@@ -21,13 +21,19 @@ export async function onRequestGet(ctx) {
     } catch (e) { /* skip a sport whose feed is down */ }
   }
   try {
-    const [raw, pretip] = await Promise.all([asset(ctx, "/data/nhl-picks.json", []), asset(ctx, "/data/nhl-pretip.json", {})]);
-    const d = nhlDataFromFiles(raw, pretip);
+    const [raw, pretip, season, grades] = await Promise.all([
+      asset(ctx, "/data/nhl-picks.json", []), asset(ctx, "/data/nhl-pretip.json", {}),
+      asset(ctx, "/data/nhl-season.json", { games: [] }), asset(ctx, "/data/nhl-grades.json", {}),
+    ]);
+    const d = nhlDataFromFiles(raw, pretip, season, grades);
     for (const t of listTeams("nhl", d)) urls.push({ loc: teamPath("nhl", t.name), pri: "0.65", freq: "daily" });
   } catch (e) {}
   try {
-    const [raw, grades] = await Promise.all([asset(ctx, "/data/epl-picks.json", []), asset(ctx, "/data/epl-grades.json", {})]);
-    const d = eplDataFromFiles(raw, grades);
+    const [raw, grades, season] = await Promise.all([
+      asset(ctx, "/data/epl-picks.json", []), asset(ctx, "/data/epl-grades.json", {}),
+      asset(ctx, "/data/epl-season.json", { games: [] }),
+    ]);
+    const d = eplDataFromFiles(raw, grades, season);
     for (const t of listTeams("epl", d)) urls.push({ loc: teamPath("epl", t.name), pri: "0.65", freq: "daily" });
   } catch (e) {}
   // Ensure NBA teams are listed even if feed fails (static map)

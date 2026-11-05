@@ -7,8 +7,13 @@ const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).t
 export async function onRequestGet(ctx) {
   const parts = [].concat(ctx.params.path ?? []).filter(Boolean);
   if (parts[0] === "team") {
-    const [raw, pretip] = await Promise.all([asset(ctx, "/data/nhl-picks.json", []), asset(ctx, "/data/nhl-pretip.json", {})]);
-    const data = nhlDataFromFiles(raw, pretip);
+    const [raw, pretip, season, grades] = await Promise.all([
+      asset(ctx, "/data/nhl-picks.json", []),
+      asset(ctx, "/data/nhl-pretip.json", {}),
+      asset(ctx, "/data/nhl-season.json", { games: [] }),
+      asset(ctx, "/data/nhl-grades.json", {}),
+    ]);
+    const data = nhlDataFromFiles(raw, pretip, season, grades);
     if (parts.length === 1) return html(renderTeamIndex("nhl", data));
     if (parts.length === 2) {
       const hit = resolveTeamSlug("nhl", data, parts[1]);
