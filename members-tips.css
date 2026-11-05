@@ -66,3 +66,13 @@ details summary { cursor:pointer; padding:12px 0; color:var(--muted); }
 .tips-app .colour-filters .ORANGE { color:var(--orange); border-color:var(--orange); }
 .tips-app .colour-filters .RED { color:var(--red); border-color:var(--red); }
 .tips-app .summary-sports button { background:var(--surface-2); color:var(--ink); border:1px solid var(--line-hi); }
+table.tips.compact { min-width:0; table-layout:auto; }
+table.tips.compact th, table.tips.compact td { padding:7px 5px; }
+table.tips.compact td.game { min-width:0; white-space:normal; }
+table.tips.compact .sp { color:var(--muted); font-size:10px; }
+table.tips.compact td.fl { white-space:normal; }
+table.tips.compact td.fl .badge { display:inline-block; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle; }
+table.tips.compact .u { font-weight:600; }
+table.tips { min-width:0; }
+table.tips td.game { min-width:0; }
+@media (max-width:700px) { table.tips.compact .opt { display:none; } table.tips.compact th, table.tips.compact td { padding:6px 3px; font-size:12px; } }

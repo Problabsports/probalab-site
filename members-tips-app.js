@@ -43,6 +43,9 @@
     }
   }
   const sports = ["NBA", "NFL", "NHL", "EPL"];
+  const CODES = {"Atlanta Hawks": "ATL", "Boston Celtics": "BOS", "Brooklyn Nets": "BKN", "Charlotte Hornets": "CHA", "Chicago Bulls": "CHI", "Cleveland Cavaliers": "CLE", "Dallas Mavericks": "DAL", "Denver Nuggets": "DEN", "Detroit Pistons": "DET", "Golden State Warriors": "GSW", "Houston Rockets": "HOU", "Indiana Pacers": "IND", "LA Clippers": "LAC", "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL", "Memphis Grizzlies": "MEM", "Miami Heat": "MIA", "Milwaukee Bucks": "MIL", "Minnesota Timberwolves": "MIN", "New Orleans Pelicans": "NOP", "New York Knicks": "NYK", "Oklahoma City Thunder": "OKC", "Orlando Magic": "ORL", "Philadelphia 76ers": "PHI", "Phoenix Suns": "PHX", "Portland Trail Blazers": "POR", "Sacramento Kings": "SAC", "San Antonio Spurs": "SAS", "Toronto Raptors": "TOR", "Utah Jazz": "UTA", "Washington Wizards": "WAS", "Anaheim Ducks": "ANA", "Boston Bruins": "BOS", "Buffalo Sabres": "BUF", "Calgary Flames": "CGY", "Carolina Hurricanes": "CAR", "Chicago Blackhawks": "CHI", "Colorado Avalanche": "COL", "Columbus Blue Jackets": "CBJ", "Dallas Stars": "DAL", "Detroit Red Wings": "DET", "Edmonton Oilers": "EDM", "Florida Panthers": "FLA", "Los Angeles Kings": "LAK", "Minnesota Wild": "MIN", "Montreal Canadiens": "MTL", "Montr\u00e9al Canadiens": "MTL", "Nashville Predators": "NSH", "New Jersey Devils": "NJD", "New York Islanders": "NYI", "New York Rangers": "NYR", "Ottawa Senators": "OTT", "Philadelphia Flyers": "PHI", "Pittsburgh Penguins": "PIT", "San Jose Sharks": "SJS", "Seattle Kraken": "SEA", "St. Louis Blues": "STL", "St Louis Blues": "STL", "Tampa Bay Lightning": "TBL", "Toronto Maple Leafs": "TOR", "Utah Mammoth": "UTA", "Utah Hockey Club": "UTA", "Vancouver Canucks": "VAN", "Vegas Golden Knights": "VGK", "Washington Capitals": "WSH", "Winnipeg Jets": "WPG"};
+  const short = (x) => String(x || "").split(" @ ").map((t) => CODES[t.trim()] || t.trim()).join(" @ ");
+  const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
     $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Unrated':c)+'</button>').join('');
@@ -140,8 +143,8 @@
         const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break">NO</span>' : "";
         const taken = p.taken ? '<span class="badge taken">TAKEN</span>' : "";
         return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
-          + '<td class="game">' + esc(p.game) + "</td>"
-          + "<td>" + esc(p.selection) + "</td>"
+          + '<td class="game">' + esc(short(p.game)) + "</td>"
+          + "<td>" + esc(shortSel(p.selection)) + "</td>"
           + "<td>" + chip(p.light) + "</td>"
           + "<td>" + fmtPct(p.win_pct) + "</td>"
           + "<td>" + fmtOdds(p.min_price) + "</td>"
@@ -154,42 +157,37 @@
     }).join("");
   }
   function betFilter(rows) { return filtered(rows); }
+  const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
+  const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   function renderOpen() {
     const rows = betFilter(data.open_bets || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">No open bets in this filter.</p>'; return; }
-    $("open").innerHTML = '<div class="table-wrap"><table class="tips"><thead><tr>'
-      + "<th>Placed</th><th>Sport</th><th>Game</th><th>Pick</th><th>Record</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
+    $("open").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Placed</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(dateTime(r.placed_utc)) + "</td>"
-        + "<td>" + esc(r.sport) + "</td>"
-        + '<td class="game">' + esc(r.game) + "</td>"
-        + "<td>" + esc(r.selection) + "</td>"
-        + "<td>" + esc(r.tag === "OTHER" ? "My bet" : "PL") + "</td>"
+      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td>" + gameCell(r)
+        + "<td>" + esc(shortSel(r.selection)) + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
-        + "<td>" + fmtU(r.units) + "</td>"
-        + "<td>" + betFlags(r) + "</td></tr>").join("")
+        + '<td class="u">' + fmtU(r.units) + "</td>"
+        + '<td class="fl">' + betFlags(r) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function renderResults() {
     const rows = betFilter(data.results || []);
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
-    $("results").innerHTML = '<div class="table-wrap"><table class="tips"><thead><tr>'
-      + "<th>Date</th><th>Sport</th><th>Game</th><th>Pick</th><th>Record</th><th>Light</th><th>Taken</th><th>Close</th><th>CLV</th><th>Result</th><th>Stake</th><th>P/L</th><th>Flags</th>"
+    $("results").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Date</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + dash(M.date(r)) + "</td>"
-        + "<td>" + esc(r.sport) + "</td>"
-        + '<td class="game">' + esc(r.game) + "</td>"
-        + "<td>" + esc(r.selection) + "</td>"
-        + "<td>" + esc(r.tag === "OTHER" ? "My bet" : "PL") + "</td>"
+      + rows.map((r) => "<tr><td>" + esc(shortDate(M.date(r))) + "</td>" + gameCell(r)
+        + "<td>" + esc(shortSel(r.selection)) + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
-        + "<td>" + fmtOdds(r.closing_price) + "</td>"
-        + "<td>" + fmtPct(r.clv_pct) + "</td>"
         + "<td>" + esc(r.result) + "</td>"
-        + "<td>" + fmtU(r.units) + "</td>"
-        + '<td class="' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
-        + "<td>" + betFlags(r) + "</td></tr>").join("")
+        + '<td class="u">' + fmtU(r.units) + "</td>"
+        + '<td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
+        + '<td class="opt">' + fmtPct(r.clv_pct) + "</td>"
+        + '<td class="opt fl">' + betFlags(r) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function showTab(name) {

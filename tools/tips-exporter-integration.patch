@@ -1,6 +1,32 @@
 --- a/scripts/tips_page/export_tips.py
 +++ b/scripts/tips_page/export_tips.py
-@@ -240,0 +241,8 @@
+@@ -63,2 +63,3 @@
+-    if cat == "probalab" or model.startswith("probalab"):
+-        return "PL"
++    # Auto OTHER: non-ML / unfilled / unresolved runner ids (6 Nov Betfair WARN fix)
++    if model.startswith("other_") or model in ("edgebot",):
++        return "OTHER"
+@@ -66,0 +68,6 @@
++    # Soft-classify at export time too (covers rows not yet reclassed in bets.csv)
++    reason = T.unmatchable_reason(bet)
++    if reason or (bet.get("selection") or "").strip().upper() in ("OVER", "UNDER"):
++        return "OTHER"
++    if cat == "probalab" or model.startswith("probalab"):
++        return "PL"
+@@ -129,0 +137,3 @@
++        # Betfair order that never matched (nothing staked): not a bet, never open or settled.
++        if (b.get("result") or "").lower() == "unmatched" and (_f(b.get("size_matched_aud")) or 0) == 0:
++            continue
+@@ -169 +179,4 @@
+-        if not row["sport"]:
++        # MISSING_EVENT / UNMATCHED: only WARN when the bet still looks like a PL moneyline candidate.
++        # Totals, unfilled orders, and unresolved runner ids are OTHER — no WARN (6 Nov Betfair fix).
++        soft_other = tag == "OTHER" or T.unmatchable_reason(b) or (b.get("selection") or "").strip().upper() in ("OVER", "UNDER")
++        if not row["sport"] and not soft_other:
+@@ -172 +185 @@
+-        if (b.get("model") or "") == "probalab_unmatched":
++        if (b.get("model") or "") == "probalab_unmatched" and not soft_other and not pick_id:
+@@ -240,0 +254,8 @@
 +    # Site-owned additive v1 extension; retain the original CL arrays/summaries.
 +    import importlib.util
 +    enrich_path = os.environ.get("TIPS_SNAPSHOT_ENRICHER", os.path.join(HERE, "tips_snapshot_enrichment.py"))
