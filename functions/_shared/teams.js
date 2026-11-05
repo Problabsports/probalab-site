@@ -20,7 +20,7 @@ const NHL_TEAMS = {
 
 const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? "—" : (1 / p).toFixed(2));
 
-export const teamSlug = (name) => slug(String(name).normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+export const teamSlug = (name) => slug(name);
 export const teamPath = (sport, name) => `/${sport}/team/${teamSlug(name)}`;
 export const teamLink = (sport, abbr, name) =>
   `<a class="team-link" href="${esc(teamPath(sport, name))}"><span class="ab">${esc(abbr)}</span>${esc(name)}</a>`;

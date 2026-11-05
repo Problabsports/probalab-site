@@ -53,7 +53,7 @@ export function records(games) {
 const recStr = (x) => (x ? `${x.w}–${x.l}${x.t ? `–${x.t}` : ""}` : "0–0");
 
 // ------------------------------------------------------------------ urls
-export const slug = (s) => String(s).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export const slug = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 // Intl.DateTimeFormat objects are expensive to build (~0.1ms each); building one per game per request
 // pushed /nfl over the Workers CPU limit (error 1102). Build each formatter once and reuse it.
 const ET_FMT = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
