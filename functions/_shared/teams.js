@@ -44,6 +44,17 @@ export const teamPath = (sport, name) => `/${sport}/team/${teamSlug(name)}`;
 export const teamLink = (sport, abbr, name) =>
   `<a class="team-link" href="${esc(teamPath(sport, name))}"><span class="ab">${esc(abbr)}</span>${esc(name)}</a>`;
 
+
+/** Local ESPN-sourced logo; falls back to the code badge if the file 404s. */
+function teamLogoHtml(sport, team, cls = "team-logo") {
+  const src = `/img/logos/${sport}/${teamSlug(team.name)}.png`;
+  const abbr = esc(team.abbr);
+  const name = esc(team.name);
+  const size = cls.includes("sm") ? 28 : 48;
+  return `<img class="${cls}" src="${esc(src)}" alt="${name}" width="${size}" height="${size}" loading="lazy" decoding="async" onerror="this.outerHTML='<span class=\'ab team-logo-fallback\'>${abbr}</span>'" />`;
+}
+
+
 /** Build { abbr, name } list for a sport from feed/data. */
 export function listTeams(sport, data) {
   if (sport === "nba") {
@@ -489,7 +500,7 @@ export function renderTeamIndex(sport, data) {
   <p>Every ${esc(S)} team with its season record, recent form, full results, ProbaLab's record on their games, and upcoming predictions.</p>
   <section class="panel"><ul class="team-index">${teams.map((t) => {
     const rec = seasonRecord(data, sport === "epl" ? t.name : t.abbr, sport);
-    return `<li><a href="${esc(teamPath(sport, t.name))}"><span class="ab">${esc(t.abbr)}</span><span class="nm">${esc(t.name)}</span><span class="rec">${esc(rec.str)}</span></a></li>`;
+    return `<li><a href="${esc(teamPath(sport, t.name))}">${teamLogoHtml(sport, t, "team-logo-sm")}<span class="nm">${esc(t.name)}</span><span class="rec">${esc(rec.str)}</span></a></li>`;
   }).join("")}</ul></section>
   ${signupMain("teams-" + sport)}
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
@@ -543,7 +554,10 @@ export function renderTeamPage(sport, data, team) {
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${esc(S)}</a> › <a href="/${sport}/team">Teams</a> › <span>${esc(team.name)}</span></nav>
   <p class="eyebrow">// ${esc(S)} · ${esc(team.abbr)}</p>
-  <h1>${esc(team.name)}</h1>
+  <div class="team-hero">
+    ${teamLogoHtml(sport, team)}
+    <h1>${esc(team.name)}</h1>
+  </div>
   <p>Season record <b>${esc(rec.str)}</b>. Full results, season stats, form and ProbaLab's picks on games involving ${esc(team.name)}.</p>
 
   <section class="panel"><h2>Recent form</h2>${formHtml(form)}</section>
