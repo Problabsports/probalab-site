@@ -5,7 +5,17 @@
   const M = window.TipsModel;
   const selectedColours = new Set(M.colours);
   const summarySports = new Set(["NBA", "NFL", "NHL", "EPL"]);
-  let sb, data = null, tab = "today";
+  function resolveTipster() {
+    const root = document.querySelector(".tips-app[data-tipster]");
+    if (root && root.dataset.tipster) return String(root.dataset.tipster).toLowerCase();
+    const m = location.pathname.match(/\/members\/tips\/([^\/?#]+)/);
+    if (m) return String(m[1]).toLowerCase();
+    const q = new URLSearchParams(location.search).get("tipster");
+    return String(q || "john").toLowerCase();
+  }
+  const tipsterId = resolveTipster() === "sniper" ? "sniper" : "john";
+  const tipster = M.tipsterMeta(tipsterId);
+  let sb, data = null, tipsterData = null, tab = "today";
   const $ = (id) => document.getElementById(id);
   const fmtPct = (x) => (M.number(x) == null ? "—" : (Number(x) * 100).toFixed(1).replace(/\.0$/, "") + "%");
   const fmtOdds = (x) => (M.number(x) == null ? "—" : '<span class="odds" data-dec="' + Number(x) + '">' + Number(x).toFixed(2) + "</span>");
@@ -60,7 +70,7 @@
     return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
   function filtered(rows, summary=false) {
-    return rows.filter(r => M.visible(r) && selectedColours.has(M.colour(r)) && inRange(r)
+    return rows.filter(r => M.visibleFor(tipsterId, r) && selectedColours.has(M.colour(r)) && inRange(r)
       && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
@@ -99,8 +109,8 @@
     const ca=at(a), cb=at(b);
     const data=JSON.stringify(dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—']));
     let lbB=endLab(b,'#39d98a','PL'); if(a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
-    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative net units: My bets and PL site picks">'
-      +g+line(b,'#39d98a')+line(a,'#63b3ff')+endLab(a,'#63b3ff','My bets')+lbB
+    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative net units: Tips and PL site picks">'
+      +g+line(b,'#39d98a')+line(a,'#63b3ff')+endLab(a,'#63b3ff','Tips')+lbB
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
@@ -113,27 +123,28 @@
       const e=ev.touches?ev.touches[0]:ev, r=svg.getBoundingClientRect(), vx=(e.clientX-r.left)/r.width*800;
       let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
       hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
-      tip.hidden=false; tip.innerHTML='<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">My bets '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>';
+      tip.hidden=false; tip.innerHTML='<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>';
       const left=best[0]/800*r.width; tip.style.left=Math.min(Math.max(0,left-60),r.width-130)+'px';
     };
     svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
-    const john=filtered(data.results || [],true), pl=filtered(data.pl_results || [],true);
+    const mine=filtered((tipsterData && tipsterData.results) || [],true), pl=filtered(data.pl_results || [],true);
+    const tipLabel = tipster.shortLabel || 'Tips';
     const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
-    const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||john.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
-      const a=M.stats(john.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
+    const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||mine.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
+      const a=M.stats(mine.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
       const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
       return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
     }).join('');
-    $("summary").innerHTML=controls+'<p class="note"><b>Only bets on a PL pick are counted.</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
-      +'<div class="cards cols-2">'+statsHtml('My settled bets',john)+statsHtml('PL site picks',pl)+'</div>'
-      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(john,pl)+'</section>'
-      +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">My settled bets</th><th colspan="5">All PL site picks</th></tr><tr>'
+    $("summary").innerHTML=controls+'<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
+      +'<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
+      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(mine,pl)+'</section>'
+      +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">'+esc(tipLabel)+'</th><th colspan="5">All PL site picks</th></tr><tr>'
       +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
-      +'<p class="note">Win % excludes ties/voids. My bets use recorded stakes and net P/L (including commission where recorded). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Counts include all settled picks, not only picks I took. Coverage shows results with known units. No fair-price odds are substituted.</p>'
+      +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
       +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
       +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
     wireChart();
@@ -145,6 +156,11 @@
     }));
   }
   function renderAttention() {
+    if (tipsterId === 'sniper') {
+      $("attnPanel").classList.add("hidden");
+      $("attention").innerHTML = '';
+      return;
+    }
     const hiddenIds=new Set([...(data.open_bets||[]),...(data.results||[])].filter(r=>String(r.tag).toUpperCase()==='CL').map(r=>r.bet_id));
     const items=(data.needs_attention||[]).filter(a=>!hiddenIds.has(a.bet_id) && String(a.tag||'').toUpperCase()!=='CL');
     const warnings=items.filter(a=>['warn','error'].includes(String(a.severity).toLowerCase()));
@@ -192,8 +208,8 @@
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   function renderOpen() {
-    const rows = betFilter(data.open_bets || []);
-    if (!rows.length) { $("open").innerHTML = '<p class="muted">No open bets in this filter.</p>'; return; }
+    const rows = betFilter((tipsterData && tipsterData.open_bets) || []);
+    if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId==="sniper"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
@@ -206,7 +222,7 @@
       + "</tbody></table></div>";
   }
   function renderResults() {
-    const rows = betFilter(data.results || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    const rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
@@ -234,7 +250,10 @@
   }
   function renderAll() {
     const gen = dateTime(data.generated_at);
-    $("meta").textContent = "Updated " + gen + " · units only · PL picks and my bets";
+    $("meta").textContent = "Updated " + gen + " · units only · " + tipster.name + " vs PL board";
+    const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
+    const title = $("deskTitle"); if (title) title.textContent = tipster.name;
+    const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
     renderAttention();
     renderSummary();
     renderToday();
@@ -255,6 +274,18 @@
     await loadInjuries();
     data = row.payload;
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
+    if (tipsterId === "sniper") {
+      const block = (data.tipsters && data.tipsters.sniper) || {};
+      tipsterData = {
+        open_bets: Array.isArray(block.open_bets) ? block.open_bets : [],
+        results: Array.isArray(block.results) ? block.results : [],
+      };
+    } else {
+      tipsterData = {
+        open_bets: data.open_bets || [],
+        results: data.results || [],
+      };
+    }
     renderAll();
   }
   function setAuthed(on, email) {

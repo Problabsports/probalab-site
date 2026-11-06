@@ -5,7 +5,12 @@
   const colour = (r) => colours.includes(String(r.light).toUpperCase()) ? String(r.light).toUpperCase() : 'UNRATED';
   const settled = (r) => ['W', 'L', 'T', 'void'].includes(r.result);
   const valid = (r) => !!String(r.game || '').trim() && !!String(r.selection || '').trim() && !/^\d+$/.test(String(r.selection).trim());
+  // John's desk: hide Closing Line (Sniper) bets. Sniper desk uses visibleFor('sniper', …).
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
+  function visibleFor(tipster, r) {
+    if (String(tipster || 'john').toLowerCase() === 'sniper') return valid(r);
+    return visible(r);
+  }
   function day(value) {
     if (!value) return '';
     const d = new Date(value);
@@ -35,7 +40,31 @@
     let total=0;
     return [...daily].sort(([a],[b])=>a.localeCompare(b)).map(([d,p])=>({date:d, units:(total+=p)}));
   }
-  const api = {number, colours, colour, settled, valid, visible, day, date, pnl, stats, series};
+  const TIPSTERS = {
+    john: {
+      id: 'john',
+      name: 'John',
+      shortLabel: 'Tips',
+      focus: 'NBA, NFL, NHL and EPL',
+      pitch: 'Tips selected from ProbaLab greens across four sports.',
+      countNote: 'Only bets on a PL pick are counted.',
+      openNote: 'Tips already placed, awaiting settlement — not tips to make.',
+    },
+    sniper: {
+      id: 'sniper',
+      name: 'Closing Line Sniper',
+      shortLabel: 'Tips',
+      focus: 'Selective Closing Line tips',
+      pitch: 'Fewer tips, only when the market agrees — aimed at beating the close.',
+      countNote: 'Every Closing Line tip that was sent counts here, including tips John did not take (paper units). This is the system’s public record.',
+      openNote: 'Sent Closing Line tips still open (or awaiting tip-off), including paper tips John did not take.',
+    },
+  };
+  function tipsterMeta(id) {
+    const key = String(id || 'john').toLowerCase();
+    return TIPSTERS[key] || TIPSTERS.john;
+  }
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);

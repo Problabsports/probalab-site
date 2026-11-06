@@ -15,3 +15,8 @@ assert.equal(st.bets,3); assert.equal(st.covered,2); assert.equal(st.win_pct,.5)
 assert.equal(M.series([base,{...base,units:null,pnl_units:0}])[0].units,.4);
 assert.equal(M.stats([]).units,null);
 console.log('Tips model: 15 assertions passed');
+assert.equal(M.visibleFor('john', {...base, tag:'CL'}), false);
+assert.equal(M.visibleFor('sniper', {...base, tag:'CL'}), true);
+assert.equal(M.tipsterMeta('sniper').name, 'Closing Line Sniper');
+assert.equal(M.tipsterMeta('john').name, 'John');
+console.log('Tips model tipster helpers: ok');
