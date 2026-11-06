@@ -287,6 +287,13 @@
       "right": "Both starting quarterbacks were the ones the preview expected: Caleb Williams for the Bears and Sam Darnold for the Seahawks. Beyond that, not much went the model's way on the day.",
       "missed": "The model made the Seahawks a slight favourite at 61%, and that was wrong: the Bears won by 17. The Bears out-gained the Seahawks 363 yards to 252. Our team rating had the Seahawks ahead (1688 to 1591), and that didn't hold up.",
       "why": "The pick rested mostly on our team rating, which is built from past results and can't see how a single game will go. Even at 61%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401873037": {
+      "updated_utc": "2026-11-06T06:09:00Z",
+      "happened": "The Jaguars beat the Ravens 33–10 on the road. Trevor Lawrence completed 16 of 26 passes for 242 yards with 1 touchdown. For the Ravens, Joe Fagnano completed 10 of 18 passes for 60 yards with 2 interceptions.",
+      "right": "The model gave the Jaguars a 70% chance on the road, mainly because of their higher team rating (1641 to 1491), and they won by 23. Both starting quarterbacks were the ones the preview expected: Trevor Lawrence for the Jaguars and Joe Fagnano for the Ravens.",
+      "missed": "Not much went against the model in this one. The Ravens never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 70%, about 3 in 10 games like this go the other way, and every result stays on our record."
     }
   }
 }
