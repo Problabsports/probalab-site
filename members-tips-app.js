@@ -13,7 +13,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap") ? t : "john"; })(resolveTipster());
+  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap" || t === "nhl-value") ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -60,7 +60,7 @@
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
-    if (tipsterId === "nfl-weather" || tipsterId === "nba-price-gap") {
+    if (tipsterId === "nfl-weather" || tipsterId === "nba-price-gap" || tipsterId === "nhl-value") {
       $("colourFilters").innerHTML = "";
       return;
     }
@@ -91,7 +91,9 @@
       ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
       : tipsterId === 'nba-price-gap'
         ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
-        : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+        : tipsterId === 'nhl-value'
+          ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat paper 1 unit) and starts with the first graded tip.</p>'
+          : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
@@ -141,7 +143,7 @@
       let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
       hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
       tip.hidden=false;
-      const seriesName = tipsterId === "nba-price-gap" ? (tipster.shortLabel || "Price Gap") : "Tips";
+      const seriesName = (tipsterId === "nba-price-gap" || tipsterId === "nhl-value") ? (tipster.shortLabel || "Tips") : "Tips";
       tip.innerHTML=best.length>3
         ? '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>'
         : '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">'+esc(seriesName)+' '+esc(best[2])+'</span>';
@@ -152,6 +154,7 @@
   }
   function renderSummary() {
     if (tipsterId === "nba-price-gap") { renderGapSummary(); return; }
+    if (tipsterId === "nhl-value") { renderNhlSummary(); return; }
     const withPl = tipsterId === 'nfl-weather' ? false : compareToPl;
     const mineRaw = (tipsterData && tipsterData.results) || [];
     const mine = tipsterId === 'nfl-weather'
@@ -200,7 +203,7 @@
     }));
   }
   function renderAttention() {
-    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather' || tipsterId === 'nba-price-gap') {
+    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather' || tipsterId === 'nba-price-gap' || tipsterId === 'nhl-value') {
       $("attnPanel").classList.add("hidden");
       $("attention").innerHTML = '';
       return;
@@ -431,8 +434,146 @@
       schedule: schedule,
     };
   }
+  const NHL_ABOUT = "This desk does not just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book (Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet, or Betfair after 8% commission) is still at or above that price. At most one side per game (the bigger gap). NHL moneylines only. Flat paper 1 unit. Record starts 7 Nov 2026.";
+  const NHL_WINDOW_MS = 24 * 60 * 60 * 1000;
+  function nhlChance(r) {
+    const raw = M.number(r.model_chance != null ? r.model_chance : (r.probalab_chance != null ? r.probalab_chance : (r.win_pct != null ? r.win_pct : (r.chance != null ? r.chance : r.fair_chance))));
+    if (raw == null) return null;
+    return raw > 1 ? raw / 100 : raw;
+  }
+  function nhlMin(r) {
+    const stated = M.number(r.min_price);
+    if (stated != null) return stated;
+    const chance = nhlChance(r);
+    return chance != null && chance > 0 ? 1.06 / chance : null;
+  }
+  function nhlGap(r) {
+    const stated = M.number(r.gap_pct != null ? r.gap_pct : r.gap);
+    if (stated != null) return stated;
+    const price = M.number(r.price_taken != null ? r.price_taken : r.price);
+    const chance = nhlChance(r);
+    return price != null && chance != null ? price * chance - 1 : null;
+  }
+  function nhlRows(rows) {
+    return (rows || [])
+      .filter((r) => r && r.published !== false && M.visibleFor(tipsterId, r) && inRange(r))
+      .filter((r) => String(r.sport || "NHL").toUpperCase() === "NHL")
+      .filter((r) => !$("fSport").value || r.sport === $("fSport").value);
+  }
+  function renderNhlTable(rows, emptyMsg, mode) {
+    if (!rows.length) return '<p class="muted">' + esc(emptyMsg) + "</p>";
+    const body = rows.map((r) => {
+      const price = r.price_taken != null ? r.price_taken : r.price;
+      const units = mode === "results" ? M.pnl(r) : r.units;
+      return "<tr><td>" + esc(dateTime(r.kickoff_utc || r.placed_utc)) + "</td>"
+        + '<td class="game">' + esc(short(r.game) || r.game || "") + "</td>"
+        + "<td>" + esc(shortSel(r.side || r.selection)) + "</td>"
+        + "<td>" + esc(gapBook(r)) + "</td>"
+        + "<td>" + fmtOdds(price) + "</td>"
+        + "<td>" + fmtPct(nhlChance(r)) + "</td>"
+        + "<td>" + fmtOdds(nhlMin(r)) + "</td>"
+        + "<td>" + fmtSignedPct(nhlGap(r)) + "</td>"
+        + "<td>" + esc(mode === "results" ? (r.result || "—") : (r.result && r.result !== "open" ? r.result : "Open")) + "</td>"
+        + '<td class="u' + (mode === "results" ? " " + clsU(units) : "") + '">' + fmtU(units) + "</td></tr>";
+    }).join("");
+    return '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Puck drop</th><th>Game</th><th>Side</th><th>Book</th><th>Price</th><th>Model chance</th><th>Min price</th><th>Gap</th><th>Result</th><th>Units</th>"
+      + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  async function loadNhlSchedule() {
+    try {
+      const res = await fetch("/data/nhl-picks.json", { cache: "no-store" });
+      if (!res.ok) return { games: [], error: true, limited: true };
+      const raw = await res.json();
+      const list = (Array.isArray(raw) ? raw : (raw.games || [])).map((g) => ({
+        game_id: String(g.id || g.game_id || ""),
+        away: g.away,
+        home: g.home,
+        start_utc: g.date || g.start_utc || g.kickoff_utc || g.puck_drop_utc,
+        status: g.status || "",
+      }));
+      const win = M.comingWindow(list, Date.now(), NHL_WINDOW_MS);
+      return { games: win.games, error: false, limited: win.limited };
+    } catch (_) {
+      return { games: [], error: true, limited: true };
+    }
+  }
+  function renderNhlUpcoming() {
+    const pack = (tipsterData && tipsterData.schedule) || { games: [], error: true, limited: true };
+    const tips = nhlRows((tipsterData && tipsterData.open_bets) || []);
+    const sport = $("fSport").value;
+    let games = sport && sport !== "NHL" ? [] : (pack.games || []);
+    games = games.filter((g) => inRange({ kickoff_utc: g.start_utc }));
+    const note = pack.limited
+      ? "Coming NHL games in the next 24 hours, from the same schedule as the site. This list is not a tip. A game shows here without a qualified alert. Qualified alerts are on Tips."
+      : "No NHL games in the next 24 hours, so this is the next slate on the site schedule. This list is not a tip. Qualified alerts are on Tips.";
+    let table;
+    if (pack.error) table = '<p class="muted">Could not load upcoming NHL games.</p>';
+    else if (!games.length) table = '<p class="muted">No upcoming NHL games.</p>';
+    else {
+      table = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+        + "<th>Puck drop</th><th>Game</th><th>Alert</th></tr></thead><tbody>"
+        + games.map((g) => {
+          const matchup = (g.away || "—") + " @ " + (g.home || "—");
+          const mark = scheduleHasTip(g, tips) ? '<span class="badge ok">Tip up</span>' : "—";
+          return "<tr><td>" + esc(dateTime(g.start_utc)) + '</td><td class="game">' + esc(matchup) + "</td><td>" + mark + "</td></tr>";
+        }).join("")
+        + "</tbody></table></div>";
+    }
+    $("today").innerHTML = '<div class="sport-block panel"><h3>Upcoming</h3>'
+      + '<p class="note">' + note + "</p>" + table + "</div>";
+  }
+  function renderNhlSummary() {
+    const mine = ((tipsterData && tipsterData.results) || [])
+      .filter((r) => r && M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || "NHL").toUpperCase() === "NHL");
+    $("summary").innerHTML = '<p class="note"><b>' + esc(tipster.countNote) + "</b> One growth line for this desk only.</p>"
+      + '<div class="cards">' + statsHtml("NHL Value settled", mine) + "</div>"
+      + '<section class="panel"><h3>Growth (this desk only)</h3>' + chartHtml(mine, [], false) + "</section>"
+      + "<p class=\"note\">Win % excludes ties and voids. Flat paper 1 unit. Dates are Australia/Sydney. This record stays separate from John, Closing Line Sniper, ProbaLab, NFL Totals, and NBA Price Gap. Units only — no bankroll.</p>";
+    wireChart();
+  }
+  function normalizeNhlBet(r) {
+    if (!r || typeof r !== "object") return r;
+    const side = String(r.side || r.selection || "").trim();
+    const price = r.price_taken != null ? r.price_taken : r.price;
+    return Object.assign({}, r, {
+      sport: r.sport || "NHL",
+      market: r.market || "moneyline",
+      side: side,
+      selection: String(r.selection || side).trim(),
+      price_taken: price,
+      book: r.book || r.price_book || r.bookie || "",
+    });
+  }
+  async function loadNhlValue() {
+    // Own snapshot id=nhl-value only. John's latest row is not read, and its bets are never shown.
+    let src = null;
+    try {
+      const { data: row } = await sb.from("tips_page_snapshot").select("payload, generated_at").eq("id", "nhl-value").maybeSingle();
+      if (row && row.payload) {
+        src = row.payload;
+        if (row.generated_at && !src.generated_at) src.generated_at = row.generated_at;
+      }
+    } catch (_) {}
+    if (!src) {
+      try {
+        const res = await fetch("/data/tipsters/nhl-value.json", { cache: "no-store" });
+        if (res.ok) src = await res.json();
+      } catch (_) {}
+    }
+    src = src || {};
+    const norm = (xs) => (xs || []).filter((r) => r && r.published !== false).map(normalizeNhlBet);
+    return {
+      open_bets: norm(src.open_bets),
+      results: norm(src.results),
+      generated_at: src.generated_at || null,
+      about: src.about || null,
+      schedule: await loadNhlSchedule(),
+    };
+  }
   function renderToday() {
     if (tipsterId === "nba-price-gap") { renderGapUpcoming(); return; }
+    if (tipsterId === "nhl-value") { renderNhlUpcoming(); return; }
     if (tipsterId === "nfl-weather") { renderTotalsUpcoming(); return; }
     const now = Date.now();
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
@@ -476,6 +617,12 @@
       $("open").innerHTML = renderGapTable(rows, "No open alerts yet.", "open");
       return;
     }
+    if (tipsterId === "nhl-value") {
+      const rows = nhlRows((tipsterData && tipsterData.open_bets) || [])
+        .sort((a, b) => Date.parse(a.kickoff_utc || a.placed_utc || 0) - Date.parse(b.kickoff_utc || b.placed_utc || 0));
+      $("open").innerHTML = renderNhlTable(rows, "No qualified alerts yet.", "open");
+      return;
+    }
     if (tipsterId === "nfl-weather") {
       const now = Date.now();
       const rows = ((tipsterData && tipsterData.open_bets) || [])
@@ -506,6 +653,13 @@
         .filter((r) => r.result === "W" || r.result === "L" || r.result === "T" || r.result === "void")
         .sort((a, b) => String(b.kickoff_utc || b.placed_utc || "").localeCompare(String(a.kickoff_utc || a.placed_utc || "")));
       $("results").innerHTML = renderGapTable(rows, "No results yet.", "results");
+      return;
+    }
+    if (tipsterId === "nhl-value") {
+      const rows = nhlRows((tipsterData && tipsterData.results) || [])
+        .filter((r) => r.result === "W" || r.result === "L" || r.result === "T" || r.result === "void")
+        .sort((a, b) => String(b.kickoff_utc || b.placed_utc || "").localeCompare(String(a.kickoff_utc || a.placed_utc || "")));
+      $("results").innerHTML = renderNhlTable(rows, "No results yet.", "results");
       return;
     }
     if (tipsterId === "nfl-weather") {
@@ -550,17 +704,20 @@
       ? ("Updated " + gen + " · units only · NFL Totals")
       : tipsterId === "nba-price-gap"
         ? ("Updated " + gen + " · units only · NBA Price Gap")
-        : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
+        : tipsterId === "nhl-value"
+          ? ("Updated " + gen + " · units only · NHL Value")
+          : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
-    if (tipsterId === "nba-price-gap" && pitch) {
-      let rules = $("gapRules");
+    if ((tipsterId === "nba-price-gap" || tipsterId === "nhl-value") && pitch) {
+      const rulesId = tipsterId === "nhl-value" ? "nhlRules" : "gapRules";
+      let rules = $(rulesId);
       if (!rules) {
         rules = document.createElement("p");
-        rules.id = "gapRules";
+        rules.id = rulesId;
         rules.className = "note";
         pitch.insertAdjacentElement("afterend", rules);
       }
-      rules.textContent = (tipsterData && tipsterData.about) || GAP_ABOUT;
+      rules.textContent = (tipsterData && tipsterData.about) || (tipsterId === "nhl-value" ? NHL_ABOUT : GAP_ABOUT);
     }
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
     const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
@@ -603,6 +760,13 @@
       // Own snapshot only. John's latest row is not required, and its bets are never shown.
       data = { generated_at: null, today: [], open_bets: [], results: [], pl_results: [], needs_attention: [] };
       tipsterData = await loadNbaPriceGap();
+      if (tipsterData.generated_at) data.generated_at = tipsterData.generated_at;
+      renderAll();
+      return;
+    }
+    if (tipsterId === "nhl-value") {
+      data = { generated_at: null, today: [], open_bets: [], results: [], pl_results: [], needs_attention: [] };
+      tipsterData = await loadNhlValue();
       if (tipsterData.generated_at) data.generated_at = tipsterData.generated_at;
       renderAll();
       return;

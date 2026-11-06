@@ -9,7 +9,7 @@
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
     const t = String(tipster || 'john').toLowerCase();
-    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather' || t === 'nba-price-gap') return valid(r);
+    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather' || t === 'nba-price-gap' || t === 'nhl-value') return valid(r);
     return visible(r);
   }
   function day(value) {
@@ -87,12 +87,34 @@
       countNote: 'Flat 1 unit at the alerted price, from 7 Nov 2026. Favourites (Pinnacle fair chance 50% or higher) are tagged separately from underdogs.',
       openNote: 'Qualified price-gap alerts. They show here as soon as they qualify.',
     },
+    'nhl-value': {
+      id: 'nhl-value',
+      name: 'NHL Value',
+      shortLabel: 'NHL Value',
+      focus: 'NHL moneylines',
+      pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
+      countNote: 'Flat paper 1 unit, from 7 Nov 2026. Units only.',
+      openNote: 'Qualified NHL Value alerts only. Empty until the scanner publishes them.',
+    },
   };
+  // Upcoming window: games inside the next `windowMs` when any exist, otherwise the next slate of the same length.
+  function comingWindow(games, now, windowMs) {
+    const startOf = (g) => Date.parse(g.start_utc || g.start || g.date || g.kickoff_utc || '');
+    const future = (games || []).filter((g) => {
+      if (String(g.status || '').toLowerCase() === 'post') return false;
+      const t = startOf(g);
+      return Number.isFinite(t) && t > now;
+    }).sort((a, b) => startOf(a) - startOf(b));
+    const soon = future.filter((g) => startOf(g) <= now + windowMs);
+    if (soon.length || !future.length) return { games: soon, limited: true };
+    const first = startOf(future[0]);
+    return { games: future.filter((g) => startOf(g) <= first + windowMs), limited: false };
+  }
   function tipsterMeta(id) {
     const key = String(id || 'john').toLowerCase();
     return TIPSTERS[key] || TIPSTERS.john;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS};
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS, comingWindow};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -12,10 +12,6 @@
   };
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
 
-  const COMING = [
-    { id: "epl", name: "EPL tipster", focus: "EPL only", pitch: "A specialist focused on EPL tips." },
-  ];
-
   let sb;
 
   function johnCardStats(payload) {
@@ -45,20 +41,13 @@
       + '<span class="tipster-cta">Open desk →</span></a>';
   }
 
-  function soonCard(t) {
-    return '<div class="tipster-card soon" aria-disabled="true">'
-      + '<div class="tipster-card-top"><h2>' + esc(t.name) + '</h2><span class="badge warn">Coming soon</span></div>'
-      + '<p class="tipster-focus">' + esc(t.focus) + '</p>'
-      + '<p class="tipster-pitch">' + esc(t.pitch) + '</p>'
-      + '<p class="note">No record yet — slot reserved.</p></div>';
-  }
-
-  function renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload) {
+  function renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload, nhlPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
     const probalab = sniperCardStats({}, plPayload || { results: [] });
     const weather = sniperCardStats({}, weatherPayload || { results: [], open_bets: [] });
     const gap = sniperCardStats({}, gapPayload || { results: [] });
+    const nhl = sniperCardStats({}, nhlPayload || { results: [] });
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
@@ -104,7 +93,14 @@
         href: "/members/tips/nba-price-gap",
         stats: gap,
       })
-      + COMING.map(soonCard).join("");
+      + liveCard({
+        name: "NHL Value",
+        focus: "NHL moneylines",
+        pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
+        footnote: "Flat paper 1 unit. Record starts 7 Nov 2026. Separate from John's desk.",
+        href: "/members/tips/nhl-value",
+        stats: nhl,
+      });
   }
 
   async function ensureProfile(session) {
@@ -147,7 +143,16 @@
         if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) gapPayload = j;
       } catch (_) {}
     }
-    renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload);
+    let nhlPayload = null;
+    const { data: nhlRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nhl-value").maybeSingle();
+    if (nhlRow && nhlRow.payload) nhlPayload = nhlRow.payload;
+    if (!nhlPayload) {
+      try {
+        const j = await (await fetch("/data/tipsters/nhl-value.json", { cache: "no-store" })).json();
+        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) nhlPayload = j;
+      } catch (_) {}
+    }
+    renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload, nhlPayload);
   }
 
   function show(mode) {

@@ -19,4 +19,32 @@ assert.equal(M.visibleFor('john', {...base, tag:'CL'}), false);
 assert.equal(M.visibleFor('sniper', {...base, tag:'CL'}), true);
 assert.equal(M.tipsterMeta('sniper').name, 'Closing Line Sniper');
 assert.equal(M.tipsterMeta('john').name, 'John');
+assert.equal(M.tipsterMeta('nhl-value').name, 'NHL Value');
+assert.equal(M.tipsterMeta('nhl-value').focus, 'NHL moneylines');
+assert.equal(M.visibleFor('nhl-value', {...base, sport:'NHL', tag:'CL'}), true);
+assert.equal(M.visibleFor('john', {...base, tag:'CL'}), false);
+const DAY = 24 * 60 * 60 * 1000;
+const picks = require('../data/nhl-picks.json');
+const near = M.comingWindow(picks, Date.parse('2026-11-06T23:11:00Z'), DAY);
+assert.equal(near.limited, true);
+assert.deepEqual(near.games.map((g) => g.id), ['2026020262','2026020263','2026020264','2026020265','2026020266','2026020267']);
+const nextDay = M.comingWindow(picks, Date.parse('2026-11-07T23:30:00Z'), DAY);
+assert.equal(nextDay.limited, true);
+assert.equal(nextDay.games[0].id, '2026020268');
+assert.ok(nextDay.games.every((g) => Date.parse(g.date) <= Date.parse('2026-11-07T23:30:00Z') + DAY));
+const fallback = M.comingWindow([
+  { id: 'past', date: '2026-11-01T00:00:00Z', status: 'post' },
+  { id: 'a', date: '2026-11-20T00:00:00Z', status: 'pre' },
+  { id: 'b', date: '2026-11-20T12:00:00Z', status: 'pre' },
+  { id: 'c', date: '2026-11-22T00:00:00Z', status: 'pre' },
+], Date.parse('2026-11-18T00:00:00Z'), DAY);
+assert.equal(fallback.limited, false);
+assert.deepEqual(fallback.games.map((g) => g.id), ['a', 'b']);
+const snap = require('../data/tipsters/nhl-value.json');
+assert.deepEqual(snap.open_bets, []);
+assert.deepEqual(snap.results, []);
+assert.equal(snap.tipster, 'nhl-value');
+assert.equal(snap.summary.bets, 0);
+assert.match(snap.generated_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+11:00$/);
+assert.match(snap.source, /External NHL Value scanner publishes alerts/);
 console.log('Tips model tipster helpers: ok');
