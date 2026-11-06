@@ -50,6 +50,7 @@ export async function onRequestGet() {
   <link rel="stylesheet" href="/members-tips.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/members-tips-model.js"></script>
+  <script src="/odds.js"></script>
   <script src="/members-tips-app.js"></script>`;
 
   const page = shell({
