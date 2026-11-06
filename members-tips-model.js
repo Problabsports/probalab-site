@@ -9,7 +9,7 @@
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
     const t = String(tipster || 'john').toLowerCase();
-    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather') return valid(r);
+    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather' || t === 'nba-price-gap') return valid(r);
     return visible(r);
   }
   function day(value) {
@@ -77,6 +77,15 @@
       pitch: 'NFL game totals — overs and unders, mostly unders. Flat 1u.',
       countNote: 'Fresh record only — no backfill. Flat 1u.',
       openNote: 'Tips appear here in the last 4 hours before kickoff. Until then they stay on Upcoming.',
+    },
+    'nba-price-gap': {
+      id: 'nba-price-gap',
+      name: 'NBA Price Gap',
+      shortLabel: 'Price Gap',
+      focus: 'NBA moneylines',
+      pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
+      countNote: 'Flat 1 unit at the alerted price, from 7 Nov 2026. Favourites (Pinnacle fair chance 50% or higher) are tagged separately from underdogs.',
+      openNote: 'Qualified price-gap alerts. They show here as soon as they qualify.',
     },
   };
   function tipsterMeta(id) {
