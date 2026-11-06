@@ -73,23 +73,51 @@
   function chartHtml(john, pl) {
     const a=M.series(john), b=M.series(pl), dates=[...new Set([...a,...b].map(p=>p.date))].sort();
     if(!dates.length) return '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+    const W=800,H=380,L=58,R=118,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
-    const values=[0,...a.map(p=>p.units),...b.map(p=>p.units)], low=Math.min(...values), high=Math.max(...values);
-    const x=d=>62+(Date.parse(d)-start)/Math.max(86400000,end-start)*704;
-    const y=v=>222-(v-low)/Math.max(1,high-low)*190;
-    function line(points, colour, label) {
-      if(!points.length) return '';
-      let path='M '+x(dates[0])+' '+y(0);
-      points.forEach(p=>{path+=' H '+x(p.date)+' V '+y(p.units);});
-      path+=' H '+x(dates[dates.length-1]);
-      return '<path d="'+path+'" fill="none" stroke="'+colour+'" stroke-width="3"><title>'+label+'</title></path><circle cx="'+x(points[points.length-1].date)+'" cy="'+y(points[points.length-1].units)+'" r="4" fill="'+colour+'"/>';
+    const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
+    const span=Math.max(1,Math.max(...vals)-Math.min(...vals));
+    const step=[1,2,5,10,20,50].find(st=>span/st<=8)||100;
+    const low=Math.floor(Math.min(...vals)/step)*step, high=Math.ceil(Math.max(...vals)/step)*step||step;
+    const x=d=>L+(Date.parse(d)-start)/Math.max(86400000,end-start)*(W-L-R);
+    const y=v=>T+(high-v)/Math.max(step,high-low)*(H-T-B);
+    const dfmt=d=>new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));
+    const fu=v=>(v>0?'+':'')+(Math.round(v*100)/100)+'u';
+    let g='';
+    for(let v=low; v<=high+1e-9; v+=step){
+      const zero=Math.abs(v)<1e-9;
+      g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+(zero?'#8a96ab':'rgba(138,150,171,.18)')+'"'+(zero?' stroke-width="1.5"':'')+'/>'
+        +'<text x="'+(L-8)+'" y="'+(y(v)+4)+'" text-anchor="end"'+(zero?' font-weight="700"':'')+'>'+(zero?'0u':fu(v))+'</text>';
     }
-    return '<svg class="units-chart" viewBox="0 0 800 270" role="img" aria-label="Cumulative net units: My bets and PL site picks"><title>Cumulative net units</title>'
-      +'<line x1="62" y1="'+y(0)+'" x2="766" y2="'+y(0)+'" stroke="#69758a" stroke-dasharray="4 4"/>'
-      +'<text x="4" y="32">'+esc(fmtU(high))+'</text><text x="4" y="224">'+esc(fmtU(low))+'</text>'
-      +line(a,'#63b3ff','My bets')+line(b,'#39d98a','PL site picks')
-      +'<text x="62" y="255">'+dates[0]+'</text><text x="766" y="255" text-anchor="end">'+dates[dates.length-1]+'</text></svg>'
+    const n=dates.length, every=Math.max(1,Math.ceil(n/(window.innerWidth<600?4:8)));
+    dates.forEach((d,i)=>{ if(i%every===0||i===n-1) g+='<text x="'+x(d)+'" y="'+(H-B+20)+'" text-anchor="middle">'+dfmt(d)+'</text>'; });
+    const line=(pts,c)=>{ if(!pts.length) return ''; let p='M '+x(dates[0])+' '+y(0); pts.forEach(q=>{p+=' L '+x(q.date)+' '+y(q.units);}); return '<path d="'+p+'" fill="none" stroke="'+c+'" stroke-width="3" stroke-linejoin="round"/>'; };
+    const endLab=(pts,c,lab)=>{ if(!pts.length) return ''; const q=pts[pts.length-1]; return '<circle cx="'+x(q.date)+'" cy="'+y(q.units)+'" r="4.5" fill="'+c+'"/><text x="'+(x(q.date)+8)+'" y="'+(y(q.units)+4)+'" fill="'+c+'" style="fill:'+c+'" font-weight="700">'+lab+' '+fu(q.units)+'</text>'; };
+    // avoid overlapping end labels
+    let la=a.length?y(a[a.length-1].units):0, lb=b.length?y(b[b.length-1].units):0;
+    const at=(pts)=>{const m={};let v=0;pts.forEach(q=>m[q.date]=q.units);return dates.map(d=>(v=(d in m?m[d]:v)));};
+    const ca=at(a), cb=at(b);
+    const data=JSON.stringify(dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—']));
+    let lbB=endLab(b,'#39d98a','PL'); if(a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
+    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative net units: My bets and PL site picks">'
+      +g+line(b,'#39d98a')+line(a,'#63b3ff')+endLab(a,'#63b3ff','My bets')+lbB
+      +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
+      +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
+      +'<div class="chart-tip" hidden></div></div>'
       +'<p class="note"><span style="color:#63b3ff">● My bets'+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>';
+  }
+  function wireChart() {
+    const w=document.querySelector('#summary .chart-wrap'); if(!w) return;
+    const pts=JSON.parse(w.dataset.pts), svg=w.querySelector('svg'), tip=w.querySelector('.chart-tip'), hov=svg.querySelector('.hov');
+    const move=(ev)=>{
+      const e=ev.touches?ev.touches[0]:ev, r=svg.getBoundingClientRect(), vx=(e.clientX-r.left)/r.width*800;
+      let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
+      hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
+      tip.hidden=false; tip.innerHTML='<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">My bets '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>';
+      const left=best[0]/800*r.width; tip.style.left=Math.min(Math.max(0,left-60),r.width-130)+'px';
+    };
+    svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
+    svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
     const john=filtered(data.results || [],true), pl=filtered(data.pl_results || [],true);
@@ -108,6 +136,7 @@
       +'<p class="note">Win % excludes ties/voids. My bets use recorded stakes and net P/L (including commission where recorded). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Counts include all settled picks, not only picks I took. Coverage shows results with known units. No fair-price odds are substituted.</p>'
       +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Unknown-colour bets are Unrated, never guessed. Captured PL history only; no pre-capture backtest.</p>'
       +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
       const sp=b.dataset.summarySport;
       if(sp==='all') { const all=summarySports.size===4; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }

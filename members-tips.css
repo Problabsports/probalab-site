@@ -76,3 +76,8 @@ table.tips.compact .u { font-weight:600; }
 table.tips { min-width:0; }
 table.tips td.game { min-width:0; }
 @media (max-width:700px) { table.tips.compact .opt { display:none; } table.tips.compact th, table.tips.compact td { padding:6px 3px; font-size:12px; } }
+.chart-wrap { position:relative; }
+.units-chart { max-height:none; height:auto; }
+.units-chart text { font-size:13px; }
+.chart-tip { position:absolute; top:6px; background:var(--surface-2,#141826); border:1px solid var(--line-hi,#333); padding:6px 9px; font-size:12px; pointer-events:none; min-width:120px; }
+@media(max-width:600px){ .units-chart text { font-size:18px; } }
