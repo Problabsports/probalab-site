@@ -15,7 +15,7 @@
     return (n > 0 ? "+" : "") + n.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1") + "u";
   };
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
-  const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(l) + "</span>" : "—");
+  const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(l === "UNRATED" ? "Off-pick" : l) + "</span>" : "—");
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const dash = (v) => (v == null || v === "" ? "—" : esc(v));
   // Same rule as the live site's Important note (index.html hasNote/qbLine/nbaLine).
@@ -49,7 +49,7 @@
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
-    $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Unrated':c)+'</button>').join('');
+    $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Off-pick':c)+'</button>').join('');
     document.querySelectorAll('[data-colour]').forEach(b => b.addEventListener('click', () => {
       const c=b.dataset.colour; selectedColours.has(c) ? selectedColours.delete(c) : selectedColours.add(c);
       colourControls(); renderAll();
@@ -134,7 +134,7 @@
       +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">My settled bets</th><th colspan="5">All PL site picks</th></tr><tr>'
       +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
       +'<p class="note">Win % excludes ties/voids. My bets use recorded stakes and net P/L (including commission where recorded). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Counts include all settled picks, not only picks I took. Coverage shows results with known units. No fair-price odds are substituted.</p>'
-      +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Unknown-colour bets are Unrated, never guessed. Captured PL history only; no pre-capture backtest.</p>'
+      +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
       +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
