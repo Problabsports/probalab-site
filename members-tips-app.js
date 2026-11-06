@@ -123,7 +123,7 @@
     const john=filtered(data.results || [],true), pl=filtered(data.pl_results || [],true);
     const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
-    const rows=M.colours.filter(c=>selectedColours.has(c)).map(c=>{
+    const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||john.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
       const a=M.stats(john.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
       const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
       return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
