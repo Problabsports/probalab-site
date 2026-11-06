@@ -13,7 +13,6 @@
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
 
   const COMING = [
-    { id: "nba", name: "NBA tipster", focus: "NBA only", pitch: "A specialist focused on NBA tips." },
     { id: "epl", name: "EPL tipster", focus: "EPL only", pitch: "A specialist focused on EPL tips." },
   ];
 
@@ -54,11 +53,12 @@
       + '<p class="note">No record yet — slot reserved.</p></div>';
   }
 
-  function renderLobby(payload, sniperPayload, plPayload, weatherPayload) {
+  function renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
     const probalab = sniperCardStats({}, plPayload || { results: [] });
     const weather = sniperCardStats({}, weatherPayload || { results: [], open_bets: [] });
+    const gap = sniperCardStats({}, gapPayload || { results: [] });
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
@@ -96,6 +96,14 @@
         href: "/members/tips/nfl-weather",
         stats: weather,
       })
+      + liveCard({
+        name: "NBA Price Gap",
+        focus: "NBA moneylines",
+        pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
+        footnote: "Flat 1 unit at the alerted price. Record starts 7 Nov 2026. Kept separate from the other desks.",
+        href: "/members/tips/nba-price-gap",
+        stats: gap,
+      })
       + COMING.map(soonCard).join("");
   }
 
@@ -130,7 +138,16 @@
         if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) weatherPayload = j;
       } catch (_) {}
     }
-    renderLobby(payload, sniperPayload, plPayload, weatherPayload);
+    let gapPayload = null;
+    const { data: gapRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nba-price-gap").maybeSingle();
+    if (gapRow && gapRow.payload) gapPayload = gapRow.payload;
+    if (!gapPayload) {
+      try {
+        const j = await (await fetch("/data/tipsters/nba-price-gap.json", { cache: "no-store" })).json();
+        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) gapPayload = j;
+      } catch (_) {}
+    }
+    renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload);
   }
 
   function show(mode) {

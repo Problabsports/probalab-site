@@ -13,7 +13,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather") ? t : "john"; })(resolveTipster());
+  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap") ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -60,7 +60,7 @@
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
-    if (tipsterId === "nfl-weather") {
+    if (tipsterId === "nfl-weather" || tipsterId === "nba-price-gap") {
       $("colourFilters").innerHTML = "";
       return;
     }
@@ -89,7 +89,9 @@
     const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
     if(!dates.length) return tipsterId === 'nfl-weather'
       ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
-      : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+      : tipsterId === 'nba-price-gap'
+        ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
+        : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
@@ -120,7 +122,7 @@
     let lbB=withPl?endLab(b,'#39d98a','PL'):'';
     if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
     const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
-    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
+    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : tipsterId === 'nba-price-gap' ? (tipster.shortLabel || 'Price Gap') : (tipster.shortLabel || 'Tips');
     const legend=withPl
       ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
       : '<p class="note"><span style="color:#63b3ff">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
@@ -139,15 +141,17 @@
       let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
       hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
       tip.hidden=false;
+      const seriesName = tipsterId === "nba-price-gap" ? (tipster.shortLabel || "Price Gap") : "Tips";
       tip.innerHTML=best.length>3
         ? '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>'
-        : '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span>';
+        : '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">'+esc(seriesName)+' '+esc(best[2])+'</span>';
       const left=best[0]/800*r.width; tip.style.left=Math.min(Math.max(0,left-60),r.width-130)+'px';
     };
     svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
+    if (tipsterId === "nba-price-gap") { renderGapSummary(); return; }
     const withPl = tipsterId === 'nfl-weather' ? false : compareToPl;
     const mineRaw = (tipsterData && tipsterData.results) || [];
     const mine = tipsterId === 'nfl-weather'
@@ -196,7 +200,7 @@
     }));
   }
   function renderAttention() {
-    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather') {
+    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather' || tipsterId === 'nba-price-gap') {
       $("attnPanel").classList.add("hidden");
       $("attention").innerHTML = '';
       return;
@@ -255,7 +259,129 @@
       + renderTotalsRows(rows, "No tips yet.")
       + "</div>";
   }
+  const GAP_ABOUT = "This desk does not pick winners. It treats Pinnacle as the sharpest price, turns that into a fair chance with proportional de-vig — (1/price) ÷ (1/home + 1/away) — and alerts when the best Australian price times that chance is at least 1.03. NBA moneylines only, back bets only (no lays, no spreads). Books: Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet, and Betfair AU. Betfair is scored after 8% commission: 1 + (price − 1) × 0.92. Flat 1 unit at the alerted price. A favourite is a fair chance of 50% or more; the rest are underdogs.";
+  const GAP_BOOKS = {
+    sportsbet: "Sportsbet", ladbrokes: "Ladbrokes", ladbrokes_au: "Ladbrokes", neds: "Neds", tab: "TAB",
+    pointsbet: "PointsBet", pointsbetau: "PointsBet", unibet: "Unibet", betfair: "Betfair AU",
+    betfair_au: "Betfair AU", betfair_ex_au: "Betfair AU"
+  };
+  function gapBook(r) {
+    const b = r.book || r.price_book || r.bookie || "";
+    return GAP_BOOKS[String(b).toLowerCase()] || (b ? String(b) : "—");
+  }
+  function gapFair(r) {
+    return M.number(r.pinnacle_fair != null ? r.pinnacle_fair : (r.pinnacle_fair_chance != null ? r.pinnacle_fair_chance : r.fair_chance));
+  }
+  function gapPct(r) {
+    const g = M.number(r.gap_pct != null ? r.gap_pct : r.gap);
+    if (g != null) return g;
+    const price = M.number(r.price_taken != null ? r.price_taken : r.price);
+    const fair = gapFair(r);
+    return price != null && fair != null ? price * fair - 1 : null;
+  }
+  function gapRole(r) {
+    const raw = String(r.role || r.side_role || "").toLowerCase();
+    if (raw === "favourite" || raw === "favorite" || raw === "fav") return "Favourite";
+    if (raw === "underdog" || raw === "dog") return "Underdog";
+    const fair = gapFair(r);
+    if (fair == null) return "—";
+    return fair >= 0.5 ? "Favourite" : "Underdog";
+  }
+  function fmtSignedPct(x) {
+    if (M.number(x) == null) return "—";
+    const n = Number(x) * 100;
+    const body = Math.abs(n).toFixed(1).replace(/\.0$/, "") + "%";
+    return n > 0 ? "+" + body : n < 0 ? "-" + body : body;
+  }
+  function gapRows(rows) {
+    return (rows || [])
+      .filter((r) => r && r.published !== false && M.visibleFor(tipsterId, r) && inRange(r))
+      .filter((r) => !$("fSport").value || r.sport === $("fSport").value);
+  }
+  function renderGapTable(rows, emptyMsg, mode) {
+    if (!rows.length) return '<p class="muted">' + esc(emptyMsg) + "</p>";
+    const body = rows.map((r) => {
+      const price = r.price_taken != null ? r.price_taken : r.price;
+      const units = mode === "results" ? M.pnl(r) : r.units;
+      return "<tr><td>" + esc(dateTime(r.kickoff_utc || r.placed_utc)) + "</td>"
+        + '<td class="game">' + esc(short(r.game) || r.game || "") + "</td>"
+        + "<td>" + esc(shortSel(r.side || r.selection)) + "</td>"
+        + "<td>" + esc(gapRole(r)) + "</td>"
+        + "<td>" + esc(gapBook(r)) + "</td>"
+        + "<td>" + fmtOdds(price) + "</td>"
+        + "<td>" + fmtPct(gapFair(r)) + "</td>"
+        + "<td>" + fmtSignedPct(gapPct(r)) + "</td>"
+        + "<td>" + fmtSignedPct(r.vs_close != null ? r.vs_close : r.vsClose) + "</td>"
+        + "<td>" + esc(mode === "results" ? (r.result || "—") : (r.result && r.result !== "open" ? r.result : "Open")) + "</td>"
+        + '<td class="u' + (mode === "results" ? " " + clsU(units) : "") + '">' + fmtU(units) + "</td></tr>";
+    }).join("");
+    return '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Tip-off</th><th>Game</th><th>Side</th><th>Tag</th><th>Book</th><th>Price</th><th>Pinnacle fair</th><th>Gap</th><th>vs close</th><th>Result</th><th>Units</th>"
+      + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  function renderGapUpcoming() {
+    const now = Date.now();
+    const rows = gapRows((tipsterData && tipsterData.open_bets) || [])
+      .filter((r) => {
+        const ko = Date.parse(r.kickoff_utc || "");
+        return !Number.isFinite(ko) || ko > now;
+      })
+      .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+    $("today").innerHTML = '<div class="sport-block panel"><h3>Upcoming</h3>'
+      + '<p class="note">Qualifying alerts that have not tipped off. Tips shows every open alert as well.</p>'
+      + renderGapTable(rows, "No upcoming alerts.", "open")
+      + "</div>";
+  }
+  function renderGapSummary() {
+    const mine = ((tipsterData && tipsterData.results) || [])
+      .filter((r) => r && M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || "NBA").toUpperCase() === "NBA");
+    const fav = mine.filter((r) => gapRole(r) === "Favourite");
+    const dog = mine.filter((r) => gapRole(r) === "Underdog");
+    $("summary").innerHTML = '<p class="note"><b>' + esc(tipster.countNote) + '</b> One growth line for this desk only.</p>'
+      + '<div class="cards">' + statsHtml("NBA Price Gap settled", mine) + "</div>"
+      + '<div class="cards cols-2">' + statsHtml("Favourites", fav) + statsHtml("Underdogs", dog) + "</div>"
+      + '<section class="panel"><h3>Growth (this desk only)</h3>' + chartHtml(mine, [], false) + "</section>"
+      + '<p class="note">Win % excludes ties and voids. Flat 1 unit at the alerted price. Favourites are a Pinnacle fair chance of 50% or more; everyone else is an underdog. Dates are Australia/Sydney. This record stays separate from John, Closing Line Sniper, ProbaLab, EdgeBot, and NFL Totals.</p>';
+    wireChart();
+  }
+  function normalizeGapBet(r) {
+    if (!r || typeof r !== "object") return r;
+    const side = String(r.side || r.selection || "").trim();
+    const price = r.price_taken != null ? r.price_taken : r.price;
+    return Object.assign({}, r, {
+      sport: r.sport || "NBA",
+      market: r.market || "moneyline",
+      side: side,
+      selection: String(r.selection || side).trim(),
+      price_taken: price,
+      book: r.book || r.price_book || r.bookie || "",
+    });
+  }
+  async function loadNbaPriceGap() {
+    let remote = { open_bets: [], results: [], generated_at: null, about: null };
+    try {
+      const loaded = await loadIsolatedBlock("nba-price-gap");
+      remote.open_bets = loaded.open_bets || [];
+      remote.results = loaded.results || [];
+    } catch (_) {}
+    let file = null;
+    try {
+      const res = await fetch("/data/tipsters/nba-price-gap.json", { cache: "no-store" });
+      if (res.ok) file = await res.json();
+    } catch (_) {}
+    const fileOpen = file && Array.isArray(file.open_bets) && file.open_bets.length ? file.open_bets : null;
+    const fileRes = file && Array.isArray(file.results) && file.results.length ? file.results : null;
+    const norm = (xs) => (xs || []).filter((r) => r && r.published !== false).map(normalizeGapBet);
+    const usingFile = !!(fileOpen || fileRes);
+    return {
+      open_bets: norm(fileOpen || remote.open_bets),
+      results: norm(fileRes || remote.results),
+      generated_at: usingFile ? (file.generated_at || null) : ((file && file.generated_at) || null),
+      about: (file && file.about) || null,
+    };
+  }
   function renderToday() {
+    if (tipsterId === "nba-price-gap") { renderGapUpcoming(); return; }
     if (tipsterId === "nfl-weather") { renderTotalsUpcoming(); return; }
     const now = Date.now();
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
@@ -293,6 +419,12 @@
     return ko - now <= NFL_TOTALS_TIPS_WINDOW_MS;
   }
   function renderOpen() {
+    if (tipsterId === "nba-price-gap") {
+      const rows = gapRows((tipsterData && tipsterData.open_bets) || [])
+        .sort((a, b) => Date.parse(a.kickoff_utc || a.placed_utc || 0) - Date.parse(b.kickoff_utc || b.placed_utc || 0));
+      $("open").innerHTML = renderGapTable(rows, "No open alerts yet.", "open");
+      return;
+    }
     if (tipsterId === "nfl-weather") {
       const now = Date.now();
       const rows = ((tipsterData && tipsterData.open_bets) || [])
@@ -318,6 +450,13 @@
       + "</tbody></table></div>";
   }
   function renderResults() {
+    if (tipsterId === "nba-price-gap") {
+      const rows = gapRows((tipsterData && tipsterData.results) || [])
+        .filter((r) => r.result === "W" || r.result === "L" || r.result === "T" || r.result === "void")
+        .sort((a, b) => String(b.kickoff_utc || b.placed_utc || "").localeCompare(String(a.kickoff_utc || a.placed_utc || "")));
+      $("results").innerHTML = renderGapTable(rows, "No results yet.", "results");
+      return;
+    }
     if (tipsterId === "nfl-weather") {
       const rows = ((tipsterData && tipsterData.results) || [])
         .filter((r) => r.result === "W" || r.result === "L" || r.result === "T")
@@ -358,8 +497,20 @@
     const gen = dateTime(data.generated_at);
     $("meta").textContent = tipsterId === "nfl-weather"
       ? ("Updated " + gen + " · units only · NFL Totals")
-      : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
+      : tipsterId === "nba-price-gap"
+        ? ("Updated " + gen + " · units only · NBA Price Gap")
+        : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
+    if (tipsterId === "nba-price-gap" && pitch) {
+      let rules = $("gapRules");
+      if (!rules) {
+        rules = document.createElement("p");
+        rules.id = "gapRules";
+        rules.className = "note";
+        pitch.insertAdjacentElement("afterend", rules);
+      }
+      rules.textContent = (tipsterData && tipsterData.about) || GAP_ABOUT;
+    }
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
     const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
     renderAttention();
@@ -397,6 +548,14 @@
     return { open_bets: Array.isArray(p.open_bets) ? p.open_bets : [], results: Array.isArray(p.results) ? p.results : [] };
   }
   async function loadTips() {
+    if (tipsterId === "nba-price-gap") {
+      // Own snapshot only. John's latest row is not required, and its bets are never shown.
+      data = { generated_at: null, today: [], open_bets: [], results: [], pl_results: [], needs_attention: [] };
+      tipsterData = await loadNbaPriceGap();
+      if (tipsterData.generated_at) data.generated_at = tipsterData.generated_at;
+      renderAll();
+      return;
+    }
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
