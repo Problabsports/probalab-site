@@ -9,7 +9,7 @@
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
     const t = String(tipster || 'john').toLowerCase();
-    if (t === 'sniper' || t === 'probalab') return valid(r);
+    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather') return valid(r);
     return visible(r);
   }
   function day(value) {
@@ -68,6 +68,15 @@
       pitch: "Tips the site's green and super picks (about 65%+) across NBA, NFL, NHL and EPL.",
       countNote: 'Every green or super site pick from 7 Nov 2026 counts (paper 1u at the site fair price).',
       openNote: 'Green and super site picks awaiting tip-off or settlement.',
+    },
+    'nfl-weather': {
+      id: 'nfl-weather',
+      name: 'NFL Weather',
+      shortLabel: 'Tips',
+      focus: 'NFL Unders only',
+      pitch: 'Paper Unders when forecast kickoff wind is 10+ mph, the stadium is outdoors or the roof is confirmed open, and the total is 44+.',
+      countNote: 'Fresh paper record only — no backfill. Flat 1u. Domes and unconfirmed retractable roofs are skipped.',
+      openNote: 'Weather Unders recorded about 24 hours before kickoff, awaiting settlement.',
     },
   };
   function tipsterMeta(id) {

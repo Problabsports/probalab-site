@@ -13,7 +13,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = (function (t) { return t === "sniper" || t === "probalab" ? t : "john"; })(resolveTipster());
+  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather") ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -179,7 +179,7 @@
     }));
   }
   function renderAttention() {
-    if (tipsterId === 'sniper' || tipsterId === 'probalab') {
+    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather') {
       $("attnPanel").classList.add("hidden");
       $("attention").innerHTML = '';
       return;
@@ -201,7 +201,47 @@
     if (!lightOk || price == null || p.min_price == null) return null;
     return price >= p.min_price && price <= 1.49;
   }
+  function renderWeatherWatch() {
+    const method = (tipsterData && tipsterData.method) || {};
+    const rows = (tipsterData && tipsterData.watch_list) || [];
+    const rule = method.rule ? '<p class="note">' + esc(method.rule) + ' Flat 1u paper. Wind = max mph over the 3-hour kickoff window (NWS).</p>' : '';
+    const roof = method.roof_policy ? '<p class="note">' + esc(method.roof_policy) + '</p>' : '';
+    if (!rows.length) {
+      $("today").innerHTML = rule + roof + '<p class="muted">No watch-list games yet. Domes are skipped; retractable roofs wait for a confirmed open.</p>';
+      return;
+    }
+    const lab = (l) => {
+      const map = {
+        qualifies: "Qualifies", watch_qualifying: "On watch (rule ok)", near_miss_wind: "Near miss · wind",
+        near_miss_total: "Near miss · total", awaiting_total: "Awaiting total", watching: "Watching",
+        retractable_unconfirmed: "Retractable · roof unconfirmed", international: "International · skipped",
+        wind_unavailable: "Wind unavailable", dome: "Dome · skipped", covered: "Covered · skipped"
+      };
+      return map[l] || l;
+    };
+    const body = rows.map((r) => {
+      const wind = r.forecast_wind_mph == null ? "—" : Number(r.forecast_wind_mph).toFixed(0) + " mph";
+      const tot = r.total == null ? "—" : Number(r.total).toFixed(1);
+      const price = r.under_price == null ? "—" : Number(r.under_price).toFixed(2);
+      const book = r.price_book ? " · " + r.price_book : "";
+      return "<tr><td>" + esc(dateTime(r.kickoff_utc)) + "</td>"
+        + '<td class="game">' + esc(r.game) + "</td>"
+        + "<td>" + esc(lab(r.label)) + "</td>"
+        + "<td>" + esc(wind) + "</td>"
+        + "<td>" + esc(tot) + "</td>"
+        + "<td>" + esc(price) + esc(book) + "</td>"
+        + "<td>" + esc(r.roof_status || "—") + "</td>"
+        + "<td>" + esc(r.venue || "—") + "</td></tr>";
+    }).join("");
+    $("today").innerHTML = rule + roof
+      + '<div class="sport-block panel"><div class="oddsfmt-bar"><h3>Watch list</h3><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div>'
+      + '<div class="table-wrap"><table class="tips"><thead><tr>'
+      + "<th>Kickoff</th><th>Game</th><th>Status</th><th>Wind</th><th>Total</th><th>Under</th><th>Roof</th><th>Venue</th>"
+      + "</tr></thead><tbody>" + body + "</tbody></table></div>"
+      + '<p class="note">A paper tip is recorded about 24 hours before kickoff when wind is still 10+ mph and the total is still 44+. If morning wind later drops below 10, the tip stays on the record.</p></div>';
+  }
   function renderToday() {
+    if (tipsterId === "nfl-weather") { renderWeatherWatch(); return; }
     const now = Date.now();
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
@@ -236,12 +276,20 @@
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
-        + "<td>" + esc(shortSel(r.selection)) + "</td>"
+      + rows.map((r) => {
+        const wx = tipsterId === "nfl-weather"
+          ? '<div class="note">' + esc(r.notes || "")
+            + (r.forecast_wind_mph != null ? " · wind " + Number(r.forecast_wind_mph).toFixed(0) + " mph" : "")
+            + (r.wind_dropped ? " · wind dropped (tip kept)" : "")
+            + "</div>"
+          : "";
+        return "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
+        + "<td>" + esc(shortSel(r.selection)) + wx + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
         + '<td class="u">' + fmtU(r.units) + "</td>"
-        + '<td class="fl">' + betFlags(r) + "</td></tr>").join("")
+        + '<td class="fl">' + betFlags(r) + "</td></tr>";
+      }).join("")
       + "</tbody></table></div>";
   }
   function renderResults() {
@@ -273,7 +321,9 @@
   }
   function renderAll() {
     const gen = dateTime(data.generated_at);
-    $("meta").textContent = "Updated " + gen + " · units only · " + tipster.name + " vs PL board";
+    $("meta").textContent = tipsterId === "nfl-weather"
+      ? ("Updated " + gen + " · units only · NFL Weather paper desk")
+      : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
     const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
@@ -322,6 +372,28 @@
       tipsterData = await loadSniperBlock();
     } else if (tipsterId === "probalab") {
       tipsterData = await loadIsolatedBlock("probalab");
+    } else if (tipsterId === "nfl-weather") {
+      tipsterData = await loadIsolatedBlock("nfl-weather");
+      if (!(tipsterData.open_bets && tipsterData.open_bets.length) && !(tipsterData.results && tipsterData.results.length)) {
+        try {
+          const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+          tipsterData = {
+            open_bets: j.open_bets || [],
+            results: j.results || [],
+            watch_list: j.watch_list || [],
+            method: j.method || null,
+            generated_at: j.generated_at || null,
+            summary: j.summary || null,
+          };
+          if (j.generated_at) data.generated_at = j.generated_at;
+        } catch (_) {}
+      } else {
+        try {
+          const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+          tipsterData.watch_list = j.watch_list || tipsterData.watch_list || [];
+          tipsterData.method = j.method || null;
+        } catch (_) { tipsterData.watch_list = tipsterData.watch_list || []; }
+      }
     } else {
       tipsterData = {
         open_bets: data.open_bets || [],

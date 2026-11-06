@@ -14,7 +14,6 @@
 
   const COMING = [
     { id: "nba", name: "NBA tipster", focus: "NBA only", pitch: "A specialist focused on NBA tips." },
-    { id: "nfl", name: "NFL tipster", focus: "NFL only", pitch: "A specialist focused on NFL tips." },
     { id: "epl", name: "EPL tipster", focus: "EPL only", pitch: "A specialist focused on EPL tips." },
   ];
 
@@ -55,10 +54,11 @@
       + '<p class="note">No record yet — slot reserved.</p></div>';
   }
 
-  function renderLobby(payload, sniperPayload, plPayload) {
+  function renderLobby(payload, sniperPayload, plPayload, weatherPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
     const probalab = sniperCardStats({}, plPayload || { results: [] });
+    const weather = sniperCardStats({}, weatherPayload || { results: [], open_bets: [] });
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
@@ -88,6 +88,14 @@
         href: "/members/tips/probalab",
         stats: probalab,
       })
+      + liveCard({
+        name: "NFL Weather",
+        focus: "NFL Unders only",
+        pitch: "Paper Unders when forecast kickoff wind is 10+ mph, outdoors or roof confirmed open, and the total is 44+.",
+        footnote: "Fresh paper record. Domes and unconfirmed retractable roofs skipped. Preview desk.",
+        href: "/members/tips/nfl-weather",
+        stats: weather,
+      })
       + COMING.map(soonCard).join("");
   }
 
@@ -113,7 +121,16 @@
     let plPayload = null;
     const { data: plRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "probalab").maybeSingle();
     if (plRow && plRow.payload) plPayload = plRow.payload;
-    renderLobby(payload, sniperPayload, plPayload);
+    let weatherPayload = null;
+    const { data: wxRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nfl-weather").maybeSingle();
+    if (wxRow && wxRow.payload) weatherPayload = wxRow.payload;
+    if (!weatherPayload) {
+      try {
+        const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results) || Array.isArray(j.watch_list))) weatherPayload = j;
+      } catch (_) {}
+    }
+    renderLobby(payload, sniperPayload, plPayload, weatherPayload);
   }
 
   function show(mode) {
