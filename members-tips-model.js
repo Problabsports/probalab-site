@@ -8,7 +8,8 @@
   // John's desk: hide Closing Line (Sniper) bets. Sniper desk uses visibleFor('sniper', …).
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
-    if (String(tipster || 'john').toLowerCase() === 'sniper') return valid(r);
+    const t = String(tipster || 'john').toLowerCase();
+    if (t === 'sniper' || t === 'probalab') return valid(r);
     return visible(r);
   }
   function day(value) {
@@ -58,6 +59,15 @@
       pitch: 'Fewer tips, only when the market agrees — aimed at beating the close.',
       countNote: 'Every Closing Line tip that was sent counts here, including tips John did not take (paper units). This is the system’s public record.',
       openNote: 'Sent Closing Line tips still open (or awaiting tip-off), including paper tips John did not take.',
+    },
+    probalab: {
+      id: 'probalab',
+      name: 'ProbaLab',
+      shortLabel: 'Tips',
+      focus: 'NBA, NFL, NHL and EPL',
+      pitch: "Tips the site's green and super picks (about 65%+) across NBA, NFL, NHL and EPL.",
+      countNote: 'Every green or super site pick from 7 Nov 2026 counts (paper 1u at the site fair price).',
+      openNote: 'Green and super site picks awaiting tip-off or settlement.',
     },
   };
   function tipsterMeta(id) {

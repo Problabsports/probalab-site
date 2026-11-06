@@ -13,7 +13,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = resolveTipster() === "sniper" ? "sniper" : "john";
+  const tipsterId = (function (t) { return t === "sniper" || t === "probalab" ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -179,7 +179,7 @@
     }));
   }
   function renderAttention() {
-    if (tipsterId === 'sniper') {
+    if (tipsterId === 'sniper' || tipsterId === 'probalab') {
       $("attnPanel").classList.add("hidden");
       $("attention").innerHTML = '';
       return;
@@ -232,7 +232,7 @@
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   function renderOpen() {
     const rows = betFilter((tipsterData && tipsterData.open_bets) || []);
-    if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId==="sniper"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
+    if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId!=="john"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
@@ -305,6 +305,12 @@
       results: Array.isArray(block.results) ? block.results : [],
     };
   }
+  async function loadIsolatedBlock(id) {
+    // Isolated snapshot only (never John's open_bets/results).
+    const { data: row } = await sb.from("tips_page_snapshot").select("payload").eq("id", id).maybeSingle();
+    const p = (row && row.payload) || {};
+    return { open_bets: Array.isArray(p.open_bets) ? p.open_bets : [], results: Array.isArray(p.results) ? p.results : [] };
+  }
   async function loadTips() {
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
@@ -314,6 +320,8 @@
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
     if (tipsterId === "sniper") {
       tipsterData = await loadSniperBlock();
+    } else if (tipsterId === "probalab") {
+      tipsterData = await loadIsolatedBlock("probalab");
     } else {
       tipsterData = {
         open_bets: data.open_bets || [],

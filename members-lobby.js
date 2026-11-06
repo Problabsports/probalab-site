@@ -16,7 +16,6 @@
     { id: "nba", name: "NBA tipster", focus: "NBA only", pitch: "A specialist focused on NBA tips." },
     { id: "nfl", name: "NFL tipster", focus: "NFL only", pitch: "A specialist focused on NFL tips." },
     { id: "epl", name: "EPL tipster", focus: "EPL only", pitch: "A specialist focused on EPL tips." },
-    { id: "all-sports", name: "All sports", focus: "NBA, NFL, NHL and EPL", pitch: "A second all-sports tipster, same board as John." },
   ];
 
   let sb;
@@ -56,9 +55,10 @@
       + '<p class="note">No record yet — slot reserved.</p></div>';
   }
 
-  function renderLobby(payload, sniperPayload) {
+  function renderLobby(payload, sniperPayload, plPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
+    const probalab = sniperCardStats({}, plPayload || { results: [] });
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
@@ -79,6 +79,14 @@
         footnote: "Every tip that was sent counts, including ones John did not take (paper units).",
         href: "/members/tips/sniper",
         stats: sniper,
+      })
+      + liveCard({
+        name: "ProbaLab",
+        focus: "NBA · NFL · NHL · EPL",
+        pitch: "Tips the site's green and super picks (about 65%+) across NBA, NFL, NHL and EPL.",
+        footnote: "Fresh record from 7 Nov 2026. Paper units at the site's fair price.",
+        href: "/members/tips/probalab",
+        stats: probalab,
       })
       + COMING.map(soonCard).join("");
   }
@@ -102,7 +110,10 @@
     if (snRow && snRow.payload && (Array.isArray(snRow.payload.results) || Array.isArray(snRow.payload.open_bets))) {
       sniperPayload = snRow.payload;
     }
-    renderLobby(payload, sniperPayload);
+    let plPayload = null;
+    const { data: plRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "probalab").maybeSingle();
+    if (plRow && plRow.payload) plPayload = plRow.payload;
+    renderLobby(payload, sniperPayload, plPayload);
   }
 
   function show(mode) {
