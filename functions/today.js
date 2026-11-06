@@ -13,7 +13,8 @@ const WINDOW_MS = 24 * 3600e3;
 const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
 
 const pct = (p) => (p == null || !Number.isFinite(p) ? "—" : `${Math.round(p * 100)}%`);
-const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? "—" : (1 / p).toFixed(2));
+const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? null : 1 / p);
+const fairHtml = (p) => { const d = fair(p); return d == null ? "—" : `<span class="odds" data-dec="${d}">${d.toFixed(2)}</span>`; };
 const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).then((r) => (r.ok ? r.json() : d)).catch(() => d);
 const tAEDT = (iso) => { const parts = new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).formatToParts(new Date(iso)); const get = (t) => parts.find((p) => p.type === t)?.value ?? ""; return `${get("weekday")} ${get("hour")}:${get("minute")}${get("dayPeriod").toLowerCase()}`; };
 const dayAEDT = (iso) => new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "long", day: "numeric", month: "long" }).format(new Date(iso));
@@ -62,7 +63,7 @@ function valueOf(modelP, marketP) {
   return modelP - marketP;
 }
 
-const HEAD = `<li class="head" aria-hidden="true"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span><span class="mk">Market</span><span class="gap">Value</span></li>`;
+const HEAD = `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair <button type="button" class="oddsfmt">DEC ⇄</button></span><span class="mk">Market</span><span class="gap">Value</span></li>`;
 
 // Value badge: GREEN/SUPER and model−market ≥ +3.0 percentage points.
 const VALUE_MIN = 0.03;
@@ -85,7 +86,7 @@ function todayRow(g) {
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
     <a class="row-rest" href="${esc(g.href)}">
       <span class="p">${esc(g.pick)}</span>${chip(g.light)}
-      <span class="fp" title="Fair price = 1 ÷ model win chance">${esc(fair(g.modelP))}</span>
+      <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>
     </a>
@@ -119,11 +120,11 @@ const HOW_TO = `<section class="panel howto" id="how-to-read">
     ${chip("RED")}<span>close to a coin flip (under 55%)</span>
   </div>
   <ul class="howto-list">
-    <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is 1.67; a 75% call is 1.33.</li>
+    <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is <span class="odds" data-dec="1.6666667">1.67</span>; a 75% call is <span class="odds" data-dec="1.3333333">1.33</span>.</li>
     <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>
     <li><b>Value</b> — our chance minus the market chance. Positive means we rate the team higher than the bookies. A <span class="best-tag">Value</span> badge appears on GREEN or SUPER picks with at least <b>+3.0</b> points of value (there can be several, or none).</li>
   </ul>
-  <p class="legend-example"><b>Example:</b> we make the home team 68% (fair 1.47, GREEN). The market has them at 62%. Value = +6.0. That pick gets a Value badge. A RED pick at +0.5 does not — the number still shows, in a neutral colour.</p>
+  <p class="legend-example"><b>Example:</b> we make the home team 68% (fair <span class="odds" data-dec="1.4705882">1.47</span>, GREEN). The market has them at 62%. Value = +6.0. That pick gets a Value badge. A RED pick at +0.5 does not — the number still shows, in a neutral colour.</p>
   <p class="small">Figures are for entertainment, not advice. Fair prices are from the model alone.</p>
 </section>`;
 

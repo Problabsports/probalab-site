@@ -1,6 +1,7 @@
 /* ProbaLab odds format: any <span class="odds" data-dec="1.45"> shows in the visitor's chosen format.
    Any <button class="oddsfmt"> cycles Decimal -> American -> Implied % for every price on the page. Saved in localStorage. */
 (function () {
+  if (window.PLOdds) return;
   var MODES = ["dec", "us", "pct"], LABEL = { dec: "Decimal", us: "American", pct: "Implied %" }, SHORT = { dec: "DEC", us: "US", pct: "%" };
   var mode = "dec"; try { mode = localStorage.getItem("pl_odds_fmt") || "dec"; } catch (e) {}
   if (MODES.indexOf(mode) < 0) mode = "dec";

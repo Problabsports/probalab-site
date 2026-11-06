@@ -122,7 +122,7 @@ ul.games.today-games > li:first-child { border-top: 0; }
 ul.games.today-games > li.head,
 ul.games.today-games > li:not(.head) {
   display: grid;
-  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 52px 58px 64px;
+  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 100px 58px 64px;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
@@ -133,7 +133,7 @@ ul.games.today-games > li:not(.head) > a.row-rest { display: contents; color: in
 ul.games.today-games > li:not(.head) > .d a { color: inherit; text-decoration: none; }
 ul.games.today-games > li > a:not(.row-rest) {
   display: grid;
-  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 52px 58px 64px;
+  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 100px 58px 64px;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
@@ -151,6 +151,7 @@ ul.games.today-games > li.head {
   margin-bottom: 2px;
   pointer-events: none;
 }
+ul.games.today-games > li.head button.oddsfmt { pointer-events: auto; text-transform: none; letter-spacing: .04em; margin-left: 4px; }
 ul.games.today-games .d { font-family: var(--f-mono); font-size: 12px; color: var(--muted); width: auto; }
 ul.games.today-games .m { min-width: 0; overflow-wrap: anywhere; }
 ul.games.today-games .p { font-family: var(--f-mono); font-size: 14px; }
@@ -188,7 +189,7 @@ ul.games.today-games .best-tag, .best-tag {
   ul.games.today-games > li.head,
   ul.games.today-games > li:not(.head),
   ul.games.today-games > li > a:not(.row-rest) {
-    grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 56px 48px 52px 58px;
+    grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 56px 96px 52px 58px;
     column-gap: 8px;
   }
 }
@@ -240,7 +241,7 @@ ul.team-index .rec { font-family: var(--f-mono); font-size: 13px; color: var(--m
 .form-strip .form-d { color: var(--muted); font-weight: 700; }
 ul.games.team-upcoming > li.head,
 ul.games.team-upcoming > li > a {
-  grid-template-columns: 108px minmax(140px, 1.6fr) minmax(100px, 1fr) 64px 52px;
+  grid-template-columns: 108px minmax(140px, 1.6fr) minmax(100px, 1fr) 64px 100px;
 }
 @media (max-width: 640px) {
   ul.games.team-upcoming > li.head,

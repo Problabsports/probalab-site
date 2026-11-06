@@ -34,7 +34,8 @@ const NFL_DIV = {
   ARI:"NFC West", LAR:"NFC West", LA:"NFC West", SF:"NFC West", SEA:"NFC West",
 };
 
-const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? "—" : (1 / p).toFixed(2));
+const fair = (p) => (p == null || !Number.isFinite(p) || p <= 0 ? null : 1 / p);
+const fairHtml = (p) => { const d = fair(p); return d == null ? "—" : `<span class="odds" data-dec="${d}">${d.toFixed(2)}</span>`; };
 const ord = (n) => (!n ? "—" : n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`);
 const sgn = (x, d = 1) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x).toFixed(d)}`;
 const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -550,7 +551,7 @@ export function renderTeamPage(sport, data, team) {
       <span class="m">${teamIsHome ? "vs" : "@"} ${esc(opp)}</span>
       <span class="p">${chance == null ? "soon" : `${pct(chance)}${pickedThem ? " · our pick" : ""}`}</span>
       ${chip(g.light)}
-      <span class="fp" title="Fair price = 1 ÷ win chance">${esc(fair(chance))}</span>
+      <span class="fp" title="Fair price = 1 ÷ win chance">${fairHtml(chance)}</span>
     </a></li>`;
   }).join("") : "";
 
@@ -584,7 +585,7 @@ export function renderTeamPage(sport, data, team) {
   </section>
 
   <section class="panel"><h2>Upcoming</h2>
-    ${up.length ? `<ul class="games today-games team-upcoming"><li class="head" aria-hidden="true"><span class="d">When</span><span class="m">Match</span><span class="p">Win chance</span><span class="chip-slot"></span><span class="fp">Fair</span></li>${upRows}</ul>` : `<p>No upcoming ${esc(S)} games on the schedule yet.</p>`}
+    ${up.length ? `<ul class="games today-games team-upcoming"><li class="head"><span class="d">When</span><span class="m">Match</span><span class="p">Win chance</span><span class="chip-slot"></span><span class="fp">Fair <button type="button" class="oddsfmt">DEC ⇄</button></span></li>${upRows}</ul>` : `<p>No upcoming ${esc(S)} games on the schedule yet.</p>`}
   </section>
 
   <section class="panel"><h2>Injuries</h2>${injHtml}</section>
