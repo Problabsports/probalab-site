@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-06T20:00:30Z",
+  "generated_utc": "2026-11-06T20:55:06Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -216,9 +216,9 @@
       "away": "Coventry",
       "home": "Everton",
       "start_utc": "2026-11-06T20:00:00Z",
-      "market_home": 0.5745,
-      "market_draw": 0.2391,
-      "market_away": 0.1864,
+      "market_home": 0.4637,
+      "market_draw": 0.3383,
+      "market_away": 0.198,
       "odds_game_id": "EPL_2627_20261106_EVE_COV",
       "home_name": "Everton",
       "away_name": "Coventry City"
@@ -268,9 +268,9 @@
       "away": "Man City",
       "home": "Nott'm Forest",
       "start_utc": "2026-11-07T17:30:00Z",
-      "market_home": 0.2171,
-      "market_draw": 0.242,
-      "market_away": 0.5409,
+      "market_home": 0.2165,
+      "market_draw": 0.2418,
+      "market_away": 0.5417,
       "odds_game_id": "EPL_2627_20261107_NFF_MCI",
       "home_name": "Nottingham Forest",
       "away_name": "Manchester City"
