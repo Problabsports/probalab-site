@@ -1,3 +1,4 @@
+import { getInjuries, gameInjuriesHtml, INJ_CSS } from "./injuries.js";
 import { WRITTEN } from "./written.js";
 // Shared server-side rendering for ProbaLab's crawlable pages (game previews, sport hubs, sitemap).
 // Data comes from the same public feed as the app (/api/feed), through the same edge cache key.
@@ -228,7 +229,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/accuracy">Accuracy</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -274,7 +275,7 @@ function reviewHtml(r) {
     ${part("What happened", r.happened)}${part("What the model got right", r.right)}${part("What didn't work", r.missed)}${part("Why", r.why)}
     <p class="small">Written after the game. Scores and stats are checked against two independent sources.</p></section>`;
 }
-export function renderGame(g, all, rec, review = null) {
+export function renderGame(g, all, rec, review = null, inj = null) {
   const S = sportName(g.sport), A = g.away_name, H = g.home_name;
   const post = g.status === "post" && g.home_score != null;
   const title = `${A} vs ${H} Prediction, ${shortDay(g.start_utc)} | ${S} | ProbaLab`;
@@ -300,6 +301,7 @@ export function renderGame(g, all, rec, review = null) {
   <h1>${esc(A)} vs ${esc(H)} prediction</h1>
   <p class="when">${g.sport === "nfl" ? "Kick-off" : "Start"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
   ${pickCard}
+  ${!post ? gameInjuriesHtml(g.sport, inj, g, A, H) + INJ_CSS : ""}
   ${resultHtml}
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}
   ${!post && WRITTEN[g.game_id] ? `<section class="panel prose"><h2>Game preview</h2>${WRITTEN[g.game_id].map((t) => `<p>${esc(t)}</p>`).join("\n")}</section>` : ""}
@@ -504,6 +506,7 @@ async function renderSport(ctx, sport) {
     const hit = resolveTeamSlug(sport, data, p[1]);
     if (!hit) return notFound();
     if (hit.redirect) return Response.redirect(new URL(hit.redirect, ctx.request.url).toString(), 301);
+    data.injuries = await getInjuries(ctx, sport);
     return html(renderTeamPage(sport, data, hit.team));
   }
   if (p.length > 1) return notFound();
@@ -513,5 +516,6 @@ async function renderSport(ctx, sport) {
   if (p[0] !== g.path.split("/").pop()) return Response.redirect(new URL(g.path, ctx.request.url).toString(), 301);
   let review = null;
   try { const r = await ctx.env.ASSETS.fetch(new URL(`/data/${sport}-reviews.json`, ctx.request.url)); if (r.ok) review = ((await r.json()).games ?? {})[g.game_id] ?? null; } catch (e) {}
-  return html(renderGame(g, data.games, records(data.games), review));
+  const inj = g.status === "post" ? null : await getInjuries(ctx, sport);
+  return html(renderGame(g, data.games, records(data.games), review, inj));
 }

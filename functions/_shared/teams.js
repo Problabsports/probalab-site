@@ -1,3 +1,5 @@
+import { teamInjuries, getInjuries } from "./injuries.js";
+export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
 import {
@@ -227,6 +229,11 @@ function upcomingFor(data, team) {
 }
 
 function injuriesFor(data, team) {
+  if (data.injuries && Object.keys(data.injuries.byTeam || {}).length) {
+    const list = teamInjuries(data.injuries, team.name || team.abbr);
+    if (list) return list.filter((m) => /Out|Doubtful|Questionable|Injured|Suspended/.test(m.status)).slice(0, 15).map((m) => ({ player: m.player + (m.pos ? ` (${m.pos})` : ""), status: m.status + (m.area ? ` · ${m.area}` : "") }));
+    return [];
+  }
   const up = upcomingFor(data, team);
   for (const g of up) {
     const d = g.detail || {};
@@ -550,7 +557,7 @@ export function renderTeamPage(sport, data, team) {
   const injHtml = injuries == null
     ? `<p class="small">Injury notes are not on file for this team right now.</p>`
     : !injuries.length
-      ? `<p>No regulars on the injury report in the latest game file.</p>`
+      ? `<p>No players listed out, doubtful or questionable right now.</p>`
       : `<ul>${injuries.map((m) => `<li><b>${esc(m.player)}</b> · ${esc(m.status || "listed")}${m.min != null ? ` · ${Math.round(m.min)} min a game` : ""}</li>`).join("")}</ul>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${esc(S)}</a> › <a href="/${sport}/team">Teams</a> › <span>${esc(team.name)}</span></nav>

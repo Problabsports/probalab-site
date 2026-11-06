@@ -1,6 +1,6 @@
 import { serveHidden } from "../_hidden/serve.js";
 import { html, notFound } from "../_shared/site.js";
-import { renderTeamIndex, renderTeamPage, resolveTeamSlug, eplDataFromFiles } from "../_shared/teams.js";
+import { getInjuries, renderTeamIndex, renderTeamPage, resolveTeamSlug, eplDataFromFiles } from "../_shared/teams.js";
 
 const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).then((r) => (r.ok ? r.json() : d)).catch(() => d);
 
@@ -18,6 +18,7 @@ export async function onRequestGet(ctx) {
       const hit = resolveTeamSlug("epl", data, parts[1]);
       if (!hit) return notFound();
       if (hit.redirect) return Response.redirect(new URL(hit.redirect, ctx.request.url).toString(), 301);
+      data.injuries = await getInjuries(ctx, "epl");
       return html(renderTeamPage("epl", data, hit.team));
     }
     return notFound();
