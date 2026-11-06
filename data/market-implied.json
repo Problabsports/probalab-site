@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-06T20:55:06Z",
+  "generated_utc": "2026-11-06T21:50:50Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -212,19 +212,6 @@
     },
     {
       "sport": "epl",
-      "game_id": "401879242",
-      "away": "Coventry",
-      "home": "Everton",
-      "start_utc": "2026-11-06T20:00:00Z",
-      "market_home": 0.4637,
-      "market_draw": 0.3383,
-      "market_away": 0.198,
-      "odds_game_id": "EPL_2627_20261106_EVE_COV",
-      "home_name": "Everton",
-      "away_name": "Coventry City"
-    },
-    {
-      "sport": "epl",
       "game_id": "401878758",
       "away": "Tottenham",
       "home": "Leeds",
@@ -268,9 +255,9 @@
       "away": "Man City",
       "home": "Nott'm Forest",
       "start_utc": "2026-11-07T17:30:00Z",
-      "market_home": 0.2165,
-      "market_draw": 0.2418,
-      "market_away": 0.5417,
+      "market_home": 0.2154,
+      "market_draw": 0.2412,
+      "market_away": 0.5434,
       "odds_game_id": "EPL_2627_20261107_NFF_MCI",
       "home_name": "Nottingham Forest",
       "away_name": "Manchester City"
@@ -307,9 +294,9 @@
       "away": "Bournemouth",
       "home": "Ipswich",
       "start_utc": "2026-11-08T14:00:00Z",
-      "market_home": 0.2379,
-      "market_draw": 0.2603,
-      "market_away": 0.5018,
+      "market_home": 0.2377,
+      "market_draw": 0.26,
+      "market_away": 0.5024,
       "odds_game_id": "EPL_2627_20261108_IPS_BOU",
       "home_name": "Ipswich Town",
       "away_name": "AFC Bournemouth"
@@ -333,9 +320,9 @@
       "away": "Aston Villa",
       "home": "Man United",
       "start_utc": "2026-11-08T16:30:00Z",
-      "market_home": 0.4375,
-      "market_draw": 0.2542,
-      "market_away": 0.3083,
+      "market_home": 0.4367,
+      "market_draw": 0.2545,
+      "market_away": 0.3088,
       "odds_game_id": "EPL_2627_20261108_MUN_AST",
       "home_name": "Manchester United",
       "away_name": "Aston Villa"
