@@ -1,3 +1,5 @@
+import { teamInjuries, getInjuries } from "./injuries.js";
+export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
 import {
@@ -227,6 +229,11 @@ function upcomingFor(data, team) {
 }
 
 function injuriesFor(data, team) {
+  if (data.injuries && Object.keys(data.injuries.byTeam || {}).length) {
+    const list = teamInjuries(data.injuries, team.name || team.abbr);
+    if (list) return list.filter((m) => /Out|Doubtful|Questionable|Injured|Suspended/.test(m.status)).slice(0, 15).map((m) => ({ player: m.player + (m.pos ? ` (${m.pos})` : ""), status: m.status + (m.area ? ` · ${m.area}` : "") }));
+    return [];
+  }
   const up = upcomingFor(data, team);
   for (const g of up) {
     const d = g.detail || {};
