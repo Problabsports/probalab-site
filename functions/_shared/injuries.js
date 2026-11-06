@@ -2,8 +2,10 @@
 // We show only facts (player, position, our status label, injury area, date), never ESPN's written notes.
 const PATHS = { nba: "basketball/nba", nfl: "football/nfl", nhl: "hockey/nhl", epl: "soccer/eng.1" };
 export const INJ_TTL = 900;
-const RANK = { Out: 0, "Injured Reserve": 1, Suspension: 1, Doubtful: 2, Questionable: 3, "Day-To-Day": 4 };
-const label = (s) => (/injured reserve|^ir$/i.test(s) ? "Injured reserve" : /out/i.test(s) ? "Out" : /doubt/i.test(s) ? "Doubtful" : /question/i.test(s) ? "Questionable" : /day/i.test(s) ? "Day-to-day" : /susp/i.test(s) ? "Suspended" : null);
+const RANK = { Out: 0, "Injured reserve": 1, Suspended: 1, Doubtful: 2, Questionable: 3, "Day-to-day": 4, "Reduced minutes": 5, Probable: 6, Returning: 7 };
+const label = (s) => (/injured reserve|^ir$/i.test(s) ? "Injured reserve" : /susp/i.test(s) ? "Suspended" : /doubt/i.test(s) ? "Doubtful" : /question/i.test(s) ? "Questionable" : /day/i.test(s) ? "Day-to-day" : /minute|restrict/i.test(s) ? "Reduced minutes" : /probable/i.test(s) ? "Probable" : /activ|availab|return/i.test(s) ? "Returning" : /out/i.test(s) ? "Out" : null);
+// colour: red = out; orange = may miss or reduced minutes; green = probable / returning
+export const stClass = (st) => (/^(Out|Injured|Suspended)/.test(st || "") ? "red" : /^(Probable|Returning)/.test(st || "") ? "green" : "orange");
 export const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 
 export async function getInjuries(ctx, sport) {
@@ -22,7 +24,7 @@ export async function getInjuries(ctx, sport) {
       for (const t of raw.injuries || []) {
         const list = (t.injuries || []).map((i) => ({
           player: i.athlete?.displayName, pos: i.athlete?.position?.abbreviation || "",
-          status: label(i.status || i.type?.description || ""), area: i.details?.type || "", date: i.date || null,
+          status: label([i.status, i.type?.description].filter(Boolean).join(" ") || ""), area: i.details?.type || "", date: i.date || null,
         })).filter((m) => m.player && m.status).sort((a, b) => (RANK[a.status] ?? 5) - (RANK[b.status] ?? 5));
         if (list.length) byTeam[norm(t.displayName)] = list;
       }
@@ -45,7 +47,7 @@ export function teamInjuries(inj, name) {
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const when = (iso) => { try { return new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(iso)); } catch { return ""; } };
-const SHOW = new Set(["Out", "Doubtful", "Questionable", "Injured reserve", "Suspended"]);
+const SHOW = new Set(Object.keys(RANK));
 
 // key players: NFL quarterbacks; NBA players our model lists at 20+ minutes a game
 export function keyNames(sport, game, side) {
@@ -57,8 +59,8 @@ const isKey = (sport, m, keys) => (sport === "nfl" ? m.pos === "QB" : keys.has(n
 
 export function teamListHtml(sport, teamName, list, keys = new Set(), max = 12) {
   const xs = (list || []).filter((m) => SHOW.has(m.status));
-  if (!xs.length) return `<p class="small">${esc(teamName)}: no players listed out, doubtful or questionable.</p>`;
-  return `<h3>${esc(teamName)}</h3><ul class="inj">${xs.slice(0, max).map((m) => `<li><b>${esc(m.player)}</b>${m.pos ? ` <span class="small">${esc(m.pos)}</span>` : ""} · <span class="st ${esc(m.status.replace(/\s/g, ""))}">${esc(m.status)}</span>${m.area ? ` · ${esc(m.area)}` : ""}${isKey(sport, m, keys) ? ` <b class="key">key player</b>` : ""}${m.date ? ` <span class="small">(${esc(when(m.date))})</span>` : ""}</li>`).join("")}${xs.length > max ? `<li class="small">+${xs.length - max} more</li>` : ""}</ul>`;
+  if (!xs.length) return `<h3>${esc(teamName)}</h3><p class="small"> no players on the injury report.</p>`;
+  return `<h3>${esc(teamName)}</h3><ul class="inj">${xs.slice(0, max).map((m) => `<li><b>${esc(m.player)}</b>${m.pos ? ` <span class="small">${esc(m.pos)}</span>` : ""} · <span class="st ${stClass(m.status)}">${esc(m.status)}</span>${m.area ? ` · ${esc(m.area)}` : ""}${isKey(sport, m, keys) ? ` <b class="key">key player</b>` : ""}${m.date ? ` <span class="small">(${esc(when(m.date))})</span>` : ""}</li>`).join("")}${xs.length > max ? `<li class="small">+${xs.length - max} more</li>` : ""}</ul>`;
 }
 
 // Block for a game page: hidden when neither team has anyone listed.
@@ -71,7 +73,8 @@ export function gameInjuriesHtml(sport, inj, game, awayName, homeName) {
   const keyOut = [...a.filter((m) => isKey(sport, m, ka)), ...h.filter((m) => isKey(sport, m, kh))].filter((m) => /Out|Doubtful|Injured/.test(m.status));
   return `<section class="panel injuries"><h2>Injury report</h2>
     ${keyOut.length ? `<p class="keynote">⚠ Key player${keyOut.length > 1 ? "s" : ""} out or doubtful: ${keyOut.map((m) => `<b>${esc(m.player)}</b> (${esc(m.status)})`).join(", ")}.</p>` : ""}
-    <div class="inj-cols">${teamListHtml(sport, awayName, a, ka)}${teamListHtml(sport, homeName, h, kh)}</div>
+    <div class="inj-stack">${teamListHtml(sport, awayName, a, ka)}${teamListHtml(sport, homeName, h, kh)}</div>
+    <p class="small inj-legend"><span class="st red">● Out</span><span class="st orange">● May miss / reduced minutes</span><span class="st green">● Probable / returning</span></p>
     <p class="small">Statuses from the official team injury reports. Updated ${esc(when(inj.updated))}; refreshed every 15 minutes.</p></section>`;
 }
-export const INJ_CSS = `<style>.inj{list-style:none;padding:0;margin:0 0 10px}.inj li{padding:4px 0;border-top:1px solid var(--line)}.inj .st.Out,.inj .st.Injuredreserve,.inj .st.Suspended{color:var(--red)}.inj .st.Doubtful{color:var(--orange)}.inj .st.Questionable{color:var(--yellow,#ffd84d)}.inj .key{color:var(--red);font-size:11px;text-transform:uppercase;margin-left:4px}.keynote{border-left:3px solid var(--red);padding-left:10px}.inj-cols{display:grid;gap:12px}@media(min-width:720px){.inj-cols{grid-template-columns:1fr 1fr}}</style>`;
+export const INJ_CSS = `<style>.inj{list-style:none;padding:0;margin:0 0 10px}.inj li{padding:4px 0;border-top:1px solid var(--line)}.st{font-weight:700}.st.red{color:#ff4d4d}.st.orange{color:#ff9f1a}.st.green{color:#2ecc71}.inj .key{color:var(--red);font-size:11px;text-transform:uppercase;margin-left:4px}.keynote{border-left:3px solid var(--red);padding-left:10px}.inj-stack{display:block;text-align:left}.inj-stack h3{margin:14px 0 6px}.inj-legend span{margin-right:12px}</style>`;
