@@ -76,7 +76,7 @@
       focus: 'NFL totals · overs and unders',
       pitch: 'NFL game totals — overs and unders, mostly unders. Flat 1u.',
       countNote: 'Fresh record only — no backfill. Flat 1u.',
-      openNote: 'Open NFL totals tips awaiting settlement.',
+      openNote: 'Tips appear here in the last 4 hours before kickoff. Until then they stay on Upcoming.',
     },
   };
   function tipsterMeta(id) {

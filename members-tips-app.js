@@ -285,13 +285,23 @@
   function betFilter(rows) { return filtered(rows); }
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
+  // Tips tab for NFL Totals: only last 4h before kickoff (Upcoming keeps all open tips).
+  const NFL_TOTALS_TIPS_WINDOW_MS = 4 * 60 * 60 * 1000;
+  function inNflTotalsTipsWindow(r, now) {
+    const ko = Date.parse(r.kickoff_utc || "");
+    if (!Number.isFinite(ko)) return false;
+    return ko - now <= NFL_TOTALS_TIPS_WINDOW_MS;
+  }
   function renderOpen() {
     if (tipsterId === "nfl-weather") {
+      const now = Date.now();
       const rows = ((tipsterData && tipsterData.open_bets) || [])
         .filter((r) => r.published !== false)
+        .filter((r) => inNflTotalsTipsWindow(r, now))
         .filter((r) => inRange(r))
-        .filter((r) => !$("fSport").value || r.sport === $("fSport").value);
-      $("open").innerHTML = renderTotalsRows(rows, "No tips yet.");
+        .filter((r) => !$("fSport").value || r.sport === $("fSport").value)
+        .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+      $("open").innerHTML = renderTotalsRows(rows, "No tips live yet — they appear here in the last 4 hours before kickoff.");
       return;
     }
     let rows = betFilter((tipsterData && tipsterData.open_bets) || []);
