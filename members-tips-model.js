@@ -71,12 +71,12 @@
     },
     'nfl-weather': {
       id: 'nfl-weather',
-      name: 'NFL Weather',
+      name: 'NFL Totals',
       shortLabel: 'Tips',
-      focus: 'NFL Unders only',
-      pitch: 'Paper Unders when forecast kickoff wind is 10+ mph, the stadium is outdoors or the roof is confirmed open, and the total is 44+.',
-      countNote: 'Fresh paper record only — no backfill. Flat 1u. Domes and unconfirmed retractable roofs are skipped.',
-      openNote: 'Weather Unders recorded about 24 hours before kickoff, awaiting settlement.',
+      focus: 'NFL totals · overs and unders',
+      pitch: 'Paper tips on NFL game totals — overs and unders, mostly unders. Flat 1u.',
+      countNote: 'Fresh paper record only — no backfill. Flat 1u.',
+      openNote: 'Open NFL totals tips awaiting settlement.',
     },
   };
   function tipsterMeta(id) {

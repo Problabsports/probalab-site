@@ -89,10 +89,10 @@
         stats: probalab,
       })
       + liveCard({
-        name: "NFL Weather",
-        focus: "NFL Unders only",
-        pitch: "Paper Unders when forecast kickoff wind is 10+ mph, outdoors or roof confirmed open, and the total is 44+.",
-        footnote: "Fresh paper record. Domes and unconfirmed retractable roofs skipped. Preview desk.",
+        name: "NFL Totals",
+        focus: "NFL totals · overs and unders",
+        pitch: "Paper tips on NFL game totals — overs and unders, mostly unders. Flat 1u.",
+        footnote: "Fresh paper record. Preview desk.",
         href: "/members/tips/nfl-weather",
         stats: weather,
       })
@@ -127,7 +127,7 @@
     if (!weatherPayload) {
       try {
         const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
-        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results) || Array.isArray(j.watch_list))) weatherPayload = j;
+        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) weatherPayload = j;
       } catch (_) {}
     }
     renderLobby(payload, sniperPayload, plPayload, weatherPayload);

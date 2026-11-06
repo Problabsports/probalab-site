@@ -84,7 +84,7 @@
   function chartHtml(john, pl, withPl) {
     const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
     if(!dates.length) return tipsterId === 'nfl-weather'
-      ? '<p class="muted">No settled paper tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded Under. Nothing else is plotted.</p>'
+      ? '<p class="muted">No settled paper tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
       : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
@@ -116,7 +116,7 @@
     let lbB=withPl?endLab(b,'#39d98a','PL'):'';
     if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
     const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
-    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Weather' : (tipster.shortLabel || 'Tips');
+    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const legend=withPl
       ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
       : '<p class="note"><span style="color:#63b3ff">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
@@ -150,13 +150,13 @@
       ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
       : filtered(mineRaw, true);
     const pl = withPl ? filtered(data.pl_results || [], true) : [];
-    const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Weather' : (tipster.shortLabel || 'Tips');
+    const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const controls = tipsterId === 'nfl-weather'
       ? ''
       : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>');
     const note = tipsterId === 'nfl-weather'
-      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s paper 1u growth only — one line, no comparison to ProbaLab or any other tipster.</p>'
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s paper 1u growth only — one line.</p>'
       : (withPl
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
       : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
@@ -176,7 +176,7 @@
         +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
         +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
     } else if (tipsterId === 'nfl-weather') {
-      comparison='<p class="note">Win % excludes ties/voids. Flat paper 1u. One growth line for this desk only — not compared to ProbaLab greens, the public board, or any other tipster. Dates are Australia/Sydney.</p>';
+      comparison='<p class="note">Win % excludes ties/voids. Flat paper 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
     } else {
       comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     }
@@ -214,47 +214,45 @@
     if (!lightOk || price == null || p.min_price == null) return null;
     return price >= p.min_price && price <= 1.49;
   }
-  function renderWeatherWatch() {
-    const method = (tipsterData && tipsterData.method) || {};
-    const rows = (tipsterData && tipsterData.watch_list) || [];
-    const rule = method.rule ? '<p class="note">' + esc(method.rule) + ' Flat 1u paper. Wind = max mph over the 3-hour kickoff window (NWS).</p>' : '';
-    const roof = method.roof_policy ? '<p class="note">' + esc(method.roof_policy) + '</p>' : '';
-    if (!rows.length) {
-      $("today").innerHTML = rule + roof + '<p class="muted">No watch-list games yet. Domes are skipped; retractable roofs wait for a confirmed open.</p>';
-      return;
-    }
-    const lab = (l) => {
-      const map = {
-        qualifies: "Qualifies", watch_qualifying: "On watch (rule ok)", near_miss_wind: "Near miss · wind",
-        near_miss_total: "Near miss · total", awaiting_total: "Awaiting total", watching: "Watching",
-        retractable_unconfirmed: "Retractable · roof unconfirmed", international: "International · skipped",
-        wind_unavailable: "Wind unavailable", dome: "Dome · skipped", covered: "Covered · skipped"
-      };
-      return map[l] || l;
-    };
+  function totalsSide(r) {
+    const sel = String(r.selection || "");
+    const m = sel.match(/^(Over|Under)\s+([0-9.]+)/i);
+    if (m) return { side: m[1][0].toUpperCase() + m[1].slice(1).toLowerCase(), total: m[2] };
+    if (r.total_line != null) return { side: /over/i.test(sel) ? "Over" : "Under", total: String(r.total_line) };
+    return { side: sel || "—", total: "—" };
+  }
+  function bookieLabel(r) {
+    const b = r.price_book || r.bookie || r.book || "";
+    const map = { sportsbet: "Sportsbet", tab: "TAB", neds: "Neds", ladbrokes_au: "Ladbrokes", unibet: "Unibet",
+      betr_au: "Betr", pointsbetau: "PointsBet", tabtouch: "TABtouch", pinnacle: "Pinnacle", betfair_ex_au: "Betfair" };
+    return map[b] || (b ? String(b) : "—");
+  }
+  function renderTotalsRows(rows, emptyMsg) {
+    if (!rows.length) return '<p class="muted">' + esc(emptyMsg) + "</p>";
     const body = rows.map((r) => {
-      const wind = r.forecast_wind_mph == null ? "—" : Number(r.forecast_wind_mph).toFixed(0) + " mph";
-      const tot = r.total == null ? "—" : Number(r.total).toFixed(1);
-      const price = r.under_price == null ? "—" : Number(r.under_price).toFixed(2);
-      const book = r.price_book ? " · " + r.price_book : "";
+      const t = totalsSide(r);
       return "<tr><td>" + esc(dateTime(r.kickoff_utc)) + "</td>"
-        + '<td class="game">' + esc(r.game) + "</td>"
-        + "<td>" + esc(lab(r.label)) + "</td>"
-        + "<td>" + esc(wind) + "</td>"
-        + "<td>" + esc(tot) + "</td>"
-        + "<td>" + esc(price) + esc(book) + "</td>"
-        + "<td>" + esc(r.roof_status || "—") + "</td>"
-        + "<td>" + esc(r.venue || "—") + "</td></tr>";
+        + '<td class="game">' + esc(short(r.game) || r.game || "") + "</td>"
+        + "<td>" + esc(t.total) + "</td>"
+        + "<td>" + esc(t.side) + "</td>"
+        + "<td>" + esc(bookieLabel(r)) + "</td></tr>";
     }).join("");
-    $("today").innerHTML = rule + roof
-      + '<div class="sport-block panel"><div class="oddsfmt-bar"><h3>Watch list</h3><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div>'
-      + '<div class="table-wrap"><table class="tips"><thead><tr>'
-      + "<th>Kickoff</th><th>Game</th><th>Status</th><th>Wind</th><th>Total</th><th>Under</th><th>Roof</th><th>Venue</th>"
-      + "</tr></thead><tbody>" + body + "</tbody></table></div>"
-      + '<p class="note">A paper tip is recorded about 24 hours before kickoff when wind is still 10+ mph and the total is still 44+. If morning wind later drops below 10, the tip stays on the record.</p></div>';
+    return '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Kickoff</th><th>Game</th><th>Total</th><th>Side</th><th>Bookie</th>"
+      + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  function renderTotalsUpcoming() {
+    const now = Date.now();
+    const rows = ((tipsterData && tipsterData.open_bets) || [])
+      .filter((r) => r.published !== false)
+      .filter((r) => !r.kickoff_utc || Date.parse(r.kickoff_utc) > now)
+      .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+    $("today").innerHTML = '<div class="sport-block panel"><h3>Upcoming</h3>'
+      + renderTotalsRows(rows, "No tips yet.")
+      + "</div>";
   }
   function renderToday() {
-    if (tipsterId === "nfl-weather") { renderWeatherWatch(); return; }
+    if (tipsterId === "nfl-weather") { renderTotalsUpcoming(); return; }
     const now = Date.now();
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
@@ -284,29 +282,31 @@
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   function renderOpen() {
-    const rows = betFilter((tipsterData && tipsterData.open_bets) || []);
+    let rows = betFilter((tipsterData && tipsterData.open_bets) || []);
+    if (tipsterId === "nfl-weather") {
+      rows = rows.filter((r) => r.published !== false);
+      $("open").innerHTML = renderTotalsRows(rows, "No tips yet.");
+      return;
+    }
     if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId!=="john"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => {
-        const wx = tipsterId === "nfl-weather"
-          ? '<div class="note">' + esc(r.notes || "")
-            + (r.forecast_wind_mph != null ? " · wind " + Number(r.forecast_wind_mph).toFixed(0) + " mph" : "")
-            + (r.wind_dropped ? " · wind dropped (tip kept)" : "")
-            + "</div>"
-          : "";
-        return "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
-        + "<td>" + esc(shortSel(r.selection)) + wx + "</td>"
+      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
+        + "<td>" + esc(shortSel(r.selection)) + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
         + '<td class="u">' + fmtU(r.units) + "</td>"
-        + '<td class="fl">' + betFlags(r) + "</td></tr>";
-      }).join("")
+        + '<td class="fl">' + betFlags(r) + "</td></tr>").join("")
       + "</tbody></table></div>";
   }
   function renderResults() {
-    const rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    if (tipsterId === "nfl-weather") {
+      $("results").innerHTML = renderTotalsRows(rows.filter((r) => r.result === "W" || r.result === "L" || r.result === "T"), "No results yet.");
+      return;
+    }
+    rows = rows.filter((r) => r.result === "W" || r.result === "L");
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
@@ -335,7 +335,7 @@
   function renderAll() {
     const gen = dateTime(data.generated_at);
     $("meta").textContent = tipsterId === "nfl-weather"
-      ? ("Updated " + gen + " · units only · NFL Weather paper desk")
+      ? ("Updated " + gen + " · units only · NFL Totals paper desk")
       : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
@@ -387,25 +387,19 @@
       tipsterData = await loadIsolatedBlock("probalab");
     } else if (tipsterId === "nfl-weather") {
       tipsterData = await loadIsolatedBlock("nfl-weather");
-      if (!(tipsterData.open_bets && tipsterData.open_bets.length) && !(tipsterData.results && tipsterData.results.length)) {
-        try {
-          const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
-          tipsterData = {
-            open_bets: j.open_bets || [],
-            results: j.results || [],
-            watch_list: j.watch_list || [],
-            method: j.method || null,
-            generated_at: j.generated_at || null,
-            summary: j.summary || null,
-          };
-          if (j.generated_at) data.generated_at = j.generated_at;
-        } catch (_) {}
-      } else {
-        try {
-          const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
-          tipsterData.watch_list = j.watch_list || tipsterData.watch_list || [];
-          tipsterData.method = j.method || null;
-        } catch (_) { tipsterData.watch_list = tipsterData.watch_list || []; }
+      try {
+        const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+        const pub = (xs) => (xs || []).filter((r) => r.published !== false);
+        // Prefer file snapshot on preview; never surface watch_list or method to the desk.
+        tipsterData = {
+          open_bets: pub(j.open_bets && j.open_bets.length ? j.open_bets : tipsterData.open_bets),
+          results: (j.results && j.results.length ? j.results : tipsterData.results) || [],
+          generated_at: j.generated_at || tipsterData.generated_at || null,
+          summary: j.summary || null,
+        };
+        if (j.generated_at) data.generated_at = j.generated_at;
+      } catch (_) {
+        tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => r.published !== false);
       }
     } else {
       tipsterData = {

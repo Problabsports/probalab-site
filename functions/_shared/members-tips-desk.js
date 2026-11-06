@@ -1,7 +1,7 @@
 // Shared HTML for a tipster's 4-tab tips desk. tipsterId: "john" | "sniper" | "probalab"
 export function tipsDeskBody(tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Weather" };
+  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals" };
   const safe = known[id] ? id : "john";
   const title = known[safe];
   return `
@@ -59,7 +59,7 @@ export function tipsDeskBody(tipsterId = "john") {
 
 export function tipsDeskResponse(shell, html, tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Weather" };
+  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals" };
   const safe = known[id] ? id : "john";
   const title = known[safe];
   const page = shell({
