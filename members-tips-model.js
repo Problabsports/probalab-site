@@ -74,8 +74,8 @@
       name: 'NFL Totals',
       shortLabel: 'Tips',
       focus: 'NFL totals · overs and unders',
-      pitch: 'Paper tips on NFL game totals — overs and unders, mostly unders. Flat 1u.',
-      countNote: 'Fresh paper record only — no backfill. Flat 1u.',
+      pitch: 'NFL game totals — overs and unders, mostly unders. Flat 1u.',
+      countNote: 'Fresh record only — no backfill. Flat 1u.',
       openNote: 'Open NFL totals tips awaiting settlement.',
     },
   };

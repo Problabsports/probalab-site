@@ -88,7 +88,7 @@
   function chartHtml(john, pl, withPl) {
     const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
     if(!dates.length) return tipsterId === 'nfl-weather'
-      ? '<p class="muted">No settled paper tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
+      ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
       : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
@@ -160,7 +160,7 @@
       : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>');
     const note = tipsterId === 'nfl-weather'
-      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s paper 1u growth only — one line.</p>'
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
       : (withPl
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
       : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
@@ -180,7 +180,7 @@
         +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
         +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
     } else if (tipsterId === 'nfl-weather') {
-      comparison='<p class="note">Win % excludes ties/voids. Flat paper 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
+      comparison='<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
     } else {
       comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     }
@@ -347,7 +347,7 @@
   function renderAll() {
     const gen = dateTime(data.generated_at);
     $("meta").textContent = tipsterId === "nfl-weather"
-      ? ("Updated " + gen + " · units only · NFL Totals paper desk")
+      ? ("Updated " + gen + " · units only · NFL Totals")
       : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;

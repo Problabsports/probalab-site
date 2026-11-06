@@ -91,8 +91,8 @@
       + liveCard({
         name: "NFL Totals",
         focus: "NFL totals · overs and unders",
-        pitch: "Paper tips on NFL game totals — overs and unders, mostly unders. Flat 1u.",
-        footnote: "Fresh paper record. Preview desk.",
+        pitch: "NFL game totals — overs and unders, mostly unders. Flat 1u.",
+        footnote: "Fresh record. Flat 1u.",
         href: "/members/tips/nfl-weather",
         stats: weather,
       })
