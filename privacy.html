@@ -30,6 +30,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/page.css">
 
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <header class="top"><div class="wrap">
@@ -70,6 +72,7 @@
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="privacy">
   <button type="submit">Sign up</button></div>
+  <div class="cf-turnstile" data-sitekey="0x4AAAAAAF1-8hWamb8_PqUn" data-action="subscribe" data-theme="dark"></div>
   <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
 </form>
   <p><b>Predictions for entertainment, not advice.</b></p>
@@ -79,13 +82,25 @@
 <script>
 document.querySelectorAll("form[data-signup]").forEach(function (f) {
   f.addEventListener("submit", function (e) {
-    e.preventDefault(); var m = f.querySelector(".msg"), b = f.querySelector("button"); b.disabled = true; m.textContent = "Signing you up…";
+    e.preventDefault();
+    var m = f.querySelector(".msg"), b = f.querySelector("button");
+    var tokEl = f.querySelector("[name='cf-turnstile-response']");
+    var token = tokEl && tokEl.value ? tokEl.value : "";
+    b.disabled = true; m.textContent = "Signing you up…";
     fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source ? f.source.value : "" }) })
-      .then(function (r) { return r.json(); }).then(function (j) {
-        m.textContent = j.ok ? "Thanks, you're on the list." : (j.error || "Something went wrong. Please try again.");
-        if (j.ok) f.email.value = ""; b.disabled = false; })
-      .catch(function () { m.textContent = "Something went wrong. Please try again."; b.disabled = false; });
+      body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source ? f.source.value : "", "cf-turnstile-response": token }) })
+      .then(function (r) { return r.json().then(function (j) { return { j: j }; }); })
+      .then(function (x) {
+        var j = x.j || {};
+        m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again.");
+        if (j.ok) f.email.value = "";
+      })
+      .catch(function () { m.textContent = "Something went wrong. Please try again."; })
+      .finally(function () {
+        b.disabled = false;
+        var w = f.querySelector(".cf-turnstile");
+        if (window.turnstile && w) { try { window.turnstile.reset(w); } catch (err) { try { window.turnstile.reset(); } catch (err2) {} } }
+      });
   });
 });
 // show times in the reader's own time zone

@@ -310,6 +310,8 @@ td .tm { display: flex; gap: 8px; align-items: center; }
   .match .crest { width: 48px; height: 48px; font-size: 14px; }
 }
 </style>
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 <style>
@@ -344,7 +346,7 @@ table.cmp td.edge { color: var(--cyan); font-weight: 700; text-shadow: 0 0 10px 
 .signup button:disabled { opacity: .6; }
 .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .signup .small { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
-.signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }
+.signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }.signup .cf-turnstile { margin: 10px 0 2px; }
 .toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
 .toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
 .toppick b { color: var(--ink); font-weight: 700; margin-right: 4px; }
@@ -607,6 +609,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="app">
       <button type="submit">Sign up</button></div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAF1-8hWamb8_PqUn" data-action="subscribe" data-theme="dark"></div>
       <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
@@ -1602,11 +1605,20 @@ function rerenderPred() { renderPredictions(); renderSide("predictions"); }
 window.addEventListener("hashchange", route);
 document.addEventListener("submit", (e) => {
   const f = e.target.closest("form[data-signup]"); if (!f) return;
-  e.preventDefault(); const m = f.querySelector(".msg"), b = f.querySelector("button"); b.disabled = true; m.textContent = "Signing you up…";
+  e.preventDefault(); const m = f.querySelector(".msg"), b = f.querySelector("button");
+  const tokEl = f.querySelector("[name='cf-turnstile-response']");
+  const token = tokEl && tokEl.value ? tokEl.value : "";
+  b.disabled = true; m.textContent = "Signing you up…";
   f.source.value = "app:" + (location.hash.slice(1).split("-").slice(0, 2).join("-") || "home");
-  fetch("api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source.value }) })
-    .then((r) => r.json()).then((j) => { m.textContent = j.ok ? "Thanks, you're on the list." : (j.error || "Something went wrong. Please try again."); if (j.ok) f.email.value = ""; b.disabled = false; })
-    .catch(() => { m.textContent = "Something went wrong. Please try again."; b.disabled = false; });
+  fetch("api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source.value, "cf-turnstile-response": token }) })
+    .then((r) => r.json().then((j) => ({ j })))
+    .then(({ j }) => { m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again."); if (j.ok) f.email.value = ""; })
+    .catch(() => { m.textContent = "Something went wrong. Please try again."; })
+    .finally(() => {
+      b.disabled = false;
+      const w = f.querySelector(".cf-turnstile");
+      if (window.turnstile && w) { try { window.turnstile.reset(w); } catch (err) { try { window.turnstile.reset(); } catch (err2) {} } }
+    });
 });
 window.addEventListener("popstate", route);
 document.addEventListener("click", (e) => {
