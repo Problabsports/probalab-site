@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-06T18:14:59Z",
+  "generated_utc": "2026-11-06T19:06:33Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -216,9 +216,9 @@
       "away": "Coventry",
       "home": "Everton",
       "start_utc": "2026-11-06T20:00:00Z",
-      "market_home": 0.5849,
-      "market_draw": 0.2357,
-      "market_away": 0.1795,
+      "market_home": 0.5646,
+      "market_draw": 0.2404,
+      "market_away": 0.195,
       "odds_game_id": "EPL_2627_20261106_EVE_COV",
       "home_name": "Everton",
       "away_name": "Coventry City"
@@ -229,9 +229,9 @@
       "away": "Tottenham",
       "home": "Leeds",
       "start_utc": "2026-11-07T12:30:00Z",
-      "market_home": 0.3454,
-      "market_draw": 0.2855,
-      "market_away": 0.3691,
+      "market_home": 0.3444,
+      "market_draw": 0.2848,
+      "market_away": 0.3707,
       "odds_game_id": "EPL_2627_20261107_LEE_TOT",
       "home_name": "Leeds United",
       "away_name": "Tottenham Hotspur"
@@ -320,9 +320,9 @@
       "away": "Chelsea",
       "home": "Sunderland",
       "start_utc": "2026-11-08T14:00:00Z",
-      "market_home": 0.2673,
-      "market_draw": 0.2616,
-      "market_away": 0.4711,
+      "market_home": 0.2621,
+      "market_draw": 0.26,
+      "market_away": 0.4778,
       "odds_game_id": "EPL_2627_20261108_SUN_CHE",
       "home_name": "Sunderland",
       "away_name": "Chelsea"
