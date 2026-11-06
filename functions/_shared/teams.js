@@ -557,7 +557,7 @@ export function renderTeamPage(sport, data, team) {
   const injHtml = injuries == null
     ? `<p class="small">Injury notes are not on file for this team right now.</p>`
     : !injuries.length
-      ? `<p>No regulars on the injury report in the latest game file.</p>`
+      ? `<p>No players listed out, doubtful or questionable right now.</p>`
       : `<ul>${injuries.map((m) => `<li><b>${esc(m.player)}</b> · ${esc(m.status || "listed")}${m.min != null ? ` · ${Math.round(m.min)} min a game` : ""}</li>`).join("")}</ul>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${esc(S)}</a> › <a href="/${sport}/team">Teams</a> › <span>${esc(team.name)}</span></nav>
