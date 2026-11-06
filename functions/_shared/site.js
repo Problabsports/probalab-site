@@ -162,12 +162,17 @@ function nflPreview(g, rec) {
   return out;
 }
 
+// Public Turnstile sitekey (secret stays in Pages env as TURNSTILE_SECRET).
+export const TURNSTILE_SITEKEY = "0x4AAAAAAF1-8hWamb8_PqUn";
+export const TURNSTILE_WIDGET = `<div class="cf-turnstile" data-sitekey="${TURNSTILE_SITEKEY}" data-action="subscribe" data-theme="dark"></div>`;
+
 export const signupMain = (source) => `<form class="signup main" action="/api/subscribe" method="post" data-signup>
   <label for="su-email-${esc(source)}"><b>Get every prediction and result by email</b></label>
   <p>Twice a week, Monday and Thursday: the model's GREEN calls, how the last batch went, wins and misses both. Free.</p>
   <div class="srow"><input id="su-email-${esc(source)}" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
   <button type="submit">Sign me up</button></div>
+  ${TURNSTILE_WIDGET}
   <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
 </form>`;
 export const AMAZON_DISCLOSURE = `As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.`;
@@ -176,17 +181,30 @@ export const signupForm = (source) => `<form class="signup" action="/api/subscri
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
   <button type="submit">Sign up</button></div>
+  ${TURNSTILE_WIDGET}
   <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
 </form>`;
 export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach(function (f) {
   f.addEventListener("submit", function (e) {
-    e.preventDefault(); var m = f.querySelector(".msg"), b = f.querySelector("button"); b.disabled = true; m.textContent = "Signing you up…";
+    e.preventDefault();
+    var m = f.querySelector(".msg"), b = f.querySelector("button");
+    var tokEl = f.querySelector("[name='cf-turnstile-response']");
+    var token = tokEl && tokEl.value ? tokEl.value : "";
+    b.disabled = true; m.textContent = "Signing you up…";
     fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source ? f.source.value : "" }) })
-      .then(function (r) { return r.json(); }).then(function (j) {
-        m.textContent = j.ok ? "Thanks, you're on the list." : (j.error || "Something went wrong. Please try again.");
-        if (j.ok) f.email.value = ""; b.disabled = false; })
-      .catch(function () { m.textContent = "Something went wrong. Please try again."; b.disabled = false; });
+      body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source ? f.source.value : "", "cf-turnstile-response": token }) })
+      .then(function (r) { return r.json().then(function (j) { return { j: j }; }); })
+      .then(function (x) {
+        var j = x.j || {};
+        m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again.");
+        if (j.ok) f.email.value = "";
+      })
+      .catch(function () { m.textContent = "Something went wrong. Please try again."; })
+      .finally(function () {
+        b.disabled = false;
+        var w = f.querySelector(".cf-turnstile");
+        if (window.turnstile && w) { try { window.turnstile.reset(w); } catch (err) { try { window.turnstile.reset(); } catch (err2) {} } }
+      });
   });
 });`;
 
@@ -224,6 +242,8 @@ ${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" hr
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/page.css">
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>` : ""}
 </head>
 <body>
