@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const M = require('../members-tips-model.js');
+const base={tag:'PL',game:'BOS @ DET',selection:'DET',sport:'NBA',light:'GREEN',result:'W',units:1,pnl_units:0.4,kickoff_utc:'2026-11-05T20:00:00Z'};
+assert.equal(M.number(''),null);
+assert.equal(M.number(0),0);
+assert.equal(M.pnl({...base,units:null,pnl_units:0}),null);
+assert.equal(M.pnl({...base,units:0,pnl_units:0}),0);
+assert.equal(M.visible({...base,tag:'CL'}),false);
+assert.equal(M.visible({...base,tag:'CL+PL'}),true);
+assert.equal(M.valid({...base,game:'',selection:'25610'}),false);
+assert.equal(M.day('2026-11-05T20:00:00Z'),'2026-11-06');
+assert.equal(M.colour({...base,light:null}),'UNRATED');
+const st=M.stats([base,{...base,result:'L',units:null,pnl_units:0},{...base,result:'void',pnl_units:0}]);
+assert.equal(st.bets,3); assert.equal(st.covered,2); assert.equal(st.win_pct,.5); assert.equal(st.units,.4); assert.equal(st.roi,.2);
+assert.equal(M.series([base,{...base,units:null,pnl_units:0}])[0].units,.4);
+assert.equal(M.stats([]).units,null);
+console.log('Tips model: 15 assertions passed');

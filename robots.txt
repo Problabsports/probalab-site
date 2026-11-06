@@ -3,5 +3,6 @@ Allow: /
 Disallow: /api/
 Disallow: /functions/
 Disallow: /tools/
+Disallow: /members/tips
 
 Sitemap: https://probalabsports.com/sitemap.xml
