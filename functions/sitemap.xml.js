@@ -6,7 +6,7 @@ const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).t
 
 export async function onRequestGet(ctx) {
   const urls = [
-    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/today", pri: "0.95", freq: "hourly" }, { loc: "/accuracy", pri: "0.8", freq: "daily" },
+    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/today", pri: "0.95", freq: "hourly" }, { loc: "/teams", pri: "0.8", freq: "daily" }, { loc: "/accuracy", pri: "0.8", freq: "daily" },
     { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nba/today", pri: "0.9", freq: "hourly" }, { loc: "/nba/record", pri: "0.7", freq: "daily" }, { loc: "/nba/team", pri: "0.75", freq: "daily" },
     { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nfl/today", pri: "0.9", freq: "hourly" }, { loc: "/nfl/record", pri: "0.7", freq: "daily" }, { loc: "/nfl/team", pri: "0.75", freq: "daily" },
     { loc: "/nhl", pri: "0.9", freq: "hourly" }, { loc: "/nhl/team", pri: "0.75", freq: "daily" },
