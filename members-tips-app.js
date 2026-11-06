@@ -128,7 +128,7 @@
       const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
       return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
     }).join('');
-    $("summary").innerHTML=controls+'<p class="note">Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
+    $("summary").innerHTML=controls+'<p class="note"><b>Only bets on a PL pick are counted.</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
       +'<div class="cards cols-2">'+statsHtml('My settled bets',john)+statsHtml('PL site picks',pl)+'</div>'
       +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(john,pl)+'</section>'
       +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">My settled bets</th><th colspan="5">All PL site picks</th></tr><tr>'
