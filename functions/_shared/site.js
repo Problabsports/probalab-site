@@ -301,6 +301,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
   <h1>${esc(A)} vs ${esc(H)} prediction</h1>
   <p class="when">${g.sport === "nfl" ? "Kick-off" : "Start"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
   ${pickCard}
+  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${!post ? gameInjuriesHtml(g.sport, inj, g, A, H) + INJ_CSS : ""}
   ${resultHtml}
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}
@@ -308,7 +309,6 @@ export function renderGame(g, all, rec, review = null, inj = null) {
   ${previewSection(g, all)}
   ${post ? "" : signupMain("game")}
   ${post && review ? reviewHtml(review) : ""}
-  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. <a href="/#about">How it works</a>.</p>`;
   const venue = venueOf(g);
