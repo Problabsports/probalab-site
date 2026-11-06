@@ -26,8 +26,9 @@
     return M.stats(rows);
   }
 
-  function sniperCardStats(payload) {
-    const block = (payload.tipsters && payload.tipsters.sniper) || {};
+  function sniperCardStats(payload, sniperPayload) {
+    const block = sniperPayload
+      || ((payload.tipsters && payload.tipsters.sniper) || {});
     const rows = (block.results || []).filter((r) => M.valid(r) && (r.result === "W" || r.result === "L"));
     return M.stats(rows);
   }
@@ -55,9 +56,9 @@
       + '<p class="note">No record yet — slot reserved.</p></div>';
   }
 
-  function renderLobby(payload) {
+  function renderLobby(payload, sniperPayload) {
     const john = johnCardStats(payload);
-    const sniper = sniperCardStats(payload);
+    const sniper = sniperCardStats(payload, sniperPayload);
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
@@ -96,7 +97,12 @@
     if (!row) throw new Error("No tips snapshot yet");
     const payload = row.payload || {};
     if (row.generated_at && !payload.generated_at) payload.generated_at = row.generated_at;
-    renderLobby(payload);
+    let sniperPayload = null;
+    const { data: snRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "sniper").maybeSingle();
+    if (snRow && snRow.payload && (Array.isArray(snRow.payload.results) || Array.isArray(snRow.payload.open_bets))) {
+      sniperPayload = snRow.payload;
+    }
+    renderLobby(payload, sniperPayload);
   }
 
   function show(mode) {

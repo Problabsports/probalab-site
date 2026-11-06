@@ -114,7 +114,7 @@
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
-      +'<p class="note"><span style="color:#63b3ff">● My bets'+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>';
+      +'<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>';
   }
   function wireChart() {
     const w=document.querySelector('#summary .chart-wrap'); if(!w) return;
@@ -267,6 +267,21 @@
     await sb.from("member_profiles").upsert({ user_id: session.user.id, email, role: allow.role }, { onConflict: "user_id" });
     return true;
   }
+  async function loadSniperBlock() {
+    // Prefer isolated snapshot id=sniper (never John's open_bets/results).
+    const { data: row } = await sb.from("tips_page_snapshot").select("payload").eq("id", "sniper").maybeSingle();
+    if (row && row.payload) {
+      const p = row.payload;
+      if (Array.isArray(p.open_bets) || Array.isArray(p.results)) {
+        return { open_bets: p.open_bets || [], results: p.results || [] };
+      }
+    }
+    const block = (data.tipsters && data.tipsters.sniper) || {};
+    return {
+      open_bets: Array.isArray(block.open_bets) ? block.open_bets : [],
+      results: Array.isArray(block.results) ? block.results : [],
+    };
+  }
   async function loadTips() {
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
@@ -275,11 +290,7 @@
     data = row.payload;
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
     if (tipsterId === "sniper") {
-      const block = (data.tipsters && data.tipsters.sniper) || {};
-      tipsterData = {
-        open_bets: Array.isArray(block.open_bets) ? block.open_bets : [],
-        results: Array.isArray(block.results) ? block.results : [],
-      };
+      tipsterData = await loadSniperBlock();
     } else {
       tipsterData = {
         open_bets: data.open_bets || [],
