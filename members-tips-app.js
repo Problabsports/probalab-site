@@ -319,18 +319,67 @@
       + "<th>Tip-off</th><th>Game</th><th>Side</th><th>Tag</th><th>Book</th><th>Price</th><th>Pinnacle fair</th><th>Gap</th><th>vs close</th><th>Result</th><th>Units</th>"
       + "</tr></thead><tbody>" + body + "</tbody></table></div>";
   }
+  // Public NBA pages keep a game on the upcoming list until four hours after tip-off.
+  // This is the schedule only. It is not the NFL Totals rule that holds tips off the Tips tab.
+  const NBA_SCHEDULE_GRACE_MS = 4 * 60 * 60 * 1000;
+  function normTeam(c) {
+    const u = String(c || "").trim().toUpperCase();
+    const alias = { UTAH: "UTA", WSH: "WAS", GS: "GSW", NO: "NOP", NY: "NYK", SA: "SAS" };
+    return alias[u] || u;
+  }
+  function teamTokens(s) {
+    return short(String(s || "")).toUpperCase().split(/[^A-Z0-9]+/).filter((t) => t.length >= 2).map(normTeam);
+  }
+  function scheduleHasTip(g, tips) {
+    const id = String(g.game_id || "");
+    const away = normTeam(g.away);
+    const home = normTeam(g.home);
+    return tips.some((r) => {
+      const rid = String(r.game_id || r.pick_id || "");
+      if (id && rid.indexOf(id) !== -1) return true;
+      const toks = teamTokens(r.game);
+      return toks.length >= 2 && toks[0] === away && toks[1] === home;
+    });
+  }
+  async function loadNbaSchedule() {
+    try {
+      const res = await fetch("/api/feed?sport=nba", { cache: "no-store" });
+      if (!res.ok) return { games: [], error: true };
+      const j = await res.json();
+      const now = Date.now();
+      const games = (j.games || []).filter((g) => {
+        if (j.season != null && g.season != null && Number(g.season) !== Number(j.season)) return false;
+        if (String(g.status || "") === "post") return false;
+        const t = Date.parse(g.start_utc || "");
+        return Number.isFinite(t) && t > now - NBA_SCHEDULE_GRACE_MS;
+      }).sort((a, b) => Date.parse(a.start_utc) - Date.parse(b.start_utc));
+      return { games: games, error: false };
+    } catch (_) {
+      return { games: [], error: true };
+    }
+  }
   function renderGapUpcoming() {
-    const now = Date.now();
-    const rows = gapRows((tipsterData && tipsterData.open_bets) || [])
-      .filter((r) => {
-        const ko = Date.parse(r.kickoff_utc || "");
-        return !Number.isFinite(ko) || ko > now;
-      })
-      .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+    const pack = (tipsterData && tipsterData.schedule) || { games: [], error: true };
+    const tips = gapRows((tipsterData && tipsterData.open_bets) || []);
+    const sport = $("fSport").value;
+    let games = sport && sport !== "NBA" ? [] : (pack.games || []);
+    games = games.filter((g) => inRange({ kickoff_utc: g.start_utc }));
+    let table;
+    if (pack.error) table = '<p class="muted">Could not load upcoming NBA games.</p>';
+    else if (!games.length) table = '<p class="muted">No upcoming NBA games.</p>';
+    else {
+      table = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+        + "<th>Tip-off</th><th>Game</th><th>Alert</th></tr></thead><tbody>"
+        + games.map((g) => {
+          const matchup = (g.away || "—") + " @ " + (g.home || "—");
+          const mark = scheduleHasTip(g, tips) ? '<span class="badge ok">Tip up</span>' : "—";
+          return "<tr><td>" + esc(dateTime(g.start_utc)) + '</td><td class="game">' + esc(matchup) + "</td><td>" + mark + "</td></tr>";
+        }).join("")
+        + "</tbody></table></div>";
+    }
     $("today").innerHTML = '<div class="sport-block panel"><h3>Upcoming</h3>'
-      + '<p class="note">Qualifying alerts that have not tipped off. Tips shows every open alert as well.</p>'
-      + renderGapTable(rows, "No upcoming alerts.", "open")
-      + "</div>";
+      + '<p class="note">Coming NBA games from the site schedule, so you can see what is on. This list is not a tip. When a price gap qualifies, the alert is on Tips and the game stays here.</p>'
+      + table + "</div>";
   }
   function renderGapSummary() {
     const mine = ((tipsterData && tipsterData.results) || [])
@@ -373,11 +422,13 @@
     const fileRes = file && Array.isArray(file.results) && file.results.length ? file.results : null;
     const norm = (xs) => (xs || []).filter((r) => r && r.published !== false).map(normalizeGapBet);
     const usingFile = !!(fileOpen || fileRes);
+    const schedule = await loadNbaSchedule();
     return {
       open_bets: norm(fileOpen || remote.open_bets),
       results: norm(fileRes || remote.results),
       generated_at: usingFile ? (file.generated_at || null) : ((file && file.generated_at) || null),
       about: (file && file.about) || null,
+      schedule: schedule,
     };
   }
   function renderToday() {

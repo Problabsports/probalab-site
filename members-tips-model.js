@@ -85,7 +85,7 @@
       focus: 'NBA moneylines',
       pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
       countNote: 'Flat 1 unit at the alerted price, from 7 Nov 2026. Favourites (Pinnacle fair chance 50% or higher) are tagged separately from underdogs.',
-      openNote: 'Open alerts at the price we flagged. Upcoming keeps the ones still to tip off. Tips lists every open alert straight away.',
+      openNote: 'Qualified price-gap alerts. They show here as soon as they qualify.',
     },
   };
   function tipsterMeta(id) {
