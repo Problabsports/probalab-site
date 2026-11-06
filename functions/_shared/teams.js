@@ -585,7 +585,7 @@ export function renderTeamPage(sport, data, team) {
   </section>
 
   <section class="panel"><h2>Upcoming</h2>
-    ${up.length ? `<ul class="games today-games team-upcoming"><li class="head"><span class="d">When</span><span class="m">Match</span><span class="p">Win chance</span><span class="chip-slot"></span><span class="fp">Fair <button type="button" class="oddsfmt">DEC ⇄</button></span></li>${upRows}</ul>` : `<p>No upcoming ${esc(S)} games on the schedule yet.</p>`}
+    ${up.length ? `<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><ul class="games today-games team-upcoming"><li class="head"><span class="d">When</span><span class="m">Match</span><span class="p">Win chance</span><span class="chip-slot"></span><span class="fp">Fair</span></li>${upRows}</ul>` : `<p>No upcoming ${esc(S)} games on the schedule yet.</p>`}
   </section>
 
   <section class="panel"><h2>Injuries</h2>${injHtml}</section>

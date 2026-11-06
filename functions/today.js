@@ -63,7 +63,8 @@ function valueOf(modelP, marketP) {
   return modelP - marketP;
 }
 
-const HEAD = `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair <button type="button" class="oddsfmt">DEC ⇄</button></span><span class="mk">Market</span><span class="gap">Value</span></li>`;
+const HEAD = `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span><span class="mk">Market</span><span class="gap">Value</span></li>`;
+const FMT_BAR = `<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div>`;
 
 // Value badge: GREEN/SUPER and model−market ≥ +3.0 percentage points.
 const VALUE_MIN = 0.03;
@@ -107,6 +108,7 @@ function section(id, name, games, links, extra) {
   const rows = HEAD + games.map(todayRow).join("");
   return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
   ${valueNote}
+  ${FMT_BAR}
   <ul class="games today-games">${rows}</ul>
   <p class="small">${links}</p></section>`;
 }

@@ -183,8 +183,8 @@
           + "<td>" + fmtOdds(p.current_price) + "</td>"
           + "<td>" + qBadge + " " + taken + " " + warnTag(p) + "</td></tr>";
       }).join("");
-      return '<div class="sport-block panel"><h3>' + esc(sport) + '</h3><div class="table-wrap"><table class="tips"><thead><tr>'
-        + "<th>Tip-off</th><th>Game</th><th>Pick</th><th>Light</th><th>Win %</th><th>Min<button type=\"button\" class=\"oddsfmt\">DEC ⇄</button></th><th>Price<button type=\"button\" class=\"oddsfmt\">DEC ⇄</button></th><th>Flags</th>"
+      return '<div class="sport-block panel"><div class="oddsfmt-bar"><h3>' + esc(sport) + '</h3><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips"><thead><tr>'
+        + "<th>Tip-off</th><th>Game</th><th>Pick</th><th>Light</th><th>Win %</th><th>Min</th><th>Price</th><th>Flags</th>"
         + "</tr></thead><tbody>" + body + "</tbody></table></div></div>";
     }).join("");
   }
@@ -194,8 +194,8 @@
   function renderOpen() {
     const rows = betFilter(data.open_bets || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">No open bets in this filter.</p>'; return; }
-    $("open").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
-      + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price<button type=\"button\" class=\"oddsfmt\">DEC ⇄</button></th><th>Units</th><th>Flags</th>"
+    $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
       + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
         + "<td>" + esc(shortSel(r.selection)) + "</td>"
@@ -208,8 +208,8 @@
   function renderResults() {
     const rows = betFilter(data.results || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
-    $("results").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
-      + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds<button type=\"button\" class=\"oddsfmt\">DEC ⇄</button></th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
+    $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
       + rows.map((r) => "<tr><td>" + esc(shortDate(r.kickoff_utc || r.placed_utc)) + "</td>" + gameCell(r)
         + "<td>" + esc(shortSel(r.selection)) + "</td>"

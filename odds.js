@@ -1,5 +1,5 @@
 /* ProbaLab odds format: any <span class="odds" data-dec="1.45"> shows in the visitor's chosen format.
-   Any <button class="oddsfmt"> cycles Decimal -> American -> Implied % for every price on the page. Saved in localStorage. */
+   Any <button class="oddsfmt"> (usually in .oddsfmt-bar above a table) cycles Decimal -> American -> Implied % for every price on the page. Saved in localStorage. */
 (function () {
   if (window.PLOdds) return;
   var MODES = ["dec", "us", "pct"], LABEL = { dec: "Decimal", us: "American", pct: "Implied %" }, SHORT = { dec: "DEC", us: "US", pct: "%" };
@@ -30,7 +30,7 @@
     setMode(MODES[(MODES.indexOf(mode) + 1) % MODES.length]);
   }, true);
   var css = document.createElement("style");
-  css.textContent = "button.oddsfmt{font:600 10px/1 inherit;letter-spacing:.04em;padding:3px 6px;margin-left:6px;border-radius:999px;border:1px solid rgba(99,179,255,.5);background:rgba(99,179,255,.1);color:#63b3ff;cursor:pointer;vertical-align:middle;white-space:nowrap}button.oddsfmt:hover{background:rgba(99,179,255,.22)}.odds{font-variant-numeric:tabular-nums;white-space:nowrap}";
+  css.textContent = "button.oddsfmt{font:600 10px/1 inherit;letter-spacing:.04em;padding:4px 8px;margin:0;border-radius:999px;border:1px solid rgba(99,179,255,.5);background:rgba(99,179,255,.1);color:#63b3ff;cursor:pointer;vertical-align:middle;white-space:nowrap;flex:0 0 auto}button.oddsfmt:hover{background:rgba(99,179,255,.22)}.odds{font-variant-numeric:tabular-nums;white-space:nowrap}";
   document.head.appendChild(css);
   var pending = false;
   new MutationObserver(function () { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; apply(); }); }).observe(document.documentElement, { childList: true, subtree: true });
