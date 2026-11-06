@@ -14,6 +14,7 @@
     return String(q || "john").toLowerCase();
   }
   const tipsterId = resolveTipster() === "sniper" ? "sniper" : "john";
+  const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
   const $ = (id) => document.getElementById(id);
@@ -80,10 +81,10 @@
       +'<div><dt>Win %</dt><dd>'+fmtPct(st.win_pct)+'</dd></div><div><dt>Net units</dt><dd class="'+clsU(st.units)+'">'+fmtU(st.units)+'</dd></div>'
       +'<div><dt>ROI</dt><dd>'+fmtPct(st.roi)+'</dd></div></dl><p class="note">Units/ROI coverage: '+st.covered+'/'+st.bets+' settled.</p></div>';
   }
-  function chartHtml(john, pl) {
-    const a=M.series(john), b=M.series(pl), dates=[...new Set([...a,...b].map(p=>p.date))].sort();
+  function chartHtml(john, pl, withPl) {
+    const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
     if(!dates.length) return '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
-    const W=800,H=380,L=58,R=118,T=18,B=44;
+    const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
     const span=Math.max(1,Math.max(...vals)-Math.min(...vals));
@@ -103,18 +104,25 @@
     dates.forEach((d,i)=>{ if(i%every===0||i===n-1) g+='<text x="'+x(d)+'" y="'+(H-B+20)+'" text-anchor="middle">'+dfmt(d)+'</text>'; });
     const line=(pts,c)=>{ if(!pts.length) return ''; let p='M '+x(dates[0])+' '+y(0); pts.forEach(q=>{p+=' L '+x(q.date)+' '+y(q.units);}); return '<path d="'+p+'" fill="none" stroke="'+c+'" stroke-width="3" stroke-linejoin="round"/>'; };
     const endLab=(pts,c,lab)=>{ if(!pts.length) return ''; const q=pts[pts.length-1]; return '<circle cx="'+x(q.date)+'" cy="'+y(q.units)+'" r="4.5" fill="'+c+'"/><text x="'+(x(q.date)+8)+'" y="'+(y(q.units)+4)+'" fill="'+c+'" style="fill:'+c+'" font-weight="700">'+lab+' '+fu(q.units)+'</text>'; };
-    // avoid overlapping end labels
+    // avoid overlapping end labels when both series are drawn
     let la=a.length?y(a[a.length-1].units):0, lb=b.length?y(b[b.length-1].units):0;
     const at=(pts)=>{const m={};let v=0;pts.forEach(q=>m[q.date]=q.units);return dates.map(d=>(v=(d in m?m[d]:v)));};
     const ca=at(a), cb=at(b);
-    const data=JSON.stringify(dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—']));
-    let lbB=endLab(b,'#39d98a','PL'); if(a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
-    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative net units: Tips and PL site picks">'
-      +g+line(b,'#39d98a')+line(a,'#63b3ff')+endLab(a,'#63b3ff','Tips')+lbB
+    const data=JSON.stringify(withPl
+      ? dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—'])
+      : dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—']));
+    let lbB=withPl?endLab(b,'#39d98a','PL'):'';
+    if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
+    const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
+    const legend=withPl
+      ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
+      : '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span></p>';
+    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+aria+'">'
+      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff','Tips')+lbB
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
-      +'<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>';
+      +legend;
   }
   function wireChart() {
     const w=document.querySelector('#summary .chart-wrap'); if(!w) return;
@@ -123,30 +131,45 @@
       const e=ev.touches?ev.touches[0]:ev, r=svg.getBoundingClientRect(), vx=(e.clientX-r.left)/r.width*800;
       let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
       hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
-      tip.hidden=false; tip.innerHTML='<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>';
+      tip.hidden=false;
+      tip.innerHTML=best.length>3
+        ? '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>'
+        : '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span>';
       const left=best[0]/800*r.width; tip.style.left=Math.min(Math.max(0,left-60),r.width-130)+'px';
     };
     svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
-    const mine=filtered((tipsterData && tipsterData.results) || [],true), pl=filtered(data.pl_results || [],true);
+    const withPl = compareToPl;
+    const mine=filtered((tipsterData && tipsterData.results) || [],true), pl=withPl?filtered(data.pl_results || [],true):[];
     const tipLabel = tipster.shortLabel || 'Tips';
     const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
-    const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||mine.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
-      const a=M.stats(mine.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
-      const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
-      return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
-    }).join('');
-    $("summary").innerHTML=controls+'<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
-      +'<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
-      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(mine,pl)+'</section>'
-      +'<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">'+esc(tipLabel)+'</th><th colspan="5">All PL site picks</th></tr><tr>'
-      +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
-      +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
-      +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
-      +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    const note=withPl
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
+      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>';
+    const cards=withPl
+      ? '<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
+      : '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
+    let comparison='';
+    if(withPl){
+      const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||mine.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
+        const a=M.stats(mine.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
+        const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
+        return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
+      }).join('');
+      comparison='<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">'+esc(tipLabel)+'</th><th colspan="5">All PL site picks</th></tr><tr>'
+        +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+        +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
+        +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
+        +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    } else {
+      comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
+    }
+    $("summary").innerHTML=controls+note+cards
+      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(mine,pl,withPl)+'</section>'
+      +comparison;
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
       const sp=b.dataset.summarySport;
