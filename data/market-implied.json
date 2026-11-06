@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-06T21:50:50Z",
+  "generated_utc": "2026-11-06T22:51:13Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -99,8 +99,8 @@
       "away": "DAL",
       "home": "IND",
       "start_utc": "2026-11-08T18:00:00Z",
-      "market_home": 0.3213,
-      "market_away": 0.6787
+      "market_home": 0.3265,
+      "market_away": 0.6735
     },
     {
       "sport": "nfl",
@@ -117,8 +117,8 @@
       "away": "DET",
       "home": "MIA",
       "start_utc": "2026-11-08T18:00:00Z",
-      "market_home": 0.2872,
-      "market_away": 0.7128
+      "market_home": 0.2885,
+      "market_away": 0.7115
     },
     {
       "sport": "nfl",
@@ -126,8 +126,8 @@
       "away": "CLE",
       "home": "NO",
       "start_utc": "2026-11-08T18:00:00Z",
-      "market_home": 0.604,
-      "market_away": 0.396
+      "market_home": 0.6186,
+      "market_away": 0.3814
     },
     {
       "sport": "nfl",
@@ -153,8 +153,8 @@
       "away": "DEN",
       "home": "CAR",
       "start_utc": "2026-11-08T18:00:00Z",
-      "market_home": 0.4315,
-      "market_away": 0.5685
+      "market_home": 0.4217,
+      "market_away": 0.5783
     },
     {
       "sport": "nfl",
@@ -162,8 +162,8 @@
       "away": "HOU",
       "home": "LAC",
       "start_utc": "2026-11-08T21:05:00Z",
-      "market_home": 0.3075,
-      "market_away": 0.6925
+      "market_home": 0.304,
+      "market_away": 0.696
     },
     {
       "sport": "nfl",
@@ -171,8 +171,8 @@
       "away": "GB",
       "home": "NE",
       "start_utc": "2026-11-08T21:25:00Z",
-      "market_home": 0.603,
-      "market_away": 0.397
+      "market_home": 0.6074,
+      "market_away": 0.3926
     },
     {
       "sport": "nfl",
@@ -189,8 +189,8 @@
       "away": "ARI",
       "home": "SEA",
       "start_utc": "2026-11-08T21:25:00Z",
-      "market_home": 0.7694,
-      "market_away": 0.2306
+      "market_home": 0.7668,
+      "market_away": 0.2332
     },
     {
       "sport": "nfl",
@@ -207,8 +207,8 @@
       "away": "BUF",
       "home": "MIN",
       "start_utc": "2026-11-10T01:15:00Z",
-      "market_home": 0.3882,
-      "market_away": 0.6118
+      "market_home": 0.3936,
+      "market_away": 0.6064
     },
     {
       "sport": "epl",
@@ -255,9 +255,9 @@
       "away": "Man City",
       "home": "Nott'm Forest",
       "start_utc": "2026-11-07T17:30:00Z",
-      "market_home": 0.2154,
-      "market_draw": 0.2412,
-      "market_away": 0.5434,
+      "market_home": 0.2106,
+      "market_draw": 0.2391,
+      "market_away": 0.5503,
       "odds_game_id": "EPL_2627_20261107_NFF_MCI",
       "home_name": "Nottingham Forest",
       "away_name": "Manchester City"
