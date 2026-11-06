@@ -35,7 +35,8 @@
   function betFlags(r) {
     const f = r.rule_flags || [];
     const no = f.some((x) => /BREAK|UNDER_MIN/.test(x)), yes = f.includes("NBA_RULE_V2");
-    return (no ? '<span class="badge break">NO</span>' : yes ? '<span class="badge ok">QUALIFIES</span>' : "") + " " + (r.result === "open" || r.result == null ? warnTag(r) : "");
+    const why = f.includes("UNDER_MIN") ? "Taken at " + fmtOdds(r.price_taken) + ", below the minimum " + fmtOdds(r.min_price) + (r.win_pct ? " (fair price for " + fmtPct(r.win_pct) + " win chance)" : "") : "NBA rule: Green only, minimum price up to 1.49";
+    return (no ? '<span class="badge break" title="' + esc(why) + '">NO · ' + (f.includes("UNDER_MIN") ? "below min" : "rule") + '</span>' : yes ? '<span class="badge ok">QUALIFIES</span>' : "") + " " + (r.result === "open" || r.result == null ? warnTag(r) : "");
   }
   async function loadInjuries() {
     for (const sp of ["nba", "nfl"]) {
@@ -142,7 +143,7 @@
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
         const q = qualifies(p);
-        const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break">NO</span>' : "";
+        const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break" title="Price outside the rule: Green only, minimum price up to 1.49">NO</span>' : "";
         const taken = p.taken ? '<span class="badge taken">TAKEN</span>' : "";
         return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
           + '<td class="game">' + esc(short(p.game)) + "</td>"
@@ -165,9 +166,9 @@
     const rows = betFilter(data.open_bets || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">No open bets in this filter.</p>'; return; }
     $("open").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
-      + "<th>Placed</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
+      + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td>" + gameCell(r)
+      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
         + "<td>" + esc(shortSel(r.selection)) + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
@@ -179,9 +180,9 @@
     const rows = betFilter(data.results || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="table-wrap"><table class="tips compact"><thead><tr>'
-      + "<th>Date</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
+      + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(shortDate(M.date(r))) + "</td>" + gameCell(r)
+      + rows.map((r) => "<tr><td>" + esc(shortDate(r.kickoff_utc || r.placed_utc)) + "</td>" + gameCell(r)
         + "<td>" + esc(shortSel(r.selection)) + "</td>"
         + "<td>" + chip(r.light) + "</td>"
         + "<td>" + fmtOdds(r.price_taken) + "</td>"
