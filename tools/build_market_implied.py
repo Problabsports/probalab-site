@@ -162,6 +162,28 @@ def load_epl_csv(path: Path):
     return rows
 
 
+def link_epl_to_site(rows):
+    """2026-11-06: odds CSV uses EPL_2627_* ids and short names; /today EPL rows use ESPN ids
+    and full names from data/epl-picks.json. Copy the site's id/names onto each market row."""
+    try:
+        raw = json.loads((ROOT / "data" / "epl-picks.json").read_text())
+    except Exception:
+        return rows
+    picks = raw if isinstance(raw, list) else raw.get("games", [])
+    def k(s):
+        s = str(s or "").lower().replace("afc ", "").replace("nott'm", "nottingham").replace("man ", "manchester ")
+        return "".join(ch for ch in s if ch.isalnum())
+    def same(a, b): return bool(a and b) and (a.startswith(b) or b.startswith(a))
+    for r in rows:
+        g = next((g for g in picks if norm_kickoff(g.get("start_utc") or g.get("kickoff_utc")) == r.get("start_utc")
+                  and same(k(g.get("home")), k(r.get("home"))) and same(k(g.get("away")), k(r.get("away")))), None)
+        if g:
+            r["odds_game_id"] = r.get("game_id")
+            r["game_id"] = str(g.get("game_id") or g.get("id"))
+            r["home_name"], r["away_name"] = g.get("home"), g.get("away")
+    return rows
+
+
 def load_oddsapi_h2h(path: Path, sport: str, name_to_abbr=None):
     if not path.exists():
         return [], f"{sport}: missing cache {path}"
@@ -218,7 +240,7 @@ def main():
         epl_rows, gap = load_oddsapi_h2h(EPL_CACHE, "epl")
         if gap: gaps.append(gap)
     if epl_rows:
-        games.extend(epl_rows)
+        games.extend(link_epl_to_site(epl_rows))
     elif EPL_CSV.exists():
         gaps.append("epl: comparison present but no market chances")
     elif not EPL_CACHE.exists():
