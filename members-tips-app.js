@@ -83,7 +83,9 @@
   }
   function chartHtml(john, pl, withPl) {
     const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
-    if(!dates.length) return '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+    if(!dates.length) return tipsterId === 'nfl-weather'
+      ? '<p class="muted">No settled paper tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded Under. Nothing else is plotted.</p>'
+      : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
@@ -114,11 +116,12 @@
     let lbB=withPl?endLab(b,'#39d98a','PL'):'';
     if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
     const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
+    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Weather' : (tipster.shortLabel || 'Tips');
     const legend=withPl
       ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
-      : '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span></p>';
+      : '<p class="note"><span style="color:#63b3ff">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
     return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+aria+'">'
-      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff','Tips')+lbB
+      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff',lineLab)+lbB
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
@@ -141,15 +144,23 @@
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
-    const withPl = compareToPl;
-    const mine=filtered((tipsterData && tipsterData.results) || [],true), pl=withPl?filtered(data.pl_results || [],true):[];
-    const tipLabel = tipster.shortLabel || 'Tips';
-    const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
-      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
-    const note=withPl
+    const withPl = tipsterId === 'nfl-weather' ? false : compareToPl;
+    const mineRaw = (tipsterData && tipsterData.results) || [];
+    const mine = tipsterId === 'nfl-weather'
+      ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
+      : filtered(mineRaw, true);
+    const pl = withPl ? filtered(data.pl_results || [], true) : [];
+    const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Weather' : (tipster.shortLabel || 'Tips');
+    const controls = tipsterId === 'nfl-weather'
+      ? ''
+      : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
+      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>');
+    const note = tipsterId === 'nfl-weather'
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s paper 1u growth only — one line, no comparison to ProbaLab or any other tipster.</p>'
+      : (withPl
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
-      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>';
-    const cards=withPl
+      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
+    const cards = withPl
       ? '<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
       : '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
     let comparison='';
@@ -164,11 +175,13 @@
         +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
         +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
         +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    } else if (tipsterId === 'nfl-weather') {
+      comparison='<p class="note">Win % excludes ties/voids. Flat paper 1u. One growth line for this desk only — not compared to ProbaLab greens, the public board, or any other tipster. Dates are Australia/Sydney.</p>';
     } else {
       comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     }
     $("summary").innerHTML=controls+note+cards
-      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(mine,pl,withPl)+'</section>'
+      +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine,pl,withPl)+'</section>'
       +comparison;
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
