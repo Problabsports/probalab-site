@@ -2,21 +2,66 @@
   "schema_version": 1,
   "tipster": "nfl-weather",
   "name": "NFL Totals",
-  "generated_at": "2026-11-06T23:05:10+11:00",
+  "generated_at": "2026-11-06T23:11:01+11:00",
   "timezone": "Australia/Sydney",
   "focus": "NFL totals \u00b7 overs and unders",
   "pitch": "Paper tips on NFL game totals \u2014 overs and unders, mostly unders. Flat 1u.",
-  "open_bets": [],
+  "open_bets": [
+    {
+      "bet_id": "NFLWX:2026_09_LA_WAS:under",
+      "sport": "NFL",
+      "game": "LA @ WAS",
+      "selection": "Under 48.5",
+      "side": "Under",
+      "total_line": 48.5,
+      "market": "totals",
+      "kickoff_utc": "2026-11-08T18:00:00Z",
+      "price_book": "pointsbetau",
+      "bookie": "pointsbetau",
+      "price_taken": 1.9,
+      "units": 1.0,
+      "tag": "NFLWX",
+      "system": "NFL Totals",
+      "placed_utc": "2026-11-06T12:11:01.282229Z",
+      "published_utc": "2026-11-06T12:11:01.282229Z",
+      "published": true,
+      "result": "open",
+      "pnl_units": null,
+      "light": "UNRATED"
+    },
+    {
+      "bet_id": "NFLWX:2026_09_TB_CHI:under",
+      "sport": "NFL",
+      "game": "TB @ CHI",
+      "selection": "Under 47.5",
+      "side": "Under",
+      "total_line": 47.5,
+      "market": "totals",
+      "kickoff_utc": "2026-11-09T01:20:00Z",
+      "price_book": "pointsbetau",
+      "bookie": "pointsbetau",
+      "price_taken": 1.9,
+      "units": 1.0,
+      "tag": "NFLWX",
+      "system": "NFL Totals",
+      "placed_utc": "2026-11-06T12:11:01.282229Z",
+      "published_utc": "2026-11-06T12:11:01.282229Z",
+      "published": true,
+      "result": "open",
+      "pnl_units": null,
+      "light": "UNRATED"
+    }
+  ],
   "results": [],
   "summary": {
     "bets": 0,
     "wins": 0,
     "losses": 0,
-    "open_bets": 0
+    "open_bets": 2
   },
   "isolation": "Own snapshot only \u2014 never mixed with john, sniper, or probalab.",
   "notes": [
     "Paper only. No live bets.",
-    "Members see tips last-minute only; method details are not published."
+    "Method details are not published."
   ]
 }

@@ -60,6 +60,10 @@
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
+    if (tipsterId === "nfl-weather") {
+      $("colourFilters").innerHTML = "";
+      return;
+    }
     $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Off-pick':c)+'</button>').join('');
     document.querySelectorAll('[data-colour]').forEach(b => b.addEventListener('click', () => {
       const c=b.dataset.colour; selectedColours.has(c) ? selectedColours.delete(c) : selectedColours.add(c);
@@ -71,7 +75,7 @@
     return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
   function filtered(rows, summary=false) {
-    return rows.filter(r => M.visibleFor(tipsterId, r) && selectedColours.has(M.colour(r)) && inRange(r)
+    return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || selectedColours.has(M.colour(r))) && inRange(r)
       && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
@@ -282,12 +286,15 @@
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   function renderOpen() {
-    let rows = betFilter((tipsterData && tipsterData.open_bets) || []);
     if (tipsterId === "nfl-weather") {
-      rows = rows.filter((r) => r.published !== false);
+      const rows = ((tipsterData && tipsterData.open_bets) || [])
+        .filter((r) => r.published !== false)
+        .filter((r) => inRange(r))
+        .filter((r) => !$("fSport").value || r.sport === $("fSport").value);
       $("open").innerHTML = renderTotalsRows(rows, "No tips yet.");
       return;
     }
+    let rows = betFilter((tipsterData && tipsterData.open_bets) || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId!=="john"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
@@ -301,11 +308,16 @@
       + "</tbody></table></div>";
   }
   function renderResults() {
-    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     if (tipsterId === "nfl-weather") {
-      $("results").innerHTML = renderTotalsRows(rows.filter((r) => r.result === "W" || r.result === "L" || r.result === "T"), "No results yet.");
+      const rows = ((tipsterData && tipsterData.results) || [])
+        .filter((r) => r.result === "W" || r.result === "L" || r.result === "T")
+        .filter((r) => inRange(r))
+        .filter((r) => !$("fSport").value || r.sport === $("fSport").value)
+        .sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+      $("results").innerHTML = renderTotalsRows(rows, "No results yet.");
       return;
     }
+    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     rows = rows.filter((r) => r.result === "W" || r.result === "L");
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
