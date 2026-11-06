@@ -13,7 +13,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = (function (t) { return t === "sniper" || t === "probalab" ? t : "john"; })(resolveTipster());
+  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather") ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -60,6 +60,10 @@
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
   const dateTime = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short'}).format(new Date(v)) : "—";
   function colourControls() {
+    if (tipsterId === "nfl-weather") {
+      $("colourFilters").innerHTML = "";
+      return;
+    }
     $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Off-pick':c)+'</button>').join('');
     document.querySelectorAll('[data-colour]').forEach(b => b.addEventListener('click', () => {
       const c=b.dataset.colour; selectedColours.has(c) ? selectedColours.delete(c) : selectedColours.add(c);
@@ -71,7 +75,7 @@
     return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
   function filtered(rows, summary=false) {
-    return rows.filter(r => M.visibleFor(tipsterId, r) && selectedColours.has(M.colour(r)) && inRange(r)
+    return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || selectedColours.has(M.colour(r))) && inRange(r)
       && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
@@ -83,7 +87,9 @@
   }
   function chartHtml(john, pl, withPl) {
     const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
-    if(!dates.length) return '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
+    if(!dates.length) return tipsterId === 'nfl-weather'
+      ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
+      : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
@@ -114,11 +120,12 @@
     let lbB=withPl?endLab(b,'#39d98a','PL'):'';
     if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
     const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
+    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const legend=withPl
       ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
-      : '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span></p>';
+      : '<p class="note"><span style="color:#63b3ff">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
     return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+aria+'">'
-      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff','Tips')+lbB
+      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff',lineLab)+lbB
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
@@ -141,15 +148,23 @@
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
   function renderSummary() {
-    const withPl = compareToPl;
-    const mine=filtered((tipsterData && tipsterData.results) || [],true), pl=withPl?filtered(data.pl_results || [],true):[];
-    const tipLabel = tipster.shortLabel || 'Tips';
-    const controls='<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
-      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>';
-    const note=withPl
+    const withPl = tipsterId === 'nfl-weather' ? false : compareToPl;
+    const mineRaw = (tipsterData && tipsterData.results) || [];
+    const mine = tipsterId === 'nfl-weather'
+      ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
+      : filtered(mineRaw, true);
+    const pl = withPl ? filtered(data.pl_results || [], true) : [];
+    const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
+    const controls = tipsterId === 'nfl-weather'
+      ? ''
+      : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
+      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>');
+    const note = tipsterId === 'nfl-weather'
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
+      : (withPl
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
-      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>';
-    const cards=withPl
+      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
+    const cards = withPl
       ? '<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
       : '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
     let comparison='';
@@ -164,11 +179,13 @@
         +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
         +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
         +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+    } else if (tipsterId === 'nfl-weather') {
+      comparison='<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
     } else {
       comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     }
     $("summary").innerHTML=controls+note+cards
-      +'<section class="panel"><h3>Cumulative units</h3>'+chartHtml(mine,pl,withPl)+'</section>'
+      +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine,pl,withPl)+'</section>'
       +comparison;
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
@@ -179,7 +196,7 @@
     }));
   }
   function renderAttention() {
-    if (tipsterId === 'sniper' || tipsterId === 'probalab') {
+    if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather') {
       $("attnPanel").classList.add("hidden");
       $("attention").innerHTML = '';
       return;
@@ -201,7 +218,45 @@
     if (!lightOk || price == null || p.min_price == null) return null;
     return price >= p.min_price && price <= 1.49;
   }
+  function totalsSide(r) {
+    const sel = String(r.selection || "");
+    const m = sel.match(/^(Over|Under)\s+([0-9.]+)/i);
+    if (m) return { side: m[1][0].toUpperCase() + m[1].slice(1).toLowerCase(), total: m[2] };
+    if (r.total_line != null) return { side: /over/i.test(sel) ? "Over" : "Under", total: String(r.total_line) };
+    return { side: sel || "—", total: "—" };
+  }
+  function bookieLabel(r) {
+    const b = r.price_book || r.bookie || r.book || "";
+    const map = { sportsbet: "Sportsbet", tab: "TAB", neds: "Neds", ladbrokes_au: "Ladbrokes", unibet: "Unibet",
+      betr_au: "Betr", pointsbetau: "PointsBet", tabtouch: "TABtouch", pinnacle: "Pinnacle", betfair_ex_au: "Betfair" };
+    return map[b] || (b ? String(b) : "—");
+  }
+  function renderTotalsRows(rows, emptyMsg) {
+    if (!rows.length) return '<p class="muted">' + esc(emptyMsg) + "</p>";
+    const body = rows.map((r) => {
+      const t = totalsSide(r);
+      return "<tr><td>" + esc(dateTime(r.kickoff_utc)) + "</td>"
+        + '<td class="game">' + esc(short(r.game) || r.game || "") + "</td>"
+        + "<td>" + esc(t.total) + "</td>"
+        + "<td>" + esc(t.side) + "</td>"
+        + "<td>" + esc(bookieLabel(r)) + "</td></tr>";
+    }).join("");
+    return '<div class="table-wrap"><table class="tips compact"><thead><tr>'
+      + "<th>Kickoff</th><th>Game</th><th>Total</th><th>Side</th><th>Bookie</th>"
+      + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+  function renderTotalsUpcoming() {
+    const now = Date.now();
+    const rows = ((tipsterData && tipsterData.open_bets) || [])
+      .filter((r) => r.published !== false)
+      .filter((r) => !r.kickoff_utc || Date.parse(r.kickoff_utc) > now)
+      .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+    $("today").innerHTML = '<div class="sport-block panel"><h3>Upcoming</h3>'
+      + renderTotalsRows(rows, "No tips yet.")
+      + "</div>";
+  }
   function renderToday() {
+    if (tipsterId === "nfl-weather") { renderTotalsUpcoming(); return; }
     const now = Date.now();
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
@@ -230,8 +285,26 @@
   function betFilter(rows) { return filtered(rows); }
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
   const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
+  // Tips tab for NFL Totals: only last 4h before kickoff (Upcoming keeps all open tips).
+  const NFL_TOTALS_TIPS_WINDOW_MS = 4 * 60 * 60 * 1000;
+  function inNflTotalsTipsWindow(r, now) {
+    const ko = Date.parse(r.kickoff_utc || "");
+    if (!Number.isFinite(ko)) return false;
+    return ko - now <= NFL_TOTALS_TIPS_WINDOW_MS;
+  }
   function renderOpen() {
-    const rows = betFilter((tipsterData && tipsterData.open_bets) || []);
+    if (tipsterId === "nfl-weather") {
+      const now = Date.now();
+      const rows = ((tipsterData && tipsterData.open_bets) || [])
+        .filter((r) => r.published !== false)
+        .filter((r) => inNflTotalsTipsWindow(r, now))
+        .filter((r) => inRange(r))
+        .filter((r) => !$("fSport").value || r.sport === $("fSport").value)
+        .sort((a, b) => Date.parse(a.kickoff_utc || 0) - Date.parse(b.kickoff_utc || 0));
+      $("open").innerHTML = renderTotalsRows(rows, "No tips live yet — they appear here in the last 4 hours before kickoff.");
+      return;
+    }
+    let rows = betFilter((tipsterData && tipsterData.open_bets) || []);
     if (!rows.length) { $("open").innerHTML = '<p class="muted">'+(tipsterId!=="john"?"No tips yet.":"No tips in this filter.")+'</p>'; return; }
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
@@ -245,7 +318,17 @@
       + "</tbody></table></div>";
   }
   function renderResults() {
-    const rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    if (tipsterId === "nfl-weather") {
+      const rows = ((tipsterData && tipsterData.results) || [])
+        .filter((r) => r.result === "W" || r.result === "L" || r.result === "T")
+        .filter((r) => inRange(r))
+        .filter((r) => !$("fSport").value || r.sport === $("fSport").value)
+        .sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+      $("results").innerHTML = renderTotalsRows(rows, "No results yet.");
+      return;
+    }
+    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    rows = rows.filter((r) => r.result === "W" || r.result === "L");
     if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
@@ -273,7 +356,9 @@
   }
   function renderAll() {
     const gen = dateTime(data.generated_at);
-    $("meta").textContent = "Updated " + gen + " · units only · " + tipster.name + " vs PL board";
+    $("meta").textContent = tipsterId === "nfl-weather"
+      ? ("Updated " + gen + " · units only · NFL Totals")
+      : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
     const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
     const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
@@ -322,6 +407,22 @@
       tipsterData = await loadSniperBlock();
     } else if (tipsterId === "probalab") {
       tipsterData = await loadIsolatedBlock("probalab");
+    } else if (tipsterId === "nfl-weather") {
+      tipsterData = await loadIsolatedBlock("nfl-weather");
+      try {
+        const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+        const pub = (xs) => (xs || []).filter((r) => r.published !== false);
+        // Prefer the published file snapshot; never surface watch_list or method to the desk.
+        tipsterData = {
+          open_bets: pub(j.open_bets && j.open_bets.length ? j.open_bets : tipsterData.open_bets),
+          results: (j.results && j.results.length ? j.results : tipsterData.results) || [],
+          generated_at: j.generated_at || tipsterData.generated_at || null,
+          summary: j.summary || null,
+        };
+        if (j.generated_at) data.generated_at = j.generated_at;
+      } catch (_) {
+        tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => r.published !== false);
+      }
     } else {
       tipsterData = {
         open_bets: data.open_bets || [],

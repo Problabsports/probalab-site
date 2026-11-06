@@ -1,8 +1,9 @@
 // Shared HTML for a tipster's 4-tab tips desk. tipsterId: "john" | "sniper" | "probalab"
 export function tipsDeskBody(tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const safe = id === "sniper" || id === "probalab" ? id : "john";
-  const title = safe === "sniper" ? "Closing Line Sniper" : safe === "probalab" ? "ProbaLab" : "John";
+  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals" };
+  const safe = known[id] ? id : "john";
+  const title = known[safe];
   return `
   <div class="tips-app" data-tipster="${safe}">
     <p class="eyebrow">// private · members · units only</p>
@@ -58,8 +59,9 @@ export function tipsDeskBody(tipsterId = "john") {
 
 export function tipsDeskResponse(shell, html, tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const safe = id === "sniper" || id === "probalab" ? id : "john";
-  const title = safe === "sniper" ? "Closing Line Sniper" : safe === "probalab" ? "ProbaLab" : "John";
+  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals" };
+  const safe = known[id] ? id : "john";
+  const title = known[safe];
   const page = shell({
     title: `${title} tips | ProbaLab`,
     description: "Private tipster desk",
