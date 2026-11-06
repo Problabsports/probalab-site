@@ -1,6 +1,6 @@
 # NFL Totals desk (slug: nfl-weather)
 
-Members title: **NFL Totals**. Preview branch `preview/nfl-weather` only.
+Members title: **NFL Totals**. Live on production (`main`, probalabsports.com). John approved this desk on 7 Nov 2026.
 
 - Pipeline: `/workspace/betting/scripts/nfl_weather/run_desk.py`
 - Private state (watch + tip method fields): `/workspace/betting/data/nfl_weather/state.json`
@@ -10,4 +10,4 @@ Members title: **NFL Totals**. Preview branch `preview/nfl-weather` only.
 - Tip row (members): kickoff · game · total · Over/Under · bookie
 - Summary: one growth line for this desk only
 
-Do not merge to main until John says so. No alerts.
+No alerts.

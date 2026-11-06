@@ -412,7 +412,7 @@
       try {
         const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
         const pub = (xs) => (xs || []).filter((r) => r.published !== false);
-        // Prefer file snapshot on preview; never surface watch_list or method to the desk.
+        // Prefer the published file snapshot; never surface watch_list or method to the desk.
         tipsterData = {
           open_bets: pub(j.open_bets && j.open_bets.length ? j.open_bets : tipsterData.open_bets),
           results: (j.results && j.results.length ? j.results : tipsterData.results) || [],
