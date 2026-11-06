@@ -97,6 +97,32 @@ def enrich_snapshot(doc, latest, row_sport):
             if r:
                 b["record_light"] = r["light"]
                 b["pick_side"] = r["selection"]
+    # Bets with no ledger pick match: find the same game on the public record (teams + date within 2 days).
+    from datetime import datetime
+    def ts(v):
+        try:
+            return datetime.fromisoformat(str(v).replace("Z", "+00:00")).timestamp()
+        except Exception:
+            return None
+    for key in ("open_bets", "results"):
+        for b in doc.get(key) or []:
+            if b.get("pick_id") or b.get("light") or b.get("mismatch_note") or b.get("tag") == "CL":
+                continue
+            bt = ts(b.get("kickoff_utc") or b.get("placed_utc"))
+            for r in rec:
+                if r["sport"] != (b.get("sport") or "").upper() or teams(r["game"]) != teams(b.get("game")):
+                    continue
+                rt = ts(r["tipoff_utc"])
+                if bt and rt and abs(rt - bt) > 3 * 86400:
+                    continue
+                if r["selection"] == b.get("selection"):
+                    b["pick_id"] = r["game_id"]
+                    b["light"] = r["light"]
+                    b["record_light"] = r["light"]
+                    b["light_source"] = "record (no capture before placement)"
+                else:
+                    b["unrated_reason"] = f"bet {b.get('selection')}, PL picked {r['selection']} ({r['light']})"
+                break
     doc["comparison_assumptions"] = {
         "pl_source": "public Record pages: probalab-feed (NBA/NFL), nhl-pretip.json (NHL); frozen light and result",
         "pl_stake": "flat 1u at ledger-captured PL price, before commission; missing price -> excluded from units/ROI",

@@ -46,7 +46,7 @@ export const teamLink = (sport, abbr, name) =>
 
 
 /** Local ESPN-sourced logo; falls back to the code badge if the file 404s. */
-function teamLogoHtml(sport, team, cls = "team-logo") {
+export function teamLogoHtml(sport, team, cls = "team-logo") {
   const src = `/img/logos/${sport}/${teamSlug(team.name)}.png`;
   const abbr = esc(team.abbr);
   const name = esc(team.name);
