@@ -847,6 +847,20 @@
       "right": "The model gave the Heat a 55% chance on the road, mainly because of their higher team-strength rating (98.7 to 82.9), and they won by 1. Recent form pointed the same way: the Heat had been losing by 2.3 points a game, the Clippers losing by 3.6. Brandon Ingram, Jordan Miller and Bradley Beal for the Clippers all missed the game, as the preview expected.",
       "missed": "Not much went against the model in this one. The Clippers made more threes (16 to 10) and still lost.",
       "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 55%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909936": {
+      "updated_utc": "2026-11-07T06:09:00Z",
+      "happened": "The Suns beat the Magic 117–104 at home. Devin Booker led them with 30 points and 8 assists, and Dillon Brooks added 24. For the Magic, Wendell Carter Jr. had 27 points and 13 rebounds.",
+      "right": "The model gave the Suns a 51% chance at home, mainly because of their higher team-strength rating (87.2 to 83.9), and they won by 13. Paolo Banchero and Jalen Suggs for the Magic, and Jordan Goodwin, Mark Williams and Rasheer Fleming for the Suns, all missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. The Magic won the rebounding battle 48–33 and still lost.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 51% this was close to a coin flip, so it could easily have gone the other way, and every result stays on our record."
+    },
+    "401909937": {
+      "updated_utc": "2026-11-07T06:09:00Z",
+      "happened": "The Warriors beat the Heat 120–100 at home. Stephen Curry led them with 29 points, making 6 of 12 threes, and Yaxel Lendeborg added 17. For the Heat, Davion Mitchell had 22 points and 8 assists.",
+      "right": "The model gave the Warriors a 63% chance at home, mainly because of home court, even though the Heat rated clearly stronger (99.4 to 96.3), and they won by 20. Recent form pointed the same way: the Warriors had been winning by 0.4 points a game, the Heat losing by 1.8. Gui Santos, Jimmy Butler III, Moses Moody and Kristaps Porzingis for the Warriors all missed the game, as the preview expected.",
+      "missed": "Our rating had the Heat clearly stronger on paper, and on the night that didn't decide it. Davion Mitchell's 22 points for the Heat weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, home court. One win doesn't prove the model right: at 63%, about 4 in 10 games like this go the other way, and every result stays on our record."
     }
   }
 }
