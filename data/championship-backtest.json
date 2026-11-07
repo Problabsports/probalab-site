@@ -1,0 +1,105 @@
+{
+ "note": "Championship past-season re-run: each match predicted from earlier results only (2019-20 used to warm up the ratings), with the same settings as the Premier League model, never tuned on Championship data. Not the live record.",
+ "seasons": {
+  "2021": {
+   "n": 552,
+   "c": 257,
+   "home": 246,
+   "draws": 139,
+   "lights": {
+    "GREEN": [
+     114,
+     72
+    ],
+    "ORANGE": [
+     178,
+     80
+    ],
+    "RED": [
+     260,
+     105
+    ]
+   }
+  },
+  "2022": {
+   "n": 552,
+   "c": 257,
+   "home": 227,
+   "draws": 149,
+   "lights": {
+    "GREEN": [
+     106,
+     58
+    ],
+    "ORANGE": [
+     191,
+     86
+    ],
+    "RED": [
+     255,
+     113
+    ]
+   }
+  },
+  "2023": {
+   "n": 552,
+   "c": 266,
+   "home": 246,
+   "draws": 129,
+   "lights": {
+    "GREEN": [
+     141,
+     89
+    ],
+    "ORANGE": [
+     178,
+     81
+    ],
+    "RED": [
+     233,
+     96
+    ]
+   }
+  },
+  "2024": {
+   "n": 552,
+   "c": 268,
+   "home": 253,
+   "draws": 156,
+   "lights": {
+    "GREEN": [
+     125,
+     74
+    ],
+    "ORANGE": [
+     184,
+     93
+    ],
+    "RED": [
+     243,
+     101
+    ]
+   }
+  },
+  "2025": {
+   "n": 552,
+   "c": 246,
+   "home": 230,
+   "draws": 146,
+   "lights": {
+    "GREEN": [
+     93,
+     54
+    ],
+    "ORANGE": [
+     186,
+     72
+    ],
+    "RED": [
+     273,
+     120
+    ]
+   }
+  }
+ }
+}

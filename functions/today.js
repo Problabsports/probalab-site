@@ -1,4 +1,4 @@
-// /today: every NBA, NFL, NHL and EPL game in the next ~24 hours (Sydney clock),
+// /today: every NBA, NFL, NHL, EPL and Championship game in the next ~24 hours (Sydney clock),
  // with model chance, fair price (1 / chance), light, market chance (when present),
  // and value % (model chance minus market chance). Best-value game per sport is highlighted.
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
@@ -253,24 +253,60 @@ export async function onRequestGet(ctx) {
     out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
+  {
+    // Championship (live 7 Nov 2026): same file shape as the EPL; every pick has a light; no market comparison yet
+    const [raw, grades] = await Promise.all([asset(ctx, "/data/championship-picks.json", []), asset(ctx, "/data/championship-grades.json", {})]);
+    const gs = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
+      const id = String(g.game_id ?? g.id);
+      const ps = { home: Number(g.p_home), draw: Number(g.p_draw), away: Number(g.p_away) };
+      const p = ps[g.pick];
+      const gr = grades[id];
+      const start = g.start_utc ?? g.kickoff_utc;
+      return {
+        id, start_utc: start, home: g.home, away: g.away, p, pick: g.pick,
+        pickName: g.pick === "home" ? g.home : g.pick === "away" ? g.away : "Draw",
+        light: p >= 0.55 ? "GREEN" : p >= 0.45 ? "ORANGE" : "RED",
+        done: !!gr?.graded || g.status === "post" || new Date(start).getTime() < now - 3 * 3600e3,
+      };
+    });
+    const upcoming = gs.filter((g) => !g.done && inWindow(g.start_utc, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+    total += upcoming.length;
+    const games = upcoming.map((g) => ({
+      key: `championship:${g.id}`,
+      sportName: "Championship",
+      href: `/championship#game-${g.id}`,
+      when: tAEDT(g.start_utc) + " AEDT",
+      match: `${g.home} v ${g.away}`,
+      matchHtml: `${esc(g.home)} v ${esc(g.away)}`,
+      pick: `${g.pickName} ${pct(g.p)}`,
+      pickName: g.pickName,
+      light: g.light,
+      modelP: g.p,
+      marketP: null,
+      value: null,
+      start_utc: g.start_utc,
+    }));
+    out.push(section("championship", "Championship", games, `<a href="/championship">All Championship matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+  }
+
   const marketNote = market.generated
     ? `Market chances last refreshed ${esc(market.generated)} from prices already on file (no live book lookup).`
     : "Market chances will appear once the on-box comparison files are synced into this preview.";
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Today's games</span></nav>
   <p class="eyebrow">// next 24 hours · Australia/Sydney</p>
-  <h1>Today's NBA, NFL, NHL &amp; EPL predictions</h1>
+  <h1>Today's predictions: every sport</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
   Each row shows the model's pick and win chance, its fair price, the light colour, the market chance for the same side when we have it, and the value % (our chance minus the market). GREEN/SUPER picks with at least +3.0 value get a Value badge.</p>
-  <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="/accuracy">Accuracy →</a></nav>
+  <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
   ${out.join("\n")}
   <p class="small">${marketNote}${market.gaps?.length ? ` Gaps: ${esc(market.gaps.join("; "))}.` : ""}</p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
 
   return html(shell({
-    title: "Today's NBA, NFL, NHL & EPL Predictions | ProbaLab",
-    description: "Win chances, fair prices and value % for every NBA, NFL, NHL and Premier League game tipping off in the next 24 hours.",
+    title: "Today's Predictions: NBA, NFL, NHL, EPL & Championship | ProbaLab",
+    description: "Win chances, fair prices and value % for every NBA, NFL, NHL, Premier League and Championship game tipping off in the next 24 hours.",
     path: "/today",
     body,
   }), 200, 60);

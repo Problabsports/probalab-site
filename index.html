@@ -217,6 +217,26 @@ footer b { color: var(--ink); }
 .sport[aria-disabled="true"] { opacity: 0.45; cursor: default; }
 .sport small { font-size: 9.5px; letter-spacing: 0.08em; color: var(--magenta); }
 .sport.on small { color: var(--bg); }
+.sports { position: relative; }
+.more-btn { cursor: pointer; font: 600 12px var(--f-mono); }
+.more-btn .cur { letter-spacing: 0.06em; }
+.more-btn svg { transition: transform 0.15s; }
+.more-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+.more-btn[aria-expanded="true"]:not(.on) { color: var(--ink); border-color: var(--cyan); }
+.more-panel { position: absolute; left: 0; right: 0; top: 100%; z-index: 40; background: var(--surface); border-bottom: 1px solid var(--line-hi); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55); }
+.more-panel .wrap { padding-block: 18px 16px; display: grid; gap: 14px; }
+.more-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px 24px; }
+.more-group h3 { font: 600 12px var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); margin: 0 0 4px; }
+.more-item { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 8px; margin: 0 -8px; color: var(--muted); text-decoration: none; font-size: 15px; }
+.more-item .nm { flex: 1; min-width: 0; }
+.more-item small { font: 600 10.5px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.more-item .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--muted); box-sizing: border-box; }
+.more-item.live { color: var(--ink); }
+.more-item.live .dot { background: var(--win); border-color: var(--win); }
+.more-item.live small { color: var(--win); }
+.more-item.live:hover, .more-item.on { background: var(--cyan-soft); color: var(--ink); }
+.more-note { margin: 0; font-size: 13px; color: var(--muted); }
+.more-note a { color: var(--cyan); }
 
 .subtabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
 .subtabs::-webkit-scrollbar { display: none; }
@@ -540,13 +560,47 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <nav class="sports" id="sportBar" aria-label="Sports">
   <div class="wrap">
     <a class="sport on" href="#nba-predictions" data-sport="nba">NBA <small>Live</small></a>
-    <span class="sport" aria-disabled="true">AFL <small>Soon</small></span>
     <a class="sport" href="/epl" data-sport="epl">EPL <small>Live</small></a>
     <a class="sport" href="#nfl-predictions" data-sport="nfl">NFL <small>Live</small></a>
     <a class="sport" href="/nhl" data-sport="nhl">NHL <small>Live</small></a>
-    <span class="sport" aria-disabled="true">NRL <small>Soon</small></span>
+    <button type="button" class="sport more-btn" id="moreSportsBtn" aria-expanded="false" aria-controls="moreSports">More sports<span class="cur" id="moreSportsCur"></span><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+  </div>
+  <div class="more-panel" id="moreSports" hidden>
+    <div class="wrap">
+      <div class="more-grid">
+        <div class="more-group"><h3>Football</h3>
+          <a class="more-item live" href="/championship" data-sport="championship"><i class="dot"></i><span class="nm">Championship</span><small>Live</small></a>
+        </div>
+        <div class="more-group"><h3>Footy</h3>
+          <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">AFL</span><small>From March</small></span>
+          <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">NRL</span><small>From March</small></span>
+        </div>
+        <div class="more-group"><h3>Tennis</h3>
+          <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">ATP &amp; WTA</span><small>Soon</small></span>
+        </div>
+        <div class="more-group"><h3>Basketball</h3>
+          <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">College Basketball</span><small>Soon</small></span>
+        </div>
+      </div>
+      <p class="more-note">New sports go live once our model passes its backtest. <a href="/today">Every game today →</a></p>
+    </div>
   </div>
 </nav>
+<script>
+// More sports menu (sports bar). PL_moreSportsMark(sport) highlights the button when the page's sport lives in the menu.
+(function () {
+  const btn = document.getElementById("moreSportsBtn"), panel = document.getElementById("moreSports"), cur = document.getElementById("moreSportsCur");
+  if (!btn || !panel) return;
+  const set = (open) => { panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); };
+  btn.addEventListener("click", (e) => { e.stopPropagation(); set(panel.hidden); });
+  document.addEventListener("click", (e) => { if (!panel.hidden && !panel.contains(e.target)) set(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { set(false); btn.focus(); } });
+  window.PL_moreSportsMark = (sp) => {
+    const a = panel.querySelector(`[data-sport="${sp}"]`);
+    btn.classList.toggle("on", !!a); cur.textContent = a ? ` · ${a.querySelector(".nm").textContent}` : "";
+  };
+})();
+</script>
 <div class="sample" id="sampleBanner" hidden><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
 
 <main class="wrap">
@@ -1537,6 +1591,7 @@ function setSportChrome(sp, tabKey) {
   st.setAttribute("aria-label", `${sp.toUpperCase()} sections`);
   st.innerHTML = SUBTABS[sp].map(([k, l]) => `<a href="#${sp}-${k}" data-sub="${k}" aria-current="${k === tabKey ? "page" : "false"}">${l}</a>`).join("");
   document.querySelectorAll("#sportBar [data-sport]").forEach((a) => a.classList.toggle("on", a.dataset.sport === sp));
+  window.PL_moreSportsMark?.(sp);
 }
 async function fetchNfl() {
   const get = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
