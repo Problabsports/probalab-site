@@ -10,7 +10,7 @@ For whoever updates the NBA Price Gap scanner on the box. Agreed with John on 8 
 2. **Proportional de-vig favours underdogs.** The desk turns Pinnacle prices into fair chances with (1/price) ÷ (1/home + 1/away). That spreads the
    margin evenly, which overstates the underdog's chance (favourite–longshot bias). It's why the desk's alerts are "usually on the underdog".
    With the power method (agreed standard for fair prices; see edgebot-cloud-plan "Lessons") this game becomes, assuming a ~2.5% Pinnacle margin:
-   OKC fair 85.1% → edge +4.6%; WAS fair 14.9% → edge −4.5%. The Washington alert was not value.
+   OKC fair 85.1% → edge +4.6%; WAS fair 14.9% → edge −4.3%. The Washington alert was not value.
 
 ## Changes
 
