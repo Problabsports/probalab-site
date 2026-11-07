@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-07T00:01:41Z",
+  "generated_utc": "2026-11-07T00:50:45Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -294,9 +294,9 @@
       "away": "Bournemouth",
       "home": "Ipswich",
       "start_utc": "2026-11-08T14:00:00Z",
-      "market_home": 0.2377,
-      "market_draw": 0.26,
-      "market_away": 0.5024,
+      "market_home": 0.2374,
+      "market_draw": 0.2596,
+      "market_away": 0.503,
       "odds_game_id": "EPL_2627_20261108_IPS_BOU",
       "home_name": "Ipswich Town",
       "away_name": "AFC Bournemouth"
@@ -334,9 +334,9 @@
       "home": "BUF",
       "away_name": "Columbus Blue Jackets",
       "home_name": "Buffalo Sabres",
-      "start_utc": "2026-11-07T00:10:00Z",
-      "market_home": 0.6098,
-      "market_away": 0.3902
+      "start_utc": "2026-11-07T00:15:00Z",
+      "market_home": 0.6165,
+      "market_away": 0.3835
     },
     {
       "sport": "nhl",
