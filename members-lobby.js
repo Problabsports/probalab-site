@@ -55,8 +55,8 @@
     $("tipsterCards").innerHTML =
       liveCard({
         name: "John",
-        focus: "NBA · NFL · NHL · EPL",
-        pitch: "Tips selected from ProbaLab greens across four sports, using John's own strategy.",
+        focus: "NBA · NFL · NHL · EPL · Championship",
+        pitch: "Tips selected from ProbaLab greens across five sports, using John's own strategy.",
         footnote: "Card shows green tips only. Inside the desk you can still filter every colour.",
         href: "/members/tips/john",
         stats: john,

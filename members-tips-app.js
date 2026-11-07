@@ -4,7 +4,10 @@
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
   const M = window.TipsModel;
   const selectedColours = new Set(M.colours);
-  const summarySports = new Set(["NBA", "NFL", "NHL", "EPL"]);
+  const summarySports = new Set(["NBA", "NFL", "NHL", "EPL", "CHAMP"]);
+  // Sport codes in the snapshot -> label shown on the desk (CHAMP = EFL Championship, added 7 Nov 2026)
+  const SPORT_LABEL = { CHAMP: "Championship" };
+  const sportLabel = (s) => SPORT_LABEL[String(s || "").toUpperCase()] || s || "";
   function resolveTipster() {
     const root = document.querySelector(".tips-app[data-tipster]");
     if (root && root.dataset.tipster) return String(root.dataset.tipster).toLowerCase();
@@ -54,7 +57,7 @@
       try { const f = await (await fetch("/api/feed?sport=" + sp)).json(); (f.games || []).forEach((g) => { feedById[String(g.game_id)] = g; }); } catch (_) {}
     }
   }
-  const sports = ["NBA", "NFL", "NHL", "EPL"];
+  const sports = ["NBA", "NFL", "NHL", "EPL", "CHAMP"];
   const CODES = {"Atlanta Hawks": "ATL", "Boston Celtics": "BOS", "Brooklyn Nets": "BKN", "Charlotte Hornets": "CHA", "Chicago Bulls": "CHI", "Cleveland Cavaliers": "CLE", "Dallas Mavericks": "DAL", "Denver Nuggets": "DEN", "Detroit Pistons": "DET", "Golden State Warriors": "GSW", "Houston Rockets": "HOU", "Indiana Pacers": "IND", "LA Clippers": "LAC", "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL", "Memphis Grizzlies": "MEM", "Miami Heat": "MIA", "Milwaukee Bucks": "MIL", "Minnesota Timberwolves": "MIN", "New Orleans Pelicans": "NOP", "New York Knicks": "NYK", "Oklahoma City Thunder": "OKC", "Orlando Magic": "ORL", "Philadelphia 76ers": "PHI", "Phoenix Suns": "PHX", "Portland Trail Blazers": "POR", "Sacramento Kings": "SAC", "San Antonio Spurs": "SAS", "Toronto Raptors": "TOR", "Utah Jazz": "UTA", "Washington Wizards": "WAS", "Anaheim Ducks": "ANA", "Boston Bruins": "BOS", "Buffalo Sabres": "BUF", "Calgary Flames": "CGY", "Carolina Hurricanes": "CAR", "Chicago Blackhawks": "CHI", "Colorado Avalanche": "COL", "Columbus Blue Jackets": "CBJ", "Dallas Stars": "DAL", "Detroit Red Wings": "DET", "Edmonton Oilers": "EDM", "Florida Panthers": "FLA", "Los Angeles Kings": "LAK", "Minnesota Wild": "MIN", "Montreal Canadiens": "MTL", "Montr\u00e9al Canadiens": "MTL", "Nashville Predators": "NSH", "New Jersey Devils": "NJD", "New York Islanders": "NYI", "New York Rangers": "NYR", "Ottawa Senators": "OTT", "Philadelphia Flyers": "PHI", "Pittsburgh Penguins": "PIT", "San Jose Sharks": "SJS", "Seattle Kraken": "SEA", "St. Louis Blues": "STL", "St Louis Blues": "STL", "Tampa Bay Lightning": "TBL", "Toronto Maple Leafs": "TOR", "Utah Mammoth": "UTA", "Utah Hockey Club": "UTA", "Vancouver Canucks": "VAN", "Vegas Golden Knights": "VGK", "Washington Capitals": "WSH", "Winnipeg Jets": "WPG"};
   const short = (x) => String(x || "").split(" @ ").map((t) => CODES[t.trim()] || t.trim()).join(" @ ");
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
@@ -164,8 +167,8 @@
     const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const controls = tipsterId === 'nfl-weather'
       ? ''
-      : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===4)+'">All sports</button>'
-      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+sp+'</button>').join('')+'</div>');
+      : ('<div class="summary-sports" role="group" aria-label="Summary sports"><button type="button" data-summary-sport="all" aria-pressed="'+(summarySports.size===sports.length)+'">All sports</button>'
+      +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+esc(sportLabel(sp))+'</button>').join('')+'</div>');
     const note = tipsterId === 'nfl-weather'
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
       : (withPl
@@ -197,7 +200,7 @@
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
       const sp=b.dataset.summarySport;
-      if(sp==='all') { const all=summarySports.size===4; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }
+      if(sp==='all') { const all=summarySports.size===sports.length; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }
       else summarySports.has(sp)?summarySports.delete(sp):summarySports.add(sp);
       renderSummary();
     }));
@@ -579,7 +582,7 @@
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
     rows.forEach((p) => { (by[p.sport] ??= []).push(p); });
-    const order = ["NBA", "NFL", "NHL", "EPL"].filter((s) => by[s]);
+    const order = sports.filter((s) => by[s]);
     if (!order.length) { $("today").innerHTML = '<p class="muted">No upcoming picks.</p>'; return; }
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
@@ -595,14 +598,14 @@
           + "<td>" + fmtOdds(p.current_price) + "</td>"
           + "<td>" + qBadge + " " + taken + " " + warnTag(p) + "</td></tr>";
       }).join("");
-      return '<div class="sport-block panel"><div class="oddsfmt-bar"><h3>' + esc(sport) + '</h3><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips"><thead><tr>'
+      return '<div class="sport-block panel"><div class="oddsfmt-bar"><h3>' + esc(sportLabel(sport)) + '</h3><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips"><thead><tr>'
         + "<th>Tip-off</th><th>Game</th><th>Pick</th><th>Light</th><th>Win %</th><th>Min</th><th>Price</th><th>Flags</th>"
         + "</tr></thead><tbody>" + body + "</tbody></table></div></div>";
     }).join("");
   }
   function betFilter(rows) { return filtered(rows); }
   const shortDate = (v) => v && !Number.isNaN(new Date(v).getTime()) ? new Intl.DateTimeFormat('en-AU', {timeZone:'Australia/Sydney', day:'numeric', month:'short'}).format(new Date(v)) : "—";
-  const gameCell = (r) => '<td class="game"><span class="sp">' + esc(r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
+  const gameCell = (r) => '<td class="game"><span class="sp">' + esc(String(r.sport || "").toUpperCase() === "CHAMP" ? "CHAMP" : r.sport || "") + '</span> ' + esc(short(r.game)) + "</td>";
   // Tips tab for NFL Totals: only last 4h before kickoff (Upcoming keeps all open tips).
   const NFL_TOTALS_TIPS_WINDOW_MS = 4 * 60 * 60 * 1000;
   function inNflTotalsTipsWindow(r, now) {

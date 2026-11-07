@@ -38,7 +38,7 @@ export function tipsDeskBody(tipsterId = "john") {
       </div>
 
       <div id="filters" class="tips-filters hidden">
-        <label>Sport<select id="fSport"><option value="">All</option><option>NBA</option><option>NFL</option><option>NHL</option><option>EPL</option></select></label>
+        <label>Sport<select id="fSport"><option value="">All</option><option>NBA</option><option>NFL</option><option>NHL</option><option>EPL</option><option value="CHAMP">Championship</option></select></label>
         <div id="colourFilters" class="colour-filters" role="group" aria-label="Pick colours"></div>
         <label>From<input id="fFrom" type="date"></label>
         <label>To<input id="fTo" type="date"></label>
