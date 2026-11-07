@@ -1,5 +1,5 @@
-// /api/hidden-table?sport=epl|nhl : compact ESPN standings for the hidden EPL/NHL pages (edge-cached 15 min).
-const SRC = { epl: "https://site.api.espn.com/apis/v2/sports/soccer/eng.1/standings", nhl: "https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings" };
+// /api/hidden-table?sport=epl|championship|nhl : compact ESPN standings for the hidden EPL/NHL pages (edge-cached 15 min).
+const SRC = { epl: "https://site.api.espn.com/apis/v2/sports/soccer/eng.1/standings", championship: "https://site.api.espn.com/apis/v2/sports/soccer/eng.2/standings", nhl: "https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings" };
 export async function onRequestGet(ctx) {
   const sport = new URL(ctx.request.url).searchParams.get("sport");
   if (!SRC[sport]) return new Response("[]", { status: 400 });

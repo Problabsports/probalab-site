@@ -5,10 +5,11 @@ export async function serveHidden(ctx, sport) {
   if (parts.length) return Response.redirect(new URL(id ? `/${sport}#game-${id}` : `/${sport}`, ctx.request.url).toString(), 302);
   const r = await ctx.env.ASSETS.fetch(new URL("/", ctx.request.url));
   let h = await r.text();
-  // NHL live (23 Oct). EPL live with percentages only (24 Oct).
+  // NHL live (23 Oct). EPL live with percentages only (24 Oct). Championship live (7 Nov).
   const META = {
     nhl: ["NHL Predictions Today: Win Probabilities for Every Game | ProbaLab", "NHL predictions for every game: a win chance for each team, posted before puck drop, with every result on the record."],
     epl: ["Premier League Predictions: Home, Draw and Away Chances | ProbaLab", "Premier League predictions for every match: home win, draw and away win chances, posted before kick-off, with every result on the record."],
+    championship: ["Championship Predictions: Home, Draw and Away Chances | ProbaLab", "EFL Championship predictions for every match: home win, draw and away win chances, posted before kick-off, with every result on the record."],
   };
   const live = !!META[sport];
   if (live) h = h.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://probalabsports.com/${sport}">`)

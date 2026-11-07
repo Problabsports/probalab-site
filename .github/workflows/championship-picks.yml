@@ -1,0 +1,51 @@
+name: Championship picks
+# Copies ProbaLab's Championship picks into data/championship-picks.json and results into data/championship-grades.json every 30 minutes (and on demand).
+# Picks refresh until kick-off. Once a match has started, its entry in championship-picks.json is never changed again.
+# A result is in championship-grades.json only when two score sources (ESPN and football-data.co.uk) agree. No odds or prices.
+on:
+  schedule:
+    - cron: "12,42 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: championship-picks
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch picks
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/champ-picks-feed -o /tmp/championship-new.json
+          # only accept a non-empty array of picks with the expected fields
+          jq -e 'type == "array" and length > 0 and all(.[]; has("game_id") and has("round") and has("start_utc") and has("p_home") and has("p_draw") and has("p_away") and .status == "pre")' /tmp/championship-new.json > /dev/null
+          mkdir -p data
+          if [ -f data/championship-picks.json ]; then cp data/championship-picks.json /tmp/championship-old.json; else echo '[]' > /tmp/championship-old.json; fi
+          # matches that have started keep exactly what this file already says; upcoming matches take the new numbers
+          jq -n --slurpfile n /tmp/championship-new.json --slurpfile o /tmp/championship-old.json --argjson now "$(date -u +%s)" '
+            $n[0] as $new | $o[0] as $old
+            | ($old | map(select((.start_utc | fromdateiso8601) <= $now))) as $frozen
+            | ($frozen | map(.game_id)) as $fids
+            | ($new | map(select(.game_id as $i | ($fids | index($i)) == null))) as $fresh
+            | ($frozen + $fresh) | sort_by(.start_utc, .game_id)' > data/championship-picks.json
+      - name: Fetch results
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/champ-grades-feed -o /tmp/championship-grades.json
+          jq -e 'type == "object" and all(.[]; has("graded"))' /tmp/championship-grades.json > /dev/null
+          # a result, once marked, stays as first marked
+          if [ -f data/championship-grades.json ]; then jq -s '.[1] + (.[0] | with_entries(select(.value.graded)))' data/championship-grades.json /tmp/championship-grades.json > /tmp/championship-merged.json; else cp /tmp/championship-grades.json /tmp/championship-merged.json; fi
+          jq -S . /tmp/championship-merged.json > data/championship-grades.json
+      - name: Commit if changed
+        run: |
+          git add data/championship-picks.json data/championship-grades.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git config user.name "probalab-bot"
+          git config user.email "probalab-bot@users.noreply.github.com"
+          git commit -m "Championship picks update"
+          git pull --rebase
+          git push

@@ -1,12 +1,13 @@
-// Hidden EPL / NHL views inside the live app shell (served only at /epl and /nhl, noindex). Uses the app's own
+// EPL / Championship / NHL views inside the live app shell (served at /epl, /championship and /nhl). Uses the app's own
 // components and CSS (card, daynav, legend, side .mini). Lights: EPL GREEN >= 60%, ORANGE 50-60%; NHL GREEN >= 65%, ORANGE 55-65%, RED < 55%.
 // NHL record is graded from the pre-puck-drop snapshot records (/data/nhl-pretip.json).
 (function () {
   const HS = window.HIDDEN_SPORT; if (!HS) return;
-  const IS_EPL = HS === "epl", LBL = HS.toUpperCase();
+  const IS_EPL = HS === "epl", IS_SOC = IS_EPL || HS === "championship"; // IS_SOC: 3-way football layout (home/draw/away, rounds)
+  const LEAGUE = { epl: "Premier League", championship: "Championship", nhl: "NHL" }[HS] ?? HS.toUpperCase(), LBL = HS === "championship" ? "CHAMPIONSHIP" : HS.toUpperCase();
   const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
-  const nm = (c) => (IS_EPL ? c : NHLN[c] ?? c);
-  const [GT, OT] = IS_EPL ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55
+  const nm = (c) => (IS_SOC ? c : NHLN[c] ?? c);
+  const [GT, OT] = IS_SOC ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
   // EPL lights (GREEN 55%+, ORANGE 45-55%, RED <45%; from the 2023-26 walk-forward backtest) apply only to matches kicking off
   // from the switch-on time; earlier EPL picks keep no light (no re-colouring). NHL always has lights.
@@ -17,7 +18,7 @@
   let SELR = null, SELD = null;
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   async function load() {
-    const [raw, grades, table, bt, snap, w2] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_EPL ? {} : get("/data/nhl-pretip.json", {}), IS_EPL ? get("/data/epl-win2.json", {}) : {}]);
+    const [raw, grades, table, bt, snap, w2] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_SOC ? {} : get("/data/nhl-pretip.json", {}), IS_EPL ? get("/data/epl-win2.json", {}) : {}]);
     const SN = snap?.games ?? {};
     H.games = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
       const pc = (v) => (v == null || v === "" ? null : Number(v) > 1 ? Number(v) / 100 : Number(v)); // NHL feed sends 0-100
@@ -25,7 +26,7 @@
         p_home: pc(g.p_home ?? g.home_pct), p_away: pc(g.p_away ?? g.away_pct), p_draw: pc(g.p_draw ?? g.draw_pct) };
       x.pick_p = Number(x.pick === "home" ? x.p_home : x.pick === "away" ? x.p_away : x.p_draw);
       x.pick_name = x.pick === "home" ? x.home_name : x.pick === "away" ? x.away_name : "Draw";
-      x.light = !IS_EPL || x.start_utc >= EPL_LIGHTS_FROM ? lightOf(x.pick_p) : null;
+      x.light = !IS_EPL || x.start_utc >= EPL_LIGHTS_FROM ? lightOf(x.pick_p) : null; // Championship and NHL: always lit
       const sn = SN[x.game_id]; // pre-puck-drop snapshot: frozen pick, chance and light; record graded from it
       if (sn) { x.pick = sn.pick === g.home ? "home" : "away"; x.pick_p = Number(sn.pick_p); x.pick_name = x.pick === "home" ? x.home_name : x.away_name; x.light = sn.light; }
       const gr = grades[x.game_id]; x.graded = !!gr?.graded; x.correct = gr?.graded ? gr.correct : null; x.flag = gr && !gr.graded ? gr.flag : null;
@@ -47,15 +48,15 @@
     const post = g.graded;
     const team = (side, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${g.pick === side ? "picked" : ""}">
       <div class="nm">${esc(name)}</div><div class="role">${role}${post && g.home_score != null ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
-    const mid = IS_EPL ? `<div class="team ${g.pick === "draw" ? "picked" : ""}" style="text-align:center"><div class="nm" style="font-size:13px;color:var(--magenta)">Draw</div><div class="role">&nbsp;</div><div class="pc">${pct(g.p_draw)}</div></div>` : `<div class="at">@</div>`;
-    const first = IS_EPL ? team("home", g.home_name, "Home", g.p_home).replace('class="team r ', 'class="team ') : team("away", g.away_name, "Away", g.p_away);
-    const last = IS_EPL ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
-    const segs = IS_EPL ? [["home", g.p_home], ["draw", g.p_draw], ["away", g.p_away]] : [["away", g.p_away], ["home", g.p_home]];
+    const mid = IS_SOC ? `<div class="team ${g.pick === "draw" ? "picked" : ""}" style="text-align:center"><div class="nm" style="font-size:13px;color:var(--magenta)">Draw</div><div class="role">&nbsp;</div><div class="pc">${pct(g.p_draw)}</div></div>` : `<div class="at">@</div>`;
+    const first = IS_SOC ? team("home", g.home_name, "Home", g.p_home).replace('class="team r ', 'class="team ') : team("away", g.away_name, "Away", g.p_away);
+    const last = IS_SOC ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
+    const segs = IS_SOC ? [["home", g.p_home], ["draw", g.p_draw], ["away", g.p_away]] : [["away", g.p_away], ["home", g.p_home]];
     const status = post ? "Final" : g.finished ? "Result being checked" : fmtTime.format(new Date(g.start_utc));
     return `<article class="card ${LIGHTS && g.light === "GREEN" ? "tip" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.home_name)} and ${esc(g.away_name)}, details">
     <div class="card-top"><span class="time">${status}</span>${lchip(g.light)}${post ? `<span class="mark ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span>` : ""}</div>
-    <div class="teams" ${IS_EPL ? 'style="grid-template-columns:1fr auto 1fr"' : ""}>${first}${mid}${last}</div>
-    <div class="bar${IS_EPL ? " bar3" : ""}">${segs.map(([k, p]) => `<i class="seg-${k} ${g.pick === k ? "pk" : ""}" style="width:${p * 100}%"></i>`).join("")}</div>
+    <div class="teams" ${IS_SOC ? 'style="grid-template-columns:1fr auto 1fr"' : ""}>${first}${mid}${last}</div>
+    <div class="bar${IS_SOC ? " bar3" : ""}">${segs.map(([k, p]) => `<i class="seg-${k} ${g.pick === k ? "pk" : ""}" style="width:${p * 100}%"></i>`).join("")}</div>
     <div class="card-top"><dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div></dl><span class="more">Details →</span></div>
     ${IS_EPL && g.w2 && !g.finished ? `<div class="card-top"><dl class="prices"><div><dt>Chance of winning by 2+</dt><dd>${esc(g.home_name)} ${pct(g.w2.h)} · ${esc(g.away_name)} ${pct(g.w2.a)}</dd></div></dl></div>` : ""}
   </article>`;
@@ -65,7 +66,7 @@
   // ---------- predictions ----------
   function predictions() {
     let list, head, keys, cur;
-    if (IS_EPL) { keys = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); cur = SELR; list = H.games.filter((g) => g.round === SELR); head = `Round ${SELR ?? "–"} · 2026–27`; }
+    if (IS_SOC) { keys = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); cur = SELR; list = H.games.filter((g) => g.round === SELR); head = `Round ${SELR ?? "–"} · 2026–27`; }
     else { keys = [...new Set(H.games.map((g) => keyOf(g.start_utc)))].sort(); cur = SELD; list = H.games.filter((g) => keyOf(g.start_utc) === SELD); head = SELD ? `${SELD === keyOf(Date.now()) ? "Today · " : ""}${fmtDay.format(new Date(SELD + "T12:00"))}` : "No games"; }
     const i = keys.indexOf(cur), done = list.filter((g) => g.graded), gr = list.filter((g) => g.light === "GREEN");
     const byDay = {}; list.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
@@ -73,17 +74,17 @@
     <div class="daynav">
       <button type="button" data-hstep="-1" aria-label="Previous" ${i <= 0 ? "disabled" : ""}>‹</button><h2>${esc(head)}</h2>
       <button type="button" data-hstep="1" aria-label="Next" ${i >= keys.length - 1 ? "disabled" : ""}>›</button>
-      ${IS_EPL ? `<select class="season" id="hroundSel" aria-label="Round">${keys.map((k) => `<option value="${k}" ${k === cur ? "selected" : ""}>Round ${k}</option>`).join("")}</select>` : ""}
+      ${IS_SOC ? `<select class="season" id="hroundSel" aria-label="Round">${keys.map((k) => `<option value="${k}" ${k === cur ? "selected" : ""}>Round ${k}</option>`).join("")}</select>` : ""}
     </div>
     <div class="daysum"><span><b>${list.length}</b> games</span>${LIGHTS ? `<span><b>${gr.length}</b> green</span>` : ""}${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
     ${legend()}
     ${list.length ? Object.entries(byDay).map(([k, xs]) => `<div class="dayhead">${esc(fmtDay.format(new Date(k + "T12:00")))}</div>${xs.map(hcard).join("")}`).join("")
-      : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_EPL ? "kick-off" : "puck drop"}.</p></div>`}`;
+      : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_SOC ? "kick-off" : "puck drop"}.</p></div>`}`;
   }
   // ---------- record ----------
   let HFILTER = "all";
   function record() {
-    if (!IS_EPL) return recordNHL();
+    if (!IS_SOC) return recordNHL();
     return recordPlain();
   }
   // NHL record in the same layout as the NBA/NFL record tab (stats, by light, calibration, every pick); graded from /data/nhl-pretip.json snapshots
@@ -118,7 +119,7 @@
   }
   // EPL record in the NBA/NFL record layout, percentages only (no lights yet). A result is marked only when ESPN and football-data agree.
   function recordPlain() {
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (round 8, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (${IS_EPL ? "round 8" : "round 15"}, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p></div>`;
     const done = graded().slice().reverse(), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     const note = pending ? `<p class="note">${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : "";
@@ -145,8 +146,8 @@
   function table() {
     const t = H.table;
     document.getElementById("main").innerHTML = `<div><h2>Standings &amp; scores</h2></div>` + (!t || !t.length ? `<div class="panel"><p>The table couldn't be loaded just now.</p></div>`
-      : `<div class="panel" style="overflow-x:auto"><table><thead><tr><th align="left">#</th><th align="left">Team</th><th>P</th><th>W</th>${IS_EPL ? "<th>D</th>" : ""}<th>L</th>${IS_EPL ? "<th>GD</th>" : "<th>OTL</th>"}<th>Pts</th></tr></thead><tbody>
-      ${t.map((r, i) => `<tr><td>${i + 1}</td><td><span class="tm">${IS_EPL ? "" : `<span class="badge">${esc(r.abbr)}</span>`}${esc(r.team)}</span></td><td align="center">${r.gp}</td><td align="center">${r.w}</td>${IS_EPL ? `<td align="center">${r.d}</td>` : ""}<td align="center">${r.l}</td><td align="center">${IS_EPL ? (r.gd > 0 ? "+" : "") + r.gd : r.otl}</td><td align="center"><b>${r.pts}</b></td></tr>`).join("")}</tbody></table></div>`)
+      : `<div class="panel" style="overflow-x:auto"><table><thead><tr><th align="left">#</th><th align="left">Team</th><th>P</th><th>W</th>${IS_SOC ? "<th>D</th>" : ""}<th>L</th>${IS_SOC ? "<th>GD</th>" : "<th>OTL</th>"}<th>Pts</th></tr></thead><tbody>
+      ${t.map((r, i) => `<tr><td>${i + 1}</td><td><span class="tm">${IS_SOC ? "" : `<span class="badge">${esc(r.abbr)}</span>`}${esc(r.team)}</span></td><td align="center">${r.gp}</td><td align="center">${r.w}</td>${IS_SOC ? `<td align="center">${r.d}</td>` : ""}<td align="center">${r.l}</td><td align="center">${IS_SOC ? (r.gd > 0 ? "+" : "") + r.gd : r.otl}</td><td align="center"><b>${r.pts}</b></td></tr>`).join("")}</tbody></table></div>`)
       + `<div class="panel"><h2>Recent scores</h2><div class="stack">${H.games.filter((g) => g.graded).slice().reverse().slice(0, 12).map(hcard).join("") || "<p>No confirmed scores yet.</p>"}</div></div>`;
   }
   // ---------- stats (NHL past-season testing) ----------
@@ -161,12 +162,12 @@
         <p>* Seasons used to choose the model's settings, so they flatter it a little. 2023–24 onwards is a clean test. With three possible results, about half right is a good season; draws are the hardest to call.</p></div>`;
       return;
     }
-    const rows = Object.entries(bt.seasons).map(([s, v]) => `<tr><td>${s}–${String(+s + 1).slice(2)}${v.n < 1000 ? " (so far)" : ""}</td><td align="center">${v.n}</td><td align="center"><b>${pct(v.c / v.n)}</b></td><td align="center">${pct(v.home / v.n)}</td>
+    const rows = Object.entries(bt.seasons).map(([s, v]) => `<tr><td>${s}–${String(+s + 1).slice(2)}${v.n < (IS_SOC ? 552 : 1000) ? " (so far)" : ""}</td><td align="center">${v.n}</td><td align="center"><b>${pct(v.c / v.n)}</b></td><td align="center">${pct(v.home / v.n)}</td>
       ${["GREEN", "ORANGE", "RED"].map((l) => `<td align="center">${v.lights[l][0] ? `${pct(v.lights[l][1] / v.lights[l][0])} <small>(${v.lights[l][0]})</small>` : "–"}</td>`).join("")}</tr>`).join("");
     document.getElementById("main").innerHTML = `<div><h2>Stats</h2></div><div class="panel"><h2>Past-season testing</h2>
-      <p><b>This is a re-run on past seasons, not the live record.</b> The model was run game by game through each season using only results from earlier days, then checked against the real results. "Always home" is how often simply picking the home team was right.</p>
-      <div style="overflow-x:auto"><table><thead><tr><th align="left">Season</th><th>Games</th><th>Model right</th><th>Always home</th><th>Green</th><th>Orange</th><th>Red</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <p>Light columns show how often picks with that light were right, with the number of games in brackets.</p></div>`;
+      <p><b>This is a re-run on past seasons, not the live record.</b> The model was run ${IS_SOC ? "match" : "game"} by ${IS_SOC ? "match" : "game"} through each season using only results from earlier days, then checked against the real results. "Always home" is how often simply picking the home team was right.${IS_SOC ? " It uses the same settings as our Premier League model, never tuned on Championship data." : ""}</p>
+      <div style="overflow-x:auto"><table><thead><tr><th align="left">Season</th><th>${IS_SOC ? "Matches" : "Games"}</th><th>Model right</th><th>Always home</th><th>Green</th><th>Orange</th><th>Red</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p>Light columns show how often picks with that light were right, with the number of games in brackets.${IS_SOC ? " With three possible results and a draw about one match in four, under half right is normal for this league." : ""}</p></div>`;
   }
   // ---------- trends (NHL): every figure computed from this season's official NHL API results ----------
   let SEASONG = null;
@@ -208,38 +209,39 @@
     const up = H.games.filter((g) => !g.finished), feat = up.slice().sort((a, b) => b.pick_p - a.pick_p)[0], g = graded();
     const last7 = g.filter((x) => new Date(x.start_utc).getTime() > Date.now() - 7 * 864e5);
     document.getElementById("side").innerHTML = `
-    ${feat ? `<div class="mini"><h3>Top pick${IS_EPL ? " of the round" : ""}</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
+    ${feat ? `<div class="mini"><h3>Top pick${IS_SOC ? " of the round" : ""}</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
       <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
-      <div class="row"><span class="t">${esc(IS_EPL ? `${feat.home_name} v ${feat.away_name}` : `${feat.away} @ ${feat.home}`)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
+      <div class="row"><span class="t">${esc(IS_SOC ? `${feat.home_name} v ${feat.away_name}` : `${feat.away} @ ${feat.home}`)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
       ${feat.light ? `<div class="row">${chip(feat.light)}</div>` : ""}</div></div>` : ""}
     <div class="mini"><h3>Record</h3>
       <div class="row"><span class="t">All time</span><span class="n">${g.length ? `${W(g)}–${g.length - W(g)}` : "–"}</span></div>
       <div class="row"><span class="t">Last 7 days</span><span class="n">${last7.length ? `${W(last7)}–${last7.length - W(last7)}` : "–"}</span></div>
       <a class="back" href="#${HS}-record">Our record →</a></div>
-    ${H.table?.length ? `<div class="mini"><h3>Best records</h3>${H.table.slice(0, 8).map((r, i) => `<div class="row"><span class="n">${i + 1}</span>${IS_EPL ? "" : `<span class="badge">${esc(r.abbr)}</span>`}<span class="t">${esc(r.team)}</span><span class="n">${r.pts} pts</span></div>`).join("")}
+    ${H.table?.length ? `<div class="mini"><h3>Best records</h3>${H.table.slice(0, 8).map((r, i) => `<div class="row"><span class="n">${i + 1}</span>${IS_SOC ? "" : `<span class="badge">${esc(r.abbr)}</span>`}<span class="t">${esc(r.team)}</span><span class="n">${r.pts} pts</span></div>`).join("")}
       <a class="back" href="#${HS}-table">Standings &amp; scores →</a></div>` : ""}`;
   }
   // ---------- game page ----------
   function game(id) {
     const g = H.games.find((x) => x.game_id === id), el = document.getElementById("view-game");
     if (!g) { el.innerHTML = `<a class="back" href="#${HS}-predictions">← Back</a><div class="panel"><h2>Game not found</h2></div>`; return; }
-    const s = (k, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${g.pick === k ? "picked" : ""}"><div class="crest">${esc(IS_EPL ? (k === "draw" ? "–" : name.slice(0, 3).toUpperCase()) : g[k])}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
+    const s = (k, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${g.pick === k ? "picked" : ""}"><div class="crest">${esc(IS_SOC ? (k === "draw" ? "–" : name.slice(0, 3).toUpperCase()) : g[k])}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
     el.innerHTML = `<a class="back" href="#${HS}-predictions">← All games</a>
       <div class="eyebrow">${LBL}${g.round ? ` · Round ${g.round}` : ""} · ${esc(fmtDay.format(new Date(g.start_utc)))} ${esc(fmtTime.format(new Date(g.start_utc)))}</div>
-      <h1>${esc(IS_EPL ? `${g.home_name} vs ${g.away_name}` : `${g.away_name} vs ${g.home_name}`)}</h1>
+      <h1>${esc(IS_SOC ? `${g.home_name} vs ${g.away_name}` : `${g.away_name} vs ${g.home_name}`)}</h1>
       ${hcard(g).replace('role="link"', "")}
       <div class="panel"><h2>The model's chances</h2><table><tbody>
-        ${(IS_EPL ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
+        ${(IS_SOC ? [[`${g.home_name} win`, g.p_home, "home"], ["Draw", g.p_draw, "draw"], [`${g.away_name} win`, g.p_away, "away"]] : [[`${g.away_name} win`, g.p_away, "away"], [`${g.home_name} win`, g.p_home, "home"]])
           .map(([l, p, k]) => `<tr><td>${esc(l)}${g.pick === k ? " <b>(pick)</b>" : ""}</td><td align="right"><b>${pct(p)}</b></td></tr>`).join("")}${IS_EPL && g.w2 && !g.finished ? `<tr><td>Chance of winning by 2+: ${esc(g.home_name)}</td><td align="right"><b>${pct(g.w2.h)}</b></td></tr><tr><td>Chance of winning by 2+: ${esc(g.away_name)}</td><td align="right"><b>${pct(g.w2.a)}</b></td></tr>` : ""}</tbody></table>
         ${g.light ? `<p>The light shows how likely the model rates its pick: ${chip(g.light)} ${g.light === "GREEN" ? "the model rates this pick as likely." : g.light === "ORANGE" ? "a lean." : `under ${pct(OT)}, so the game is open.`}</p>` : `<p>The pick is the most likely of the three results.</p>`}</div>
-      <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_EPL ? "kick-off" : "puck drop"}, then it's frozen.`}</p></div>
+      <div class="panel"><h2>Result</h2><p>${g.graded ? `Final: ${esc(g.home_name)} ${g.home_score}–${g.away_score} ${esc(g.away_name)}. The pick was ${g.correct ? '<b class="pos">right ✓</b>' : '<b class="neg">wrong ✕</b>'}.` : g.finished ? "The result is being checked against two score sources before it's marked." : `Not played yet. The prediction refreshes until ${IS_SOC ? "kick-off" : "puck drop"}, then it's frozen.`}</p></div>
       <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
     window.scrollTo(0, 0);
   }
   // ---------- routing (takes over the app router on this page only) ----------
-  const SUBS = IS_EPL ? { predictions, record, table, stats } : { predictions, record, trends, table, stats };
-  const TABS = [["predictions", "Predictions"], ["record", "Our record"], ...(IS_EPL ? [] : [["trends", "Trends"]]), ["table", "Standings &amp; scores"], ["stats", "Stats"]];
+  const SUBS = IS_SOC ? { predictions, record, table, stats } : { predictions, record, trends, table, stats };
+  const TABS = [["predictions", "Predictions"], ["record", "Our record"], ...(IS_SOC ? [] : [["trends", "Trends"]]), ["table", "Standings &amp; scores"], ["stats", "Stats"]];
   const LEDE = IS_EPL ? "Every Premier League match gets three chances from our proprietary data model: home win, draw and away win. Picks refresh until kick-off, then they're frozen. A result is marked only when two score sources agree."
+    : HS === "championship" ? "Every Championship match gets three chances from our proprietary data model: home win, draw and away win. It's the hardest league to call: 24 evenly matched teams and more draws than the Premier League, so favourites win less often, for everyone. Picks refresh until kick-off, then they're frozen. A result is marked only when two score sources agree."
     : "Every NHL game gets a win chance for each team from our proprietary data model. Picks refresh until puck drop, then they're frozen. A result is marked only when two score sources agree.";
   function hroute() {
     const h = location.hash.slice(1);
@@ -248,12 +250,13 @@
     ["home", "sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== (isGame ? "game" : "sport")));
     document.getElementById("sportBar").hidden = false;
     document.querySelectorAll("#sportBar [data-sport]").forEach((a) => a.classList.toggle("on", a.dataset.sport === HS));
+    window.PL_moreSportsMark?.(HS);
     document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === "sport" ? "page" : "false"));
-    document.getElementById("spEyebrow").textContent = `${IS_EPL ? "Premier League" : "NHL"} · win predictions`;
+    document.getElementById("spEyebrow").textContent = `${LEAGUE} · win predictions`;
     document.getElementById("spLede").textContent = LEDE;
     const st = document.getElementById("subtabs"); st.setAttribute("aria-label", `${LBL} sections`);
     st.innerHTML = TABS.map(([k, l]) => `<a href="#${HS}-${k}" aria-current="${k === sub ? "page" : "false"}">${l}</a>`).join("");
-    document.title = `${IS_EPL ? "Premier League" : "NHL"} Predictions | ProbaLab`;
+    document.title = `${LEAGUE} Predictions | ProbaLab`;
     if (!H.ready) { document.getElementById("main").innerHTML = `<div class="panel"><h2>Loading predictions</h2></div>`; document.getElementById("side").innerHTML = ""; return; }
     if (isGame) return game(h.slice(5));
     SUBS[sub](); side();
@@ -264,7 +267,7 @@
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-hstep]"); if (!b) return; e.stopPropagation();
     const d = Number(b.dataset.hstep);
-    if (IS_EPL) { const ks = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); SELR = ks[Math.max(0, Math.min(ks.length - 1, ks.indexOf(SELR) + d))]; }
+    if (IS_SOC) { const ks = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); SELR = ks[Math.max(0, Math.min(ks.length - 1, ks.indexOf(SELR) + d))]; }
     else { const ks = [...new Set(H.games.map((g) => keyOf(g.start_utc)))].sort(); SELD = ks[Math.max(0, Math.min(ks.length - 1, ks.indexOf(SELD) + d))]; }
     predictions(); side();
   }, true);
