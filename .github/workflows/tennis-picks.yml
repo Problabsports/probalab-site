@@ -1,0 +1,50 @@
+name: Tennis picks
+# Copies ProbaLab's tennis predictions (ATP and WTA main-draw singles) into data/tennis-picks.json every 30 minutes (and on demand).
+# Picks refresh until the first serve. Once a match's start time has passed, its chances, pick and light in this file are never
+# changed again; only its status, score and result are updated. No odds or prices.
+on:
+  schedule:
+    - cron: "9,39 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tennis-picks
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch picks
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --max-time 30 https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/tennis-feed -o /tmp/tennis-new.json
+          # only accept the expected shape
+          jq -e '.sport == "TENNIS" and (.tournaments | type == "array") and (.matches | type == "array") and (.record | type == "object")
+            and all(.matches[]; has("id") and has("start_utc") and has("a_pct") and has("b_pct") and has("pick") and has("light") and has("status"))' /tmp/tennis-new.json > /dev/null
+          mkdir -p data
+          if [ -f data/tennis-picks.json ]; then cp data/tennis-picks.json /tmp/tennis-old.json; else echo '{"matches":[]}' > /tmp/tennis-old.json; fi
+          # matches that have started keep exactly the chances, pick and light this file already shows; the result is graded from that pick
+          jq -n --slurpfile n /tmp/tennis-new.json --slurpfile o /tmp/tennis-old.json --argjson now "$(date -u +%s)" '
+            $n[0] as $new
+            | (($o[0].matches // []) | map(select((.start_utc | fromdateiso8601) <= $now)) | INDEX(.id)) as $fz
+            | $new | .matches |= map(. as $m | $fz[$m.id] as $f
+                | if $f == null then $m
+                  else ($m + { a_pct: $f.a_pct, b_pct: $f.b_pct, pick: $f.pick, pick_pct: $f.pick_pct, light: $f.light })
+                    | .result = (if .status == "post" and .result != "void" and .winner != null then (if .pick == .winner then "won" else "lost" end) else .result end)
+                  end)' > /tmp/tennis-merged.json
+          # skip a commit when only the timestamp moved
+          if [ "$(jq -S 'del(.generated_at)' /tmp/tennis-merged.json)" != "$(jq -S 'del(.generated_at)' /tmp/tennis-old.json 2>/dev/null || true)" ]; then
+            cp /tmp/tennis-merged.json data/tennis-picks.json
+          fi
+      - name: Commit if changed
+        run: |
+          git add data/tennis-picks.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
+          git config user.name "probalab-bot"
+          git config user.email "probalab-bot@users.noreply.github.com"
+          git commit -m "Tennis picks update"
+          git pull --rebase
+          git push

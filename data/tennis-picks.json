@@ -1,0 +1,179 @@
+{
+ "sport": "TENNIS",
+ "generated_at": "2026-11-07T06:51:09Z",
+ "lights": {
+  "GREEN": "70%+",
+  "ORANGE": "60-70%",
+  "RED": "under 60%"
+ },
+ "tournaments": [
+  {
+   "id": "WTA-380-2026",
+   "tour": "WTA",
+   "name": "Prudential Hong Kong Tennis Open",
+   "city": "Hong Kong",
+   "surface": "Hard",
+   "best_of": 3,
+   "start_utc": "2026-10-30T04:00:00Z",
+   "end_utc": "2026-11-09T04:59:00Z",
+   "live": true
+  },
+  {
+   "id": "ATP-13-2026",
+   "tour": "ATP",
+   "name": "Rolex Paris Masters",
+   "city": "Paris",
+   "surface": "Hard",
+   "best_of": 3,
+   "start_utc": "2026-10-31T04:00:00Z",
+   "end_utc": "2026-11-09T04:59:00Z",
+   "live": true
+  },
+  {
+   "id": "WTA-889-2026",
+   "tour": "WTA",
+   "name": "Chennai Open",
+   "city": "Chennai",
+   "surface": "Hard",
+   "best_of": 3,
+   "start_utc": "2026-10-31T04:00:00Z",
+   "end_utc": "2026-11-09T04:59:00Z",
+   "live": true
+  }
+ ],
+ "matches": [
+  {
+   "id": "186643",
+   "tour": "WTA",
+   "tournament_id": "WTA-380-2026",
+   "tournament": "Prudential Hong Kong Tennis Open",
+   "surface": "Hard",
+   "best_of": 3,
+   "round": "Semifinal",
+   "court": "Centre Court",
+   "start_utc": "2026-11-07T08:00:00Z",
+   "status": "pre",
+   "player_a": "Maria Sakkari",
+   "player_b": "Alexandra Eala",
+   "a_pct": 42.6,
+   "b_pct": 57.4,
+   "pick": "b",
+   "pick_pct": 57.4,
+   "light": "RED",
+   "winner": null,
+   "score": null,
+   "retired": false,
+   "result": null
+  },
+  {
+   "id": "186594",
+   "tour": "WTA",
+   "tournament_id": "WTA-889-2026",
+   "tournament": "Chennai Open",
+   "surface": "Hard",
+   "best_of": 3,
+   "round": "Semifinal",
+   "court": "Centre Court",
+   "start_utc": "2026-11-07T12:30:00Z",
+   "status": "pre",
+   "player_a": "Janice Tjen",
+   "player_b": "Robin Montgomery",
+   "a_pct": 62.7,
+   "b_pct": 37.3,
+   "pick": "a",
+   "pick_pct": 62.7,
+   "light": "ORANGE",
+   "winner": null,
+   "score": null,
+   "retired": false,
+   "result": null
+  },
+  {
+   "id": "186504",
+   "tour": "ATP",
+   "tournament_id": "ATP-13-2026",
+   "tournament": "Rolex Paris Masters",
+   "surface": "Hard",
+   "best_of": 3,
+   "round": "Semifinal",
+   "court": "Court Central",
+   "start_utc": "2026-11-07T13:30:00Z",
+   "status": "pre",
+   "player_a": "Luca Van Assche",
+   "player_b": "Ben Shelton",
+   "a_pct": 22.7,
+   "b_pct": 77.3,
+   "pick": "b",
+   "pick_pct": 77.3,
+   "light": "GREEN",
+   "winner": null,
+   "score": null,
+   "retired": false,
+   "result": null
+  },
+  {
+   "id": "186593",
+   "tour": "WTA",
+   "tournament_id": "WTA-889-2026",
+   "tournament": "Chennai Open",
+   "surface": "Hard",
+   "best_of": 3,
+   "round": "Semifinal",
+   "court": "Centre Court",
+   "start_utc": "2026-11-07T14:00:00Z",
+   "status": "pre",
+   "player_a": "Magda Linette",
+   "player_b": "Anastasia Zakharova",
+   "a_pct": 54.8,
+   "b_pct": 45.2,
+   "pick": "a",
+   "pick_pct": 54.8,
+   "light": "RED",
+   "winner": null,
+   "score": null,
+   "retired": false,
+   "result": null
+  },
+  {
+   "id": "186505",
+   "tour": "ATP",
+   "tournament_id": "ATP-13-2026",
+   "tournament": "Rolex Paris Masters",
+   "surface": "Hard",
+   "best_of": 3,
+   "round": "Semifinal",
+   "court": "Court Central",
+   "start_utc": "2026-11-07T16:00:00Z",
+   "status": "pre",
+   "player_a": "Casper Ruud",
+   "player_b": "Carlos Alcaraz",
+   "a_pct": 18.9,
+   "b_pct": 81.1,
+   "pick": "b",
+   "pick_pct": 81.1,
+   "light": "GREEN",
+   "winner": null,
+   "score": null,
+   "retired": false,
+   "result": null
+  }
+ ],
+ "record": {
+  "ALL": {
+   "won": 0,
+   "lost": 0
+  },
+  "GREEN": {
+   "won": 0,
+   "lost": 0
+  },
+  "ORANGE": {
+   "won": 0,
+   "lost": 0
+  },
+  "RED": {
+   "won": 0,
+   "lost": 0
+  }
+ }
+}

@@ -576,7 +576,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
           <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">NRL</span><small>From March</small></span>
         </div>
         <div class="more-group"><h3>Tennis</h3>
-          <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">ATP &amp; WTA</span><small>Soon</small></span>
+          <a class="more-item live" href="/tennis" data-sport="tennis" data-label="Tennis"><i class="dot"></i><span class="nm">ATP &amp; WTA</span><small>Live</small></a>
         </div>
         <div class="more-group"><h3>Basketball</h3>
           <span class="more-item" aria-disabled="true"><i class="dot"></i><span class="nm">College Basketball</span><small>Soon</small></span>
@@ -597,7 +597,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { set(false); btn.focus(); } });
   window.PL_moreSportsMark = (sp) => {
     const a = panel.querySelector(`[data-sport="${sp}"]`);
-    btn.classList.toggle("on", !!a); cur.textContent = a ? ` · ${a.querySelector(".nm").textContent}` : "";
+    btn.classList.toggle("on", !!a); cur.textContent = a ? ` · ${a.dataset.label ?? a.querySelector(".nm").textContent}` : "";
   };
 })();
 </script>
