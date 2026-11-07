@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-07T13:28:51Z",
+  "generated_at": "2026-11-07T14:18:29Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -86,7 +86,7 @@
       "round": "Semifinal",
       "court": "Centre Court",
       "start_utc": "2026-11-07T12:35:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Janice Tjen",
       "player_b": "Robin Montgomery",
       "a_pct": 62.7,
@@ -94,10 +94,10 @@
       "pick": "a",
       "pick_pct": 62.7,
       "light": "ORANGE",
-      "winner": null,
-      "score": "6-3",
+      "winner": "a",
+      "score": "6-3 6-4",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186504",
@@ -108,8 +108,8 @@
       "best_of": 3,
       "round": "Semifinal",
       "court": "Court Central",
-      "start_utc": "2026-11-07T13:30:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-07T13:40:00Z",
+      "status": "in",
       "player_a": "Luca Van Assche",
       "player_b": "Ben Shelton",
       "a_pct": 22.7,
@@ -118,7 +118,7 @@
       "pick_pct": 77.3,
       "light": "GREEN",
       "winner": null,
-      "score": null,
+      "score": "2-2",
       "retired": false,
       "result": null
     },
@@ -131,8 +131,8 @@
       "best_of": 3,
       "round": "Semifinal",
       "court": "Centre Court",
-      "start_utc": "2026-11-07T14:00:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-07T14:10:00Z",
+      "status": "due",
       "player_a": "Magda Linette",
       "player_b": "Anastasia Zakharova",
       "a_pct": 54.8,
@@ -378,7 +378,7 @@
   ],
   "record": {
     "ALL": {
-      "won": 1,
+      "won": 2,
       "lost": 0
     },
     "GREEN": {
@@ -386,7 +386,7 @@
       "lost": 0
     },
     "ORANGE": {
-      "won": 0,
+      "won": 1,
       "lost": 0
     },
     "RED": {
