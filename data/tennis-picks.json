@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-07T16:13:27Z",
+  "generated_at": "2026-11-07T17:12:33Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -132,7 +132,7 @@
       "round": "Semifinal",
       "court": "Centre Court",
       "start_utc": "2026-11-07T14:20:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Magda Linette",
       "player_b": "Anastasia Zakharova",
       "a_pct": 54.8,
@@ -140,10 +140,10 @@
       "pick": "a",
       "pick_pct": 54.8,
       "light": "RED",
-      "winner": null,
-      "score": "2-6 6-2 3-1",
+      "winner": "a",
+      "score": "2-6 6-2 6-3",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186505",
@@ -154,8 +154,8 @@
       "best_of": 3,
       "round": "Semifinal",
       "court": "Court Central",
-      "start_utc": "2026-11-07T16:10:00Z",
-      "status": "due",
+      "start_utc": "2026-11-07T16:25:00Z",
+      "status": "in",
       "player_a": "Casper Ruud",
       "player_b": "Carlos Alcaraz",
       "a_pct": 18.9,
@@ -164,7 +164,7 @@
       "pick_pct": 81.1,
       "light": "GREEN",
       "winner": null,
-      "score": null,
+      "score": "3-4",
       "retired": false,
       "result": null
     },
@@ -186,6 +186,29 @@
       "pick": "b",
       "pick_pct": 74.5,
       "light": "GREEN",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186598",
+      "tour": "WTA",
+      "tournament_id": "WTA-889-2026",
+      "tournament": "Chennai Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Final",
+      "court": "Centre Court",
+      "start_utc": "2026-11-08T13:00:00Z",
+      "status": "pre",
+      "player_a": "Janice Tjen",
+      "player_b": "Magda Linette",
+      "a_pct": 52.2,
+      "b_pct": 47.8,
+      "pick": "a",
+      "pick_pct": 52.2,
+      "light": "RED",
       "winner": null,
       "score": null,
       "retired": false,
@@ -254,6 +277,29 @@
       "b_pct": 60.5,
       "pick": "b",
       "pick_pct": 60.5,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186525",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 1",
+      "court": "",
+      "start_utc": "2026-11-09T05:00:00Z",
+      "status": "pre",
+      "player_a": "Holger Rune",
+      "player_b": "Zizou Bergs",
+      "a_pct": 31.9,
+      "b_pct": 68.1,
+      "pick": "b",
+      "pick_pct": 68.1,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -351,34 +397,11 @@
       "score": null,
       "retired": false,
       "result": null
-    },
-    {
-      "id": "186525",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Round 1",
-      "court": "",
-      "start_utc": "2026-11-09T05:00:00Z",
-      "status": "pre",
-      "player_a": "Holger Rune",
-      "player_b": "Zizou Bergs",
-      "a_pct": 31.9,
-      "b_pct": 68.1,
-      "pick": "b",
-      "pick_pct": 68.1,
-      "light": "ORANGE",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
     }
   ],
   "record": {
     "ALL": {
-      "won": 3,
+      "won": 4,
       "lost": 0
     },
     "GREEN": {
@@ -390,7 +413,7 @@
       "lost": 0
     },
     "RED": {
-      "won": 1,
+      "won": 2,
       "lost": 0
     }
   }
