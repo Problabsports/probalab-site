@@ -83,7 +83,7 @@
     return `<div class="tn-row">
       <div class="tn-pls">${side("a", m.player_a, m.a_pct)}${side("b", m.player_b, m.b_pct)}
         <div class="tn-bar"><i style="width:${m.a_pct}%;background:${m.pick === "a" ? col : "var(--line-hi)"}"></i><i style="width:${m.b_pct}%;background:${m.pick === "b" ? col : "var(--line-hi)"}"></i></div></div>
-      <div class="tn-r">${chip(m.light)}${tail}</div>
+      <div class="tn-r">${chip(m.light)}<span class="tn-fair" title="Fair price = 1 ÷ our chance">Fair <b>${(100 / m.pick_pct).toFixed(2)}</b></span>${tail}</div>
     </div>`;
   }
   const tally = (xs) => { const d = xs.filter((m) => m.right != null), w = d.filter((m) => m.right).length;
@@ -124,6 +124,7 @@
     </div>
     <div class="daysum"><span><b>${list.length}</b> shown</span><span><b>${list.filter((m) => m.light === "GREEN").length}</b> green</span>${d.length ? `<span>Picks <b>${w}–${d.length - w}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key"><span>${chip("GREEN")} 70%+</span><span>${chip("ORANGE")} 60–70%</span><span>${chip("RED")} under 60%, a close match</span></div>
+    <p class="note" style="margin:0">Fair price = 1 ÷ our chance for the pick. Any price above it is better than our model's number; it isn't a tip.</p>
     ${groups.length ? groups.map(({ t, xs }) => `<section class="tn-grpbox">
       <div class="tn-gh"><h2>${esc(t.name)}</h2><span>${t.tour === "ATP" ? "Men's singles" : "Women's singles"} · ${esc(t.tour)} · ${esc(t.surface)} · best of ${t.best_of === 5 ? "five" : "three"} · ${tally(xs)}</span></div>
       ${xs.length ? xs.map(row).join("") : `<p class="tn-empty">No matches in this filter.</p>`}</section>`).join("") : `<div class="panel"><p>No matches in this filter.</p></div>`}
@@ -176,7 +177,7 @@
     el.innerHTML = `
     ${td.length ? `<div class="mini"><h3>Today so far</h3><div class="tn-big">${d.length ? `${w} of ${d.length}` : "–"}</div>
       <div class="row"><span class="t">${d.length ? `Picks right. <b style="color:var(--green)">Green ${byL("GREEN")}</b>, orange ${byL("ORANGE")}, red ${byL("RED")}.` : `${td.length} match${td.length === 1 ? "" : "es"} today, none finished yet.`}</span></div></div>` : ""}
-    ${up.length ? `<div class="mini"><h3>Top picks coming up</h3>${up.map((m) => `<div class="row"><span class="t">${esc(m.pick_name)} <small style="color:var(--muted)">v ${esc(m.pick === "a" ? m.player_b : m.player_a)}</small></span><span class="n" style="color:${LC[m.light]};font-weight:700">${P1(m.pick_pct)}</span></div>`).join("")}</div>` : ""}
+    ${up.length ? `<div class="mini"><h3>Top picks coming up</h3>${up.map((m) => `<div class="row"><span class="t">${esc(m.pick_name)} <small style="color:var(--muted)">v ${esc(m.pick === "a" ? m.player_b : m.player_a)}</small></span><span class="n" style="color:${LC[m.light]};font-weight:700">${P1(m.pick_pct)}</span><span class="n" style="min-width:38px;text-align:right">${(100 / m.pick_pct).toFixed(2)}</span></div>`).join("")}</div>` : ""}
     <div class="mini"><h3>How our tennis picks have done</h3>
       <div class="row"><span class="t" style="color:var(--muted)">Tested on ${bt ? bt.all.n.toLocaleString() : "30,000+"} ATP and WTA matches, 2021–2026.</span></div>
       <div class="row"><span class="t">${chip("GREEN")} 70%+</span><span class="n"><b>${L("GREEN")}</b></span></div>
@@ -238,6 +239,7 @@
   .tn-r { display: grid; justify-items: end; gap: 6px; }
   .tn-st { font: 12px var(--f-mono); color: #b8bfd8; white-space: nowrap; }
   .tn-st .pos { color: var(--win); } .tn-st .neg { color: #ff6b85; } .tn-on { color: var(--win); }
+  .tn-fair { font: 12px var(--f-mono); color: var(--muted); white-space: nowrap; } .tn-fair b { color: var(--ink); font-size: 13px; }
   .tn-big { font: 700 30px var(--f-mono); line-height: 1.1; }
   @media (max-width: 640px) { .tn-day { margin-left: 0; width: 100%; justify-content: space-between; } .tn-row { grid-template-columns: minmax(0, 1fr) 96px; gap: 6px 10px; padding: 10px 12px; } .tn-pl { grid-template-columns: minmax(0, 1fr) 46px; gap: 6px; } .tn-pickbtn { font-size: 16px; } }`;
   document.head.appendChild(css);
