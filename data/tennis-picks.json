@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-07T17:12:33Z",
+  "generated_at": "2026-11-07T18:08:05Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -155,7 +155,7 @@
       "round": "Semifinal",
       "court": "Court Central",
       "start_utc": "2026-11-07T16:25:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Casper Ruud",
       "player_b": "Carlos Alcaraz",
       "a_pct": 18.9,
@@ -163,10 +163,10 @@
       "pick": "b",
       "pick_pct": 81.1,
       "light": "GREEN",
-      "winner": null,
-      "score": "3-4",
+      "winner": "b",
+      "score": "4-6 4-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186642",
@@ -209,6 +209,29 @@
       "pick": "a",
       "pick_pct": 52.2,
       "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186507",
+      "tour": "ATP",
+      "tournament_id": "ATP-13-2026",
+      "tournament": "Rolex Paris Masters",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Final",
+      "court": "Court Central",
+      "start_utc": "2026-11-08T14:00:00Z",
+      "status": "pre",
+      "player_a": "Ben Shelton",
+      "player_b": "Carlos Alcaraz",
+      "a_pct": 29.4,
+      "b_pct": 70.6,
+      "pick": "b",
+      "pick_pct": 70.6,
+      "light": "GREEN",
       "winner": null,
       "score": null,
       "retired": false,
@@ -401,11 +424,11 @@
   ],
   "record": {
     "ALL": {
-      "won": 4,
+      "won": 5,
       "lost": 0
     },
     "GREEN": {
-      "won": 1,
+      "won": 2,
       "lost": 0
     },
     "ORANGE": {
