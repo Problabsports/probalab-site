@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-08T21:14:40Z",
+  "generated_at": "2026-11-08T22:11:49Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -281,7 +281,7 @@
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-08T20:15:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Marta Kostyuk",
       "player_b": "Linda Noskova",
       "a_pct": 47.7,
@@ -289,10 +289,10 @@
       "pick": "b",
       "pick_pct": 52.3,
       "light": "RED",
-      "winner": null,
-      "score": "2-6 2-1",
+      "winner": "b",
+      "score": "2-6 4-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187374",
@@ -303,8 +303,8 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-08T21:30:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-08T22:05:00Z",
+      "status": "due",
       "player_a": "Coco Gauff",
       "player_b": "Jessica Pegula",
       "a_pct": 51.9,
@@ -606,11 +606,11 @@
       "status": "pre",
       "player_a": "Jessica Pegula",
       "player_b": "Linda Noskova",
-      "a_pct": 61.1,
-      "b_pct": 38.9,
+      "a_pct": 59.8,
+      "b_pct": 40.2,
       "pick": "a",
-      "pick_pct": 61.1,
-      "light": "ORANGE",
+      "pick_pct": 59.8,
+      "light": "RED",
       "winner": null,
       "score": null,
       "retired": false,
@@ -629,10 +629,10 @@
       "status": "pre",
       "player_a": "Marta Kostyuk",
       "player_b": "Coco Gauff",
-      "a_pct": 35,
-      "b_pct": 65,
+      "a_pct": 33.9,
+      "b_pct": 66.1,
       "pick": "b",
-      "pick_pct": 65,
+      "pick_pct": 66.1,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -652,10 +652,10 @@
       "status": "pre",
       "player_a": "Marta Kostyuk",
       "player_b": "Jessica Pegula",
-      "a_pct": 36.7,
-      "b_pct": 63.3,
+      "a_pct": 35.6,
+      "b_pct": 64.4,
       "pick": "b",
-      "pick_pct": 63.3,
+      "pick_pct": 64.4,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -698,10 +698,10 @@
       "status": "pre",
       "player_a": "Coco Gauff",
       "player_b": "Linda Noskova",
-      "a_pct": 62.9,
-      "b_pct": 37.1,
+      "a_pct": 61.6,
+      "b_pct": 38.4,
       "pick": "a",
-      "pick_pct": 62.9,
+      "pick_pct": 61.6,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -803,7 +803,7 @@
   ],
   "record": {
     "ALL": {
-      "won": 7,
+      "won": 8,
       "lost": 2
     },
     "GREEN": {
@@ -815,7 +815,7 @@
       "lost": 0
     },
     "RED": {
-      "won": 2,
+      "won": 3,
       "lost": 1
     }
   }
