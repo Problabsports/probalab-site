@@ -1,1 +1,15 @@
-{}
+{
+  "186507": {
+    "a": {
+      "close_price": 4.408,
+      "posted_price": 4.1,
+      "vs_close": -0.0698
+    },
+    "b": {
+      "close_price": 1.293,
+      "posted_price": 1.25,
+      "vs_close": -0.0336
+    },
+    "pick": "b"
+  }
+}
