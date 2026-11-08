@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-08T22:11:49Z",
+  "generated_at": "2026-11-08T23:11:29Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -304,7 +304,7 @@
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-08T22:05:00Z",
-      "status": "due",
+      "status": "in",
       "player_a": "Coco Gauff",
       "player_b": "Jessica Pegula",
       "a_pct": 51.9,
@@ -313,7 +313,7 @@
       "pick_pct": 51.9,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "6-4 0-2",
       "retired": false,
       "result": null
     },
