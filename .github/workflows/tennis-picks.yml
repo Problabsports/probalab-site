@@ -1,7 +1,7 @@
 name: Tennis picks
 # Copies ProbaLab's tennis predictions (ATP and WTA main-draw singles) into data/tennis-picks.json every 30 minutes (and on demand).
 # Picks refresh until the first serve. Once a match's start time has passed, its chances, pick and light in this file are never
-# changed again; only its status, score and result are updated. No odds or prices.
+# changed again; only its status, score and result are updated. Beat-the-close prices go into a separate market file.
 on:
   schedule:
     - cron: "9,39 * * * *"
@@ -39,9 +39,19 @@ jobs:
           if [ "$(jq -S 'del(.generated_at)' /tmp/tennis-merged.json)" != "$(jq -S 'del(.generated_at)' /tmp/tennis-old.json 2>/dev/null || true)" ]; then
             cp /tmp/tennis-merged.json data/tennis-picks.json
           fi
+      - name: Fetch beat-the-close prices
+        run: |
+          set -uo pipefail
+          # data/tennis-market.json: per finished game and side, the best Australian bookmaker price at our last price check before the start
+          # and the fair (no-margin) closing price (market-feed function). Once a game is in the file it never changes. Never fails the run.
+          f=data/tennis-market.json; [ -f "$f" ] || echo '{}' > "$f"
+          if curl -fsS --retry 3 --max-time 60 "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/market-feed?sport=tennis" -o /tmp/mk-new.json \
+            && jq -e 'type == "object"' /tmp/mk-new.json > /dev/null; then
+            jq -S -s '.[1] + .[0]' "$f" /tmp/mk-new.json > /tmp/mk.json && cp /tmp/mk.json "$f"
+          else echo "market feed unavailable; keeping $f"; fi
       - name: Commit if changed
         run: |
-          git add data/tennis-picks.json
+          git add data/tennis-picks.json data/tennis-market.json
           if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "probalab-bot"
           git config user.email "probalab-bot@users.noreply.github.com"

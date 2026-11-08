@@ -1,7 +1,7 @@
 name: EPL picks
 # Copies ProbaLab's EPL picks into data/epl-picks.json and results into data/epl-grades.json every 30 minutes (and on demand).
 # Picks refresh until kick-off. Once a match has started, its entry in epl-picks.json is never changed again.
-# A result is in epl-grades.json only when two score sources (ESPN and football-data.co.uk) agree. No odds or prices.
+# A result is in epl-grades.json only when two score sources (ESPN and football-data.co.uk) agree. Beat-the-close prices go into a separate market file.
 on:
   schedule:
     - cron: "7,37 * * * *"
@@ -40,9 +40,19 @@ jobs:
           # a result, once marked, stays as first marked
           if [ -f data/epl-grades.json ]; then jq -s '.[1] + (.[0] | with_entries(select(.value.graded)))' data/epl-grades.json /tmp/epl-grades.json > /tmp/epl-merged.json; else cp /tmp/epl-grades.json /tmp/epl-merged.json; fi
           jq -S . /tmp/epl-merged.json > data/epl-grades.json
+      - name: Fetch beat-the-close prices
+        run: |
+          set -uo pipefail
+          # data/epl-market.json: per finished game and side, the best Australian bookmaker price at our last price check before the start
+          # and the fair (no-margin) closing price (market-feed function). Once a game is in the file it never changes. Never fails the run.
+          f=data/epl-market.json; [ -f "$f" ] || echo '{}' > "$f"
+          if curl -fsS --retry 3 --max-time 60 "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/market-feed?sport=epl" -o /tmp/mk-new.json \
+            && jq -e 'type == "object"' /tmp/mk-new.json > /dev/null; then
+            jq -S -s '.[1] + .[0]' "$f" /tmp/mk-new.json > /tmp/mk.json && cp /tmp/mk.json "$f"
+          else echo "market feed unavailable; keeping $f"; fi
       - name: Commit if changed
         run: |
-          git add data/epl-picks.json data/epl-grades.json
+          git add data/epl-picks.json data/epl-grades.json data/epl-market.json
           if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "probalab-bot"
           git config user.email "probalab-bot@users.noreply.github.com"

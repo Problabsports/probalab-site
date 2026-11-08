@@ -1,7 +1,7 @@
 name: Championship picks
 # Copies ProbaLab's Championship picks into data/championship-picks.json and results into data/championship-grades.json every 30 minutes (and on demand).
 # Picks refresh until kick-off. Once a match has started, its entry in championship-picks.json is never changed again.
-# A result is in championship-grades.json only when two score sources (ESPN and football-data.co.uk) agree. No odds or prices.
+# A result is in championship-grades.json only when two score sources (ESPN and football-data.co.uk) agree. Beat-the-close prices go into a separate market file.
 on:
   schedule:
     - cron: "12,42 * * * *"
@@ -40,9 +40,19 @@ jobs:
           # a result, once marked, stays as first marked
           if [ -f data/championship-grades.json ]; then jq -s '.[1] + (.[0] | with_entries(select(.value.graded)))' data/championship-grades.json /tmp/championship-grades.json > /tmp/championship-merged.json; else cp /tmp/championship-grades.json /tmp/championship-merged.json; fi
           jq -S . /tmp/championship-merged.json > data/championship-grades.json
+      - name: Fetch beat-the-close prices
+        run: |
+          set -uo pipefail
+          # data/championship-market.json: per finished game and side, the best Australian bookmaker price at our last price check before the start
+          # and the fair (no-margin) closing price (market-feed function). Once a game is in the file it never changes. Never fails the run.
+          f=data/championship-market.json; [ -f "$f" ] || echo '{}' > "$f"
+          if curl -fsS --retry 3 --max-time 60 "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/market-feed?sport=champ" -o /tmp/mk-new.json \
+            && jq -e 'type == "object"' /tmp/mk-new.json > /dev/null; then
+            jq -S -s '.[1] + .[0]' "$f" /tmp/mk-new.json > /tmp/mk.json && cp /tmp/mk.json "$f"
+          else echo "market feed unavailable; keeping $f"; fi
       - name: Commit if changed
         run: |
-          git add data/championship-picks.json data/championship-grades.json
+          git add data/championship-picks.json data/championship-grades.json data/championship-market.json
           if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "probalab-bot"
           git config user.email "probalab-bot@users.noreply.github.com"

@@ -2,7 +2,7 @@
 // Data: /data/tennis-picks.json (copied from Supabase every 30 minutes by .github/workflows/tennis-picks.yml) and
 // /data/tennis-backtest.json (2021-2026 walk-forward re-run). Lights: GREEN 70%+, ORANGE 60-70%, RED under 60% (a close match).
 // Layout as approved in the tennis design: tournament dropdown with the main tournaments and LIVE badges, one day at a time,
-// tour tabs, Greens only, sort, player search, compact two-player rows. No odds or prices.
+// tour tabs, Greens only, sort, player search, compact two-player rows. Finished picks show beat-the-close (data/tennis-market.json).
 (function () {
   if (window.HIDDEN_SPORT !== "tennis") return;
   const LC = { GREEN: "var(--green)", ORANGE: "var(--orange)", RED: "var(--red)" };
@@ -25,10 +25,12 @@
   const P1 = (x) => (Math.round(x) === 100 ? "99%" : Math.round(x) + "%");
 
   async function load() {
-    const [feed, bt] = await Promise.all([get("/data/tennis-picks.json", null), get("/data/tennis-backtest.json", null)]);
-    H.feed = feed; H.bt = bt; H.ready = true;
+    const [feed, bt, mk] = await Promise.all([get("/data/tennis-picks.json", null), get("/data/tennis-backtest.json", null), get("/data/tennis-market.json", {})]);
+    H.feed = feed; H.bt = bt; H.mk = mk ?? {}; H.ready = true;
     H.tours = (feed?.tournaments ?? []).map((t) => ({ ...t, item: itemOf(t) }));
-    H.all = (feed?.matches ?? []).map((m) => ({ ...m, pick_name: m.pick === "a" ? m.player_a : m.player_b, key: keyOf(m.start_utc), right: m.result === "won" ? true : m.result === "lost" ? false : null }));
+    H.all = (feed?.matches ?? []).map((m) => { const v = H.mk[m.id]?.[m.pick]; // beat-the-close for our pick (data/tennis-market.json)
+      return { ...m, pick_name: m.pick === "a" ? m.player_a : m.player_b, key: keyOf(m.start_utc), right: m.result === "won" ? true : m.result === "lost" ? false : null,
+        ...(v && v.vs_close != null ? { posted_price: Number(v.posted_price), close_price: Number(v.close_price), vs_close: Number(v.vs_close) } : {}) }; });
     const lv = H.tours.filter(live);
     S.sel = lv.length > 1 ? "*" : (lv[0] ?? H.tours[H.tours.length - 1])?.id ?? "*";
     pickDay();
@@ -83,7 +85,9 @@
     return `<div class="tn-row">
       <div class="tn-pls">${side("a", m.player_a, m.a_pct)}${side("b", m.player_b, m.b_pct)}
         <div class="tn-bar"><i style="width:${m.a_pct}%;background:${m.pick === "a" ? col : "var(--line-hi)"}"></i><i style="width:${m.b_pct}%;background:${m.pick === "b" ? col : "var(--line-hi)"}"></i></div></div>
-      <div class="tn-r">${chip(m.light)}<span class="tn-fair" title="Fair price = 1 ÷ our chance">Fair <b>${(100 / m.pick_pct).toFixed(2)}</b></span>${tail}</div>
+      <div class="tn-r">${chip(m.light)}${post && m.vs_close != null
+        ? `<span class="tn-fair" title="Best Australian price for our pick before the start, against the fair closing price $${m.close_price.toFixed(2)}">$${m.posted_price.toFixed(2)} <b class="${m.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(m.vs_close)}</b></span>`
+        : `<span class="tn-fair" title="Fair price = 1 ÷ our chance">Fair <b>${(100 / m.pick_pct).toFixed(2)}</b></span>`}${tail}</div>
     </div>`;
   }
   const tally = (xs) => { const d = xs.filter((m) => m.right != null), w = d.filter((m) => m.right).length;
@@ -137,16 +141,21 @@
     const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, from 7 November 2026. Each pick, chance and light is saved before the first serve and can't change after it. A retirement counts as a result; a walkover doesn't.</p></div>`;
     const R = (k) => rec?.[k] ?? { won: 0, lost: 0 }, rate = (o) => (o.won + o.lost ? pct(o.won / (o.won + o.lost)) : "–");
     if (!R("ALL").won && !R("ALL").lost) { main.innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>The first live picks are being played now. Every pick stays on the record, right or wrong.</p></div>` + btPanel(); return; }
+    // beat the close over every live pick with prices (the market file keeps all of them; the feed keeps 7 days)
+    const vc = Object.values(H.mk ?? {}).map((e) => e?.[e.pick]).filter((v) => v && v.vs_close != null).map((v) => Number(v.vs_close));
+    const vcStat = vc.length ? [["Beat the close", pct(vc.filter((x) => x > 0).length / vc.length), `avg ${sgnPct(vc.reduce((a, x) => a + x, 0) / vc.length)} vs close · ${vc.length} pick${vc.length > 1 ? "s" : ""}`]] : [];
     main.innerHTML = lede + `
-    <div class="stats">${[["All picks", rate(R("ALL")), `${R("ALL").won}–${R("ALL").lost}`], ["Green picks", rate(R("GREEN")), `${R("GREEN").won}–${R("GREEN").lost} · tested 78%`]]
+    <div class="stats">${[["All picks", rate(R("ALL")), `${R("ALL").won}–${R("ALL").lost}`], ["Green picks", rate(R("GREEN")), `${R("GREEN").won}–${R("GREEN").lost} · tested 78%`], ...vcStat]
       .map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
     <div class="panel"><h2>By light</h2><div class="tablewrap"><table><thead><tr><th>Light</th><th class="n">Picks</th><th class="n">Won</th><th class="n">Rate</th></tr></thead><tbody>
       ${["GREEN", "ORANGE", "RED"].map((l) => `<tr><td>${chip(l)}</td><td class="n">${R(l).won + R(l).lost}</td><td class="n">${R(l).won}</td><td class="n">${rate(R(l))}</td></tr>`).join("")}</tbody></table></div></div>
     <div class="panel"><h2>Latest results</h2><p>The last 7 days. The full record keeps counting above.</p><div class="tablewrap"><table>
-      <thead><tr><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th></tr></thead><tbody>
-      ${done.slice(0, 150).map((m) => `<tr><td style="white-space:normal">${esc(m.player_a)} v ${esc(m.player_b)}<br><small style="color:var(--muted)">${esc(m.tournament)} · ${esc(m.round)} · ${fmtShort.format(new Date(m.start_utc))}</small></td>
-        <td style="white-space:normal">${esc(m.pick_name)}</td><td class="n">${P1(m.pick_pct)}</td><td>${chip(m.light)}</td><td><span class="wl ${m.right ? "W" : "L"}">${m.right ? "✓" : "✕"}</span> <small>${esc(m.score ?? "")}${m.retired ? " ret." : ""}</small></td></tr>`).join("")}
-      </tbody></table></div></div>`;
+      <thead><tr><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">vs close</th></tr></thead><tbody>
+      ${done.slice(0, 150).map((m) => `<tr><td style="white-space:normal;min-width:170px">${esc(m.player_a)} v ${esc(m.player_b)}<br><small style="color:var(--muted)">${esc(m.tournament)} · ${esc(m.round)} · ${fmtShort.format(new Date(m.start_utc))}</small></td>
+        <td style="white-space:normal">${esc(m.pick_name)}</td><td class="n">${P1(m.pick_pct)}</td><td>${chip(m.light)}</td><td><span class="wl ${m.right ? "W" : "L"}">${m.right ? "✓" : "✕"}</span> <small>${esc(m.score ?? "")}${m.retired ? " ret." : ""}</small></td>
+        <td class="n">${m.vs_close != null ? `<b class="${m.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(m.vs_close)}</b><br><small style="color:var(--muted)">$${m.posted_price.toFixed(2)}</small>` : "–"}</td></tr>`).join("")}
+      </tbody></table></div>
+      ${vc.length ? `<p class="note"><b>Price</b> is the best Australian bookmaker price for our pick at our last price check before the first serve (by 7am Sydney time on match day, and at least an hour before). <b>vs close</b> compares it with the fair closing price, with the bookmaker's margin removed. Above zero means the price you could get beat the market's final view, the best long-run sign of an edge. Only bigger tournaments have Australian prices, so smaller events show a dash.</p>` : ""}</div>`;
   }
   // ---------- stats (backtest) ----------
   function btPanel() {

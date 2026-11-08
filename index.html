@@ -757,7 +757,7 @@ const pickedDone = () => picks().filter((g) => g.status === "post" && g.won !== 
 const finals = (season) => DATA.games.filter((g) => g.season === season && g.status === "post" && g.home_score != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
 
 // ---------- forecast card ----------
-// beat-the-close (every pick, after tip-off): best Australian bookmaker price at the 7am slate vs Pinnacle's fair closing price
+// beat-the-close (every pick, after tip-off): best Australian bookmaker price at the 7am slate vs the sharp market's fair closing price
 const sgnPct = (x) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x * 100).toFixed(1)}%`;
 const vsCloseDl = (g) => (g.vs_close == null ? "" : `<div><dt>Price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}" title="Fair closing price $${g.close_price.toFixed(2)}">${sgnPct(g.vs_close)}</dd></div>`);
 function card(g) {
@@ -864,7 +864,7 @@ function renderRecord() {
           <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
           <td class="n">${g.away_score}–${g.home_score}</td><td class="n">${g.vs_close != null ? `$${g.posted_price.toFixed(2)} <b class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</b>` : "–"}</td></tr>`).join("")}
       </tbody></table></div>
-      ${vcs.length ? `<p class="note"><b>Price</b> is the best Australian bookmaker price for our pick when the 7am picks went out. <b>vs close</b> compares it with Pinnacle's fair closing price (margin removed, 15 minutes before the start). Above zero means the price you could get beat the market's final view, the best long-run sign of an edge. We show it on every pick, good or bad.</p>` : ""}
+      ${vcs.length ? `<p class="note"><b>Price</b> is the best Australian bookmaker price for our pick at our last price check before the start (by 7am Sydney time on game day, and at least an hour before the start). <b>vs close</b> compares it with the fair closing price: the sharpest bookmaker's last price before the start, with its margin removed. Above zero means the price you could get beat the market's final view, the best long-run sign of an edge. We show it on every pick, good or bad.</p>` : ""}
     </div>`;
 }
 function calibSvg(done) {
@@ -1242,7 +1242,7 @@ function renderGame(id) {
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
-        ${g.vs_close != null ? `<div><dt>Price at 7am</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
+        ${g.vs_close != null ? `<div><dt>Posted price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
     </div>
     <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
@@ -1512,7 +1512,7 @@ function renderNflGame(id) {
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
-        ${g.vs_close != null ? `<div><dt>Price at 7am</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
+        ${g.vs_close != null ? `<div><dt>Posted price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
       ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
     </div>

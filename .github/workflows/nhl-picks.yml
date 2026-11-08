@@ -1,7 +1,7 @@
 name: NHL picks
 # Copies ProbaLab's NHL picks into data/nhl-picks.json every 30 minutes (and on demand).
 # Picks refresh until puck drop. Once a game has started, its entry in this file is never changed again.
-# No odds or prices. The site sets the lights and grades results.
+# Beat-the-close prices go into a separate market file. The site sets the lights and grades results.
 on:
   schedule:
     - cron: "7,37 * * * *"
@@ -38,14 +38,22 @@ jobs:
                 | . as $x | $om[$x.id] as $p
                 | if $p != null and (($p | del(.created_at)) == ($x | del(.created_at))) then $p else $x end)) as $fresh
             | ($frozen + $fresh) | sort_by(.date, .id)' > data/nhl-picks.json
+      - name: Fetch beat-the-close prices
+        run: |
+          set -uo pipefail
+          # data/nhl-market.json: per finished game and side, the best Australian bookmaker price at our last price check before the start
+          # and the fair (no-margin) closing price (market-feed function). Once a game is in the file it never changes. Never fails the run.
+          f=data/nhl-market.json; [ -f "$f" ] || echo '{}' > "$f"
+          if curl -fsS --retry 3 --max-time 60 "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/market-feed?sport=nhl" -o /tmp/mk-new.json \
+            && jq -e 'type == "object"' /tmp/mk-new.json > /dev/null; then
+            jq -S -s '.[1] + .[0]' "$f" /tmp/mk-new.json > /tmp/mk.json && cp /tmp/mk.json "$f"
+          else echo "market feed unavailable; keeping $f"; fi
       - name: Commit if changed
         run: |
-          if git diff --quiet -- data/nhl-picks.json && git ls-files --error-unmatch data/nhl-picks.json >/dev/null 2>&1; then
-            echo "No change"; exit 0
-          fi
+          git add data/nhl-picks.json data/nhl-market.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "probalab-bot"
           git config user.email "probalab-bot@users.noreply.github.com"
-          git add data/nhl-picks.json
           git commit -m "NHL picks update"
           git pull --rebase
           git push
