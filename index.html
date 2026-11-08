@@ -757,6 +757,9 @@ const pickedDone = () => picks().filter((g) => g.status === "post" && g.won !== 
 const finals = (season) => DATA.games.filter((g) => g.season === season && g.status === "post" && g.home_score != null).sort((a, b) => b.start_utc.localeCompare(a.start_utc));
 
 // ---------- forecast card ----------
+// beat-the-close (every pick, after tip-off): best Australian bookmaker price at the 7am slate vs Pinnacle's fair closing price
+const sgnPct = (x) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${Math.abs(x * 100).toFixed(1)}%`;
+const vsCloseDl = (g) => (g.vs_close == null ? "" : `<div><dt>Price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}" title="Fair closing price $${g.close_price.toFixed(2)}">${sgnPct(g.vs_close)}</dd></div>`);
 function card(g) {
   const pHome = pHomeOf(g), post = g.status === "post" && g.won !== null;
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
@@ -769,7 +772,7 @@ function card(g) {
       <i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
     <div class="card-top"><dl class="prices">
       <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
-      
+      ${vsCloseDl(g)}
     </dl><span class="more">Details →</span></div>
   </article>`;
 }
@@ -834,6 +837,7 @@ function renderRecord() {
   const clvAvg = clvs.length ? clvs.reduce((s, g) => s + g.clv, 0) / clvs.length : null;
   const beat = clvs.length ? clvs.filter((g) => g.clv > 0).length / clvs.length : null;
   const rows = (FILTER === "tips" ? tips : done).slice(0, 80);
+  const vcs = done.filter((g) => g.vs_close != null);
   if (!done.length) { document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
@@ -841,6 +845,7 @@ function renderRecord() {
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
       ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + super"}`],
+      ...(vcs.length ? [["Beat the close", pct(vcs.filter((g) => g.vs_close > 0).length / vcs.length), `avg ${sgnPct(vcs.reduce((a, g) => a + g.vs_close, 0) / vcs.length)} vs close · ${vcs.length} picks`]] : []),
     ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
     <div class="conf">
       <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
@@ -854,11 +859,12 @@ function renderRecord() {
       <div class="toolbar"><h2 class="grow">Every pick</h2>
         <div class="seg" id="filters"><button type="button" data-f="all" aria-pressed="${FILTER === "all"}">All</button><button type="button" data-f="tips" aria-pressed="${FILTER === "tips"}">Top picks only</button></div></div>
       <div class="tablewrap"><table>
-        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th></tr></thead><tbody>
+        <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th><th class="n">Price · vs close</th></tr></thead><tbody>
         ${rows.map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td>${fmtShort.format(new Date(g.start_utc))}</td><td>${g.away} @ ${g.home}</td><td>${esc(g.pick)}</td>
           <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
-          <td class="n">${g.away_score}–${g.home_score}</td></tr>`).join("")}
+          <td class="n">${g.away_score}–${g.home_score}</td><td class="n">${g.vs_close != null ? `$${g.posted_price.toFixed(2)} <b class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</b>` : "–"}</td></tr>`).join("")}
       </tbody></table></div>
+      ${vcs.length ? `<p class="note"><b>Price</b> is the best Australian bookmaker price for our pick when the 7am picks went out. <b>vs close</b> compares it with Pinnacle's fair closing price (margin removed, 15 minutes before the start). Above zero means the price you could get beat the market's final view, the best long-run sign of an edge. We show it on every pick, good or bad.</p>` : ""}
     </div>`;
 }
 function calibSvg(done) {
@@ -1236,6 +1242,7 @@ function renderGame(id) {
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
+        ${g.vs_close != null ? `<div><dt>Price at 7am</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
     </div>
     <div class="panel"><h2>Why the model leans this way</h2><p>Away team on the left, home on the right. The glowing side has the edge.</p>
@@ -1299,7 +1306,8 @@ function buildNfl(feed, pasts) {
   for (const [abbr, name, , div] of feed.teams ?? []) { NTEAMS[abbr] = name; NDIV[abbr] = div; }
   const nm = (c) => NTEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
   const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NFL", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
-    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv) }));
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv),
+    posted_price: n(g.posted_price), close_price: n(g.close_price), vs_close: n(g.vs_close) }));
   for (const p of pasts) games.push(...p.games.map(([game_id, week, game_type, start_utc, home, away, home_score, away_score, neu]) => ({ game_id, sport: "NFL",
     season: p.season, week, game_type, start_utc, home, away, home_name: nm(home), away_name: nm(away), status: "post", home_score, away_score, neutral: !!neu, has_pick: false, pick: null, won: null })));
   return { season: feed.season, games, byId: Object.fromEntries(games.map((g) => [g.game_id, g])), seasons: [feed.season, ...pasts.map((p) => p.season)] };
@@ -1504,6 +1512,7 @@ function renderNflGame(id) {
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
       <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
+        ${g.vs_close != null ? `<div><dt>Price at 7am</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
       ${g.neutral ? `<p class="note">Neutral venue: no home-field edge.</p>` : ""}
     </div>
@@ -1706,7 +1715,8 @@ document.getElementById("yr").textContent = new Date().getFullYear();
 function buildData(feed, pasts) {
   const nm = (c) => TEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
   const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
-    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv) }));
+    pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv),
+    posted_price: n(g.posted_price), close_price: n(g.close_price), vs_close: n(g.vs_close) }));
   const players = (feed.players ?? []).map(([team, player, gp, pts, reb, ast, stl, blk]) =>
     ({ season: feed.season, team, player, gp, pts: +pts, reb: +reb, ast: +ast, stl: +stl, blk: +blk }));
   for (const p of pasts) {
