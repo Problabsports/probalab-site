@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-08T09:46:28Z",
+  "generated_at": "2026-11-08T10:43:10Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -189,7 +189,7 @@
       "round": "Final",
       "court": "Centre Court",
       "start_utc": "2026-11-08T08:05:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Claire Liu",
       "player_b": "Alexandra Eala",
       "a_pct": 25.5,
@@ -197,10 +197,10 @@
       "pick": "b",
       "pick_pct": 74.5,
       "light": "GREEN",
-      "winner": null,
-      "score": "6-3 4-0",
+      "winner": "a",
+      "score": "6-3 6-0",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186598",
@@ -712,11 +712,11 @@
   "record": {
     "ALL": {
       "won": 5,
-      "lost": 0
+      "lost": 1
     },
     "GREEN": {
       "won": 2,
-      "lost": 0
+      "lost": 1
     },
     "ORANGE": {
       "won": 1,
