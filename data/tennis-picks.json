@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-08T18:47:24Z",
+  "generated_at": "2026-11-08T19:44:22Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -258,7 +258,7 @@
       "round": "Round 1",
       "court": "Center Court",
       "start_utc": "2026-11-08T17:35:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Thiago Agustin Tirante",
       "player_b": "Jaume Munar",
       "a_pct": 44.5,
@@ -266,10 +266,10 @@
       "pick": "b",
       "pick_pct": 55.5,
       "light": "RED",
-      "winner": null,
-      "score": "6-6",
+      "winner": "a",
+      "score": "7-6 6-3",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "187373",
@@ -804,7 +804,7 @@
   "record": {
     "ALL": {
       "won": 7,
-      "lost": 1
+      "lost": 2
     },
     "GREEN": {
       "won": 3,
@@ -816,7 +816,7 @@
     },
     "RED": {
       "won": 2,
-      "lost": 0
+      "lost": 1
     }
   }
 }
