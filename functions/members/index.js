@@ -25,23 +25,41 @@ export async function onRequestGet() {
 
   <div id="publicPane" class="hidden">
     <h1>ProbaLab members</h1>
-    <p>A private members area is on the way. Join the waitlist and we'll email you when it opens.</p>
+    <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
 
-    <section class="panel">
-      <h2>What's coming</h2>
-      <ul>
-        <li>Tipsters with their own strategy — not every game, a selected set</li>
-        <li>Each tipster's tips, results and summary against the ProbaLab board</li>
-        <li>Fair price and value tools, units only</li>
-      </ul>
-      <p class="note">Coming soon. No public track record claims on this page — tipsters are still proving themselves.</p>
+    <section class="panel" id="memberSignIn">
+      <h2>Sign in</h2>
+      <p class="note">Members email and password open the tipster lobby.</p>
+      <form id="memberLoginForm" class="login-box">
+        <label for="memberEmail">Email</label><br>
+        <input id="memberEmail" type="email" required autocomplete="username" placeholder="you@example.com" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px"><br>
+        <label for="memberPassword">Password</label><br>
+        <input id="memberPassword" type="password" required autocomplete="current-password" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px">
+        <div><button class="btn" type="submit" style="display:inline-block;border:0;cursor:pointer;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#07080f;background:var(--cyan);padding:10px 18px">Open members</button></div>
+        <p id="memberLoginMsg" class="msg muted"></p>
+      </form>
     </section>
 
     <section class="panel">
-      <h2>Join the waitlist</h2>
+      <h2>Live tipster desks</h2>
+      <p>Sign in to open a desk. Each tipster keeps its own record, separate from the public board.</p>
+      <ul class="desk-list">
+        <li><b>John</b> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
+        <li><b>ProbaLab</b> — site greens and supers across NBA, NFL, NHL and EPL</li>
+        <li><b>Closing Line Sniper</b> — selective Closing Line tips</li>
+        <li><b>NFL Totals</b> — NFL overs and unders</li>
+        <li><b>NBA Price Gap</b> — NBA moneylines when AU books beat Pinnacle</li>
+        <li><b>NHL Value</b> — NHL moneylines at or above model fair</li>
+      </ul>
+      <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Not a member yet?</h2>
+      <p>Join the waitlist and we will email you when more seats open.</p>
       <form class="signup main" id="waitlistForm" action="/api/members-waitlist" method="post" data-waitlist>
-        <label for="wl-email"><b>Email me when members opens</b></label>
-        <p>No spam. We'll only write when the members area is ready.</p>
+        <label for="wl-email"><b>Email me when a seat opens</b></label>
+        <p>No spam. Waitlist mail only.</p>
         <div class="srow">
           <input id="wl-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
           <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -50,19 +68,6 @@ export async function onRequestGet() {
         </div>
         <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p>
         <p class="msg" id="wlMsg" role="status"></p>
-      </form>
-    </section>
-
-    <section class="panel" id="memberSignIn">
-      <h2>Already a member?</h2>
-      <p class="note">Sign in with your members email and password to open the tipster lobby.</p>
-      <form id="memberLoginForm" class="login-box">
-        <label for="memberEmail">Email</label><br>
-        <input id="memberEmail" type="email" required autocomplete="username" placeholder="you@example.com" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px"><br>
-        <label for="memberPassword">Password</label><br>
-        <input id="memberPassword" type="password" required autocomplete="current-password" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px">
-        <div><button class="btn" type="submit" style="display:inline-block;border:0;cursor:pointer;font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#07080f;background:var(--cyan);padding:10px 18px">Open members</button></div>
-        <p id="memberLoginMsg" class="msg muted"></p>
       </form>
     </section>
   </div>
@@ -74,7 +79,7 @@ export async function onRequestGet() {
 
   const page = shell({
     title: "Members | ProbaLab",
-    description: "ProbaLab members: follow tipsters and compare their tips with the ProbaLab board. Join the waitlist or sign in.",
+    description: "Sign in to ProbaLab members tipster desks, or join the waitlist. Live tipsters with their own records.",
     path: "/members",
     body,
     noindex: false,

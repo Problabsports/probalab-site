@@ -30,8 +30,14 @@
   function show(){
     var b=document.createElement('div');
     b.id='pl-consent'; b.setAttribute('role','dialog'); b.setAttribute('aria-label','Cookie consent');
-    b.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:560px;margin:0 auto;background:#11131f;color:#e8e9f0;border:1px solid #2a2d40;border-radius:10px;padding:14px 16px;font:14px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';
-    b.innerHTML='We\'d like to use Google Analytics cookies to see how the site is used, and ad cookies. Nothing is set unless you accept. <a href="/privacy" style="color:#8ab4ff">Privacy policy</a><div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end"><button type="button" data-c="denied" style="padding:6px 14px;border-radius:6px;border:1px solid #555;background:transparent;color:inherit;cursor:pointer">Decline</button><button type="button" data-c="granted" style="padding:6px 14px;border-radius:6px;border:0;background:#3b6cff;color:#fff;cursor:pointer">Accept</button></div>';
+    var narrow = (window.matchMedia && window.matchMedia('(max-width: 480px)').matches);
+    b.style.cssText = narrow
+      ? 'position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;max-width:none;margin:0;background:#11131f;color:#e8e9f0;border:1px solid #2a2d40;border-radius:10px;padding:10px 12px;font:12.5px/1.35 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.45)'
+      : 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:560px;margin:0 auto;background:#11131f;color:#e8e9f0;border:1px solid #2a2d40;border-radius:10px;padding:14px 16px;font:14px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)';
+    b.innerHTML = (narrow
+      ? 'Cookies for analytics &amp; ads only if you accept. <a href="/privacy" style="color:#8ab4ff">Privacy</a>'
+      : 'We\'d like to use Google Analytics cookies to see how the site is used, and ad cookies. Nothing is set unless you accept. <a href="/privacy" style="color:#8ab4ff">Privacy policy</a>')
+      + '<div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end"><button type="button" data-c="denied" style="padding:6px 12px;border-radius:6px;border:1px solid #555;background:transparent;color:inherit;cursor:pointer">Decline</button><button type="button" data-c="granted" style="padding:6px 12px;border-radius:6px;border:0;background:#3b6cff;color:#fff;cursor:pointer">Accept</button></div>';
     b.addEventListener('click',function(e){
       var c=e.target.getAttribute&&e.target.getAttribute('data-c'); if(!c) return;
       window.plConsent(c); b.remove();
