@@ -3,11 +3,11 @@
 import { shell, ORIGIN, chip } from "./site.js";
 
 export const FIGURE_SOURCES = {
-  nbaWalk: "betting/models/nba/elo_netrtg/v2/backtest_predictions_v2.csv joined to v1/backtest_predictions.csv (results and, where present, closing money-line prices). Walk-forward v2 (H2).",
+  nbaWalk: "betting/models/nba/elo_netrtg/v2/backtest_predictions_v2.csv joined to v1/backtest_predictions.csv (results). Walk-forward v2 (H2).",
   nbaPrereg: "betting/models/nba/elo_netrtg/v2/preregistration.json and README.md (selection 2008-18, SBR holdout to 16 Jan 2023, Pinnacle 2024-26 scored once).",
-  nbaSuperPublished: "Already published on /lights and in nba-collect case-against copy: 2025-26 test of 162 Super games, 63% wins, +0.7% vs close, staking about break-even (−0.3%). Original worksheet not found as a standalone file; a later price dump did not reproduce 162 exactly, so the published figures are used unchanged, with that caveat.",
-  nbaGreenCollector: "nba-collect case-against copy (78% of 2025-26 greens won; backing every one lost about 1.8%). Consistent with ops/20261110_held_value_recheck/_hist_super.json at late Pinnacle: 546/697 = 78.3%, −11.70u, −1.7% ROI. The research walk-forward file has the same 697 greens but 536 wins (76.9%) and no 2023-26 closes.",
-  nflWalk: "betting/models/nfl/epa_elo/v2/backtest_predictions_v2.csv (p, home_win, season). Closing decimal prices joined by game_id from v3/backtest_predictions_v3.csv (Home/Away Odds Close). v2 is the live NFL model. Pre-registered windows in v2/backtest_results.json: validation 2016-22, holdout 2023-26.",
+  nbaSuperPublished: "Already published on /lights and in nba-collect case-against copy: 2025-26 test of 162 Super games, 63% wins. Original worksheet not found as a standalone file; a later price dump did not reproduce 162 exactly, so the published hit rate is used unchanged, with that caveat.",
+  nbaGreenCollector: "nba-collect case-against copy (78% of 2025-26 greens won). Consistent with ops/20261110_held_value_recheck/_hist_super.json at late Pinnacle: 546/697 = 78.3%. The research walk-forward file has the same 697 greens but 536 wins (76.9%).",
+  nflWalk: "betting/models/nfl/epa_elo/v2/backtest_predictions_v2.csv (p, home_win, season). v2 is the live NFL model. Pre-registered windows in v2/backtest_results.json: validation 2016-22, holdout 2023-26.",
   eplJson: "probalab-site/data/epl-backtest.json (match counts and 'model right'). Independently matched to betting/probalab-epl/backtest/epl_walk.csv.",
   eplWalkLights: "Green rates at the current 55% cut-off computed from epl_walk.csv probabilities (the walk file's own light column uses the older 60% cut-off in epl_model.mjs). Clean test is 2023-24 to 2025-26, as stated in epl-backtest.json.",
   eplWriteup: "betting/probalab-epl/backtest/SUMMARY.md and results.md; model: epl_model.mjs (results + shots on target; settings tuned on 2021-22 and 2022-23).",
@@ -19,7 +19,6 @@ export const FIGURE_SOURCES = {
 
 const pct = (w, n) => `${((100 * w) / n).toFixed(1)}%`;
 const frac = (w, n) => `${w.toLocaleString("en-AU")} of ${n.toLocaleString("en-AU")} (${pct(w, n)})`;
-const units = (u, n) => `${u.toFixed(1)}u · ${u >= 0 ? "+" : ""}${((100 * u) / n).toFixed(1)}% ROI`;
 
 function seasonTable(headers, rows) {
   return `<div class="tablewrap"><table class="cal">
@@ -117,7 +116,7 @@ export function renderBacktestPage() {
     <ul class="reading">
       <li>Walk-forward or out-of-sample only. Settings chosen on earlier seasons are called out. In-sample or tuning years are shown separately, or left out of the headline.</li>
       <li>Green hit rate uses each sport’s current public cut-off, except the Championship, where we only have the green column already stored in the published backtest file (see that section).</li>
-      <li>Units, where we show them, are flat 1 unit on every qualifying pick at the closing (or recorded close) price. A negative figure means that set of picks lost money at the close. We do not invent a price when the file does not have one — those sports say so.</li>
+      <li>This page shows hit rates only. We do not show staking, units or ROI here.</li>
       <li>Backtests can overstate what happens live. They may use cleaner line-ups, ignore delays in news, or be kinder than a real bookmaker’s price. Past results do not guarantee future results.</li>
       <li>Losing seasons stay on the tables.</li>
     </ul>
@@ -125,32 +124,32 @@ export function renderBacktestPage() {
 
   <section class="panel prose" id="nba">
     <h2>NBA</h2>
-    <p>The live NBA model (v2) was tested walk-forward: each game is priced from earlier games only. The 2008–09 to 2017–18 seasons were used to choose the version. A later holdout, and a 2025–26 season test, were scored after that. Headline figures below are the completed 2025–26 season — the same window the site already cites for calibration — plus the priced holdout, where closing prices exist.</p>
-    <p><b>2025–26, 1,322 games:</b> the model picked the winner in ${frac(895, 1322)}. Games it gave 70–75% won ${frac(100, 136)}. Green picks (65%+) won ${frac(536, 697)}. That walk-forward file has no closing prices for 2023–26, so we do not report units for this season from it.</p>
-    <p>A separate, already published Super test on 2025–26 — the one quoted on <a href="/lights">How the lights work</a> — looked at 162 Super games: they won 63%, beat the close by about +0.7%, and staking return was about break-even (−0.3%). That test knew the real line-ups. Live Super still depends on the injury report being right, which is why a value pick with uncertain key players is held at its normal light.</p>
-    <p>Closing prices are in the older SBR-matched window (2018–19 through 16 January 2023, 5,613 games). Backing every green pick at the close in that window: 2,139 of 2,938 won (72.8%), ${units(-142.14, 2938)}. That is the honest priced sample we have: greens win often, and still lost money at the close, because they are confidence picks, not value picks.</p>
-    <p class="small">Sources: NBA v2 walk-forward predictions joined to results and closing prices where they exist; Super figures as already published on How the lights work. A full file list is in the preview notes for this branch.</p>
+    <p>The live NBA model (v2) was tested walk-forward: each game is priced from earlier games only. The 2008–09 to 2017–18 seasons were used to choose the version. A later holdout, and a 2025–26 season test, were scored after that. Headline figures below are the completed 2025–26 season — the same window the site already cites for calibration — plus an earlier holdout window for green hit rate.</p>
+    <p><b>2025–26, 1,322 games:</b> the model picked the winner in ${frac(895, 1322)}. Games it gave 70–75% won ${frac(100, 136)}. Green picks (65%+) won ${frac(536, 697)}.</p>
+    <p>A separate, already published Super test on 2025–26 — the one quoted on <a href="/lights">How the lights work</a> — looked at 162 Super games: they won 63%. That test knew the real line-ups. Live Super still depends on the injury report being right, which is why a value pick with uncertain key players is held at its normal light.</p>
+    <p>In the older SBR-matched window (2018–19 through 16 January 2023, 5,613 games), green picks (65%+) won 2,139 of 2,938 (72.8%). Green is a confidence light, not a value flag.</p>
+    <p class="small">Sources: NBA v2 walk-forward predictions joined to results; Super hit rate as already published on How the lights work.</p>
   </section>
 
   <section class="panel prose" id="nfl">
     <h2>NFL</h2>
     <p>The live NFL model is v2. It was scored walk-forward on 2016 through early 2026. <b>2016–22</b> (1,896 games) was the validation window used to choose the version, so it is not the headline. The clean test is the <b>2023–26 holdout</b> (919 games, including 65 games of 2026 so far).</p>
-    <p><b>Holdout 2023–26:</b> the model picked the winner in ${frac(592, 919)}. Games it gave 70–75% won ${frac(91, 123)}. Green picks (65%+) won ${frac(316, 441)}. Where a closing money-line was on file, backing every green pick at that close: 315 of 433 won (72.7%), ${units(-11.90, 433)}. Again, green is a confidence light — the close was not a value price on every green.</p>
+    <p><b>Holdout 2023–26:</b> the model picked the winner in ${frac(592, 919)}. Games it gave 70–75% won ${frac(91, 123)}. Green picks (65%+) won ${frac(316, 441)}.</p>
     <p>For comparison, the 2021–2025 seasons already mentioned on the site (a mix of validation and holdout): ${frac(915, 1420)} of all picks, and ${frac(132, 177)} in the 70–75% band. That all-picks figure is 64.4%, which the site has rounded to 65%. The file-traced numbers are the ones in this table.</p>
     ${seasonTable(
-      [{ t: "Window" }, { t: "Picks", n: 1 }, { t: "Right", n: 1 }, { t: "Green 65%+", n: 1 }, { t: "Green units at close", n: 1 }],
+      [{ t: "Window" }, { t: "Picks", n: 1 }, { t: "Right", n: 1 }, { t: "Green 65%+", n: 1 }],
       [
-        ["Validation 2016–22 (not the headline)", "1,896", "1,242 (65.5%)", "704/963 (73.1%)", units(-13.50, 963)],
-        ["Holdout 2023–26", "919", "592 (64.4%)", "316/441 (71.7%)", "315 priced: " + units(-11.90, 433)],
-        ["2021–2025 (mixed window)", "1,420", "915 (64.4%)", "498/694 (71.8%)", "687 priced: " + units(-24.18, 687)],
+        ["Validation 2016–22 (not the headline)", "1,896", "1,242 (65.5%)", "704/963 (73.1%)"],
+        ["Holdout 2023–26", "919", "592 (64.4%)", "316/441 (71.7%)"],
+        ["2021–2025 (mixed window)", "1,420", "915 (64.4%)", "498/694 (71.8%)"],
       ]
     )}
-    <p class="small">Source: NFL v2 walk-forward predictions; closing money-lines from the same backtest files. 2016–22 was used to choose the version, so the holdout is the headline.</p>
+    <p class="small">Source: NFL v2 walk-forward predictions. 2016–22 was used to choose the version, so the holdout is the headline.</p>
   </section>
 
   <section class="panel prose" id="nhl">
     <h2>NHL</h2>
-    <p>Walk-forward on official results, one game date at a time. Settings were chosen on 2021–22 and 2022–23; <b>2023–24 to 2025–26</b> are the clean test (4,192 games). Lights below use the current public cut-off (green at 65%+), applied to the same walk-forward probabilities. There are no closing prices in the walk file, so units are not reported — coming when we have a trustworthy priced sample.</p>
+    <p>Walk-forward on official results, one game date at a time. Settings were chosen on 2021–22 and 2022–23; <b>2023–24 to 2025–26</b> are the clean test (4,192 games). Lights below use the current public cut-off (green at 65%+), applied to the same walk-forward probabilities.</p>
     <p><b>Clean test 2023–26:</b> the model picked the winner in ${frac(2414, 4192)}. Green picks won ${frac(609, 867)}. 2025–26 was the weakest season in the test (751 of 1,394, 53.9%), and that season stays in the table.</p>
     ${seasonTable(
       [{ t: "Season" }, { t: "Games", n: 1 }, { t: "Model right", n: 1 }, { t: "Green 65%+", n: 1 }, { t: "Notes" }],
@@ -171,7 +170,6 @@ export function renderBacktestPage() {
     <h2>Premier League</h2>
     <p>Walk-forward, match by match from earlier days’ results only (2020–21 used to warm up the ratings). <b>2021–22 and 2022–23</b> were used to choose the settings, so they flatter the model a little. <b>2023–24 to 2025–26</b> (1,140 matches) are the clean test. Green rates below use the current public cut-off of 55%+, recomputed from the walk-forward chances. (The walk file’s own light column still uses the older 60% cut-off; we do not quote that as the live green rule.)</p>
     <p><b>Clean test 2023–26:</b> the model was right in ${frac(602, 1140)}. Green picks (55%+) won ${frac(274, 406)}. 2025–26 was a poor season for all picks (185 of 380, 48.7%) and is kept in the test. With three possible results, about half right is a normal season; draws are the hardest to call.</p>
-    <p>The walk file has market-implied closing probabilities, not bookmaker payout prices, so we do not report units. Coming when we have a trustworthy priced sample.</p>
     ${seasonTable(
       [{ t: "Season" }, { t: "Matches", n: 1 }, { t: "Model right", n: 1 }, { t: "Green 55%+", n: 1 }, { t: "Notes" }],
       [
@@ -189,7 +187,7 @@ export function renderBacktestPage() {
 
   <section class="panel prose" id="championship">
     <h2>Championship</h2>
-    <p>Past-season re-run with the same settings as the Premier League model, never tuned on Championship data. 2019–20 was used only to warm up the ratings. 2021–22 to 2025–26: ${frac(1294, 2760)} of all picks. The green column stored in the published backtest file is ${frac(347, 579)}. We could not find a walk-forward CSV to confirm which cut-off produced that green column, so we report it as stored rather than re-colour it. Live Championship green on the site is 55%+. No prices are in the file; units are coming when we have them.</p>
+    <p>Past-season re-run with the same settings as the Premier League model, never tuned on Championship data. 2019–20 was used only to warm up the ratings. 2021–22 to 2025–26: ${frac(1294, 2760)} of all picks. The green column stored in the published backtest file is ${frac(347, 579)}. We could not find a walk-forward CSV to confirm which cut-off produced that green column, so we report it as stored rather than re-colour it. Live Championship green on the site is 55%+.</p>
     ${seasonTable(
       [{ t: "Season" }, { t: "Matches", n: 1 }, { t: "Model right", n: 1 }, { t: "Green (file)", n: 1 }],
       [
@@ -223,20 +221,20 @@ export function renderBacktestPage() {
         ["Australian Open 2026 replay", "252", "182 (72.2%)", "119/140 (85.0%)"],
       ]
     )}
-    <p>No closing prices are stored in the backtest file, so units are not reported here. Live tennis results show vs-close only on events that had an Australian bookmaker price.</p>
+    <p>Live tennis results show vs-close only on events that had an Australian bookmaker price.</p>
     <p class="small">Source: the published tennis walk-forward backtest file, the same figures shown on the tennis Stats tab.</p>
   </section>
 
   <section class="panel prose">
     <h2>What this page is not</h2>
-    <p>It is not the live record, not a promise of future results, and not betting advice. If a sport has no trustworthy priced backtest, we leave units off rather than invent them. The official member-facing record, once you are looking at tips, remains the timestamped Results page and its CSV.</p>
+    <p>It is not the live record, not a promise of future results, and not betting advice. This page shows hit rates only — not staking, units or ROI. The official member-facing record, once you are looking at tips, remains the timestamped Results page and its CSV.</p>
     <p><a href="/results">Live results →</a> · <a href="/how-it-works">How it works →</a> · <a href="/lights">How the lights work →</a> · <a href="/accuracy">Live calibration →</a></p>
   </section>
   <p class="note">18+. For free and confidential support call 1800 858 858 or visit gamblinghelponline.org.au</p>`;
 
   return shell({
     title: "Backtest — not live results | ProbaLab",
-    description: "Walk-forward and out-of-sample tests of ProbaLab’s models, kept separate from the live timestamped record. Includes losing seasons, sample sizes, and units only where closing prices exist.",
+    description: "Walk-forward and out-of-sample tests of ProbaLab’s models, kept separate from the live timestamped record. Hit rates and sample sizes only — no units or ROI.",
     path: "/backtest",
     body,
     jsonld: { "@context": "https://schema.org", "@type": "WebPage", name: "Backtest — not live results", url: `${ORIGIN}/backtest`, description: "Historical walk-forward tests of ProbaLab models, labelled as backtests and kept separate from live results." },

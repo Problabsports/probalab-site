@@ -38,7 +38,9 @@ assert.match(bt, /19,669 of 30,189/);
 assert.match(bt, /8,017 of 10,225/);
 assert.match(bt, /48\.7%/); // EPL 2025-26 loss year
 assert.match(bt, /53\.9%/); // NHL 2025-26 weaker year
-assert.match(bt, /Coming when we have a trustworthy priced sample|units are not reported/i);
+assert.match(bt, /This page shows hit rates only/);
+assert.doesNotMatch(bt, /-142\.1u|-11\.9u|-13\.5u|-24\.2u|-0\.3%|Green units at close|% ROI/);
+assert.doesNotMatch(bt, /staking return|lost money at the close/);
 assert.match(bt, /18\+/);
 // Must not present the NHL JSON's 60% green counts as 65%+ greens
 assert.doesNotMatch(bt, /652\/|1,710|3,005 green/);
