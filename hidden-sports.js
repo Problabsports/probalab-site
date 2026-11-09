@@ -98,7 +98,7 @@
   }
   // NHL record in the same layout as the NBA/NFL record tab (stats, by light, calibration, every pick); graded from /data/nhl-pretip.json snapshots
   function recordNHL() {
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p><p class="note"><a href="/nhl/record">Full track record, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p><p class="note"><a href="/results?sport=nhl">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const done = graded().slice().reverse(), tips = done.filter((x) => x.light === "GREEN"), w = W, rate = (xs) => (xs.length ? pct(w(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     if (!done.length) { document.getElementById("main").innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>Every pick stays on the record, right or wrong.</p></div>`; return; }
@@ -129,7 +129,7 @@
   }
   // EPL/Championship record in the NBA/NFL record layout. A result is marked only when ESPN and football-data agree.
   function recordPlain() {
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (${IS_EPL ? "round 8" : "round 15"}, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p><p class="note"><a href="/${HS}/record">Full track record, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (${IS_EPL ? "round 8" : "round 15"}, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p><p class="note"><a href="/results?sport=${HS}">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const done = graded().slice().reverse(), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     const note = pending ? `<p class="note">${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : "";

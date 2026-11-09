@@ -551,7 +551,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <a href="/teams" data-top="teams">Teams</a>
       <a href="/injuries" data-top="injuries">Injuries</a>
       <a href="/accuracy" data-top="record">Accuracy</a>
-      <a href="/record" data-top="record">Record</a>
+      <a href="/results" data-top="record">Results</a>
       <a href="#about" data-top="about">How it works</a>
       <a href="/members" data-top="members">Members</a>
     </nav>
@@ -669,7 +669,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
     <p class="small">As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.</p>
-    <p class="flinks"><a href="/about">About</a><a href="/record">Record</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+    <p class="flinks"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
   </div>
 </footer>
@@ -843,7 +843,7 @@ function renderRecord() {
     <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
     <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p>
-      <p class="note"><a href="/${SP}/record">Full track record, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>
+      <p class="note"><a href="/results?sport=${SP}">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
       ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + super"}`],

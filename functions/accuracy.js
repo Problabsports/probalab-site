@@ -53,13 +53,13 @@ function sportPanel(id, name, rows, recordHref) {
   const bands = bucketize(rows);
   if (!s.n) {
     return `<section class="panel" id="${id}"><h2>${esc(name)}</h2><p>No graded ${esc(name)} picks yet.</p>
-      ${recordHref ? `<p class="small"><a href="${esc(recordHref)}">${esc(name)} record →</a></p>` : ""}</section>`;
+      ${recordHref ? `<p class="small"><a href="${esc(recordHref)}">${esc(name)} results →</a></p>` : ""}</section>`;
   }
   return `<section class="panel" id="${id}"><h2>${esc(name)} · ${s.w} of ${s.n} (${pct(s.rate)})</h2>
     <p>Sample size: <b>${s.n}</b> graded picks. The model's own figures said to expect about ${s.exp.toFixed(1)} correct, so it is running ${s.w >= s.exp ? `${(s.w - s.exp).toFixed(1)} ahead of` : `${(s.exp - s.w).toFixed(1)} behind`} what it forecast.</p>
     ${chartSvg(bands)}
     ${tableHtml(bands)}
-    <p class="small">Accuracy score (average squared error, lower is better): <b>${s.brier.toFixed(3)}</b> · coin-flip baseline 0.250.${recordHref ? ` <a href="${esc(recordHref)}">Full ${esc(name)} record →</a>` : ""}</p>
+    <p class="small">Accuracy score (average squared error, lower is better): <b>${s.brier.toFixed(3)}</b> · coin-flip baseline 0.250.${recordHref ? ` <a href="${esc(recordHref)}">Full ${esc(name)} results →</a>` : ""}</p>
   </section>`;
 }
 
@@ -132,13 +132,13 @@ export async function onRequestGet(ctx) {
   const [nba, nfl, nhl, epl, champ, tennis] = await Promise.all([nbaNflRows(ctx, "nba"), nbaNflRows(ctx, "nfl"), nhlRows(ctx), eplRows(ctx), soccerRows(ctx, "championship"), tennisRows(ctx)]);
   const parts = [];
   if (nba === null) parts.push(`<section class="panel" id="nba"><h2>NBA</h2><p>We couldn't load NBA results just now.</p></section>`);
-  else parts.push(sportPanel("nba", "NBA", nba, "/nba/record"));
+  else parts.push(sportPanel("nba", "NBA", nba, "/results?sport=nba"));
   if (nfl === null) parts.push(`<section class="panel" id="nfl"><h2>NFL</h2><p>We couldn't load NFL results just now.</p></section>`);
-  else parts.push(sportPanel("nfl", "NFL", nfl, "/nfl/record"));
-  parts.push(sportPanel("nhl", "NHL", nhl || [], "/nhl/record"));
-  parts.push(sportPanel("epl", "Premier League", epl || [], "/epl/record"));
-  parts.push(sportPanel("championship", "Championship", champ || [], "/championship/record"));
-  parts.push(sportPanel("tennis", "Tennis", tennis || [], "/tennis/record"));
+  else parts.push(sportPanel("nfl", "NFL", nfl, "/results?sport=nfl"));
+  parts.push(sportPanel("nhl", "NHL", nhl || [], "/results?sport=nhl"));
+  parts.push(sportPanel("epl", "Premier League", epl || [], "/results?sport=epl"));
+  parts.push(sportPanel("championship", "Championship", champ || [], "/results?sport=championship"));
+  parts.push(sportPanel("tennis", "Tennis", tennis || [], "/results?sport=tennis"));
 
   const all = [...(nba || []), ...(nfl || []), ...(nhl || []), ...(epl || []), ...(champ || []), ...(tennis || [])];
   const overall = summary(all);
@@ -156,7 +156,7 @@ export async function onRequestGet(ctx) {
     ${tableHtml(overallBands)}
     <p class="small">Accuracy score (average squared error): <b>${overall.brier.toFixed(3)}</b>.</p>` : `<p>No graded picks yet.</p>`}
   </section>
-  <nav class="crumbs" aria-label="Jump to sport"><a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/record">Track record →</a> · <a href="/lights">How the lights work</a> · <a href="/today">Today's games →</a></nav>
+  <nav class="crumbs" aria-label="Jump to sport"><a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/results">Results →</a> · <a href="/lights">How the lights work</a> · <a href="/today">Today's games →</a></nav>
   ${parts.join("\n")}
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. Figures match the sport record pages for the same graded set.</p>`;
 

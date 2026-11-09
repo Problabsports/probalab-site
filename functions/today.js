@@ -169,7 +169,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/${sport}/record">${S} record →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
   {

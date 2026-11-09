@@ -249,7 +249,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/record">Record</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -258,7 +258,7 @@ ${body}
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
-  <p class="links"><a href="/about">About</a><a href="/record">Record</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+  <p class="links"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
@@ -439,7 +439,7 @@ export function renderToday(sport, data) {
   <h1>${S} predictions today and this week</h1>
   ${summary}
   ${days.map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(gameRow).join("")}</ul></section>`).join("") || ""}
-  <p class="cta"><a class="btn" href="/${sport}/record">How accurate is the model? See the record →</a></p>
+  <p class="cta"><a class="btn" href="/results?sport=${sport}">How accurate is the model? See the results →</a></p>
   <p class="small"><a href="/${sport}/team">All ${S} teams →</a></p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions today and this week`, url: `${ORIGIN}/${sport}/today`, description,
@@ -512,7 +512,7 @@ export async function handleSport(ctx, sport) {
 async function renderSport(ctx, sport) {
   const parts = ctx.params.path ?? [];
   const p = Array.isArray(parts) ? parts : [parts];
-  if ((p[0] === "record" || p[0] === "record.csv") && p.length === 1) {
+  if ((p[0] === "record" || p[0] === "record.csv" || p[0] === "results" || p[0] === "results.csv") && p.length === 1) {
     const { handleSportRecordRequest } = await import("./record-pages.js");
     const rec = await handleSportRecordRequest(ctx, sport);
     if (rec) return rec;

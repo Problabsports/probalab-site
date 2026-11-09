@@ -23,7 +23,7 @@ export function onRequestGet() {
 <li><b>ORANGE</b>: A lean, 55 to 65%.</li>
 <li><b>RED</b>: Under 55%. Close to a coin flip.</li></ul></section>
 <section class="panel prose"><h2>How we check ourselves</h2>
-<p>Our <a href="/nba/record">record page</a> shows every finished game. We also track calibration: if the model says 70%, those picks should win about 70% of the time. Tested on the 2021 to 2025 seasons, the model picked 65% of winners, and games rated 70 to 75% were won 73% of the time. You can see how the live season is tracking on the record page.</p></section>
+<p>Our <a href="/results">results page</a> shows every finished game. We also track calibration: if the model says 70%, those picks should win about 70% of the time. Tested on the 2021 to 2025 seasons, the model picked 65% of winners, and games rated 70 to 75% were won 73% of the time. You can see how the live season is tracking on the results page.</p></section>
 <section class="panel prose"><h2>What we cover</h2>
 <p>NBA is our main focus, and every game is on the site with its own page. We also publish NFL win probabilities, with NHL and Premier League coming.</p>
 <p>ProbaLab is free to use and is supported by advertising.</p></section>

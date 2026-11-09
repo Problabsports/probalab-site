@@ -263,14 +263,6 @@ function calibChart(bands, xmin) {
     <text x="14" y="${Hh / 2}" transform="rotate(-90 14 ${Hh / 2})" text-anchor="middle" fill="#8b93b0" font-size="12">How often it happened</text></svg>`;
 }
 
-function sportSwitcher(current) {
-  const links = SPORT_ORDER.map((s) => {
-    const name = sportName(s);
-    return s === current ? `<span class="on">${esc(name)}</span>` : `<a href="/${s}/record">${esc(name)}</a>`;
-  });
-  return `<nav class="record-sports" aria-label="Records by sport">${links.join("")}<a href="/record">All sports</a></nav>`;
-}
-
 function timeCell(iso, fallback) {
   if (!iso) return fallback ? `<span class="posted-note">${esc(fallback)}</span>` : "—";
   return `<time datetime="${esc(iso)}" data-local>${esc(iso.replace("T", " ").replace(/\.\d+Z$/, " UTC").replace(/Z$/, " UTC"))}</time>`;
@@ -294,98 +286,61 @@ function matchLabel(g) {
   return `${g.away} @ ${g.home}`;
 }
 
-function ledeFor(sport, S, t) {
-  const ahead = t.w >= t.exp ? `${(t.w - t.exp).toFixed(1)} ahead of` : `${(t.exp - t.w).toFixed(1)} behind`;
-  const core = `Every finished ${S} pick stays on this page once it is marked, right or wrong. So far the model has named the winner in <b>${t.w} of ${t.n}</b> games (${t.n ? pct(t.w / t.n) : "0%"}). Its own figures said to expect about ${t.exp.toFixed(1)} correct, so it is running ${ahead} what it forecast.`;
-  const extra = {
-    nhl: " Each pick, chance and light is taken from the snapshot frozen at puck drop.",
-    epl: " Live picks are counted from the first saved live pick (round 8, 2026–27). A result is marked only when two score sources agree.",
-    championship: " Live picks are counted from the first saved live pick (round 15, 2026–27). A result is marked only when two score sources agree.",
-    tennis: " Live picks are counted from 7 November 2026. A retirement counts as a result; a walkover does not.",
-  }[sport] ?? " Picks are timestamped before the start and frozen when the game begins.";
-  return core + extra + " The public record is wins and losses, not staking units.";
+const LIGHT_FILTERS = ["green", "all", "super", "orange", "red"];
+export const isGreenLight = (l) => l === "GREEN" || l === "SUPER";
+
+export function lightTally(rows, light) {
+  const xs = rows.filter((r) => (r.light ?? null) === light);
+  return { n: xs.length, w: xs.filter((r) => r.won).length };
 }
 
-export function renderSportRecord(view) {
-  const { sport, rows, season, error } = view;
-  const S = sportName(sport);
-  const t = tally(rows);
-  const bands = bandsFor(sport, t.done);
-  const xmin = (sport === "epl" || sport === "championship" || sport === "tennis") ? 0.4 : 0.5;
-  const copy = LIGHT_COPY[sport];
-  const lightKeys = sport === "nba" ? ["SUPER", "GREEN", "ORANGE", "RED"] : ["GREEN", "ORANGE", "RED"];
-  const lights = lightKeys
-    .map((l) => [l, t.byLight[l] ?? { n: 0, w: 0 }])
-    .filter(([, x]) => x.n);
-  if (t.byLight.NONE?.n) lights.push(["NONE", t.byLight.NONE]);
-
-  const title = `${S} Prediction Record and Calibration ${season} | ProbaLab`;
-  const description = `Every ${S} prediction ProbaLab has made this season: ${t.w} of ${t.n} correct (${t.n ? pct(t.w / t.n) : "0%"}), with a calibration chart showing how often each predicted chance came true.`;
-  if (error) {
-    return shell({ title: `${S} record | ProbaLab`, description: `The ${S} record could not be loaded just now.`, path: `/${sport}/record`, noindex: true,
-      body: `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${esc(S)} predictions</a> › <span>Record</span></nav>
-      ${sportSwitcher(sport)}
-      <h1>${esc(S)} prediction record</h1>
-      <section class="panel"><p>${esc(error)}</p></section>` });
-  }
-  const closeNote = t.close.n
-    ? `<p class="small">A closing price is on file for <b>${t.close.n} of ${t.n}</b> finished picks. ${t.close.n < t.n ? "Gaps are left as they are; this page does not fetch new prices." : ""}</p>`
-    : `<p class="small">No closing prices are on file for these ${S} picks yet. Gaps are left as they are; this page does not fetch new prices.</p>`;
-  const beat = t.close.n
-    ? `<p>On ${t.close.n} pick${t.close.n === 1 ? "" : "s"} with a closing price we beat the close <b>${t.close.beat} time${t.close.beat === 1 ? "" : "s"}</b> (mean ${sgnPct(t.close.mean)} vs close).</p>` : "";
-  const postedNote = t.posted === t.n && t.n
-    ? `<p class="small">A posted time is on file for every pick, taken from the first time it was published, then frozen at the start.</p>`
-    : `<p class="small">A posted time is on file for <b>${t.posted} of ${t.n}</b> finished picks. Where it is missing we show that the pick was frozen at the start and do not invent a time.</p>`;
-
-  const tbl = `<table class="cal"><thead><tr><th>Model chance</th><th>Games</th><th>Average prediction</th><th>Actually won</th></tr></thead><tbody>${bands.filter((b) => b.n).map((b) => `<tr><td>${esc(b.label)}</td><td>${b.n}</td><td>${pct(b.exp)}</td><td>${pct(b.hit)}</td></tr>`).join("")}</tbody></table>`;
-  const lightList = lights.length
-    ? `<ul>${lights.map(([l, x]) => `<li>${l === "NONE" ? "No light" : `${chip(l)} ${esc(CONF[l] ?? "")} confidence`}: ${x.w} of ${x.n} correct (${pct(x.n ? x.w / x.n : null)})</li>`).join("")}</ul>
-       <p class="small">${copy.scale === "three-way" ? `Football lights: green ${copy.green}, orange ${copy.orange}, red ${copy.red}.` : `Lights: green ${copy.green}, orange ${copy.orange}, red ${copy.red}.`}${copy.super ? " Super is used on the NBA." : ""} ${copy.switchOn ? "Premier League lights apply only to matches kicking off from 23 Oct 2026, 23:42 UTC; earlier picks stay unlit." : ""} <a href="/lights">How the lights work</a></p>`
-    : `<p>Lights are not shown for this set. <a href="/lights">How the lights work</a></p>`;
-
-  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${esc(S)} predictions</a> › <span>Record</span></nav>
-  ${sportSwitcher(sport)}
-  <p class="eyebrow">// ${esc(S)} · model record · ${t.n} finished game${t.n === 1 ? "" : "s"} · ${esc(season)}</p>
-  <h1>${esc(S)} prediction record</h1>
-  <p>${ledeFor(sport, S, t)}</p>
-  <p class="record-actions"><a class="csv-btn" href="/${sport}/record.csv">Download CSV</a> <a href="/record">All sports</a> · <a href="/lights">How the lights work</a> · <a href="/accuracy">Accuracy</a></p>
-  <section class="panel"><h2>Calibration: when we said 70%, did it happen 70% of the time?</h2>
-    ${t.n ? calibChart(bands, xmin) : ""}
-    <p>Each dot groups games by the chance the model gave its predicted winner. A dot on the dashed diagonal means those chances came true exactly as often as stated; bigger dots hold more games. The accuracy score (average squared error, lower is better) is <b>${t.brier == null ? "n/a" : t.brier.toFixed(3)}</b>, against 0.250 for a coin flip.</p>
-    ${tbl}
-    <p class="small">Early groups are small, so single results move the dots a lot. The chart fills in as more games are marked.</p></section>
-  <section class="panel"><h2>By confidence level</h2>${lightList}</section>
-  <section class="panel"><h2>Closing prices</h2>${beat}${closeNote}</section>
-  ${signupMain("record")}
-  <section class="panel"><h2>Every finished pick</h2>
-    ${postedNote}
-    <div class="tablewrap"><table class="record-picks">
-      <thead><tr><th>Kick-off</th><th>Posted</th><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">vs close</th></tr></thead>
-      <tbody>${t.done.map((g) => `<tr>
-        <td>${timeCell(g.start_utc)}</td>
-        <td>${timeCell(g.posted_utc, g.posted_note)}</td>
-        <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
-        <td>${esc(g.pick)}</td>
-        <td class="n">${pct(g.pick_p)}</td>
-        <td>${g.light ? chip(g.light) : "—"}</td>
-        <td>${resultCell(g)}</td>
-        <td class="n">${closeCell(g)}</td>
-      </tr>`).join("")}</tbody>
-    </table></div>
-  </section>
-  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
-  const jsonld = { "@context": "https://schema.org", "@type": "WebPage", name: `${S} prediction record`, url: `${ORIGIN}/${sport}/record`, description };
-  return shell({ title, description, path: `/${sport}/record`, body, jsonld, signup: false });
+export function parseResultsFilters(url) {
+  const u = typeof url === "string" ? new URL(url, "https://probalabsports.com") : new URL(url);
+  const sportRaw = (u.searchParams.get("sport") || "all").toLowerCase();
+  const lightRaw = (u.searchParams.get("light") || "green").toLowerCase();
+  const sport = sportRaw === "all" || SPORT_ORDER.includes(sportRaw) ? sportRaw : "all";
+  const light = LIGHT_FILTERS.includes(lightRaw) ? lightRaw : "green";
+  return { sport, light };
 }
 
-export function renderRecordCsv(view) {
-  const { sport, rows } = view;
-  const t = tally(rows);
+export function resultsHref({ sport = "all", light = "green" } = {}) {
+  const q = new URLSearchParams();
+  if (sport && sport !== "all") q.set("sport", sport);
+  if (light && light !== "green") q.set("light", light);
+  const s = q.toString();
+  return s ? `/results?${s}` : "/results";
+}
+
+export function matchesLightFilter(row, light) {
+  if (light === "all") return true;
+  if (light === "green") return isGreenLight(row.light);
+  if (light === "super") return row.light === "SUPER";
+  if (light === "orange") return row.light === "ORANGE";
+  if (light === "red") return row.light === "RED";
+  return true;
+}
+
+export function filterResultRows(rows, { sport = "all", light = "green" } = {}) {
+  return rows.filter((r) => (sport === "all" || r.sport === sport) && matchesLightFilter(r, light));
+}
+
+function wl(w, n) {
+  if (!n) return "—";
+  return `${w}–${n - w}`;
+}
+
+function rateLine(w, n) {
+  if (!n) return "no picks yet";
+  return `${w} of ${n} (${pct(w / n)})`;
+}
+
+export function renderResultsCsv(rows) {
   const header = ["sport", "game_id", "kickoff_utc", "posted_utc", "last_update_utc", "posted_note", "home", "away", "pick", "chance", "light", "won", "score", "posted_price", "close_price", "vs_close"];
   const lines = [header.join(",")];
-  for (const g of t.done) {
+  const done = tally(rows).done;
+  for (const g of done) {
     lines.push([
-      sport, g.id, g.start_utc, g.posted_utc, g.last_update_utc, g.posted_note,
+      g.sport, g.id, g.start_utc, g.posted_utc, g.last_update_utc, g.posted_note,
       g.home, g.away, g.pick,
       g.pick_p == null ? "" : g.pick_p.toFixed(4),
       g.light ?? "",
@@ -399,16 +354,151 @@ export function renderRecordCsv(view) {
   return lines.join("\n") + "\n";
 }
 
-export function csvResponse(view) {
-  const name = `${view.sport}-record.csv`;
-  return new Response(renderRecordCsv(view), {
+// Back-compat name used by tests: one sport or many, every pick, no units.
+export function renderRecordCsv(view) {
+  const rows = (view.rows ?? []).map((r) => ({ ...r, sport: r.sport || view.sport }));
+  return renderResultsCsv(rows);
+}
+
+export function csvResponse(rowsOrView) {
+  const rows = Array.isArray(rowsOrView) ? rowsOrView : (rowsOrView.rows ?? []);
+  return new Response(renderResultsCsv(rows), {
     status: 200,
     headers: {
       "content-type": "text/csv; charset=utf-8",
-      "content-disposition": `attachment; filename="${name}"`,
+      "content-disposition": 'attachment; filename="probalab-results.csv"',
       "cache-control": "public, max-age=0, s-maxage=120, must-revalidate",
     },
   });
+}
+
+export function redirectToResults(ctx, { sport, csv = false } = {}) {
+  const dest = new URL(csv ? "/results.csv" : "/results", ctx.request.url);
+  if (!csv && sport && sport !== "all") dest.searchParams.set("sport", sport);
+  return Response.redirect(dest.toString(), 302);
+}
+
+function filterNav(filters) {
+  const sportLinks = [["all", "All sports"], ...SPORT_ORDER.map((s) => [s, sportName(s)])]
+    .map(([id, label]) => {
+      const href = resultsHref({ sport: id, light: filters.light });
+      const on = filters.sport === id;
+      return on ? `<span class="on">${esc(label)}</span>` : `<a href="${esc(href)}">${esc(label)}</a>`;
+    }).join("");
+  const lightLinks = [
+    ["green", "Green + Super"],
+    ["all", "All lights"],
+    ["super", "Super"],
+    ["orange", "Orange"],
+    ["red", "Red"],
+  ].map(([id, label]) => {
+    const href = resultsHref({ sport: filters.sport, light: id });
+    const on = filters.light === id;
+    return on ? `<span class="on">${esc(label)}</span>` : `<a href="${esc(href)}">${esc(label)}</a>`;
+  }).join("");
+  return `<div class="results-filters">
+    <nav class="record-sports" aria-label="Filter by sport">${sportLinks}</nav>
+    <nav class="record-sports light-filters" aria-label="Filter by light">${lightLinks}</nav>
+  </div>
+  <p class="small">Green is the default view, and includes NBA Super picks — Super also clears the green bar. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
+}
+
+function sportGreenCard(v) {
+  const S = v.name;
+  if (v.error) {
+    return `<article class="panel record-card"><h2>${esc(S)}</h2><p>${esc(v.error)}</p></article>`;
+  }
+  const t = tally(v.rows);
+  const g = lightTally(v.rows, "GREEN");
+  const s = lightTally(v.rows, "SUPER");
+  const href = resultsHref({ sport: v.sport, light: "green" });
+  const superLine = s.n
+    ? `<p class="super-line">${chip("SUPER")} Super ${esc(rateLine(s.w, s.n))} — strongest NBA calls, also above the green bar.</p>
+       <p class="small">Green + Super: ${esc(rateLine(g.w + s.w, g.n + s.n))}.</p>`
+    : "";
+  return `<article class="panel record-card green-card">
+    <h2><a href="${esc(href)}">${esc(S)}</a></h2>
+    <p class="eyebrow-k">${chip("GREEN")} Green</p>
+    <p class="record-hero green-hero"><b>${esc(wl(g.w, g.n))}</b> <span>(${g.n ? pct(g.w / g.n) : "—"})</span></p>
+    <p>${g.n ? `${g.w} of ${g.n} green picks were right` : "No green picks yet"}.</p>
+    ${superLine}
+    <p class="small">All picks ${esc(rateLine(t.w, t.n))} · ${esc(v.season)}</p>
+  </article>`;
+}
+
+export function renderResultsPage(views, filters = { sport: "all", light: "green" }) {
+  const allRows = views.flatMap((v) => (v.error ? [] : v.rows));
+  const shown = filterResultRows(allRows, filters);
+  const tAll = tally(allRows);
+  const gAll = lightTally(allRows, "GREEN");
+  const sAll = lightTally(allRows, "SUPER");
+  const topW = gAll.w + sAll.w, topN = gAll.n + sAll.n;
+  const tShown = tally(shown);
+  const listTitle = filters.light === "green"
+    ? "Green picks"
+    : filters.light === "all"
+      ? "Every finished pick"
+      : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
+  const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
+  const lightNote = filters.light === "green"
+    ? "Showing green picks, including NBA Super. "
+    : "";
+
+  const overall = allRows.length ? `<section class="panel green-lead">
+    <h2>Green results</h2>
+    <p>If you are coming to us for predictions, the green results are the ones to focus on. Every pick still stays on the record, including orange and red.</p>
+    <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
+    <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
+    ${sAll.n ? `<p>NBA Super (also clears the green bar): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Super: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
+    <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a></p>
+    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. The public record is wins and losses, not staking units.</p>
+  </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
+
+  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Results</span></nav>
+  <p class="eyebrow">// every sport · green first</p>
+  <h1>Results</h1>
+  <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all.</p>
+  ${overall}
+  <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
+  ${signupMain("results")}
+  <section class="panel" id="picks">
+    <div class="toolbar results-toolbar">
+      <h2 class="grow">${esc(listTitle)} · ${esc(sportLabel)}</h2>
+      <a class="csv-btn" href="/results.csv">Download CSV</a>
+    </div>
+    ${filterNav(filters)}
+    <p>${lightNote}Showing <b>${tShown.n}</b> of ${tAll.n} finished pick${tAll.n === 1 ? "" : "s"}${tShown.n ? ` · ${tShown.w} of ${tShown.n} right (${tShown.n ? pct(tShown.w / tShown.n) : "—"})` : ""}.</p>
+    ${tShown.n ? `<div class="tablewrap"><table class="record-picks">
+      <thead><tr><th>Kick-off</th><th>Posted</th><th>Sport</th><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">vs close</th></tr></thead>
+      <tbody>${tShown.done.map((g) => `<tr>
+        <td>${timeCell(g.start_utc)}</td>
+        <td>${timeCell(g.posted_utc, g.posted_note)}</td>
+        <td><a href="${esc(resultsHref({ sport: g.sport, light: filters.light }))}">${esc(sportName(g.sport))}</a></td>
+        <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
+        <td>${esc(g.pick)}</td>
+        <td class="n">${pct(g.pick_p)}</td>
+        <td>${g.light ? chip(g.light) : "—"}</td>
+        <td>${resultCell(g)}</td>
+        <td class="n">${closeCell(g)}</td>
+      </tr>`).join("")}</tbody>
+    </table></div>` : `<p>No picks in this view. <a href="${esc(resultsHref({ sport: filters.sport, light: "all" }))}">See all lights</a> or <a href="/results">all sports, green first</a>.</p>`}
+  </section>
+  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. Posted times are shown when we have them; otherwise we say the pick was frozen at the start and do not invent a time.</p>`;
+
+  const gPhrase = gAll.n ? `${gAll.w} of ${gAll.n} green picks` : "green results across every sport";
+  return shell({
+    title: "Results | ProbaLab",
+    description: `ProbaLab results across NBA, NFL, NHL, Premier League, Championship and tennis, with green first: ${gPhrase}. Every finished pick stays on the record.`,
+    path: "/results",
+    body,
+    jsonld: { "@context": "https://schema.org", "@type": "WebPage", name: "ProbaLab results", url: `${ORIGIN}/results` },
+    signup: false,
+  });
+}
+
+// Older name kept so existing imports keep working: the hub is now the single Results page.
+export function renderRecordHub(views, filters) {
+  return renderResultsPage(views, filters ?? { sport: "all", light: "green" });
 }
 
 export async function loadSportRecord(ctx, sport) {
@@ -454,42 +544,11 @@ export async function loadSportRecord(ctx, sport) {
 
 export async function handleSportRecordRequest(ctx, sport) {
   const parts = [].concat(ctx.params.path ?? []).filter(Boolean);
-  if (!(parts.length === 1 && (parts[0] === "record" || parts[0] === "record.csv"))) return null;
-  const view = await loadSportRecord(ctx, sport);
-  if (parts[0] === "record.csv") return csvResponse(view);
-  return html(renderSportRecord(view));
-}
-
-export function renderRecordHub(views) {
-  const cards = views.map((v) => {
-    const t = tally(v.rows);
-    const S = v.name;
-    if (v.error) {
-      return `<article class="panel"><h2><a href="/${v.sport}/record">${esc(S)}</a></h2><p>${esc(v.error)}</p></article>`;
-    }
-    return `<article class="panel record-card">
-      <h2><a href="/${v.sport}/record">${esc(S)}</a></h2>
-      <p class="record-hero"><b>${t.w}–${t.n - t.w}</b> <span>(${t.n ? pct(t.w / t.n) : "—"})</span></p>
-      <p>${t.n} finished pick${t.n === 1 ? "" : "s"} · expected about ${t.exp.toFixed(1)} correct · ${esc(v.season)}</p>
-      <p><a href="/${v.sport}/record">Full ${esc(S)} record →</a> · <a href="/${v.sport}/record.csv">CSV</a></p>
-    </article>`;
-  }).join("");
-  const all = views.flatMap((v) => v.error ? [] : v.rows);
-  const t = tally(all);
-  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Record</span></nav>
-  <p class="eyebrow">// every sport · public record</p>
-  <h1>Track record</h1>
-  <p>One record page for every sport we cover, in the same layout: every finished pick, whether it won or lost, the chance we gave it, the light, and the date and time the pick was posted when we have it. Where a posted time is not on file we say the pick was frozen at the start rather than invent a time. The public record is wins and losses, not staking units.</p>
-  <p>Figures on each sport page match that sport's existing record. <a href="/lights">How the lights work</a> · <a href="/accuracy">Accuracy and calibration</a></p>
-  ${t.n ? `<section class="panel"><h2>All sports so far</h2><p><b>${t.w} of ${t.n}</b> (${pct(t.w / t.n)}). The model's own figures said to expect about ${t.exp.toFixed(1)} correct. This totals different sports and should be read alongside the per-sport pages.</p></section>` : ""}
-  <div class="record-grid">${cards}</div>`;
-  return shell({
-    title: "Track Record | ProbaLab",
-    description: "The public record of every ProbaLab pick across NBA, NFL, NHL, Premier League, Championship and tennis: wins, losses, chances, lights and posted times.",
-    path: "/record",
-    body,
-    jsonld: { "@context": "https://schema.org", "@type": "WebPage", name: "ProbaLab track record", url: `${ORIGIN}/record` },
-  });
+  if (parts.length !== 1) return null;
+  const p = parts[0];
+  if (p === "record" || p === "results") return redirectToResults(ctx, { sport });
+  if (p === "record.csv" || p === "results.csv") return redirectToResults(ctx, { csv: true });
+  return null;
 }
 
 export function renderLightsPage() {
@@ -534,7 +593,7 @@ export function renderLightsPage() {
       <li>A green pick can still lose. A 70% call is meant to miss about three times in ten.</li>
       <li>Lights are assigned from the frozen pre-start chance. They are not changed after the result.</li>
     </ul>
-    <p><a href="/record">Track record for every sport →</a> · <a href="/accuracy">Accuracy and calibration →</a></p>
+    <p><a href="/results">Results for every sport →</a> · <a href="/accuracy">Accuracy and calibration →</a></p>
   </section>`;
   return shell({
     title: "How the Lights Work | ProbaLab",

@@ -138,7 +138,7 @@
   // ---------- record (live picks) ----------
   function record() {
     const main = document.getElementById("main"), done = H.all.filter((m) => m.right != null).slice().reverse(), rec = H.feed?.record;
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, from 7 November 2026. Each pick, chance and light is saved before the first serve and can't change after it. A retirement counts as a result; a walkover doesn't.</p><p class="note"><a href="/tennis/record">Full track record, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, from 7 November 2026. Each pick, chance and light is saved before the first serve and can't change after it. A retirement counts as a result; a walkover doesn't.</p><p class="note"><a href="/results?sport=tennis">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const R = (k) => rec?.[k] ?? { won: 0, lost: 0 }, rate = (o) => (o.won + o.lost ? pct(o.won / (o.won + o.lost)) : "–");
     if (!R("ALL").won && !R("ALL").lost) { main.innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>The first live picks are being played now. Every pick stays on the record, right or wrong.</p></div>` + btPanel(); return; }
     // beat the close over every live pick with prices (the market file keeps all of them; the feed keeps 7 days)
