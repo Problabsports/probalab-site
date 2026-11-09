@@ -11,20 +11,20 @@
 <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<title>ProbaLab: NBA &amp; NFL Predictions and Win Probabilities</title>
-<meta name="description" content="Win probabilities for every NBA and NFL game, posted before the start and kept on a public, timestamped record. Injuries, rest, form and quarterbacks included.">
+<title>ProbaLab: NBA, NFL, NHL, EPL, Championship &amp; Tennis Predictions</title>
+<meta name="description" content="Win probabilities for NBA, NFL, NHL, Premier League, Championship and tennis, posted before the start and kept on a public record.">
 <link rel="canonical" href="https://probalabsports.com/">
 <meta property="og:site_name" content="ProbaLab">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
-<meta property="og:description" content="Who wins, how likely. A win chance for every NBA and NFL game, posted before the start, with every result on the record.">
+<meta property="og:title" content="ProbaLab: NBA, NFL, NHL, EPL, Championship &amp; Tennis Predictions">
+<meta property="og:description" content="Who wins, how likely. Win chances for NBA, NFL, NHL, Premier League, Championship and tennis — posted before the start, with every result on the record.">
 <meta property="og:url" content="https://probalabsports.com/">
 <meta property="og:image" content="https://probalabsports.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ProbaLab: NBA &amp; NFL Predictions and Win Probabilities">
-<meta name="twitter:description" content="Who wins, how likely. A win chance for every NBA and NFL game, with every result on the record.">
+<meta name="twitter:title" content="ProbaLab: NBA, NFL, NHL, EPL, Championship &amp; Tennis Predictions">
+<meta name="twitter:description" content="Who wins, how likely. Win chances across NBA, NFL, NHL, Premier League, Championship and tennis.">
 <meta name="twitter:image" content="https://probalabsports.com/og-image.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"ProbaLab","url":"https://probalabsports.com/"},{"@type":"Organization","name":"ProbaLab","url":"https://probalabsports.com/","logo":"https://probalabsports.com/icon-512.png","email":"hello@probalabsports.com"}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -479,6 +479,15 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .ticker a:hover b { color: var(--cyan); }
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 6px; }
+.home-green { display: grid; gap: 8px; margin: 2px 0 4px; }
+.home-green .green-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; text-decoration: none; color: var(--ink); background: rgba(47, 215, 160, 0.12); border: 1px solid rgba(47, 215, 160, 0.55); padding: 10px 14px; border-radius: 10px; font-family: var(--f-mono); font-size: 14px; font-weight: 600; box-shadow: 0 0 18px rgba(47, 215, 160, 0.18); }
+.home-green .green-chip:hover { border-color: var(--green, #2fd7a0); color: #fff; }
+.home-green .green-chip b { color: var(--green, #2fd7a0); font-size: 16px; }
+.home-green .sport-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.home-green .sport-chips a { text-decoration: none; color: var(--muted); border: 1px solid var(--line-hi); background: rgba(16, 19, 31, 0.8); padding: 5px 9px; border-radius: 999px; font-size: 12px; font-family: var(--f-mono); }
+.home-green .sport-chips a:hover { color: var(--ink); border-color: var(--cyan); }
+.home-green .super-line { margin: 0; color: var(--muted); font-size: 12.5px; }
+.home-green .super-line a { color: var(--super, #b56cff); }
 .home-hero h1 { font-size: clamp(38px, 6.4vw, 72px); line-height: 0.98; }
 .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
 .btn { font: 700 13px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 13px 20px; border: 1px solid var(--cyan); color: var(--cyan); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: background 0.15s, color 0.15s; }
@@ -668,8 +677,9 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
+    <p class="small">18+. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
     <p class="small">As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.</p>
-    <p class="flinks"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+    <p class="flinks"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
   </div>
 </footer>
@@ -1051,6 +1061,32 @@ function nhlTile() {
         <span class="go">Predictions →</span></a>`;
 }
 
+// ---------- home green record (same source as /results) ----------
+async function loadHomeGreenRecord() {
+  const el = document.getElementById("homeGreenRecord");
+  if (!el) return;
+  try {
+    const r = await fetch("/api/green-record", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const g = d.green || {};
+    const label = (g.n != null && g.w != null)
+      ? `Green picks: <b>${g.w} of ${g.n} won (${g.pct ?? "—"}%)</b> · updated daily`
+      : "Green picks · see Results";
+    const chips = (d.sports || []).map((s) => {
+      const gg = s.green || {};
+      const txt = gg.n ? `${s.sport === "championship" ? "Champ" : (s.name === "Premier League" ? "EPL" : s.name)} ${gg.w}/${gg.n}` : `${s.name}`;
+      return `<a href="/results?sport=${encodeURIComponent(s.sport)}">${txt}</a>`;
+    }).join("");
+    const superLine = d.super && d.super.n
+      ? `<p class="super-line"><a href="/results?light=super">Super — best value: ${d.super.w} of ${d.super.n} (${d.super.pct}%) · NBA only</a></p>`
+      : "";
+    el.innerHTML = `<a class="green-chip" href="/results">${label}</a><div class="sport-chips">${chips}</div>${superLine}`;
+  } catch (e) {
+    el.innerHTML = `<a class="green-chip" href="/results">Green picks · see Results →</a>`;
+  }
+}
+
 // ---------- home page ----------
 function renderHome() {
   const el = document.getElementById("view-home");
@@ -1093,8 +1129,9 @@ function renderHome() {
         <div class="eyebrow">Probability lab · sports predictions</div>
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
+        <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green picks: loading…</a></div>
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
-        <div class="cta"><a class="btn primary" href="#nba-predictions">NBA predictions →</a><a class="btn primary" href="#nfl-predictions">NFL predictions →</a><a class="btn" href="#about">How it works</a></div>
+        <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="#nba-predictions">NBA</a><a class="btn primary" href="#nfl-predictions">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="#about">How it works</a></div>
       </div>
       ${pickCard}
     </div>
@@ -1109,6 +1146,7 @@ function renderHome() {
     ${tiles([["Players rated", (DATA.players.filter((p) => p.season === DEF).length || 0).toLocaleString(), `${SEASONS[DEF]} season`], ["Injury check", "15 min", "around the clock"],
       ["Picks posted", (picksOf(DATA).length + picksOf(NFL).length).toLocaleString(), "NBA + NFL so far"], ["Picks deleted", "0", "losses stay on the record"]])}`;
   if (!SOFT) window.scrollTo(0, 0);
+  loadHomeGreenRecord();
   // count-up on the big number
   const num = document.getElementById("hpNum");
   if (num && !SOFT && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -1627,7 +1665,7 @@ const permalink = (g) => (g.pick ? `<p class="permalink"><a href="${gameUrl(g)}"
 const SUB_TITLES = { predictions: "Predictions & Win Probabilities", record: "Prediction Record", trends: "Trends", table: "Standings", scores: "Scores", stats: "Stats" };
 function setTitle(v, sub) {
   const base = "ProbaLab";
-  let t = `${base}: NBA & NFL Predictions and Win Probabilities`;
+  let t = `${base}: NBA, NFL, NHL, EPL, Championship & Tennis Predictions`;
   if (v === "about") t = `How It Works | ${base}`;
   else if (v === "sport") t = `${SP.toUpperCase()} ${SUB_TITLES[sub] ?? "Predictions"} | ${base}`;
   else if (v === "game") { const id = location.hash.slice(6), g = NFL?.byId[id] ?? DATA?.games.find((x) => x.game_id === id);

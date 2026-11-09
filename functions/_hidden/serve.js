@@ -13,10 +13,17 @@ export async function serveHidden(ctx, sport) {
     tennis: ["Tennis Predictions Today: ATP and WTA Win Chances | ProbaLab", "Tennis predictions for every ATP and WTA main-draw match: a win chance for each player, posted before the first serve, with every result on the record."],
   };
   const live = !!META[sport];
-  if (live) h = h.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://probalabsports.com/${sport}">`)
-    .replace(/<title>[^<]*<\/title>/, `<title>${META[sport][0]}</title>`)
-    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${META[sport][1]}">`);
-  else h = h.replace(/<link rel="canonical"[^>]*>/, "").replace("<head>", '<head>\n<meta name="robots" content="noindex, nofollow">');
+  if (live) {
+    const [title, desc] = META[sport];
+    h = h.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="https://probalabsports.com/${sport}">`)
+      .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`)
+      .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${desc}">`)
+      .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
+      .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
+      .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="https://probalabsports.com/${sport}">`)
+      .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title}">`)
+      .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${desc}">`);
+  } else h = h.replace(/<link rel="canonical"[^>]*>/, "").replace("<head>", '<head>\n<meta name="robots" content="noindex, nofollow">');
   // version the sport script by its ETag, so every deploy is picked up straight away (no stale browser copy)
   const src = sport === "tennis" ? "/tennis.js" : "/hidden-sports.js";
   const js = await ctx.env.ASSETS.fetch(new URL(src, ctx.request.url), { method: "HEAD" }).catch(() => null);

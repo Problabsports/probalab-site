@@ -170,3 +170,7 @@ a.tipster-card.live:hover {
 .multi-legs-table { width: 100%; margin-top: 6px; font-size: 13px; }
 .multi-legs-table td { padding: 2px 6px; }
 .chip.MULTI { background: #1f2937; color: #93c5fd; }
+
+.desk-list { margin: 8px 0 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.desk-list li { color: var(--muted); }
+.desk-list b { color: var(--ink); }

@@ -63,15 +63,18 @@ function valueOf(modelP, marketP) {
   return modelP - marketP;
 }
 
-const HEAD = `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span><span class="mk">Market</span><span class="gap">Value</span></li>`;
+const HEAD = (showMkt) => showMkt
+  ? `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span><span class="mk">Market</span><span class="gap">Value</span></li>`
+  : `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span></li>`;
 const FMT_BAR = `<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div>`;
 
 // Value badge: GREEN/SUPER and model−market ≥ +3.0 percentage points.
 const VALUE_MIN = 0.03;
+const MARKET_STALE_MS = 24 * 3600e3;
 const isTipLight = (l) => l === "GREEN" || l === "SUPER";
 const qualifiesValue = (g) => isTipLight(g.light) && g.value != null && g.value >= VALUE_MIN;
 
-function todayRow(g) {
+function todayRow(g, showMkt) {
   const v = g.value;
   let gapCls = "";
   if (v != null) {
@@ -80,32 +83,35 @@ function todayRow(g) {
     else if (v < -0.005) gapCls = "neg";
   }
   const gapTxt = v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v * 100).toFixed(1)}%`;
-  const valued = qualifiesValue(g);
+  const valued = showMkt && qualifiesValue(g);
   const matchHtml = g.matchHtml || esc(g.match);
+  const mktCols = showMkt ? `
+      <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
+      <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
     <a class="row-rest" href="${esc(g.href)}">
       <span class="p">${esc(g.pick)}</span>${chip(g.light)}
-      <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>
-      <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
-      <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>
+      <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>${mktCols}
     </a>
   </li>`;
 }
 
-function section(id, name, games, links, extra) {
+function section(id, name, games, links, extra, showMkt = true) {
   if (!games.length) {
     return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
       <p>No ${esc(name)} games tip off in the next 24 hours.</p>
       <p class="small">${links}</p></section>`;
   }
-  const valued = games.filter(qualifiesValue);
-  const withMarket = games.some((g) => g.value != null);
-  const valueNote = valued.length
+  const valued = showMkt ? games.filter(qualifiesValue) : [];
+  const withMarket = showMkt && games.some((g) => g.value != null);
+  const valueNote = !showMkt
+    ? `<p class="best-line small">Market columns are hidden while the on-file market file is older than 24 hours.</p>`
+    : valued.length
     ? `<p class="best-line">${valued.length} value pick${valued.length === 1 ? "" : "s"} (GREEN/SUPER and at least +3.0 vs the market).</p>`
     : `<p class="best-line small">No standout value today${withMarket ? "" : " — market chances not on file for these games yet"}.</p>`;
-  const rows = HEAD + games.map(todayRow).join("");
+  const rows = HEAD(showMkt) + games.map((g) => todayRow(g, showMkt)).join("");
   return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
   ${valueNote}
   ${FMT_BAR}
@@ -134,6 +140,8 @@ const HOW_TO = `<section class="panel howto" id="how-to-read">
 export async function onRequestGet(ctx) {
   const now = Date.now();
   const market = marketIndex(await asset(ctx, "/data/market-implied.json", { games: [] }));
+  const marketAgeMs = market.generated ? (Date.now() - new Date(market.generated).getTime()) : Infinity;
+  const showMkt = Number.isFinite(marketAgeMs) && marketAgeMs >= 0 && marketAgeMs <= MARKET_STALE_MS;
   const out = [];
   let total = 0;
 
@@ -169,7 +177,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
   }
 
   {
@@ -211,7 +219,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("nhl", "NHL", games, `<a href="/nhl">All NHL games →</a> · <a href="/nhl/team">NHL teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("nhl", "NHL", games, `<a href="/nhl">All NHL games →</a> · <a href="/nhl/team">NHL teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
   }
 
   {
@@ -251,7 +259,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
   }
 
   {
@@ -287,7 +295,7 @@ export async function onRequestGet(ctx) {
       value: null,
       start_utc: g.start_utc,
     }));
-    out.push(section("championship", "Championship", games, `<a href="/championship">All Championship matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("championship", "Championship", games, `<a href="/championship">All Championship matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
   }
 
   {
@@ -313,12 +321,19 @@ export async function onRequestGet(ctx) {
         start_utc: m.start_utc,
       };
     });
-    out.push(section("tennis", "Tennis", games, `<a href="/tennis">All tennis matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section("tennis", "Tennis", games, `<a href="/tennis">All tennis matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
   }
 
-  const marketNote = market.generated
-    ? `Market chances last refreshed ${esc(market.generated)} from prices already on file (no live book lookup).`
-    : "Market chances will appear once the on-box comparison files are synced into this preview.";
+  let marketNote;
+  if (!market.generated) {
+    marketNote = "Market chances will appear once the on-box comparison files are synced.";
+  } else if (!showMkt) {
+    const when = new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(market.generated));
+    marketNote = `Odds as of ${esc(when)}. Market and value columns are hidden because that file is older than 24 hours.`;
+  } else {
+    const when = new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(market.generated));
+    marketNote = `Odds as of ${esc(when)} from prices already on file (no live book lookup).`;
+  }
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Today's games</span></nav>
   <p class="eyebrow">// next 24 hours · Australia/Sydney</p>
