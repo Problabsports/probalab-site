@@ -11,6 +11,7 @@ import {
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
+import { discordNavLink, xNavLink, socialFooterStack } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -294,6 +295,9 @@ export function renderHeader(path = "/") {
   </div>`;
   const at = howIdx >= 0 ? howIdx + 1 : links.length - 2;
   links.splice(at, 0, sports);
+  const discord = discordNavLink();
+  if (discord) links.push(discord);
+  links.push(xNavLink());
   return `<header class="top site-head"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
   <a class="nav-today" href="/today">Today</a>
@@ -353,6 +357,7 @@ ${body}
 </main>
 <footer><div class="wrap">
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
+  ${socialFooterStack()}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
