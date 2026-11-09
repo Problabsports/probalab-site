@@ -234,6 +234,7 @@ export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach
 
 // ------------------------------------------------------------------ page shell
 // Same labels and destinations on every page. Mobile: logo + Today + drawer (Esc closes).
+// Sports hubs live in one dropdown (desktop hover/click/keyboard; mobile sub-list).
 export const NAV_LINKS = [
   ["/today", "Today"],
   ["/teams", "Teams"],
@@ -242,23 +243,46 @@ export const NAV_LINKS = [
   ["/results", "Results"],
   ["/lights", "Lights"],
   ["/how-it-works", "How it works"],
-  ["/nba", "NBA"],
-  ["/nfl", "NFL"],
-  ["/nhl", "NHL"],
   ["/about", "About"],
   ["/members", "Members"],
 ];
 
+export const NAV_SPORTS = [
+  ["/nba", "NBA"],
+  ["/nfl", "NFL"],
+  ["/nhl", "NHL"],
+  ["/epl", "EPL"],
+  ["/championship", "Championship"],
+  ["/tennis", "Tennis"],
+];
+
+function navLinkOn(path, href) {
+  return path === href || (href.length > 1 && (path === href || path.startsWith(href + "/")));
+}
+
 export function renderHeader(path = "/") {
   const links = NAV_LINKS.map(([href, label]) => {
-    const on = path === href || (href.length > 1 && path.startsWith(href + "/"));
+    const on = navLinkOn(path, href);
     return `<a href="${href}"${on ? ' aria-current="page"' : ""}>${label}</a>`;
+  });
+  const sportOn = NAV_SPORTS.some(([href]) => navLinkOn(path, href));
+  const sportItems = NAV_SPORTS.map(([href, label]) => {
+    const on = navLinkOn(path, href);
+    return `<a href="${href}" role="menuitem"${on ? ' aria-current="page"' : ""}>${label}</a>`;
   }).join("");
+  // Insert Sports dropdown after How it works (before About)
+  const howIdx = links.findIndex((html) => html.includes('href="/how-it-works"'));
+  const sports = `<div class="nav-dd" data-nav-dd>
+    <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-sports-menu" aria-haspopup="menu"${sportOn ? ' data-active="true"' : ""}>Sports</button>
+    <div id="nav-sports-menu" class="nav-dd-panel" role="menu" hidden>${sportItems}</div>
+  </div>`;
+  const at = howIdx >= 0 ? howIdx + 1 : links.length - 2;
+  links.splice(at, 0, sports);
   return `<header class="top site-head"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
   <a class="nav-today" href="/today">Today</a>
   <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">Menu</button>
-  <nav id="site-menu" class="site-nav" aria-label="Main">${links}</nav>
+  <nav id="site-menu" class="site-nav" aria-label="Main">${links.join("")}</nav>
 </div></header>`;
 }
 

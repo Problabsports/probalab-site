@@ -621,9 +621,17 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <a href="/results">Results</a>
       <a href="/lights">Lights</a>
       <a href="/how-it-works">How it works</a>
-      <a href="/nba">NBA</a>
-      <a href="/nfl">NFL</a>
-      <a href="/nhl">NHL</a>
+      <div class="nav-dd" data-nav-dd>
+        <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-sports-menu" aria-haspopup="menu">Sports</button>
+        <div id="nav-sports-menu" class="nav-dd-panel" role="menu" hidden>
+          <a href="/nba" role="menuitem">NBA</a>
+          <a href="/nfl" role="menuitem">NFL</a>
+          <a href="/nhl" role="menuitem">NHL</a>
+          <a href="/epl" role="menuitem">EPL</a>
+          <a href="/championship" role="menuitem">Championship</a>
+          <a href="/tennis" role="menuitem">Tennis</a>
+        </div>
+      </div>
       <a href="/about">About</a>
       <a href="/members">Members</a>
       <a href="#newsletter" data-nl>Newsletter</a>
