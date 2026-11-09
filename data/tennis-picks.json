@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-09T14:32:29Z",
+  "generated_at": "2026-11-09T15:29:04Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -396,7 +396,7 @@
       "round": "Round 1",
       "court": "Court 1",
       "start_utc": "2026-11-09T13:15:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Tomas Machac",
       "player_b": "Borna Gojo",
       "a_pct": 67.6,
@@ -404,10 +404,10 @@
       "pick": "a",
       "pick_pct": 67.6,
       "light": "ORANGE",
-      "winner": null,
-      "score": "3-6 3-2",
+      "winner": "b",
+      "score": "3-6 4-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186536",
@@ -419,7 +419,7 @@
       "round": "Round 1",
       "court": "Center Court",
       "start_utc": "2026-11-09T13:30:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Adolfo Daniel Vallejo",
       "player_b": "Ugo Humbert",
       "a_pct": 38.8,
@@ -427,10 +427,10 @@
       "pick": "b",
       "pick_pct": 61.2,
       "light": "ORANGE",
-      "winner": null,
-      "score": "4-6 1-0",
+      "winner": "b",
+      "score": "4-6 3-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186530",
@@ -709,6 +709,29 @@
       "result": null
     },
     {
+      "id": "186542",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Borna Gojo",
+      "player_b": "Ugo Humbert",
+      "a_pct": 30.2,
+      "b_pct": 69.8,
+      "pick": "b",
+      "pick_pct": 69.8,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187378",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -732,7 +755,7 @@
       "result": null
     },
     {
-      "id": "187376",
+      "id": "187384",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
       "tournament": "FAGE WTA Finals Indian Wells",
@@ -742,12 +765,12 @@
       "court": "",
       "start_utc": "2026-11-11T05:00:00Z",
       "status": "pre",
-      "player_a": "Jessica Pegula",
-      "player_b": "Linda Noskova",
-      "a_pct": 58.8,
-      "b_pct": 41.2,
-      "pick": "a",
-      "pick_pct": 58.8,
+      "player_a": "Mirra Andreeva",
+      "player_b": "Karolina Muchova",
+      "a_pct": 47.5,
+      "b_pct": 52.5,
+      "pick": "b",
+      "pick_pct": 52.5,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -771,6 +794,29 @@
       "b_pct": 51.4,
       "pick": "b",
       "pick_pct": 51.4,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "187376",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Group Stage",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Jessica Pegula",
+      "player_b": "Linda Noskova",
+      "a_pct": 58.8,
+      "b_pct": 41.2,
+      "pick": "a",
+      "pick_pct": 58.8,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -822,43 +868,20 @@
       "score": null,
       "retired": false,
       "result": null
-    },
-    {
-      "id": "187384",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "",
-      "start_utc": "2026-11-11T05:00:00Z",
-      "status": "pre",
-      "player_a": "Mirra Andreeva",
-      "player_b": "Karolina Muchova",
-      "a_pct": 47.5,
-      "b_pct": 52.5,
-      "pick": "b",
-      "pick_pct": 52.5,
-      "light": "RED",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
     }
   ],
   "record": {
     "ALL": {
-      "won": 11,
-      "lost": 3
+      "won": 12,
+      "lost": 4
     },
     "GREEN": {
       "won": 3,
       "lost": 1
     },
     "ORANGE": {
-      "won": 3,
-      "lost": 0
+      "won": 4,
+      "lost": 1
     },
     "RED": {
       "won": 5,
