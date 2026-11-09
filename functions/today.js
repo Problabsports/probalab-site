@@ -116,7 +116,7 @@ function section(id, name, games, links, extra) {
 const HOW_TO = `<section class="panel howto" id="how-to-read">
   <h2>How to read this</h2>
   <div class="legend-lights" aria-label="Light colours">
-    ${chip("SUPER")}<span>our strongest pick</span>
+    ${chip("SUPER")}<span>Super — best value (NBA; bookie price beats our fair price)</span>
     ${chip("GREEN")}<span>65%+ top pick</span>
     ${chip("ORANGE")}<span>lean (55 to 65%)</span>
     ${chip("RED")}<span>close to a coin flip (under 55%)</span>

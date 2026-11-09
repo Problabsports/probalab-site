@@ -13,7 +13,7 @@ const CONF = { SUPER: "Very high", GREEN: "High", ORANGE: "Medium", RED: "Low" }
 
 // Display copy only. Cut-offs are the live ones already used on each sport page.
 export const LIGHT_COPY = {
-  nba: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: true, note: "Super is an NBA flag: the model is confident (60%+) and rates the team well above its usual level." },
+  nba: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: true, note: "Super is the NBA best-value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." },
   nfl: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: false },
   nhl: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: false },
   epl: { scale: "three-way", green: "55%+", orange: "45–55%", red: "under 45%", super: false, switchOn: EPL_LIGHTS_FROM },
@@ -386,9 +386,9 @@ function filterNav(filters) {
       return on ? `<span class="on">${esc(label)}</span>` : `<a href="${esc(href)}">${esc(label)}</a>`;
     }).join("");
   const lightLinks = [
-    ["green", "Green + Super"],
+    ["green", "Green + Best value"],
     ["all", "All lights"],
-    ["super", "Super"],
+    ["super", "Super — best value"],
     ["orange", "Orange"],
     ["red", "Red"],
   ].map(([id, label]) => {
@@ -400,7 +400,7 @@ function filterNav(filters) {
     <nav class="record-sports" aria-label="Filter by sport">${sportLinks}</nav>
     <nav class="record-sports light-filters" aria-label="Filter by light">${lightLinks}</nav>
   </div>
-  <p class="small">Green is the default view, and includes NBA Super picks — Super also clears the green bar. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
+  <p class="small">The default list is Green + Best value. Super is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
 }
 
 function sportGreenCard(v) {
@@ -413,8 +413,8 @@ function sportGreenCard(v) {
   const s = lightTally(v.rows, "SUPER");
   const href = resultsHref({ sport: v.sport, light: "green" });
   const superLine = s.n
-    ? `<p class="super-line">${chip("SUPER")} Super ${esc(rateLine(s.w, s.n))} — strongest NBA calls, also above the green bar.</p>
-       <p class="small">Green + Super: ${esc(rateLine(g.w + s.w, g.n + s.n))}.</p>`
+    ? `<p class="super-line">${chip("SUPER")} Super — best value: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price.</p>
+       <p class="small">Green + Best value: ${esc(rateLine(g.w + s.w, g.n + s.n))}.</p>`
     : "";
   return `<article class="panel record-card green-card">
     <h2><a href="${esc(href)}">${esc(S)}</a></h2>
@@ -435,13 +435,15 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   const topW = gAll.w + sAll.w, topN = gAll.n + sAll.n;
   const tShown = tally(shown);
   const listTitle = filters.light === "green"
-    ? "Green picks"
+    ? "Green + Best value"
     : filters.light === "all"
       ? "Every finished pick"
+      : filters.light === "super"
+        ? "Super — best value"
       : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
   const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
   const lightNote = filters.light === "green"
-    ? "Showing green picks, including NBA Super. "
+    ? "Showing Green + Best value (green picks, plus NBA Super value picks). "
     : "";
 
   const overall = allRows.length ? `<section class="panel green-lead">
@@ -449,7 +451,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>If you are coming to us for predictions, the green results are the ones to focus on. Every pick still stays on the record, including orange and red.</p>
     <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
-    ${sAll.n ? `<p>NBA Super (also clears the green bar): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Super: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
+    ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a></p>
     <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. The public record is wins and losses, not staking units.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
@@ -553,19 +555,20 @@ export async function handleSportRecordRequest(ctx, sport) {
 
 export function renderLightsPage() {
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>How the lights work</span></nav>
-  <p class="eyebrow">// confidence lights · by sport</p>
+  <p class="eyebrow">// lights · by sport</p>
   <h1>How the lights work</h1>
   <p>Every pick gets a coloured light so you can see, at a glance, how strongly the model rates its own call. The cut-offs are not the same in every sport, and that is deliberate. A 55% call in a two-way sport (one team or the other wins) is only a lean. In a three-way football match, with a draw on the table, 55% is already a strong favourite.</p>
   <p>We do not move these cut-offs to chase a short run of results. A light tells you how confident the model was at the time, on that sport's own scale.</p>
 
   <section class="panel"><h2>NBA, NFL and NHL</h2>
     <div class="lights">
-      <div><span>${chip("SUPER")}</span><p>NBA only. The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</p></div>
-      <div><span>${chip("GREEN")}</span><p>65% or more. One of our top picks.</p></div>
+      <div><span>${chip("SUPER")}</span><p>Super — best value. NBA only. This is a value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price.</p></div>
+      <div><span>${chip("GREEN")}</span><p>65% or more. One of our top picks, on confidence alone.</p></div>
       <div><span>${chip("ORANGE")}</span><p>A lean, 55 to 65%.</p></div>
       <div><span>${chip("RED")}</span><p>Under 55%. Close to a coin flip.</p></div>
     </div>
-    <p>These are two-way sports: one side wins. 65% is a high bar, and Super is reserved for NBA sides the model both likes and sees as well above their usual level. The NFL and NHL use the same 65 / 55 scale and typically have no Super flag.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price (with a cap on how large that gap can be). If there is injury uncertainty, the pick is shown as green instead. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
+    <p>In a 2025–26 test of 162 Super games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 
   <section class="panel"><h2>Premier League and Championship</h2>

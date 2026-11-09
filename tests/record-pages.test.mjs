@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { rowsFromFeed, rowsFromNhl, rowsFromSoccer, rowsFromTennis, tally, EPL_LIGHTS_FROM, renderRecordCsv, renderResultsCsv, renderResultsPage, parseResultsFilters, filterResultRows, resultsHref, lightTally, seasonLabel } from "../functions/_shared/record-pages.js";
+import { rowsFromFeed, rowsFromNhl, rowsFromSoccer, rowsFromTennis, tally, EPL_LIGHTS_FROM, renderRecordCsv, renderResultsCsv, renderResultsPage, renderLightsPage, parseResultsFilters, filterResultRows, resultsHref, lightTally, seasonLabel } from "../functions/_shared/record-pages.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const load = async (name) => JSON.parse(await readFile(join(root, "data", name), "utf8"));
@@ -152,7 +152,17 @@ assert.match(htmlGreen, /3 of 3/);
 assert.match(htmlGreen, /1 of 4/);
 assert.match(htmlGreen, /3 of 4/);
 assert.match(htmlGreen, /href="\/results\.csv"/);
-assert.match(htmlGreen, /Green \+ Super/);
+assert.match(htmlGreen, /Green \+ Best value/);
+assert.match(htmlGreen, /Super — best value/);
+assert.doesNotMatch(htmlGreen, /clears the green bar|above the green bar|higher-confidence green bar/);
+const lights = renderLightsPage();
+assert.match(lights, /Super — best value/);
+assert.match(lights, /bookmaker price beats our fair price/);
+assert.match(lights, /162 Super games/);
+assert.match(lights, /63%/);
+assert.match(lights, /\+0\.7%/);
+assert.match(lights, /break-even/);
+assert.doesNotMatch(lights, /well above its usual level|clears the green bar/);
 const htmlNba = renderResultsPage(views, { sport: "nba", light: "green" });
 assert.match(htmlNba, /href="\/results\?sport=nba&amp;light=all"|href="\/results\?sport=nba&light=all"/);
 assert.ok(htmlNba.includes("Denver Nuggets")); // Super included in default green view

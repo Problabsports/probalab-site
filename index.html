@@ -639,7 +639,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <h2>The lights</h2>
       <p>The cut-offs depend on the sport. NBA, NFL and NHL use the two-way scale below. Football (where a draw is possible) and tennis use different cut-offs — <a href="/lights">how the lights work</a>.</p>
       <div class="lights">
-        <div><span><i class="chip SUPER">Super</i></span><p>NBA only. The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</p></div>
+        <div><span><i class="chip SUPER">Super</i></span><p>Super — best value. NBA only. The bookmaker price beats our fair price. This is a value flag, not a higher-confidence green. <a href="/lights">How the lights work</a>.</p></div>
         <div><span><i class="chip GREEN">Green</i></span><p>On NBA, NFL and NHL: 65% or more. One of our top picks.</p></div>
         <div><span><i class="chip ORANGE">Orange</i></span><p>On NBA, NFL and NHL: a lean, 55 to 65%.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>On NBA, NFL and NHL: under 55%. Close to a coin flip.</p></div>
@@ -820,7 +820,7 @@ function renderPredictions() {
       ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
-      <span><i class="chip SUPER">Super</i> strongest pick</span><span><i class="chip GREEN">Green</i> 65%+</span>
+      <span><i class="chip SUPER">Super</i> best value</span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
       ${noteLegend(list)}
     </div>
