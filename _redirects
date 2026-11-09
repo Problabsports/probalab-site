@@ -1,5 +1,3 @@
-# /how-it-works is a stand-in until preview/method-backtest merges its real
-# methodology page (functions/how-it-works.js). Pages Functions take precedence
-# over this redirect, so that file can replace this without a conflict here.
-/how-it-works /lights 302
+# /how-it-works is the real methodology page (functions/how-it-works.js).
+# Keep the old lights alias only.
 /how-the-lights-work /lights 301
