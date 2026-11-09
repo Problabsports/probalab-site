@@ -126,8 +126,10 @@
     const { data: plRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "probalab").maybeSingle();
     if (plRow && plRow.payload) plPayload = plRow.payload;
     let weatherPayload = null;
-    const { data: wxRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nfl-weather").maybeSingle();
-    if (wxRow && wxRow.payload) weatherPayload = wxRow.payload;
+    for (const snapId of ["nfl-totals", "nfl-weather"]) {
+      const { data: wxRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", snapId).maybeSingle();
+      if (wxRow && wxRow.payload) { weatherPayload = wxRow.payload; break; }
+    }
     if (!weatherPayload) {
       try {
         const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();

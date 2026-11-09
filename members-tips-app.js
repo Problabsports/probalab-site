@@ -16,7 +16,7 @@
     const q = new URLSearchParams(location.search).get("tipster");
     return String(q || "john").toLowerCase();
   }
-  const tipsterId = (function (t) { return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap" || t === "nhl-value") ? t : "john"; })(resolveTipster());
+  const tipsterId = (function (t) { if (t === "nfl-totals") t = "nfl-weather"; return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap" || t === "nhl-value") ? t : "john"; })(resolveTipster());
   const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
   let sb, data = null, tipsterData = null, tab = "today";
@@ -754,9 +754,36 @@
   }
   async function loadIsolatedBlock(id) {
     // Isolated snapshot only (never John's open_bets/results).
-    const { data: row } = await sb.from("tips_page_snapshot").select("payload").eq("id", id).maybeSingle();
+    const { data: row } = await sb.from("tips_page_snapshot").select("payload, generated_at").eq("id", id).maybeSingle();
     const p = (row && row.payload) || {};
-    return { open_bets: Array.isArray(p.open_bets) ? p.open_bets : [], results: Array.isArray(p.results) ? p.results : [] };
+    if (!row || !row.payload) return { open_bets: [], results: [], generated_at: null, found: false };
+    return {
+      open_bets: Array.isArray(p.open_bets) ? p.open_bets : [],
+      results: Array.isArray(p.results) ? p.results : [],
+      generated_at: p.generated_at || row.generated_at || null,
+      summary: p.summary || null,
+      found: true,
+    };
+  }
+  async function loadNflTotalsBlock() {
+    // Prefer the live nfl-totals row; fall back to the older nfl-weather id, then the static file.
+    for (const id of ["nfl-totals", "nfl-weather"]) {
+      const block = await loadIsolatedBlock(id);
+      if (block && block.found) return block;
+    }
+    try {
+      const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+      const pub = (xs) => (xs || []).filter((r) => r.published !== false);
+      if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) {
+        return {
+          open_bets: pub(j.open_bets),
+          results: j.results || [],
+          generated_at: j.generated_at || null,
+          summary: j.summary || null,
+        };
+      }
+    } catch (_) {}
+    return { open_bets: [], results: [] };
   }
   async function loadTips() {
     if (tipsterId === "nba-price-gap") {
@@ -774,6 +801,13 @@
       renderAll();
       return;
     }
+    if (tipsterId === "nfl-weather") {
+      data = { generated_at: null, today: [], open_bets: [], results: [], pl_results: [], needs_attention: [] };
+      tipsterData = await loadNflTotalsBlock();
+      if (tipsterData && tipsterData.generated_at) data.generated_at = tipsterData.generated_at;
+      renderAll();
+      return;
+    }
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
@@ -784,22 +818,6 @@
       tipsterData = await loadSniperBlock();
     } else if (tipsterId === "probalab") {
       tipsterData = await loadIsolatedBlock("probalab");
-    } else if (tipsterId === "nfl-weather") {
-      tipsterData = await loadIsolatedBlock("nfl-weather");
-      try {
-        const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
-        const pub = (xs) => (xs || []).filter((r) => r.published !== false);
-        // Prefer the published file snapshot; never surface watch_list or method to the desk.
-        tipsterData = {
-          open_bets: pub(j.open_bets && j.open_bets.length ? j.open_bets : tipsterData.open_bets),
-          results: (j.results && j.results.length ? j.results : tipsterData.results) || [],
-          generated_at: j.generated_at || tipsterData.generated_at || null,
-          summary: j.summary || null,
-        };
-        if (j.generated_at) data.generated_at = j.generated_at;
-      } catch (_) {
-        tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => r.published !== false);
-      }
     } else {
       tipsterData = {
         open_bets: data.open_bets || [],

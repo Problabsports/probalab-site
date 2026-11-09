@@ -9,7 +9,7 @@
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
     const t = String(tipster || 'john').toLowerCase();
-    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather' || t === 'nba-price-gap' || t === 'nhl-value') return valid(r);
+    if (t === 'sniper' || t === 'probalab' || t === 'nfl-weather' || t === 'nfl-totals' || t === 'nba-price-gap' || t === 'nhl-value') return valid(r);
     return visible(r);
   }
   function day(value) {
@@ -111,7 +111,7 @@
     return { games: future.filter((g) => startOf(g) <= first + windowMs), limited: false };
   }
   function tipsterMeta(id) {
-    const key = String(id || 'john').toLowerCase();
+    const key = String(id || 'john').toLowerCase() === 'nfl-totals' ? 'nfl-weather' : String(id || 'john').toLowerCase();
     return TIPSTERS[key] || TIPSTERS.john;
   }
   const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS, comingWindow};
