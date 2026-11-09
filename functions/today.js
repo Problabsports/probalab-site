@@ -3,7 +3,7 @@
  // and value % (model chance minus market chance). Best-value game per sport is highlighted.
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
  // (built on the box from existing comparison CSVs — no new Odds API credits).
-import { getFeed, gamesOf, shell, html, esc, chip, slug } from "./_shared/site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, slug, asHead } from "./_shared/site.js";
 import { injuryBadge } from "./_shared/injury-warning.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
@@ -130,23 +130,8 @@ function section(id, name, games, links, extra, showMkt = true) {
   <p class="small">${links}</p></section>`;
 }
 
-const HOW_TO = `<section class="panel howto" id="how-to-read">
-  <h2>How to read this</h2>
-  <div class="legend-lights" aria-label="Light colours">
-    ${chip("SUPER")}<span>Super — best value (NBA; bookie price beats our fair price)</span>
-    ${chip("GREEN")}<span>65%+ top pick</span>
-    ${chip("ORANGE")}<span>lean (55 to 65%)</span>
-    ${chip("RED")}<span>close to a coin flip (under 55%)</span>
-  </div>
-  <p class="small">Those cut-offs are for NBA, NFL and NHL. Premier League and Championship greens start at 55% because a draw is possible. Tennis greens start at 70%. <a href="/lights">How the lights work</a></p>
-  <ul class="howto-list">
-    <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is <span class="odds" data-dec="1.6666667">1.67</span>; a 75% call is <span class="odds" data-dec="1.3333333">1.33</span>.</li>
-    <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>
-    <li><b>Value</b> — our chance minus the market chance. Positive means we rate the team higher than the bookies. A <span class="best-tag">Value</span> badge appears on GREEN or SUPER picks with at least <b>+3.0</b> points of value (there can be several, or none).</li>
-    <li><b>⚠️</b> — on an NBA pick, key players are uncertain. Tap the warning for the names. The light colour still follows the usual thresholds.</li>
-  </ul>
-  <p class="legend-example"><b>Example:</b> we make the home team 68% (fair <span class="odds" data-dec="1.4705882">1.47</span>, GREEN). The market has them at 62%. Value = +6.0. That pick gets a Value badge. A RED pick at +0.5 does not — the number still shows, in a neutral colour.</p>
-  <p class="small">Figures are for entertainment, not advice. Fair prices are from the model alone.</p>
+const HOW_TO = `<section class="panel howto compact" id="how-to-read">
+  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · ⚠️ injury note. <a href="/lights">How to read the lights →</a></p>
 </section>`;
 
 export async function onRequestGet(ctx) {
@@ -392,7 +377,7 @@ export async function onRequestGet(ctx) {
   <h1>Today's predictions: every sport</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
   Filter by sport and light colour — same idea as the members desk. Default is Green + Best value, matching <a href="/results">Results</a>.</p>
-  <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/accuracy">Accuracy →</a></nav>
+  <nav class="crumbs" aria-label="Jump to sport"><a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
   ${filterBar}
   ${bodyList}
@@ -406,3 +391,5 @@ export async function onRequestGet(ctx) {
     body,
   }), 200, 60);
 }
+
+export const onRequestHead = (ctx) => asHead(onRequestGet, ctx);

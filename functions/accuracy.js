@@ -1,6 +1,6 @@
 // /accuracy: calibration of graded picks across every live sport.
  // Buckets 50–55, 55–60, … 75–80, 80%+. Numbers come from the same feeds/files as the record pages.
-import { getFeed, gamesOf, shell, html, esc, chip } from "./_shared/site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, asHead } from "./_shared/site.js";
 
 const BANDS = [[0.5, 0.55], [0.55, 0.6], [0.6, 0.65], [0.65, 0.7], [0.7, 0.75], [0.75, 0.8], [0.8, 1.01]];
 const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
@@ -167,3 +167,5 @@ export async function onRequestGet(ctx) {
     body,
   }), 200, 120);
 }
+
+export const onRequestHead = (ctx) => asHead(onRequestGet, ctx);
