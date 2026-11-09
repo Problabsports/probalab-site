@@ -32,8 +32,10 @@ function isKeyPlayer(sport, m) {
     return NFL_SKILL.has(pos) && (HARSH.test(st) || /Questionable/i.test(st));
   }
   if (sport === "nhl") {
-    if (pos === "G") return HARSH.test(st) || /Day-to-day|Questionable/i.test(st);
-    return NHL_POS.has(pos) || !pos; // unknown pos still warn if uncertain
+    // Proxy for top-6 F / top-4 D / starter G: skip long-term IR for skaters (too noisy).
+    if (pos === "G") return /Out|Doubtful|Day-to-day|Questionable|Injured reserve/i.test(st);
+    if (/Injured reserve/i.test(st)) return false;
+    return /Out|Doubtful|Day-to-day|Questionable/i.test(st);
   }
   if (sport === "epl" || sport === "championship") {
     return SOCCER_OK && (HARSH.test(st) || /Questionable|Day-to-day/i.test(st));

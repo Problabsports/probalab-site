@@ -11,7 +11,7 @@ Lights are never changed. Closing line always:
 | --- | --- | --- | --- |
 | NBA | Supabase `public_feed` + `injuries_current` / v2 rotation | Uncertain (Q/D/GTD/Out+GTD) averaging ≥20 min | Already live in `public_feed` |
 | NFL | ESPN `site.api.../football/nfl/injuries` | QB any uncertain; RB/WR/TE/OL when Out/Doubtful/IR/Questionable | Edge enrich until `public_feed` (NFL) ships fields; SQL sketch in `nfl_public_feed_injury.sql` |
-| NHL | ESPN `.../hockey/nhl/injuries` | G + skaters (C/W/D) on Out/Doubtful/IR/Day-to-day/Questionable (proxy for top-6 F / top-4 D / starter G) | Edge enrich on `/today` + hubs |
+| NHL | ESPN `.../hockey/nhl/injuries` | G: Out/Doubtful/IR/Day-to-day/Questionable; skaters: Out/Doubtful/Day-to-day/Questionable (IR skipped — long-term noise; proxy for top-6 F / top-4 D / starter G) | Edge enrich on `/today` + hubs |
 | EPL | ESPN `.../soccer/eng.1/injuries` | Out/Doubtful/Questionable/Day-to-day | Edge enrich |
 | Championship | ESPN `.../soccer/eng.2/injuries` | Same as EPL | Edge enrich |
 | Tennis | — | **Skipped** — no reliable free pre-match injury/withdrawal feed keyed to our fixtures | — |
