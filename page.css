@@ -411,3 +411,38 @@ table.record-picks a:hover { color: var(--cyan); }
 @media (max-width: 640px) {
   .units-tiles { grid-template-columns: 1fr; }
 }
+
+/* NBA injury warning (feed injury_warning) — tipster-popover style */
+.injury-warn-btn {
+  appearance: none; background: none; border: 0; padding: 0 2px; margin: 0 0 0 4px;
+  display: inline-grid; place-items: center;
+  width: 26px; height: 24px; cursor: pointer;
+  font-size: 15px; line-height: 1; vertical-align: middle;
+  color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.55);
+  border-radius: 6px;
+}
+.injury-warn-btn:hover, .injury-warn-btn:focus-visible {
+  outline: none; background: rgba(255, 176, 32, 0.12);
+  color: #ffc857;
+}
+.chip-with-warn {
+  display: inline-flex; align-items: center; gap: 2px; flex-wrap: wrap;
+}
+ul.games.today-games .chip-with-warn { grid-area: chip; justify-self: start; }
+ul.games.today-games .chip-with-warn .chip { grid-area: auto; }
+.injury-popover.tipster-popover {
+  position: absolute; z-index: 40; left: 0; top: calc(100% + 8px);
+  width: min(320px, calc(100vw - 32px));
+  background: #121526; color: var(--ink);
+  border: 1px solid var(--line-hi);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(255, 176, 32, .18);
+}
+.injury-popover.tipster-popover::before {
+  content: ""; position: absolute; left: 16px; top: -6px;
+  width: 10px; height: 10px; background: #121526;
+  border-left: 1px solid var(--line-hi); border-top: 1px solid var(--line-hi);
+  transform: rotate(45deg);
+}
+.injury-popover .tipster-pop-title { color: #ffb020; }
