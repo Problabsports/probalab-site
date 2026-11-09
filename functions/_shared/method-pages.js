@@ -129,7 +129,7 @@ export function renderBacktestPage() {
     <p><b>2025–26, 1,322 games:</b> the model picked the winner in ${frac(895, 1322)}. Games it gave 70–75% won ${frac(100, 136)}. Green picks (65%+) won ${frac(536, 697)}. That walk-forward file has no closing prices for 2023–26, so we do not report units for this season from it.</p>
     <p>A separate, already published Super test on 2025–26 — the one quoted on <a href="/lights">How the lights work</a> — looked at 162 Super games: they won 63%, beat the close by about +0.7%, and staking return was about break-even (−0.3%). That test knew the real line-ups. Live Super still depends on the injury report being right, which is why a value pick with uncertain key players is held at its normal light.</p>
     <p>Closing prices are in the older SBR-matched window (2018–19 through 16 January 2023, 5,613 games). Backing every green pick at the close in that window: 2,139 of 2,938 won (72.8%), ${units(-142.14, 2938)}. That is the honest priced sample we have: greens win often, and still lost money at the close, because they are confidence picks, not value picks.</p>
-    <p class="small">Sources: ${FIGURE_SOURCES.nbaWalk} ${FIGURE_SOURCES.nbaPrereg} Super figures: ${FIGURE_SOURCES.nbaSuperPublished}</p>
+    <p class="small">Sources: NBA v2 walk-forward predictions joined to results and closing prices where they exist; Super figures as already published on How the lights work. A full file list is in the preview notes for this branch.</p>
   </section>
 
   <section class="panel prose" id="nfl">
@@ -145,7 +145,7 @@ export function renderBacktestPage() {
         ["2021–2025 (mixed window)", "1,420", "915 (64.4%)", "498/694 (71.8%)", "687 priced: " + units(-24.18, 687)],
       ]
     )}
-    <p class="small">Source: ${FIGURE_SOURCES.nflWalk}</p>
+    <p class="small">Source: NFL v2 walk-forward predictions; closing money-lines from the same backtest files. 2016–22 was used to choose the version, so the holdout is the headline.</p>
   </section>
 
   <section class="panel prose" id="nhl">
@@ -164,7 +164,7 @@ export function renderBacktestPage() {
         ["2026–27 (to late Oct)", "165", "101 (61.2%)", "24/40 (60.0%)", "Partial season; small sample"],
       ]
     )}
-    <p class="small">Source: ${FIGURE_SOURCES.nhlWalk} ${FIGURE_SOURCES.nhlModel}</p>
+    <p class="small">Source: NHL walk-forward re-run on official results. Green rates use the current 65% cut-off, not the older 60% column on the sport Stats tab.</p>
   </section>
 
   <section class="panel prose" id="epl">
@@ -184,7 +184,7 @@ export function renderBacktestPage() {
         ["2026–27 (to mid-Oct)", "70", "29 (41.4%)", "15/19 (78.9%)", "Partial season; small sample"],
       ]
     )}
-    <p class="small">Sources: ${FIGURE_SOURCES.eplJson} ${FIGURE_SOURCES.eplWalkLights} ${FIGURE_SOURCES.eplWriteup}</p>
+    <p class="small">Source: Premier League walk-forward re-run. Match totals match the published backtest file; green rates use the current 55% cut-off.</p>
   </section>
 
   <section class="panel prose" id="championship">
@@ -202,7 +202,7 @@ export function renderBacktestPage() {
       ]
     )}
     <p>With three results and a draw about one match in four, under half right is normal for this league. 2025–26 was the weakest of the five seasons and stays in the total.</p>
-    <p class="small">Source: ${FIGURE_SOURCES.champJson}</p>
+    <p class="small">Source: the published Championship backtest file. The green column is reported as stored; live Championship green is 55%+.</p>
   </section>
 
   <section class="panel prose" id="tennis">
@@ -224,7 +224,7 @@ export function renderBacktestPage() {
       ]
     )}
     <p>No closing prices are stored in the backtest file, so units are not reported here. Live tennis results show vs-close only on events that had an Australian bookmaker price.</p>
-    <p class="small">Source: ${FIGURE_SOURCES.tennisJson}</p>
+    <p class="small">Source: the published tennis walk-forward backtest file, the same figures shown on the tennis Stats tab.</p>
   </section>
 
   <section class="panel prose">
