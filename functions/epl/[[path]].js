@@ -26,6 +26,8 @@ export async function onRequestGet(ctx) {
     }
     return notFound();
   }
-  return serveHidden(ctx, "epl");
+  if (parts.length) return serveHidden(ctx, "epl");
+  const { renderLeanHub } = await import("../_shared/sport-hubs.js");
+  return html(await renderLeanHub(ctx, "epl"));
 }
 export const onRequestHead = async (ctx) => { const r = await onRequestGet(ctx); return new Response(null, { status: r.status, headers: r.headers }); };

@@ -1,4 +1,4 @@
-/* Members tipster lobby. Logged-out → waitlist. Logged-in → tipster cards. */
+/* Members tipster lobby. Logged-out → sign in (waitlist secondary). Logged-in → tipster cards. */
 (function () {
   const SB_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
@@ -197,7 +197,7 @@
         body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source.value })
       }).then((r) => r.json()).then((j) => {
         m.textContent = j.ok
-          ? "Thanks — you're on the waitlist. We'll email you when members opens."
+          ? "Thanks — you're on the waitlist. We'll email you when a seat opens."
           : (j.error || "Something went wrong. Please try again.");
         if (j.ok) f.email.value = "";
         b.disabled = false;

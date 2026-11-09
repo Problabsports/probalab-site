@@ -233,6 +233,40 @@ export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach
 });`;
 
 // ------------------------------------------------------------------ page shell
+// Same labels and destinations on every page. Mobile: logo + Today + drawer (Esc closes).
+export const NAV_LINKS = [
+  ["/today", "Today"],
+  ["/teams", "Teams"],
+  ["/injuries", "Injuries"],
+  ["/accuracy", "Accuracy"],
+  ["/results", "Results"],
+  ["/lights", "Lights"],
+  ["/how-it-works", "How it works"],
+  ["/nba", "NBA"],
+  ["/nfl", "NFL"],
+  ["/nhl", "NHL"],
+  ["/about", "About"],
+  ["/members", "Members"],
+];
+
+export function renderHeader(path = "/") {
+  const links = NAV_LINKS.map(([href, label]) => {
+    const on = path === href || (href.length > 1 && path.startsWith(href + "/"));
+    return `<a href="${href}"${on ? ' aria-current="page"' : ""}>${label}</a>`;
+  }).join("");
+  return `<header class="top site-head"><div class="wrap">
+  <a class="brand" href="/">Proba<b>Lab</b></a>
+  <a class="nav-today" href="/today">Today</a>
+  <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">Menu</button>
+  <nav id="site-menu" class="site-nav" aria-label="Main">${links}</nav>
+</div></header>`;
+}
+
+export const asHead = async (get, ctx) => {
+  const r = await get(ctx);
+  return new Response(null, { status: r.status, headers: r.headers });
+};
+
 export function shell({ title, description, path, body, jsonld, noindex = false, ogType = "website", signup = true }) {
   const url = ORIGIN + path;
   return `<!doctype html>
@@ -258,6 +292,7 @@ ${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" hr
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${ORIGIN}/og-image.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -266,15 +301,13 @@ ${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" hr
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/page.css">
+<link rel="stylesheet" href="/site-nav.css">
 <link rel="preconnect" href="https://challenges.cloudflare.com">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>` : ""}
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
-</div></header>
+${renderHeader(path)}
 <main class="wrap">
 ${body}
 </main>
@@ -293,6 +326,7 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
   try { t.textContent = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(t.getAttribute("datetime"))); } catch (e) {}
 });
 </script>
+<script src="/site-nav.js"></script>
 <script src="/odds.js"></script>
 <script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
@@ -357,7 +391,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
   ${post ? "" : signupMain("game")}
   ${post && review ? reviewHtml(review) : ""}
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}
-  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. <a href="/#about">How it works</a>.</p>`;
+  <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice. <a href="/how-it-works">How it works</a>.</p>`;
   const venue = venueOf(g);
   const league = g.sport === "nfl" ? { "@type": "SportsOrganization", name: "NFL", url: "https://www.nfl.com" }
     : { "@type": "SportsOrganization", name: "NBA", url: "https://www.nba.com" };
@@ -403,8 +437,7 @@ export function renderHub(sport, data) {
   const intro = sport === "nfl"
     ? `<p>Every NFL game gets a win probability from our model. It rates each team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback. Picks are posted up to 8 days before kick-off, update as quarterback news comes in, and are frozen at kick-off.</p>`
     : `<p>Every NBA game gets a win probability from our model. It rates each team on the players expected to play that night, then adjusts for injuries, rest and recent form. Picks are posted about 48 hours before game time, update as injury news comes in, and are frozen at game time.</p>`;
-  const body = `<a class="back" href="/#${sport}-predictions">← Back to ${S} predictions</a>
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>${S} predictions</span></nav>
+  const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>${S} predictions</span></nav>
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
   <h1>${S} predictions</h1>
   ${intro}

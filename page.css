@@ -108,11 +108,10 @@ footer .links a { color: var(--muted); }
 .nlbtn { font-family: var(--f-display); font-weight: 700; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan); padding: 4px 12px; text-decoration: none; white-space: nowrap; text-shadow: 0 0 8px rgba(25,227,255,.5); margin-left: auto; margin-right: 16px; }
 .nlbtn:hover { background: rgba(25,227,255,.12); color: var(--ink); }
 header.top .wrap { justify-content: flex-start; }
-@media (max-width: 520px) { .nlbtn { padding: 3px 7px; font-size: 11px; margin-right: 4px; } header.top .brand { font-size: 17px; } header.top .wrap { gap: 8px; } header.top nav { gap: 9px; font-size: 12.5px; } }
+@media (max-width: 520px) { .nlbtn { padding: 3px 7px; font-size: 11px; margin-right: 4px; } header.top .brand { font-size: 17px; } }
 table.cal { width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0; }
 table.cal th, table.cal td { border-top: 1px solid var(--line); padding: 6px 8px; text-align: left; }
-@media (max-width: 520px) { header.top .wrap { height: auto; min-height: 60px; flex-wrap: wrap; padding-block: 8px; row-gap: 6px; } header.top nav { flex-wrap: wrap; row-gap: 4px; } }
-@media (max-width: 360px) { header.top nav { gap: 7px; font-size: 11.5px; letter-spacing: .03em; } }
+header.top .wrap { height: auto; }
 .signup.main p { margin: 0 0 10px; color: var(--muted); }
 .reading li { margin-bottom: 10px; }
 
@@ -453,3 +452,12 @@ table.cal th.n, table.cal td.n { text-align: right; font-variant-numeric: tabula
 @media (max-width: 800px) {
   table.cal { min-width: 520px; }
 }
+/* Today: one-line legend so games come up quickly, still above the filters */
+.howto.compact { padding: 10px 16px; margin-bottom: 12px; }
+.howto.compact .legend-line { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13.5px; color: var(--muted); }
+.howto.compact .legend-line .chip { font-size: 10px; }
+.howto.compact .legend-line a { margin-left: auto; white-space: nowrap; }
+
+/* Sport hub green record */
+.record-hero.green-hero a { color: inherit; text-decoration: none; }
+.record-hero.green-hero a:hover { color: var(--cyan); }

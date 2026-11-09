@@ -1,4 +1,4 @@
-// Members: waitlist + login when logged out; tipster lobby when logged in.
+// Members: sign in when logged out; tipster lobby when logged in. Waitlist is secondary.
 import { shell, html } from "../_shared/site.js";
 
 export async function onRequestGet() {
@@ -29,8 +29,8 @@ export async function onRequestGet() {
   </div>
 
   <div id="publicPane" class="hidden">
-    <h1>ProbaLab members</h1>
-    <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <h1>Sign in to ProbaLab members</h1>
+    <p>Six tipster desks are live. Sign in to open the lobby. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
     <aside class="trust-strip compact" aria-label="How we keep the record honest">
         <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
         <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
@@ -39,7 +39,7 @@ export async function onRequestGet() {
 
     <section class="panel" id="memberSignIn">
       <h2>Sign in</h2>
-      <p class="note">Members email and password open the tipster lobby.</p>
+      <p class="note">Use your members email and password to open the tipster lobby.</p>
       <form id="memberLoginForm" class="login-box">
         <label for="memberEmail">Email</label><br>
         <input id="memberEmail" type="email" required autocomplete="username" placeholder="you@example.com" style="width:100%;max-width:360px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 10px"><br>
@@ -89,13 +89,13 @@ export async function onRequestGet() {
         <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
       </details>
       <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
-        <p>Membership is opening soon — join the waitlist and we will email you when seats open. We will publish clear cancel and payment details before any paid checkout goes live. Nothing is charged from this waitlist form.</p>
+        <p>The six tipster desks are already live for members. Paid checkout is not open yet — we will publish clear cancel and payment details before any charge. The waitlist form does not charge you.</p>
       </details>
     </section>
 
     <section class="panel">
       <h2>Not a member yet?</h2>
-      <p>Join the waitlist and we will email you when more seats open.</p>
+      <p>If you don't have a login yet, join the waitlist and we will email you when a seat opens.</p>
       <form class="signup main" id="waitlistForm" action="/api/members-waitlist" method="post" data-waitlist>
         <label for="wl-email"><b>Email me when a seat opens</b></label>
         <p>No spam. Waitlist mail only.</p>
@@ -118,7 +118,7 @@ export async function onRequestGet() {
 
   const page = shell({
     title: "Members | ProbaLab",
-    description: "Sign in to ProbaLab members tipster desks, or join the waitlist. Live tipsters with their own records.",
+    description: "Sign in to ProbaLab members. Six live tipster desks, each with its own record. Join the waitlist if you don't have a login yet.",
     path: "/members",
     body,
     noindex: false,

@@ -1,0 +1,5 @@
+# /how-it-works is a stand-in until preview/method-backtest merges its real
+# methodology page (functions/how-it-works.js). Pages Functions take precedence
+# over this redirect, so that file can replace this without a conflict here.
+/how-it-works /lights 302
+/how-the-lights-work /lights 301

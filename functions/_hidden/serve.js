@@ -1,8 +1,10 @@
 // HIDDEN EPL/NHL sections. Serves the live app shell (index.html) with noindex + a sport script, so the pages
 // look exactly like the live NBA/NFL views. Not linked anywhere, not in the sitemap. Preview only.
 export async function serveHidden(ctx, sport) {
-  const parts = [].concat(ctx.params.path ?? []).filter(Boolean), id = parts.length ? (String(parts[0]).match(/-(\d+)$/) ?? [])[1] : null;
-  if (parts.length) return Response.redirect(new URL(id ? `/${sport}#game-${id}` : `/${sport}`, ctx.request.url).toString(), 302);
+  const parts = [].concat(ctx.params.path ?? []).filter(Boolean);
+  const rest = parts[0] === "app" ? parts.slice(1) : parts;
+  const id = rest.length ? (String(rest[0]).match(/-(\d+)$/) ?? [])[1] : null;
+  if (rest.length) return Response.redirect(new URL(id ? `/${sport}/app#game-${id}` : `/${sport}`, ctx.request.url).toString(), 302);
   const r = await ctx.env.ASSETS.fetch(new URL("/", ctx.request.url));
   let h = await r.text();
   // NHL live (23 Oct). EPL live with percentages only (24 Oct). Championship live (7 Nov). Tennis live (7 Nov, own script tennis.js).

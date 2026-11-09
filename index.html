@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07080f">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="favicon-16.png" sizes="16x16" type="image/png">
@@ -30,6 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/site-nav.css">
+<script>if(location.hash && location.hash!=="#home" && location.hash!=="#") document.documentElement.classList.add("not-home");</script>
 <style>
 /* Layout: night-city terminal. One column of forecast "readouts" with clipped corners on a faint grid; neon reserved for the pick and the lights. Dark only, by design. */
 :root {
@@ -75,6 +78,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 header.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(12, 14, 26, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 header.site::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, var(--magenta), var(--cyan) 40%, transparent 85%); }
 header.site .wrap { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+header.site.site-head .wrap { flex-wrap: nowrap; }
+@media (max-width: 1080px) { .toppick-slot { display: none; } }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 23px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 0; position: relative; }
 .brand b { color: var(--cyan); text-shadow: 0 0 12px rgba(25, 227, 255, 0.7); font-weight: 700; }
 .brand .p { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; margin-left: 10px; letter-spacing: 0.02em; text-transform: none; border: 1px solid var(--magenta); padding: 1px 6px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); }
@@ -96,6 +101,9 @@ h2 { font-size: 18px; font-weight: 600; letter-spacing: 0.06em; text-transform: 
 .eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
 .eyebrow::before { content: "// "; color: var(--magenta); }
 section.view { display: grid; gap: 28px; }
+html.not-home #view-home { display: none; }
+#view-home[hidden] { display: none !important; }
+.sportgrid-slot .sportgrid { min-height: 200px; }
 .stack { display: grid; gap: 14px; }
 
 /* light chips */
@@ -396,7 +404,9 @@ table.cmp td.edge { color: var(--cyan); font-weight: 700; text-shadow: 0 0 10px 
 .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .signup .small { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 .signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }.signup .cf-turnstile { margin: 10px 0 2px; }
+.toppick-slot { display: inline-flex; align-items: center; min-height: 28px; min-width: 11rem; }
 .toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
+.toppick[hidden] { display: inline-flex !important; visibility: hidden; min-width: 11rem; min-height: 28px; }
 .toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
 .toppick b { color: var(--ink); font-weight: 700; margin-right: 4px; }
 .nlbtn { font-family: var(--f-display); font-weight: 700; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan); padding: 4px 12px; text-decoration: none; white-space: nowrap; text-shadow: 0 0 8px rgba(25, 227, 255, 0.5); margin-left: auto; }
@@ -499,7 +509,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 }
 
 /* ---------- home page ---------- */
-.ticker { overflow: hidden; border-block: 1px solid var(--line-hi); background: rgba(10, 12, 24, 0.6); white-space: nowrap; font: 600 12.5px var(--f-mono); letter-spacing: 0.04em; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.ticker { min-height: 41px; overflow: hidden; border-block: 1px solid var(--line-hi); background: rgba(10, 12, 24, 0.6); white-space: nowrap; font: 600 12.5px var(--f-mono); letter-spacing: 0.04em; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
 .ticker .track { display: inline-flex; gap: 40px; padding: 10px 0; animation: tick 45s linear infinite; }
 .ticker a { color: var(--muted); text-decoration: none; }
 .ticker a b { color: var(--ink); }
@@ -508,7 +518,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .ticker a:hover b { color: var(--cyan); }
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 6px; }
-.home-green { display: grid; gap: 8px; margin: 2px 0 4px; }
+.home-green { display: grid; gap: 8px; margin: 2px 0 4px; min-height: 56px; }
 .home-green .green-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; width: fit-content; max-width: 100%; text-decoration: none; color: var(--ink); background: rgba(47, 215, 160, 0.12); border: 1px solid rgba(47, 215, 160, 0.55); padding: 10px 14px; border-radius: 10px; font-family: var(--f-mono); font-size: 14px; font-weight: 600; box-shadow: 0 0 18px rgba(47, 215, 160, 0.18); box-sizing: border-box; }
 .home-green .green-chip:hover { border-color: var(--green, #2fd7a0); color: #fff; }
 .home-green .green-chip b { color: var(--green, #2fd7a0); font-size: 16px; }
@@ -534,7 +544,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .home-hero a.btn.today-btn:hover { background: #fff; border-color: #fff; color: var(--bg); }
 @media (max-width: 640px) { .home-hero a.btn.today-btn { max-width: none; font-size: 20px; padding: 20px 18px; } }
 .btn.primary:hover { background: #fff; border-color: #fff; }
-.hp-pick { position: relative; display: grid; gap: 10px; padding: 22px; border: 1px solid var(--magenta); background: linear-gradient(160deg, rgba(255, 47, 192, 0.10), rgba(25, 227, 255, 0.04) 60%), var(--surface); text-decoration: none; color: var(--ink); clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); box-shadow: 0 0 40px rgba(255, 47, 192, 0.12); }
+.hp-pick { position: relative; display: grid; gap: 10px; padding: 22px; min-height: 280px; border: 1px solid var(--magenta); background: linear-gradient(160deg, rgba(255, 47, 192, 0.10), rgba(25, 227, 255, 0.04) 60%), var(--surface); text-decoration: none; color: var(--ink); clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); box-shadow: 0 0 40px rgba(255, 47, 192, 0.12); }
 .hp-pick .lab { font: 600 11px var(--f-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--magenta); }
 .hp-pick .num { font: 700 clamp(72px, 13vw, 132px)/0.9 var(--f-display); color: var(--cyan); text-shadow: 0 0 28px rgba(25, 227, 255, 0.55); letter-spacing: -0.02em; }
 .hp-pick .num small { font-size: 0.42em; margin-left: 2px; }
@@ -593,20 +603,25 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .card .nm a.team-link { color: inherit; text-decoration: none; } .card .nm a.team-link:hover { text-decoration: underline; }
 </style>
 
-<header class="site">
+<header class="site site-head">
   <div class="wrap">
-    <div class="brandwrap"><a class="brand" href="./" data-home>Proba<b>Lab</b></a><a class="toppick" id="topPick" hidden></a></div>
-    <a class="nlbtn" href="#newsletter" data-nl>Newsletter</a>
-    <nav class="tabs" aria-label="Site">
-      <a href="./" data-home data-top="home">Home</a>
-      <a href="#nba-predictions" data-top="sport">Predictions</a>
-      <a href="/today" data-top="today">Today</a>
-      <a href="/teams" data-top="teams">Teams</a>
-      <a href="/injuries" data-top="injuries">Injuries</a>
-      <a href="/accuracy" data-top="record">Accuracy</a>
-      <a href="/results" data-top="record">Results</a>
-      <a href="/how-it-works" data-top="about">How it works</a>
-      <a href="/members" data-top="members">Members</a>
+    <div class="brandwrap"><a class="brand" href="/" data-home>Proba<b>Lab</b></a><span class="toppick-slot"><a class="toppick" id="topPick" hidden></a></span></div>
+    <a class="nav-today" href="/today">Today</a>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">Menu</button>
+    <nav id="site-menu" class="site-nav" aria-label="Main">
+      <a href="/today">Today</a>
+      <a href="/teams">Teams</a>
+      <a href="/injuries">Injuries</a>
+      <a href="/accuracy">Accuracy</a>
+      <a href="/results">Results</a>
+      <a href="/lights">Lights</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/nba">NBA</a>
+      <a href="/nfl">NFL</a>
+      <a href="/nhl">NHL</a>
+      <a href="/about">About</a>
+      <a href="/members">Members</a>
+      <a href="#newsletter" data-nl>Newsletter</a>
     </nav>
   </div>
 </header>
@@ -657,7 +672,27 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <div class="sample" id="sampleBanner" hidden><div class="wrap"><b>Sample data.</b> Design preview with made-up teams' numbers and placeholder players. Live picks start with the NBA season.</div></div>
 
 <main class="wrap">
-  <section class="view" id="view-home" hidden></section>
+  <section class="view" id="view-home">
+    <div class="ticker ticker-slot" aria-hidden="true"><div class="track">&nbsp;</div></div>
+    <div class="home-hero">
+      <div style="display:grid;gap:14px">
+        <div class="eyebrow">Probability lab · sports predictions</div>
+        <h1>Who wins.<br><em>How likely.</em></h1>
+        <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
+        <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green record · see Results</a></div>
+        <aside class="trust-strip compact" aria-label="How we keep the record honest">
+        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+      </aside>
+        <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
+        <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
+      </div>
+      <div class="hp-pick hp-pick-slot"><span class="lab">// Top pick</span><span class="who">Loading the top pick…</span><span class="vs">Predictions are posted about 48 hours before game time.</span></div>
+    </div>
+    <section class="home-sec sportgrid-slot"><div class="head"><h2>Pick a sport</h2><span class="note">More sports are in the lab.</span></div>
+      <div class="sportgrid" aria-hidden="true"></div></section>
+  </section>
 
   <section class="view" id="view-sport" hidden>
     <div>
@@ -1172,19 +1207,14 @@ async function loadHomeGreenRecord() {
     const g = d.green || {};
     const when = fmtGreenUpdated(d.generated_at);
     const main = (g.n != null && g.w != null)
-      ? `Green picks: <b>${g.w} of ${g.n} won (${g.pct ?? "—"}%)</b>`
-      : "Green picks · see Results";
+      ? `Green ${g.w}–${g.n - g.w} (${g.pct ?? "—"}%)`
+      : "Green record · see Results";
     const updated = when
       ? `<span class="green-updated"><span class="lu">Last updated</span><span class="when">${when}</span></span>`
       : "";
-    const chips = (d.sports || []).map((s) => {
-      const gg = s.green || {};
-      const txt = gg.n ? `${s.sport === "championship" ? "Champ" : (s.name === "Premier League" ? "EPL" : s.name)} ${gg.w}/${gg.n}` : `${s.name}`;
-      return `<a href="/results?sport=${encodeURIComponent(s.sport)}">${txt}</a>`;
-    }).join("");
-    el.innerHTML = `<a class="green-chip" href="/results"><span class="green-main">${main}</span>${updated}</a><div class="sport-chips">${chips}</div>`;
+    el.innerHTML = `<a class="green-chip" href="/results"><span class="green-main"><b>${main}</b></span>${updated}</a>`;
   } catch (e) {
-    el.innerHTML = `<a class="green-chip" href="/results">Green picks · see Results →</a>`;
+    el.innerHTML = `<a class="green-chip" href="/results">Green record · see Results</a>`;
   }
 }
 
@@ -1237,13 +1267,13 @@ function renderHome() {
         <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
       </aside>
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
-        <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="#nba-predictions">NBA</a><a class="btn primary" href="#nfl-predictions">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="#about">How it works</a></div>
+        <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
       </div>
       ${pickCard}
     </div>
     <section class="home-sec"><div class="head"><h2>Pick a sport</h2><span class="note">More sports are in the lab.</span></div>
       <div class="sportgrid">${SPORTS.map(tile).join("")}</div></section>
-    <section class="home-sec"><div class="head"><h2>How the lab works</h2><a href="#about">The full method →</a></div>
+    <section class="home-sec"><div class="head"><h2>How the lab works</h2><a href="/how-it-works">The full method →</a></div>
       <div class="steps">
         <div class="panel"><span class="n">01 · RATE</span><h2>Every player</h2><p>Each player is rated from recent box scores, weighted toward the games that matter most.</p></div>
         <div class="panel"><span class="n">02 · CHECK</span><h2>Who's playing</h2><p>The injury report is read every 15 minutes, so the numbers move when a star sits.</p></div>
@@ -1806,7 +1836,13 @@ function route() {
   ["home", "sport", "game", "about"].forEach((k) => (document.getElementById("view-" + k).hidden = k !== v));
   document.getElementById("sportBar").hidden = v === "home";
   const topKey = v === "game" ? "sport" : v;
-  document.querySelectorAll("nav.tabs a").forEach((a) => a.setAttribute("aria-current", a.dataset.top === topKey ? "page" : "false"));
+  document.querySelectorAll(".site-nav a").forEach((a) => {
+    const href = a.getAttribute("href") || "";
+    let on = false;
+    if (v === "about") on = href === "/how-it-works" || href === "/about";
+    else if (v === "sport" || v === "game") on = href === (SP === "nfl" ? "/nfl" : "/nba");
+    a.setAttribute("aria-current", on ? "page" : "false");
+  });
   if (!DATA && !NFL) return;
   setTitle(v, sub);
   if (v === "home") return DATA ? renderHome() : null;
@@ -1966,7 +2002,9 @@ async function refresh() {
   });
 })();
 route();
+loadHomeGreenRecord();
 </script>
+<script src="/site-nav.js"></script>
 <script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
 <script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
