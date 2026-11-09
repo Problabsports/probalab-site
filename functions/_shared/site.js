@@ -273,7 +273,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/how-it-works">How it works</a><a href="/about">About</a><a href="/members">Members</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -283,7 +283,7 @@ ${body}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
-  <p class="links"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+  <p class="links"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/backtest">Backtest</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
