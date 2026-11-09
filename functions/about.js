@@ -18,7 +18,7 @@ export function onRequestGet() {
 <p>We publish probabilities, not certainties. A 70% pick still loses about three times in ten, and we want you to see that happen in the record rather than hear about it later.</p></section>
 <section class="panel prose"><h2>What the lights mean</h2>
 <p>Every pick carries a light, so you can see at a glance how strongly the model leans.</p>
-<ul><li><b>SUPER</b>: The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</li>
+<ul><li><b>SUPER</b> — Super, best value (NBA only): a value flag, not a higher-confidence green. The bookmaker price beats our fair price. <a href="/lights">How the lights work</a>.</li>
 <li><b>GREEN</b>: The model gives the pick 65% or more. One of our top picks.</li>
 <li><b>ORANGE</b>: A lean, 55 to 65%.</li>
 <li><b>RED</b>: Under 55%. Close to a coin flip.</li></ul></section>
