@@ -116,11 +116,12 @@ function section(id, name, games, links, extra) {
 const HOW_TO = `<section class="panel howto" id="how-to-read">
   <h2>How to read this</h2>
   <div class="legend-lights" aria-label="Light colours">
-    ${chip("SUPER")}<span>our strongest pick</span>
+    ${chip("SUPER")}<span>Super — best value (NBA; bookie price beats our fair price)</span>
     ${chip("GREEN")}<span>65%+ top pick</span>
     ${chip("ORANGE")}<span>lean (55 to 65%)</span>
     ${chip("RED")}<span>close to a coin flip (under 55%)</span>
   </div>
+  <p class="small">Those cut-offs are for NBA, NFL and NHL. Premier League and Championship greens start at 55% because a draw is possible. Tennis greens start at 70%. <a href="/lights">How the lights work</a></p>
   <ul class="howto-list">
     <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is <span class="odds" data-dec="1.6666667">1.67</span>; a 75% call is <span class="odds" data-dec="1.3333333">1.33</span>.</li>
     <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>
@@ -168,7 +169,7 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/${sport}/record">${S} record →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
+    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null));
   }
 
   {

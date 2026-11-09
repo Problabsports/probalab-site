@@ -581,7 +581,7 @@ export function renderTeamPage(sport, data, team) {
       <li>When we picked them: <b>${rate(model.onThem)}</b></li>
       <li>When we picked the other side: <b>${rate(model.against)}</b></li>
     </ul>
-    <p class="small">Same graded set as the <a href="/${sport}/record">${esc(S)} record</a> page.</p>
+    <p class="small">Same graded set as the <a href="/results?sport=${sport}">${esc(S)} results</a> page.</p>
   </section>
 
   <section class="panel"><h2>Upcoming</h2>
