@@ -17,8 +17,8 @@ export async function onRequestGet(ctx) {
   }
 
   if (parts.length !== 1) return notFound();
-  const id = String(parts[0] || "").toLowerCase();
-  if (id === "nfl-totals") id = "nfl-weather";
+  const raw = String(parts[0] || "").toLowerCase();
+  const id = raw === "nfl-totals" ? "nfl-weather" : raw;
   if (id !== "john" && id !== "sniper" && id !== "probalab" && id !== "nfl-weather" && id !== "nba-price-gap" && id !== "nhl-value") return notFound();
   return tipsDeskResponse(shell, html, id);
 }
