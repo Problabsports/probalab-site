@@ -4,9 +4,9 @@
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
   const M = window.TipsModel;
   const selectedColours = new Set(M.colours);
-  const summarySports = new Set(["NBA", "NFL", "NHL", "EPL", "CHAMP"]);
-  // Sport codes in the snapshot -> label shown on the desk (CHAMP = EFL Championship, added 7 Nov 2026)
-  const SPORT_LABEL = { CHAMP: "Championship" };
+  const summarySports = new Set(["NBA", "NFL", "NHL", "EPL", "CHAMP", "TENNIS"]);
+  // Sport codes in the snapshot -> label shown on the desk (CHAMP = EFL Championship, added 7 Nov 2026; TENNIS = ATP/WTA, added 10 Nov 2026)
+  const SPORT_LABEL = { CHAMP: "Championship", TENNIS: "Tennis" };
   const sportLabel = (s) => SPORT_LABEL[String(s || "").toUpperCase()] || s || "";
   function resolveTipster() {
     const root = document.querySelector(".tips-app[data-tipster]");
@@ -57,7 +57,7 @@
       try { const f = await (await fetch("/api/feed?sport=" + sp)).json(); (f.games || []).forEach((g) => { feedById[String(g.game_id)] = g; }); } catch (_) {}
     }
   }
-  const sports = ["NBA", "NFL", "NHL", "EPL", "CHAMP"];
+  const sports = ["NBA", "NFL", "NHL", "EPL", "CHAMP", "TENNIS"];
   const CODES = {"Atlanta Hawks": "ATL", "Boston Celtics": "BOS", "Brooklyn Nets": "BKN", "Charlotte Hornets": "CHA", "Chicago Bulls": "CHI", "Cleveland Cavaliers": "CLE", "Dallas Mavericks": "DAL", "Denver Nuggets": "DEN", "Detroit Pistons": "DET", "Golden State Warriors": "GSW", "Houston Rockets": "HOU", "Indiana Pacers": "IND", "LA Clippers": "LAC", "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL", "Memphis Grizzlies": "MEM", "Miami Heat": "MIA", "Milwaukee Bucks": "MIL", "Minnesota Timberwolves": "MIN", "New Orleans Pelicans": "NOP", "New York Knicks": "NYK", "Oklahoma City Thunder": "OKC", "Orlando Magic": "ORL", "Philadelphia 76ers": "PHI", "Phoenix Suns": "PHX", "Portland Trail Blazers": "POR", "Sacramento Kings": "SAC", "San Antonio Spurs": "SAS", "Toronto Raptors": "TOR", "Utah Jazz": "UTA", "Washington Wizards": "WAS", "Anaheim Ducks": "ANA", "Boston Bruins": "BOS", "Buffalo Sabres": "BUF", "Calgary Flames": "CGY", "Carolina Hurricanes": "CAR", "Chicago Blackhawks": "CHI", "Colorado Avalanche": "COL", "Columbus Blue Jackets": "CBJ", "Dallas Stars": "DAL", "Detroit Red Wings": "DET", "Edmonton Oilers": "EDM", "Florida Panthers": "FLA", "Los Angeles Kings": "LAK", "Minnesota Wild": "MIN", "Montreal Canadiens": "MTL", "Montr\u00e9al Canadiens": "MTL", "Nashville Predators": "NSH", "New Jersey Devils": "NJD", "New York Islanders": "NYI", "New York Rangers": "NYR", "Ottawa Senators": "OTT", "Philadelphia Flyers": "PHI", "Pittsburgh Penguins": "PIT", "San Jose Sharks": "SJS", "Seattle Kraken": "SEA", "St. Louis Blues": "STL", "St Louis Blues": "STL", "Tampa Bay Lightning": "TBL", "Toronto Maple Leafs": "TOR", "Utah Mammoth": "UTA", "Utah Hockey Club": "UTA", "Vancouver Canucks": "VAN", "Vegas Golden Knights": "VGK", "Washington Capitals": "WSH", "Winnipeg Jets": "WPG"};
   const short = (x) => String(x || "").split(" @ ").map((t) => CODES[t.trim()] || t.trim()).join(" @ ");
   const shortSel = (x) => CODES[String(x || "").trim()] || x;
@@ -582,7 +582,7 @@
     const rows = filtered(data.today || []).filter((p) => Date.parse(p.tipoff_utc) > now).sort((a, b) => Date.parse(a.tipoff_utc) - Date.parse(b.tipoff_utc));
     const by = {};
     rows.forEach((p) => { (by[p.sport] ??= []).push(p); });
-    const order = sports.filter((s) => by[s]);
+    const order = sports.filter((s) => by[s]).concat(Object.keys(by).filter((s) => !sports.includes(s)).sort());
     if (!order.length) { $("today").innerHTML = '<p class="muted">No upcoming picks.</p>'; return; }
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
