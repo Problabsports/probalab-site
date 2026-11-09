@@ -1,5 +1,11 @@
+/* Header uses a wider wrap than page content so the unified nav fits on one row. */
+header.site.site-head .wrap,
+header.top.site-head .wrap,
+.site-head > .wrap {
+  max-width: 1240px;
+}
 /* Unified site nav: one set of labels everywhere. Desktop is a single row;
-   below 1080px it collapses to logo + Today + a menu drawer (Esc closes). */
+   below 1180px it collapses to logo + Today + a menu drawer (Esc closes). */
 .site-head .wrap {
   display: flex;
   align-items: center;
@@ -15,12 +21,12 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   margin-left: auto;
   font-family: var(--f-display);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: .04em;
   font-size: 13px;
 }
 .site-nav a {
@@ -69,7 +75,7 @@
 .nav-backdrop.is-open { display: block; }
 body.nav-open { overflow: hidden; }
 
-@media (max-width: 1080px) {
+@media (max-width: 1180px) {
   .nav-today,
   .nav-toggle { display: inline-flex; align-items: center; }
   .site-nav {

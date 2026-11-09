@@ -18,7 +18,7 @@ a:hover { color: #7ff0ff; }
 .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
 .mono { font-family: var(--f-mono); }
 
-header.top { border-bottom: 1px solid var(--line); background: rgba(7,8,15,.85); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(6px); }
+header.top { border-bottom: 1px solid var(--line); background: rgba(7,8,15,.94); position: sticky; top: 0; z-index: 5; }
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); text-decoration: none; }
 .brand b { color: var(--cyan); text-shadow: 0 0 12px rgba(25,227,255,.7); }

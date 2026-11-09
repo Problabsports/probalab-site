@@ -75,11 +75,12 @@ a { color: var(--cyan); }
 
 /* header */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg-2); }
-header.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(12, 14, 26, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+header.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: rgba(12, 14, 26, 0.96); border-bottom: 1px solid var(--line); }
 header.site::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, var(--magenta), var(--cyan) 40%, transparent 85%); }
 header.site .wrap { display: flex; align-items: center; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
 header.site.site-head .wrap { flex-wrap: nowrap; }
-@media (max-width: 1080px) { .toppick-slot { display: none; } }
+/* Header top-pick chip is hidden so the unified nav has room; the hero card still shows the pick. */
+.toppick-slot { display: none !important; }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 23px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 0; position: relative; }
 .brand b { color: var(--cyan); text-shadow: 0 0 12px rgba(25, 227, 255, 0.7); font-weight: 700; }
 .brand .p { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; margin-left: 10px; letter-spacing: 0.02em; text-transform: none; border: 1px solid var(--magenta); padding: 1px 6px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); }
@@ -404,7 +405,7 @@ table.cmp td.edge { color: var(--cyan); font-weight: 700; text-shadow: 0 0 10px 
 .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .signup .small { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 .signup .msg { font-size: 13px; color: var(--cyan); margin: 6px 0 0; min-height: 1em; }.signup .cf-turnstile { margin: 10px 0 2px; }
-.toppick-slot { display: inline-flex; align-items: center; min-height: 28px; min-width: 11rem; }
+.toppick-slot { display: none; align-items: center; min-height: 28px; min-width: 11rem; }
 .toppick { color: var(--magenta); font-family: var(--f-mono); font-weight: 500; font-size: 12px; letter-spacing: 0.02em; border: 1px solid var(--magenta); padding: 2px 7px; text-shadow: 0 0 8px rgba(255, 47, 192, 0.6); text-decoration: none; white-space: nowrap; }
 .toppick[hidden] { display: inline-flex !important; visibility: hidden; min-width: 11rem; min-height: 28px; }
 .toppick small { color: var(--muted); text-shadow: none; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
