@@ -6,9 +6,9 @@ const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).t
 
 export async function onRequestGet(ctx) {
   const urls = [
-    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/today", pri: "0.95", freq: "hourly" }, { loc: "/teams", pri: "0.8", freq: "daily" }, { loc: "/injuries", pri: "0.7", freq: "hourly" }, { loc: "/tools", pri: "0.5", freq: "monthly" }, { loc: "/accuracy", pri: "0.8", freq: "daily" },
-    { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nba/today", pri: "0.9", freq: "hourly" }, { loc: "/nba/record", pri: "0.7", freq: "daily" }, { loc: "/nba/team", pri: "0.75", freq: "daily" },
-    { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nfl/today", pri: "0.9", freq: "hourly" }, { loc: "/nfl/record", pri: "0.7", freq: "daily" }, { loc: "/nfl/team", pri: "0.75", freq: "daily" },
+    { loc: "/", pri: "1.0", freq: "hourly" }, { loc: "/today", pri: "0.95", freq: "hourly" }, { loc: "/teams", pri: "0.8", freq: "daily" }, { loc: "/injuries", pri: "0.7", freq: "hourly" }, { loc: "/tools", pri: "0.5", freq: "monthly" }, { loc: "/accuracy", pri: "0.8", freq: "daily" }, { loc: "/results", pri: "0.8", freq: "daily" }, { loc: "/lights", pri: "0.6", freq: "monthly" },
+    { loc: "/nba", pri: "0.9", freq: "hourly" }, { loc: "/nba/today", pri: "0.9", freq: "hourly" }, { loc: "/nba/team", pri: "0.75", freq: "daily" },
+    { loc: "/nfl", pri: "0.9", freq: "hourly" }, { loc: "/nfl/today", pri: "0.9", freq: "hourly" }, { loc: "/nfl/team", pri: "0.75", freq: "daily" },
     { loc: "/nhl", pri: "0.9", freq: "hourly" }, { loc: "/nhl/team", pri: "0.75", freq: "daily" },
     { loc: "/epl", pri: "0.9", freq: "hourly" }, { loc: "/epl/team", pri: "0.75", freq: "daily" },
     { loc: "/championship", pri: "0.85", freq: "hourly" },
