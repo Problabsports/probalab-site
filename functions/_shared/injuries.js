@@ -1,6 +1,6 @@
 // Injury reports: ESPN public injuries feed (free), cached at the edge for 15 minutes.
 // We show only facts (player, position, our status label, injury area, date), never ESPN's written notes.
-const PATHS = { nba: "basketball/nba", nfl: "football/nfl", nhl: "hockey/nhl", epl: "soccer/eng.1" };
+const PATHS = { nba: "basketball/nba", nfl: "football/nfl", nhl: "hockey/nhl", epl: "soccer/eng.1", championship: "soccer/eng.2" };
 export const INJ_TTL = 900;
 const RANK = { Out: 0, "Injured reserve": 1, Suspended: 1, Doubtful: 2, Questionable: 3, "Day-to-day": 4, "Reduced minutes": 5, Probable: 6, Returning: 7 };
 const label = (s) => (/injured reserve|^ir$/i.test(s) ? "Injured reserve" : /susp/i.test(s) ? "Suspended" : /doubt/i.test(s) ? "Doubtful" : /question/i.test(s) ? "Questionable" : /day/i.test(s) ? "Day-to-day" : /minute|restrict/i.test(s) ? "Reduced minutes" : /probable/i.test(s) ? "Probable" : /activ|availab|return/i.test(s) ? "Returning" : /out/i.test(s) ? "Out" : null);

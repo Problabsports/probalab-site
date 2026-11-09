@@ -5,6 +5,7 @@
  // (built on the box from existing comparison CSVs — no new Odds API credits).
 import { getFeed, gamesOf, shell, html, esc, chip, slug, asHead } from "./_shared/site.js";
 import { injuryBadge } from "./_shared/injury-warning.js";
+import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
   renderFilterBar, emptyFilterMessage,
@@ -132,7 +133,7 @@ function section(id, name, games, links, extra, showMkt = true) {
 }
 
 const HOW_TO = `<section class="panel howto compact" id="how-to-read">
-  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may play fewer minutes. <a href="/lights">How to read the lights →</a></p>
+  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
 </section>`;
 
 export async function onRequestGet(ctx) {
@@ -151,6 +152,7 @@ export async function onRequestGet(ctx) {
       sections.push({ id: sport, name: S, games: null, error: true, links: "" });
       continue;
     }
+    try { await enrichGamesWithInjuries(ctx, sport, data.games); } catch (e) {}
     const upcoming = data.games
       .filter((g) => g.status !== "post" && inWindow(g.start_utc, now))
       .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
@@ -174,7 +176,7 @@ export async function onRequestGet(ctx) {
         marketP,
         value: valueOf(modelP, marketP),
         heldNote: heldNoteOf(g),
-        injuryBadgeHtml: sport === "nba" ? injuryBadge(g) : "",
+        injuryBadgeHtml: injuryBadge(g),
         start_utc: g.start_utc,
       };
     });
@@ -204,7 +206,14 @@ export async function onRequestGet(ctx) {
     });
     const upcoming = gs.filter((g) => !g.done && inWindow(g.start_utc, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
     total += upcoming.length;
-    const games = upcoming.map((g) => {
+    const nhlEnrich = upcoming.map((g) => ({
+      ...g,
+      home_name: NHLN[g.home] ?? g.home,
+      away_name: NHLN[g.away] ?? g.away,
+      status: "pre",
+    }));
+    try { await enrichGamesWithInjuries(ctx, "nhl", nhlEnrich); } catch (e) {}
+    const games = nhlEnrich.map((g) => {
       const m = marketFor(market, "nhl", g);
       const marketP = marketPick(m, g.pickSide);
       return {
@@ -212,14 +221,15 @@ export async function onRequestGet(ctx) {
         sportName: "NHL",
         href: `/nhl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
-        match: `${NHLN[g.away] ?? g.away} @ ${NHLN[g.home] ?? g.home}`,
-        matchHtml: `${teamA("nhl", NHLN[g.away] ?? g.away)} @ ${teamA("nhl", NHLN[g.home] ?? g.home)}`,
+        match: `${g.away_name} @ ${g.home_name}`,
+        matchHtml: `${teamA("nhl", g.away_name)} @ ${teamA("nhl", g.home_name)}`,
         pick: `${g.pickName} ${pct(g.p)}`,
         pickName: g.pickName,
         light: g.light,
         modelP: g.p,
         marketP,
         value: valueOf(g.p, marketP),
+        injuryBadgeHtml: injuryBadge(g),
         start_utc: g.start_utc,
       };
     });
@@ -247,7 +257,9 @@ export async function onRequestGet(ctx) {
     });
     const upcoming = gs.filter((g) => !g.done && inWindow(g.start_utc, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
     total += upcoming.length;
-    const games = upcoming.map((g) => {
+    const eplEnrich = upcoming.map((g) => ({ ...g, home_name: g.home, away_name: g.away, status: "pre" }));
+    try { await enrichGamesWithInjuries(ctx, "epl", eplEnrich); } catch (e) {}
+    const games = eplEnrich.map((g) => {
       const m = marketFor(market, "epl", g);
       const marketP = marketPick(m, g.pick);
       return {
@@ -263,6 +275,7 @@ export async function onRequestGet(ctx) {
         modelP: g.p,
         marketP,
         value: valueOf(g.p, marketP),
+        injuryBadgeHtml: injuryBadge(g),
         start_utc: g.start_utc,
       };
     });
@@ -290,7 +303,9 @@ export async function onRequestGet(ctx) {
     });
     const upcoming = gs.filter((g) => !g.done && inWindow(g.start_utc, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
     total += upcoming.length;
-    const games = upcoming.map((g) => ({
+    const chEnrich = upcoming.map((g) => ({ ...g, home_name: g.home, away_name: g.away, status: "pre" }));
+    try { await enrichGamesWithInjuries(ctx, "championship", chEnrich); } catch (e) {}
+    const games = chEnrich.map((g) => ({
       key: `championship:${g.id}`,
       sportName: "Championship",
       href: `/championship#game-${g.id}`,
@@ -303,6 +318,7 @@ export async function onRequestGet(ctx) {
       modelP: g.p,
       marketP: null,
       value: null,
+      injuryBadgeHtml: injuryBadge(g),
       start_utc: g.start_utc,
     }));
     sections.push({

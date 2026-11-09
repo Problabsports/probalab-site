@@ -10,6 +10,7 @@ import {
   renderFilterBar, emptyFilterMessage,
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
+import { enrichGamesWithInjuries } from "./injury-enrich.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -32,6 +33,21 @@ export async function getFeed(ctx, sport) {
     feed = JSON.parse(body);
   }
   try { feed.__hostname = new URL(ctx.request.url).hostname; } catch (_) {}
+  // Attach injury_warning/note for sports the feed does not yet ship (NFL now; NBA keeps feed fields).
+  try {
+    if (Array.isArray(feed.games)) {
+      const names = sport === "nfl"
+        ? Object.fromEntries((feed.teams ?? []).map(([a, n]) => [a, n]))
+        : null;
+      if (names) {
+        for (const g of feed.games) {
+          g.home_name = g.home_name || names[g.home] || g.home;
+          g.away_name = g.away_name || names[g.away] || g.away;
+        }
+      }
+      await enrichGamesWithInjuries(ctx, sport, feed.games);
+    }
+  } catch (_) {}
   return feed;
 }
 
@@ -399,7 +415,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
         <span class="team r ${g.pick === g.home ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(H)}"><span class="ab">${esc(g.home)}</span>${esc(H)}</a><span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
       <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
-      ${g.sport === "nba" ? injuryBadge(g) : ""}
+      ${injuryBadge(g)}
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
@@ -441,7 +457,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
 
 export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
-  const warn = g.sport === "nba" ? injuryBadge(g) : "";
+  const warn = injuryBadge(g);
   return `<li class="${warn ? "has-injury-watch" : ""}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
     <span class="p">${g.pick ? `${esc(g.pick)} ${pct(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
 }
