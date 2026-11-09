@@ -273,7 +273,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/how-it-works">How it works</a><a href="/about">About</a><a href="/members">Members</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/results">Results</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
