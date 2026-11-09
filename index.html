@@ -650,6 +650,33 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .social-cta-stack { display: grid; gap: 8px; width: fit-content; max-width: 100%; margin: 2px 0 4px; }
 .social-footer { margin: 0 0 12px; }
 
+.record-cta-wrap { display: grid; gap: 6px; width: fit-content; max-width: 100%; margin: 2px 0 4px; }
+.record-cta {
+  display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
+  color: var(--cyan); border: 1px solid rgba(25, 227, 255, 0.55);
+  background: rgba(25, 227, 255, 0.1);
+  box-shadow: 0 0 16px rgba(25, 227, 255, 0.22), 0 0 28px rgba(255, 47, 192, 0.12);
+  font-family: var(--f-display); font-weight: 700; letter-spacing: 0.02em;
+  padding: 10px 14px; border-radius: 10px; width: fit-content; max-width: 100%;
+  transition: color .15s, border-color .15s, background .15s, box-shadow .15s;
+}
+.record-cta:hover, .record-cta:focus-visible {
+  color: #fff; border-color: var(--magenta); background: rgba(255, 47, 192, 0.16);
+  box-shadow: 0 0 22px rgba(255, 47, 192, 0.35), 0 0 18px rgba(25, 227, 255, 0.25); outline: none;
+}
+.record-cta-ico { flex: 0 0 auto; font-size: 16px; line-height: 1; filter: drop-shadow(0 0 6px rgba(25, 227, 255, 0.55)); }
+.record-cta-text { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; line-height: 1.25; }
+.record-cta b { color: var(--ink); font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; }
+.record-cta small { color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: 0.02em; text-transform: none; }
+.record-cta:hover b { color: #fff; }
+.record-cta:hover small { color: #e8ecf8; }
+.record-cta-csv {
+  font: 600 11.5px var(--f-mono); letter-spacing: 0.04em; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 3px; width: fit-content; padding-left: 2px;
+}
+.record-cta-csv:hover { color: var(--cyan); }
+
+
 
 </style>
 
@@ -740,11 +767,14 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
         <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green record · see Results</a></div>
         <div id="discordHeroSlot"></div>
-        <aside class="trust-strip compact" aria-label="How we keep the record honest">
-        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
-        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
-        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
-      </aside>
+        <div class="record-cta-wrap">
+        <a class="record-cta" href="/results">
+          <span class="record-cta-ico" aria-hidden="true">◎</span>
+          <span class="record-cta-text"><b>Full record, losses included</b><small>Timestamped · CLV · CSV download</small></span>
+        </a>
+        <a class="record-cta-csv" href="/results.csv">Download CSV</a>
+      </div>
+
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
         <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
       </div>
@@ -893,10 +923,6 @@ const EAST = new Set(["ATL","BOS","BKN","CHA","CHI","CLE","DET","IND","MIA","MIL
 const seasonLabel = (s) => `${s - 1}–${String(s).slice(2)}`;
 const SEASONS = { 2027: "2026–27", 2026: "2025–26" };
 
-function sampleFeed() {
-  let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  const codes = Object.keys(TEAMS); const games = []; let id = 1;
-  const lightOf = (p, sup) => sup ? "SUPER" : p >= 0.65 ? "GREEN" : p >= 0.55 ? "ORANGE" : "RED";
 function normalizeNbaGameLight(g) {
   if (!g || g.pick_p == null || !g.light) return g;
   const p = Number(g.pick_p);
@@ -904,6 +930,11 @@ function normalizeNbaGameLight(g) {
   else if (g.light === "SUPER" && p < 0.6) g.light = p >= 0.55 ? "ORANGE" : "RED";
   return g;
 }
+
+function sampleFeed() {
+  let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const codes = Object.keys(TEAMS); const games = []; let id = 1;
+  const lightOf = (p, sup) => sup ? "SUPER" : p >= 0.65 ? "GREEN" : p >= 0.55 ? "ORANGE" : "RED";
   const STAT = ["Out", "Doubtful", "Questionable"];
   const missing = (n) => Array.from({ length: n }, (_, i) => ({ player: "Sample player " + (i + 1), status: STAT[Math.floor(rnd() * 3)], min: +(14 + rnd() * 20).toFixed(1) }));
   function make(startMs, settled, season, withPick = true) {
@@ -1375,11 +1406,14 @@ function renderHome() {
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
         <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green picks: loading…</a></div>
         <div id="discordHeroSlot"></div>
-        <aside class="trust-strip compact" aria-label="How we keep the record honest">
-        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
-        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
-        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
-      </aside>
+        <div class="record-cta-wrap">
+        <a class="record-cta" href="/results">
+          <span class="record-cta-ico" aria-hidden="true">◎</span>
+          <span class="record-cta-text"><b>Full record, losses included</b><small>Timestamped · CLV · CSV download</small></span>
+        </a>
+        <a class="record-cta-csv" href="/results.csv">Download CSV</a>
+      </div>
+
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
         <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
       </div>
