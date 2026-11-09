@@ -381,3 +381,33 @@ table.record-picks a:hover { color: var(--cyan); }
 }
 
 .held-note { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.35; }
+
+/* Trust strip */
+.trust-strip {
+  display: grid; gap: 10px; margin: 14px 0 18px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 800px) {
+  .trust-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.trust-strip .trust-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px; border: 1px solid var(--line-hi);
+  border-radius: 10px; background: rgba(47,215,160,.04);
+  color: var(--ink); text-decoration: none; font-size: 13px; line-height: 1.4;
+}
+.trust-strip .trust-item:hover { border-color: var(--green); color: var(--green); }
+.trust-ico { color: var(--green); font-size: 16px; line-height: 1.2; }
+.trust-strip.compact { margin: 10px 0 14px; }
+.units-tiles {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px;
+}
+.units-tiles > div {
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: rgba(47,215,160,.05);
+}
+.units-tiles .ut-k { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.units-tiles b { font-size: 20px; color: var(--green); }
+.units-tiles b.neg { color: var(--red); }
+@media (max-width: 640px) {
+  .units-tiles { grid-template-columns: 1fr; }
+}

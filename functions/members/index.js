@@ -21,11 +21,21 @@ export async function onRequestGet() {
     <p id="lobbyMeta" class="subline"></p>
     <p id="lobbyMsg" class="msg"></p>
     <div id="tipsterCards" class="tipster-grid"></div>
+    <aside class="trust-strip compact" aria-label="How we keep the record honest">
+        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+      </aside>
   </div>
 
   <div id="publicPane" class="hidden">
     <h1>ProbaLab members</h1>
     <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <aside class="trust-strip compact" aria-label="How we keep the record honest">
+        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+      </aside>
 
     <section class="panel" id="memberSignIn">
       <h2>Sign in</h2>

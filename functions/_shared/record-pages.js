@@ -427,13 +427,15 @@ function sportGreenCard(v) {
 }
 
 
-/** Sen.Bets-style neon cumulative chart for green (+ Super) hits on Results. */
+/** Sen.Bets-style neon cumulative units chart for finished Green picks with a recorded price. */
 function resultsGrowthChart(allRows, filters) {
   const sport = filters.sport || "all";
   const sportsPresent = new Set(allRows.map((r) => r.sport).filter(Boolean));
-  const pool = allRows.filter((r) => (sport === "all" || r.sport === sport) && isTip(r.light) && r.won != null && r.start_utc)
+  const greens = allRows.filter((r) => (sport === "all" || r.sport === sport) && r.light === "GREEN" && r.won != null && r.start_utc)
     .slice()
     .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
+  const withPrice = greens.filter((g) => g.posted_price != null && Number(g.posted_price) > 1);
+  const excluded = greens.length - withPrice.length;
   const pills = ["all", ...SPORT_ORDER.filter((s) => sportsPresent.has(s))].map((id) => {
     const on = sport === id;
     const href = resultsHref({ sport: id, light: filters.light || "green" }) + "#growth";
@@ -443,26 +445,32 @@ function resultsGrowthChart(allRows, filters) {
       : `<a class="gf-btn" href="${esc(href)}">${esc(label)}</a>`;
   }).join("");
 
-  if (!pool.length) {
+  const basis = "Flat 1 unit on every Green pick at the price shown at the time (posted bookmaker price before the start).";
+  const excludeNote = excluded
+    ? ` ${excluded} finished green pick${excluded === 1 ? "" : "s"} had no recorded price and ${excluded === 1 ? "is" : "are"} excluded.`
+    : "";
+
+  if (!withPrice.length) {
     return `<section class="panel" id="growth">
-      <h2>Green performance</h2>
+      <h2>Green units</h2>
+      <p class="small">${esc(basis)}${esc(excludeNote)}</p>
       <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
-      <p class="muted">No finished green or Super — best value picks in this view yet.</p>
+      <p class="muted">No finished green picks with a recorded price in this view yet.</p>
     </section>`;
   }
 
-  // Cumulative flat +1 / −1 on green + Super (paper hits, not staking advice).
+  const unitOf = (g) => (g.won ? Number(g.posted_price) - 1 : -1);
   let run = 0;
   const pts = [];
   const byMonth = {};
-  for (const g of pool) {
-    run += g.won ? 1 : -1;
+  for (const g of withPrice) {
+    const u = unitOf(g);
+    run += u;
     const day = String(g.start_utc).slice(0, 10);
-    pts.push({ date: day, units: run, won: g.won });
+    pts.push({ date: day, units: run, won: g.won, u });
     const m = day.slice(0, 7);
-    byMonth[m] = (byMonth[m] || 0) + (g.won ? 1 : -1);
+    byMonth[m] = (byMonth[m] || 0) + u;
   }
-  // Collapse to last point per day for a clean line
   const byDay = new Map();
   pts.forEach((p) => byDay.set(p.date, p));
   const series = [...byDay.values()];
@@ -472,12 +480,12 @@ function resultsGrowthChart(allRows, filters) {
   const start = Date.parse(dates[0]), end = Date.parse(dates[dates.length - 1]);
   const vals = [0, ...series.map((p) => p.units)];
   const span = Math.max(1, Math.max(...vals) - Math.min(...vals));
-  const step = [1, 2, 5, 10, 20, 50].find((st) => span / st <= 8) || 100;
+  const step = [0.5, 1, 2, 5, 10, 20, 50].find((st) => span / st <= 8) || 100;
   const low = Math.floor(Math.min(...vals) / step) * step;
   const high = Math.ceil(Math.max(...vals) / step) * step || step;
   const x = (d) => L + (Date.parse(d) - start) / Math.max(864e5, end - start) * (W - L - R);
   const y = (v) => T + (high - v) / Math.max(step, high - low) * (H - T - B);
-  const fu = (v) => `${v > 0 ? "+" : ""}${v}`;
+  const fu = (v) => `${v > 0 ? "+" : ""}${Number(v).toFixed(Math.abs(v) >= 10 && Number.isInteger(v) ? 0 : 2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1")}`;
   const dfmt = (d) => {
     try {
       return new Intl.DateTimeFormat("en-AU", { day: "2-digit", month: "short", timeZone: "UTC" }).format(new Date(d + "T00:00:00Z"));
@@ -512,38 +520,67 @@ function resultsGrowthChart(allRows, filters) {
   });
   const last = series[series.length - 1];
   const endDot = `<circle cx="${x(last.date)}" cy="${y(last.units)}" r="5" fill="#2fd7a0" stroke="#07080f" stroke-width="2"/>`
-    + `<text x="${x(last.date) - 8}" y="${y(last.units) - 10}" text-anchor="end" fill="#2fd7a0" font-weight="700">${fu(last.units)}</text>`;
+    + `<text x="${x(last.date) - 8}" y="${y(last.units) - 10}" text-anchor="end" fill="#2fd7a0" font-weight="700">${fu(last.units)}u</text>`;
 
   let bestM = null, bestV = -Infinity;
   for (const [m, v] of Object.entries(byMonth)) {
     if (v > bestV) { bestV = v; bestM = m; }
   }
-  const w = pool.filter((g) => g.won).length, n = pool.length;
+  const n = withPrice.length;
+  const total = last.units;
+  const roi = n ? (total / n) : 0;
+  const roiPct = `${roi > 0 ? "+" : roi < 0 ? "−" : ""}${Math.abs(roi * 100).toFixed(1)}%`;
+  const growthPct = roiPct; // flat 1u → growth % equals ROI
+  const monthLabel = (m) => {
+    if (!m) return "—";
+    try {
+      return new Intl.DateTimeFormat("en-AU", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(m + "-01T00:00:00Z"));
+    } catch { return m; }
+  };
+  const tiles = `<div class="units-tiles" aria-label="Green units summary">
+    <div><span class="ut-k">Total units</span><b class="${total >= 0 ? "pos" : "neg"}">${fu(total)}u</b></div>
+    <div><span class="ut-k">ROI / growth</span><b class="${roi >= 0 ? "pos" : "neg"}">${esc(roiPct)}</b></div>
+    <div><span class="ut-k">Picks priced</span><b>${n}</b></div>
+  </div>`;
   const summary = `<div class="chart-summary">
-    <span>Total <b class="${last.units >= 0 ? "pos" : ""}">${fu(last.units)}</b> <small>(flat ±1 on green + Super)</small></span>
-    <span>Best month <b>${bestM ? `${esc(bestM)} (${fu(bestV)})` : "—"}</b></span>
-    <span>Hit <b>${n ? pct(w / n) : "—"}</b> <small>${w} of ${n}</small></span>
+    <span>Total profit <b class="${total >= 0 ? "pos" : "neg"}">${fu(total)}u</b></span>
+    <span>Best month <b>${bestM ? `${esc(monthLabel(bestM))} (${fu(bestV)}u)` : "—"}</b></span>
+    <span>ROI <b class="${roi >= 0 ? "pos" : "neg"}">${esc(roiPct)}</b> <small>${n} × 1u</small></span>
   </div>`;
 
   return `<section class="panel" id="growth">
-    <h2>Green performance</h2>
-    <p class="small">Cumulative flat +1 / −1 on finished Green and Super — best value picks only. Not a staking plan — a paper track of the stronger calls.</p>
+    <h2>Green units</h2>
+    <p class="small">${esc(basis)} Not a staking plan — a paper track on the public green record.${esc(excludeNote)}</p>
+    ${tiles}
     <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
     <div class="chart-wrap">
-      <svg class="units-chart results-growth" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cumulative green and Super hits">
+      <svg class="units-chart results-growth" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cumulative green units at posted price">
         <defs><linearGradient id="resultsAreaGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#2fd7a0" stop-opacity="0.35"/>
           <stop offset="100%" stop-color="#2fd7a0" stop-opacity="0"/>
-        </linearGradient></defs>
+        </linearGradient>
+        <filter id="resultsGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
         ${grid}
         ${area ? `<path d="${area}" fill="url(#resultsAreaGrad)"></path>` : ""}
-        ${line ? `<path d="${line}" fill="none" stroke="#2fd7a0" stroke-width="3" stroke-linejoin="round"/>` : ""}
+        ${line ? `<path d="${line}" fill="none" stroke="#2fd7a0" stroke-width="3" stroke-linejoin="round" filter="url(#resultsGlow)"/>` : ""}
         ${endDot}
-        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative green hits</text>
+        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units · green · posted price</text>
       </svg>
     </div>
     ${summary}
   </section>`;
+}
+
+export function trustStrip({ compact = false } = {}) {
+  const cls = compact ? "trust-strip compact" : "trust-strip";
+  return `<aside class="${cls}" aria-label="How we keep the record honest">
+    <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+    <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+    <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+  </aside>`;
 }
 
 export function renderResultsPage(views, filters = { sport: "all", light: "green" }) {
@@ -573,7 +610,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
     ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a></p>
-    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. The public record is wins and losses, not staking units.</p>
+    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Paper units below use the recorded posted price only — still not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Results</span></nav>
@@ -581,6 +618,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   <h1>Results</h1>
   <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all.</p>
   ${overall}
+  ${trustStrip()}
   ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
   ${signupMain("results")}
