@@ -108,13 +108,10 @@ function section(id, name, games, links, extra, showMkt = true) {
       <p>No ${esc(name)} games tip off in the next 24 hours.</p>
       <p class="small">${links}</p></section>`;
   }
-  const valued = showMkt ? games.filter(qualifiesValue) : [];
-  const withMarket = showMkt && games.some((g) => g.value != null);
+  // Value-pick count line removed (John 10 Nov 2026) — Value badges on rows remain.
   const valueNote = !showMkt
     ? `<p class="best-line small">Market columns are hidden while the on-file market file is older than 24 hours.</p>`
-    : valued.length
-    ? `<p class="best-line">${valued.length} value pick${valued.length === 1 ? "" : "s"} (GREEN/SUPER and at least +3.0 vs the market).</p>`
-    : `<p class="best-line small">No standout value today${withMarket ? "" : " — market chances not on file for these games yet"}.</p>`;
+    : "";
   const rows = HEAD(showMkt) + games.map((g) => todayRow(g, showMkt)).join("");
   return `<section class="panel" id="${id}"><h2>${esc(name)}${extra ? ` · ${esc(extra)}` : ""}</h2>
   ${valueNote}
@@ -382,9 +379,9 @@ export async function onRequestGet(ctx) {
   <h1>Today's predictions: every sport</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
   Filter by sport and light colour — same idea as the members desk. Default is Green + Best value, matching <a href="/results">Results</a>.</p>
-  ${filterBar}
   <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
+  ${filterBar}
   ${bodyList}
   <p class="small">${marketNote}${market.gaps?.length ? ` Gaps: ${esc(market.gaps.join("; "))}.` : ""}</p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
