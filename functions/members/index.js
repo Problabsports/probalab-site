@@ -44,12 +44,12 @@ export async function onRequestGet() {
       <h2>Live tipster desks</h2>
       <p>Sign in to open a desk. Each tipster keeps its own record, separate from the public board.</p>
       <ul class="desk-list">
-        <li><b>John</b> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
-        <li><b>ProbaLab</b> — site greens and supers across NBA, NFL, NHL and EPL</li>
-        <li><b>Closing Line Sniper</b> — selective Closing Line tips</li>
-        <li><b>NFL Totals</b> — NFL overs and unders</li>
-        <li><b>NBA Price Gap</b> — NBA moneylines when AU books beat Pinnacle</li>
-        <li><b>NHL Value</b> — NHL moneylines at or above model fair</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John</b></button> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — selective Closing Line tips</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nfl-weather" aria-expanded="false" aria-haspopup="dialog"><b>NFL Totals</b></button> — NFL overs and unders</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nba-price-gap" aria-expanded="false" aria-haspopup="dialog"><b>NBA Price Gap</b></button> — NBA moneylines when AU books beat Pinnacle</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nhl-value" aria-expanded="false" aria-haspopup="dialog"><b>NHL Value</b></button> — NHL moneylines at or above model fair</li>
       </ul>
       <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
     </section>

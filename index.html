@@ -744,7 +744,7 @@ function sampleFeed() {
 function normalizeNbaGameLight(g) {
   if (!g || g.pick_p == null || !g.light) return g;
   const p = Number(g.pick_p);
-  if (g.light === "GREEN" && p < 0.65) g.light = p >= 0.6 ? "SUPER" : p >= 0.55 ? "ORANGE" : "RED";
+  if (g.light === "GREEN" && p < 0.65) g.light = p >= 0.55 ? "ORANGE" : "RED"; // held value → threshold light, never SUPER
   else if (g.light === "SUPER" && p < 0.6) g.light = p >= 0.55 ? "ORANGE" : "RED";
   return g;
 }

@@ -78,6 +78,13 @@ const MARKET_STALE_MS = 24 * 3600e3;
 const isTipLight = (l) => l === "GREEN" || l === "SUPER";
 const qualifiesValue = (g) => isTipLight(g.light) && g.value != null && g.value >= VALUE_MIN;
 
+function heldNoteOf(g) {
+  const d = g.detail && typeof g.detail === "object" ? g.detail : {};
+  const raw = g.case_against ?? g.held_note ?? g.hold_note ?? d.case_against ?? d.held_note ?? d.hold_note;
+  const s = raw == null ? "" : String(raw).trim();
+  return s || "";
+}
+
 function todayRow(g, showMkt) {
   const v = g.value;
   let gapCls = "";
@@ -89,12 +96,13 @@ function todayRow(g, showMkt) {
   const gapTxt = v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v * 100).toFixed(1)}%`;
   const valued = showMkt && qualifiesValue(g);
   const matchHtml = g.matchHtml || esc(g.match);
+  const held = g.heldNote ? `<span class="held-note">${esc(g.heldNote)}</span>` : "";
   const mktCols = showMkt ? `
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
-    <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}</span>
+    <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
       <span class="p">${esc(g.pick)}</span>${chip(g.light)}
       <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>${mktCols}
@@ -176,6 +184,7 @@ export async function onRequestGet(ctx) {
         modelP,
         marketP,
         value: valueOf(modelP, marketP),
+        heldNote: heldNoteOf(g),
         start_utc: g.start_utc,
       };
     });

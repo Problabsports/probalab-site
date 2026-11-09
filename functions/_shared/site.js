@@ -38,14 +38,14 @@ export function gamesOf(sport, feed) {
     pick_p: g.pick_p == null ? null : Number(g.pick_p), clv: g.clv == null ? null : Number(g.clv),
     fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
-  // NBA light guard: Green is 65%+. A feed GREEN below 65% is almost always a mis-tagged
-  // Super — best value pick (value flag, can sit in the 60–65% band). Demote anything else.
+  // NBA light guard: Green is 65%+. A feed GREEN below 65% is a held value pick
+  // (injury uncertainty) — keep the threshold light (Orange/Red), never promote to SUPER.
   if (sport === "nba") {
     for (const g of games) {
       if (g.pick_p == null || !g.light) continue;
       const p = Number(g.pick_p);
       if (g.light === "GREEN" && p < 0.65) {
-        g.light = p >= 0.6 ? "SUPER" : p >= 0.55 ? "ORANGE" : "RED";
+        g.light = p >= 0.55 ? "ORANGE" : "RED";
       } else if (g.light === "SUPER" && p < 0.6) {
         g.light = p >= 0.55 ? "ORANGE" : "RED";
       }
