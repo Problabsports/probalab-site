@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-09T20:26:08Z",
+  "generated_at": "2026-11-09T21:26:30Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -465,7 +465,7 @@
       "round": "Round 1",
       "court": "Center Court",
       "start_utc": "2026-11-09T20:00:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Leo Borg",
       "player_b": "Toby Samuel",
       "a_pct": 26.1,
@@ -473,10 +473,10 @@
       "pick": "b",
       "pick_pct": 73.9,
       "light": "GREEN",
-      "winner": null,
-      "score": "2-3",
+      "winner": "b",
+      "score": "3-6 2-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187381",
@@ -497,7 +497,7 @@
       "pick_pct": 62.2,
       "light": "ORANGE",
       "winner": null,
-      "score": "0-0",
+      "score": "7-6 0-0",
       "retired": false,
       "result": null
     },
@@ -663,6 +663,29 @@
       "result": null
     },
     {
+      "id": "186543",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "Center Court",
+      "start_utc": "2026-11-10T18:30:00Z",
+      "status": "pre",
+      "player_a": "Lorenzo Musetti",
+      "player_b": "Toby Samuel",
+      "a_pct": 79.9,
+      "b_pct": 20.1,
+      "pick": "a",
+      "pick_pct": 79.9,
+      "light": "GREEN",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187372",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -709,29 +732,6 @@
       "result": null
     },
     {
-      "id": "186542",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Round 2",
-      "court": "",
-      "start_utc": "2026-11-11T05:00:00Z",
-      "status": "pre",
-      "player_a": "Borna Gojo",
-      "player_b": "Ugo Humbert",
-      "a_pct": 30.2,
-      "b_pct": 69.8,
-      "pick": "b",
-      "pick_pct": 69.8,
-      "light": "ORANGE",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "187378",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -755,7 +755,7 @@
       "result": null
     },
     {
-      "id": "187371",
+      "id": "187384",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
       "tournament": "FAGE WTA Finals Indian Wells",
@@ -765,13 +765,13 @@
       "court": "",
       "start_utc": "2026-11-11T05:00:00Z",
       "status": "pre",
-      "player_a": "Marta Kostyuk",
-      "player_b": "Coco Gauff",
-      "a_pct": 32.9,
-      "b_pct": 67.1,
+      "player_a": "Mirra Andreeva",
+      "player_b": "Karolina Muchova",
+      "a_pct": 47.5,
+      "b_pct": 52.5,
       "pick": "b",
-      "pick_pct": 67.1,
-      "light": "ORANGE",
+      "pick_pct": 52.5,
+      "light": "RED",
       "winner": null,
       "score": null,
       "retired": false,
@@ -824,6 +824,29 @@
       "result": null
     },
     {
+      "id": "186542",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Borna Gojo",
+      "player_b": "Ugo Humbert",
+      "a_pct": 30.2,
+      "b_pct": 69.8,
+      "pick": "b",
+      "pick_pct": 69.8,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187379",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -847,7 +870,7 @@
       "result": null
     },
     {
-      "id": "187384",
+      "id": "187371",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
       "tournament": "FAGE WTA Finals Indian Wells",
@@ -857,13 +880,13 @@
       "court": "",
       "start_utc": "2026-11-11T05:00:00Z",
       "status": "pre",
-      "player_a": "Mirra Andreeva",
-      "player_b": "Karolina Muchova",
-      "a_pct": 47.5,
-      "b_pct": 52.5,
+      "player_a": "Marta Kostyuk",
+      "player_b": "Coco Gauff",
+      "a_pct": 32.9,
+      "b_pct": 67.1,
       "pick": "b",
-      "pick_pct": 52.5,
-      "light": "RED",
+      "pick_pct": 67.1,
+      "light": "ORANGE",
       "winner": null,
       "score": null,
       "retired": false,
@@ -895,11 +918,11 @@
   ],
   "record": {
     "ALL": {
-      "won": 13,
+      "won": 14,
       "lost": 4
     },
     "GREEN": {
-      "won": 4,
+      "won": 5,
       "lost": 1
     },
     "ORANGE": {
