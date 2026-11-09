@@ -13,7 +13,7 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>What do the lights mean?</h2>
-  <p>Green, orange and red show how strongly the model leans. Cut-offs differ by sport: 65%+ green in the NBA, NFL and NHL; 55%+ in the Premier League and Championship; 70%+ in tennis. <a href="/lights">How the lights work</a> explains each scale.</p>
+  <p>Green, orange and red show how strongly the model leans. Cut-offs differ by sport: 65%+ green in the NBA, NFL and NHL; 55%+ in the Premier League and Championship; 70%+ in tennis. <a href="/lights">How the lights work</a> explains each scale. <a href="/how-it-works">How it works</a> covers the models themselves.</p>
 </section>
 <section class="panel prose">
   <h2>What is Super — best value?</h2>
@@ -21,7 +21,11 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>Where is the track record?</h2>
-  <p>The <a href="/results">Results</a> page shows finished picks across every sport, with green first. Orange and red stay on the record too — nothing is deleted.</p>
+  <p>The <a href="/results">Results</a> page shows finished picks across every sport, with green first. Orange and red stay on the record too — nothing is deleted. Every pick is timestamped before the start, and you can <a href="/results.csv">download the CSV</a>. “Vs close” is there when we have a price.</p>
+</section>
+<section class="panel prose">
+  <h2>Do you have a longer history than the live site?</h2>
+  <p>The live site is recent. Past-season tests of the models are on the <a href="/backtest">backtest page</a>, clearly labelled as a backtest and kept separate from the live results. A backtest is not a record of tips we published at the time, and we do not add it into the live green totals.</p>
 </section>
 <section class="panel prose">
   <h2>Is this betting advice?</h2>

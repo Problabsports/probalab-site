@@ -601,14 +601,14 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
     ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
-    <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a></p>
+    <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
     <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Paper units below use the recorded posted price only — still not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Results</span></nav>
   <p class="eyebrow">// every sport · green first</p>
   <h1>Results</h1>
-  <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all.</p>
+  <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all. These are the live, timestamped results only. Past-season tests are on the <a href="/backtest">backtest page</a>, kept separate, and the method is on <a href="/how-it-works">How it works</a>.</p>
   ${overall}
   ${trustStrip()}
   ${resultsGrowthChart(allRows, filters)}
@@ -718,7 +718,7 @@ export function renderLightsPage() {
       <div><span>${chip("ORANGE")}</span><p>A lean, 55 to 65%.</p></div>
       <div><span>${chip("RED")}</span><p>Under 55%. Close to a coin flip.</p></div>
     </div>
-    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price (with a cap on how large that gap can be). If there is injury uncertainty, the pick is shown as green instead. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price (with a cap on how large that gap can be). If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
     <p>In a 2025–26 test of 162 Super games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 
@@ -747,7 +747,7 @@ export function renderLightsPage() {
       <li>A green pick can still lose. A 70% call is meant to miss about three times in ten.</li>
       <li>Lights are assigned from the frozen pre-start chance. They are not changed after the result.</li>
     </ul>
-    <p><a href="/results">Results for every sport →</a> · <a href="/accuracy">Accuracy and calibration →</a></p>
+    <p><a href="/results">Results for every sport →</a> · <a href="/how-it-works">How it works →</a> · <a href="/backtest">Backtest — not live results →</a> · <a href="/accuracy">Accuracy and calibration →</a></p>
   </section>`;
   return shell({
     title: "How the Lights Work | ProbaLab",
