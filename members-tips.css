@@ -129,3 +129,44 @@ a.tipster-card.live:hover {
 .tips-back { margin: 0 0 6px; }
 .tips-back a { color: var(--cyan); text-decoration: none; }
 .tips-back a:hover { text-decoration: underline; }
+
+/* John Sportsbet multi form */
+.john-multi-actions { display: inline-flex; gap: 8px; align-items: center; margin-left: 4px; }
+.tips-tabs .btn-add-multi {
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan);
+  padding: 8px 12px; cursor: pointer;
+}
+.tips-tabs .btn-add-multi:hover {
+  color: #07080f; background: var(--cyan); border-color: var(--cyan);
+}
+.btn-secondary, .btn-danger {
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; border: 1px solid var(--line-hi); background: transparent; color: var(--ink);
+  padding: 8px 12px; cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn-danger { border-color: #f87171; color: #f87171; }
+.multi-form .multi-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin: 0 0 12px;
+}
+.multi-form label { display: block; font-size: 13px; }
+.multi-form input, .multi-form select {
+  display: block; width: 100%; margin-top: 4px; background: var(--bg); color: var(--ink);
+  border: 1px solid var(--line-hi); padding: 8px 10px; font: 14px var(--f-body);
+}
+.multi-legs { display: grid; gap: 10px; margin: 0 0 10px; }
+.multi-leg {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;
+  border: 1px solid var(--line); padding: 10px; background: var(--surface);
+}
+.multi-form-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.multi-admin-list { list-style: none; padding: 0; margin: 12px 0 0; }
+.multi-admin-list li { margin: 0 0 6px; }
+.multi-admin-list button { background: none; border: 0; color: var(--cyan); cursor: pointer; font: inherit; padding: 0; }
+.multi-row details { margin: 0; }
+.multi-row summary { cursor: pointer; list-style: none; }
+.multi-row summary::-webkit-details-marker { display: none; }
+.multi-legs-table { width: 100%; margin-top: 6px; font-size: 13px; }
+.multi-legs-table td { padding: 2px 6px; }
+.chip.MULTI { background: #1f2937; color: #93c5fd; }
