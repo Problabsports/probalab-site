@@ -20,9 +20,6 @@ export function tipsDeskBody(tipsterId = "john") {
     <div id="appPane" class="hidden">
       <div class="tips-toolbar">
         <span id="who" class="muted"></span>
-        <span id="johnMultiActions" class="john-multi-actions hidden">
-          <button type="button" id="addMultiBtn" class="btn-secondary">Add multi</button>
-        </span>
         <button type="button" id="signOut">Sign out</button>
       </div>
       <p id="meta" class="subline"></p>
@@ -69,6 +66,9 @@ export function tipsDeskBody(tipsterId = "john") {
         <button type="button" data-tab="open">Tips</button>
         <button type="button" data-tab="results">Results</button>
         <button type="button" data-tab="summary">Summary</button>
+        <span id="johnMultiActions" class="john-multi-actions hidden">
+          <button type="button" id="addMultiBtn" class="btn-add-multi">Add multi</button>
+        </span>
       </div>
 
       <div id="filters" class="tips-filters hidden">

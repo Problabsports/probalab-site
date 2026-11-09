@@ -131,7 +131,15 @@ a.tipster-card.live:hover {
 .tips-back a:hover { text-decoration: underline; }
 
 /* John Sportsbet multi form */
-.john-multi-actions { display: inline-flex; gap: 8px; margin-right: 8px; }
+.john-multi-actions { display: inline-flex; gap: 8px; align-items: center; margin-left: 4px; }
+.tips-tabs .btn-add-multi {
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; border: 1px solid var(--cyan); background: transparent; color: var(--cyan);
+  padding: 8px 12px; cursor: pointer;
+}
+.tips-tabs .btn-add-multi:hover {
+  color: #07080f; background: var(--cyan); border-color: var(--cyan);
+}
 .btn-secondary, .btn-danger {
   font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
   font-size: 12px; border: 1px solid var(--line-hi); background: transparent; color: var(--ink);
