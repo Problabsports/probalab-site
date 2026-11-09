@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-09T16:39:04Z",
+  "generated_at": "2026-11-09T17:35:41Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -441,8 +441,8 @@
       "best_of": 3,
       "round": "Round 1",
       "court": "Center Court",
-      "start_utc": "2026-11-09T17:00:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-09T17:05:00Z",
+      "status": "in",
       "player_a": "Tomas Martin Etcheverry",
       "player_b": "Max Dahlin",
       "a_pct": 90.7,
@@ -451,7 +451,7 @@
       "pick_pct": 90.7,
       "light": "GREEN",
       "winner": null,
-      "score": null,
+      "score": "3-2",
       "retired": false,
       "result": null
     },
