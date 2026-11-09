@@ -1,5 +1,5 @@
-/* Injury warning popover (tipster-popover style). Tap to toggle; Esc / outside click closes.
-   On devices that hover, mouseenter opens and leaving the button+popover closes. */
+/* Injury watch: "more" opens full note popover. Esc / outside click closes.
+   On devices that hover, mouseenter on "more" opens and leaving closes. */
 (function () {
   let openPop = null;
   const canHover = () => window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -21,16 +21,16 @@
     pop.className = "injury-popover tipster-popover";
     pop.id = "injury-pop-" + Math.random().toString(36).slice(2, 9);
     pop.setAttribute("role", "dialog");
-    pop.setAttribute("aria-label", "Injury warning");
+    pop.setAttribute("aria-label", "Injury watch");
     const title = document.createElement("p");
     title.className = "tipster-pop-title";
-    title.textContent = "⚠️ Injury warning";
+    title.textContent = "⚠️ Injury watch";
     const body = document.createElement("p");
     body.className = "tipster-pop-body";
     body.textContent = note;
     pop.appendChild(title);
     pop.appendChild(body);
-    const host = btn.closest("li, .card-top, article.card, .panel.pick, .row, dd") || btn.parentElement || document.body;
+    const host = btn.closest(".injury-watch, li, .card-top, article.card, .panel.pick, .row, dd") || btn.parentElement || document.body;
     if (host && getComputedStyle(host).position === "static") host.style.position = "relative";
     host.appendChild(pop);
     btn.setAttribute("aria-expanded", "true");
