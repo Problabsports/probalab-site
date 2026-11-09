@@ -2,8 +2,8 @@
 // We show only facts (player, position, our status label, injury area, date), never ESPN's written notes.
 const PATHS = { nba: "basketball/nba", nfl: "football/nfl", nhl: "hockey/nhl", epl: "soccer/eng.1", championship: "soccer/eng.2" };
 export const INJ_TTL = 900;
-const RANK = { Out: 0, "Injured reserve": 1, Suspended: 1, Doubtful: 2, Questionable: 3, "Day-to-day": 4, "Reduced minutes": 5, Probable: 6, Returning: 7 };
-const label = (s) => (/injured reserve|^ir$/i.test(s) ? "Injured reserve" : /susp/i.test(s) ? "Suspended" : /doubt/i.test(s) ? "Doubtful" : /question/i.test(s) ? "Questionable" : /day/i.test(s) ? "Day-to-day" : /minute|restrict/i.test(s) ? "Reduced minutes" : /probable/i.test(s) ? "Probable" : /activ|availab|return/i.test(s) ? "Returning" : /out/i.test(s) ? "Out" : null);
+const RANK = { Out: 0, "Injured reserve": 1, PUP: 1, NFI: 1, Suspended: 1, Doubtful: 2, Questionable: 3, "Day-to-day": 4, "Reduced minutes": 5, Probable: 6, Returning: 7 };
+const label = (s) => (/injured reserve|^ir$/i.test(s) ? "Injured reserve" : /\bpup\b|physically unable/i.test(s) ? "PUP" : /\bnfi\b|non-football/i.test(s) ? "NFI" : /susp/i.test(s) ? "Suspended" : /doubt/i.test(s) ? "Doubtful" : /question/i.test(s) ? "Questionable" : /day/i.test(s) ? "Day-to-day" : /minute|restrict/i.test(s) ? "Reduced minutes" : /probable/i.test(s) ? "Probable" : /activ|availab|return/i.test(s) ? "Returning" : /out/i.test(s) ? "Out" : null);
 // colour: red = out; orange = may miss or reduced minutes; green = probable / returning
 export const stClass = (st) => (/^(Out|Injured|Suspended)/.test(st || "") ? "red" : /^(Probable|Returning)/.test(st || "") ? "green" : "orange");
 export const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();

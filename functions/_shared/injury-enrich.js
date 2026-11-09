@@ -10,7 +10,13 @@ const CLOSING =
 const UNCERTAIN = /^(Out|Injured reserve|Doubtful|Questionable|Day-to-day)$/i;
 const HARSH = /^(Out|Injured reserve|Doubtful)$/i;
 
-/** NFL: QB always; skill + OL when Out/Doubtful/IR/Questionable. */
+/** Long-term / inactive list noise — never shown on NFL Injury watch (John 10 Nov 2026). */
+const NFL_NOISE = /^(Injured reserve|PUP|NFI|Physically unable|Non-football|Suspended)$/i;
+
+/** NFL week-facing statuses (practice-report / game status). */
+const NFL_WEEK = /^(Out|Doubtful|Questionable)$/i;
+
+/** NFL: QB any week status; skill + OL when Out/Doubtful/Questionable. IR/PUP/NFI/Suspended excluded. */
 const NFL_SKILL = new Set(["QB", "RB", "WR", "TE", "FB", "T", "G", "C", "OT", "OG", "OL"]);
 
 /** NHL: skaters + goalies on uncertain list (proxy for top-6 F / top-4 D / starter G without ice-time file). */
@@ -28,8 +34,10 @@ function isKeyPlayer(sport, m) {
   if (!UNCERTAIN.test(st)) return false;
   const pos = String(m.pos || "").toUpperCase();
   if (sport === "nfl") {
+    if (NFL_NOISE.test(st)) return false;
+    if (!NFL_WEEK.test(st)) return false;
     if (pos === "QB") return true;
-    return NFL_SKILL.has(pos) && (HARSH.test(st) || /Questionable/i.test(st));
+    return NFL_SKILL.has(pos);
   }
   if (sport === "nhl") {
     // Proxy for top-6 F / top-4 D / starter G: skip long-term IR for skaters (too noisy).
@@ -115,7 +123,7 @@ export async function enrichGamesWithInjuries(ctx, sport, games) {
 
 export const INJURY_SPORT_RULES = {
   nba: "Feed public_feed: Questionable/Doubtful/GTD/Out+GTD averaging ≥20 min (v2 rotation).",
-  nfl: "ESPN NFL injuries JSON: QB any uncertain; RB/WR/TE/OL when Out/Doubtful/IR/Questionable.",
+  nfl: "ESPN NFL injuries JSON: QB Out/Doubtful/Questionable; RB/WR/TE/OL same. IR/PUP/NFI/Suspended excluded (week noise).",
   nhl: "ESPN NHL injuries JSON: G and skaters (C/W/D) on Out/Doubtful/IR/Day-to-day/Questionable.",
   epl: "ESPN eng.1 injuries JSON: Out/Doubtful/Questionable/Day-to-day (regular XI proxy).",
   championship: "ESPN eng.2 injuries JSON: same rule as EPL.",
