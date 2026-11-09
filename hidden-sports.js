@@ -7,7 +7,7 @@
   const LEAGUE = { epl: "Premier League", championship: "Championship", nhl: "NHL" }[HS] ?? HS.toUpperCase(), LBL = HS === "championship" ? "CHAMPIONSHIP" : HS.toUpperCase();
   const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
   const nm = (c) => (IS_SOC ? c : NHLN[c] ?? c);
-  const [GT, OT] = IS_SOC ? [0.55, 0.45] : [0.65, 0.55]; // EPL 3-way: 60/50. NHL 2-way: 65/55
+  const [GT, OT] = IS_SOC ? [0.55, 0.45] : [0.65, 0.55]; // EPL/Championship 3-way: 55/45. NHL 2-way: 65/55
   const lightOf = (p) => (p >= GT ? "GREEN" : p >= OT ? "ORANGE" : "RED");
   // EPL lights (GREEN 55%+, ORANGE 45-55%, RED <45%; from the 2023-26 walk-forward backtest) apply only to matches kicking off
   // from the switch-on time; earlier EPL picks keep no light (no re-colouring). NHL always has lights.
@@ -70,7 +70,7 @@
     ${IS_EPL && g.w2 && !g.finished ? `<div class="card-top"><dl class="prices"><div><dt>Chance of winning by 2+</dt><dd>${esc(g.home_name)} ${pct(g.w2.h)} · ${esc(g.away_name)} ${pct(g.w2.a)}</dd></div></dl></div>` : ""}
   </article>`;
   }
-  const legend = () => (!LIGHTS ? "" : `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span></div>`);
+  const legend = () => (!LIGHTS ? "" : `<div class="legend" aria-label="Light key"><span><i class="chip GREEN">Green</i> ${pct(GT)}+, rated likely</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> under ${pct(OT)}</span><span><a href="/lights">How the lights work</a></span></div>`);
 
   // ---------- predictions ----------
   function predictions() {
@@ -98,7 +98,7 @@
   }
   // NHL record in the same layout as the NBA/NFL record tab (stats, by light, calibration, every pick); graded from /data/nhl-pretip.json snapshots
   function recordNHL() {
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick. Each pick, chance and light is saved before puck drop and can't change after the start; the record is graded from those saved picks.</p><p class="note"><a href="/results?sport=nhl">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const done = graded().slice().reverse(), tips = done.filter((x) => x.light === "GREEN"), w = W, rate = (xs) => (xs.length ? pct(w(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     if (!done.length) { document.getElementById("main").innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>Every pick stays on the record, right or wrong.</p></div>`; return; }
@@ -127,9 +127,9 @@
       ${done.some((g) => g.vs_close != null) ? MKNOTE : ""}
     </div>`;
   }
-  // EPL record in the NBA/NFL record layout, percentages only (no lights yet). A result is marked only when ESPN and football-data agree.
+  // EPL/Championship record in the NBA/NFL record layout. A result is marked only when ESPN and football-data agree.
   function recordPlain() {
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (${IS_EPL ? "round 8" : "round 15"}, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, counted from the first saved live pick (${IS_EPL ? "round 8" : "round 15"}, 2026–27). Each pick and chance is saved before kick-off and can't change after the start. A result is marked only when two score sources agree.</p><p class="note"><a href="/results?sport=${HS}">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const done = graded().slice().reverse(), rate = (xs) => (xs.length ? pct(W(xs) / xs.length) : "–");
     const pending = H.games.filter((x) => x.finished && !x.graded).length;
     const note = pending ? `<p class="note">${pending} finished game${pending > 1 ? "s are" : " is"} still being checked against a second score source.</p>` : "";

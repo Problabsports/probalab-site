@@ -127,7 +127,7 @@
         <span class="sr">Find a player</span><input type="search" id="tnQ" value="${esc(S.q)}" placeholder="Find a player" autocomplete="off"></label>
     </div>
     <div class="daysum"><span><b>${list.length}</b> shown</span><span><b>${list.filter((m) => m.light === "GREEN").length}</b> green</span>${d.length ? `<span>Picks <b>${w}–${d.length - w}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
-    <div class="legend" aria-label="Light key"><span>${chip("GREEN")} 70%+</span><span>${chip("ORANGE")} 60–70%</span><span>${chip("RED")} under 60%, a close match</span></div>
+    <div class="legend" aria-label="Light key"><span>${chip("GREEN")} 70%+</span><span>${chip("ORANGE")} 60–70%</span><span>${chip("RED")} under 60%, a close match</span><span><a href="/lights">How the lights work</a></span></div>
     <p class="note" style="margin:0">Fair price = 1 ÷ our chance for the pick. Any price above it is better than our model's number; it isn't a tip.</p>
     ${groups.length ? groups.map(({ t, xs }) => `<section class="tn-grpbox">
       <div class="tn-gh"><h2>${esc(t.name)}</h2><span>${t.tour === "ATP" ? "Men's singles" : "Women's singles"} · ${esc(t.tour)} · ${esc(t.surface)} · best of ${t.best_of === 5 ? "five" : "three"} · ${tally(xs)}</span></div>
@@ -138,7 +138,7 @@
   // ---------- record (live picks) ----------
   function record() {
     const main = document.getElementById("main"), done = H.all.filter((m) => m.right != null).slice().reverse(), rec = H.feed?.record;
-    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, from 7 November 2026. Each pick, chance and light is saved before the first serve and can't change after it. A retirement counts as a result; a walkover doesn't.</p></div>`;
+    const lede = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">Live picks only, from 7 November 2026. Each pick, chance and light is saved before the first serve and can't change after it. A retirement counts as a result; a walkover doesn't.</p><p class="note"><a href="/results?sport=tennis">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>`;
     const R = (k) => rec?.[k] ?? { won: 0, lost: 0 }, rate = (o) => (o.won + o.lost ? pct(o.won / (o.won + o.lost)) : "–");
     if (!R("ALL").won && !R("ALL").lost) { main.innerHTML = lede + `<div class="panel"><h2>No results yet</h2><p>The first live picks are being played now. Every pick stays on the record, right or wrong.</p></div>` + btPanel(); return; }
     // beat the close over every live pick with prices (the market file keeps all of them; the feed keeps 7 days)

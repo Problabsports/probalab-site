@@ -1,10 +1,13 @@
 import { serveHidden } from "../_hidden/serve.js";
 import { html, notFound } from "../_shared/site.js";
+import { handleSportRecordRequest } from "../_shared/record-pages.js";
 import { getInjuries, renderTeamIndex, renderTeamPage, resolveTeamSlug, eplDataFromFiles } from "../_shared/teams.js";
 
 const asset = (ctx, p, d) => ctx.env.ASSETS.fetch(new URL(p, ctx.request.url)).then((r) => (r.ok ? r.json() : d)).catch(() => d);
 
 export async function onRequestGet(ctx) {
+  const rec = await handleSportRecordRequest(ctx, "epl");
+  if (rec) return rec;
   const parts = [].concat(ctx.params.path ?? []).filter(Boolean);
   if (parts[0] === "team") {
     const [raw, grades, season] = await Promise.all([
