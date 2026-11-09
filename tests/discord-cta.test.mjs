@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { createRequire } from "node:module";
-import { pathToFileURL } from "node:url";
-import { mkdtempSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const src = readFileSync(new URL("../functions/_shared/discord.js", import.meta.url), "utf8");
 
@@ -19,19 +17,21 @@ async function loadWithUrl(url) {
 const empty = await loadWithUrl("");
 assert.equal(empty.discordInviteConfigured(), false);
 assert.equal(empty.discordNavLink(), "");
-assert.equal(empty.discordHeroCta(), "");
-assert.equal(empty.discordFooterCta(), "");
+assert.match(empty.xNavLink(), /probalabsports/);
+assert.match(empty.xHeroCta(), /Follow @probalabsports on X/);
+assert.match(empty.socialHeroStack(), /x-cta-hero/);
+assert.doesNotMatch(empty.socialHeroStack(), /closingline/i);
 
 const ok = await loadWithUrl("https://discord.gg/abc123");
 assert.equal(ok.discordInviteConfigured(), true);
 assert.match(ok.discordNavLink(), /Join free Discord/);
-assert.match(ok.discordNavLink(), /target="_blank"/);
-assert.match(ok.discordHeroCta(), /Join our free Discord/);
-assert.match(ok.discordHeroCta(), /members channels/);
-assert.match(ok.discordFooterCta(), /Join our free Discord/);
+assert.match(ok.socialHeroStack(), /discord-cta-hero/);
+assert.match(ok.socialHeroStack(), /x-cta-hero/);
+assert.match(ok.socialFooterStack(), /discord-cta-footer/);
+assert.match(ok.socialFooterStack(), /x-cta-footer/);
+assert.equal(ok.X_PROFILE_URL, "https://x.com/probalabsports");
 
 const webhook = await loadWithUrl("https://discord.com/api/webhooks/1/x");
 assert.equal(webhook.discordInviteConfigured(), false);
-assert.equal(webhook.discordNavLink(), "");
 
 console.log("discord-cta.test.mjs ok");

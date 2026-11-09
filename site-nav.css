@@ -230,3 +230,45 @@ html.has-consent { padding-bottom: 96px; }
 .discord-cta-nav span { line-height: 1; }
 .site-nav > a.discord-cta-nav { color: var(--cyan); padding: 6px 10px; }
 .site-nav > a.discord-cta-nav:hover { color: #fff; }
+
+
+/* Follow @probalabsports on X — match Discord neon CTAs */
+.x-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--cyan);
+  border: 1px solid rgba(25, 227, 255, 0.55);
+  background: rgba(25, 227, 255, 0.1);
+  box-shadow: 0 0 16px rgba(25, 227, 255, 0.22), 0 0 28px rgba(255, 47, 192, 0.12);
+  font-family: var(--f-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color .15s, border-color .15s, background .15s, box-shadow .15s;
+}
+.x-cta:hover,
+.x-cta:focus-visible {
+  color: #fff;
+  border-color: var(--magenta);
+  background: rgba(255, 47, 192, 0.16);
+  box-shadow: 0 0 22px rgba(255, 47, 192, 0.35), 0 0 18px rgba(25, 227, 255, 0.25);
+  outline: none;
+}
+.x-cta .x-ico { flex: 0 0 auto; display: block; filter: drop-shadow(0 0 6px rgba(25, 227, 255, 0.55)); }
+.x-cta-nav {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.site-nav > a.x-cta-nav { color: var(--cyan); padding: 6px 10px; }
+.site-nav > a.x-cta-nav:hover { color: #fff; }
+/* Desktop: icon-only next to Discord to save nav space */
+@media (min-width: 1181px) {
+  .site-nav > a.x-cta-nav .x-cta-nav-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  .site-nav > a.x-cta-nav { padding: 6px 8px; }
+}
+.social-cta-stack { display: grid; gap: 8px; width: fit-content; max-width: 100%; }
+.social-footer { margin: 0 0 12px; }
