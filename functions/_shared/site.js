@@ -234,6 +234,7 @@ export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach
 
 // ------------------------------------------------------------------ page shell
 // Same labels and destinations on every page. Mobile: logo + Today + drawer (Esc closes).
+// Sports hubs live in one dropdown (desktop hover/click/keyboard; mobile sub-list).
 export const NAV_LINKS = [
   ["/today", "Today"],
   ["/teams", "Teams"],
@@ -242,23 +243,46 @@ export const NAV_LINKS = [
   ["/results", "Results"],
   ["/lights", "Lights"],
   ["/how-it-works", "How it works"],
-  ["/nba", "NBA"],
-  ["/nfl", "NFL"],
-  ["/nhl", "NHL"],
   ["/about", "About"],
   ["/members", "Members"],
 ];
 
+export const NAV_SPORTS = [
+  ["/nba", "NBA"],
+  ["/nfl", "NFL"],
+  ["/nhl", "NHL"],
+  ["/epl", "EPL"],
+  ["/championship", "Championship"],
+  ["/tennis", "Tennis"],
+];
+
+function navLinkOn(path, href) {
+  return path === href || (href.length > 1 && (path === href || path.startsWith(href + "/")));
+}
+
 export function renderHeader(path = "/") {
   const links = NAV_LINKS.map(([href, label]) => {
-    const on = path === href || (href.length > 1 && path.startsWith(href + "/"));
+    const on = navLinkOn(path, href);
     return `<a href="${href}"${on ? ' aria-current="page"' : ""}>${label}</a>`;
+  });
+  const sportOn = NAV_SPORTS.some(([href]) => navLinkOn(path, href));
+  const sportItems = NAV_SPORTS.map(([href, label]) => {
+    const on = navLinkOn(path, href);
+    return `<a href="${href}" role="menuitem"${on ? ' aria-current="page"' : ""}>${label}</a>`;
   }).join("");
+  // Insert Sports dropdown after How it works (before About)
+  const howIdx = links.findIndex((html) => html.includes('href="/how-it-works"'));
+  const sports = `<div class="nav-dd" data-nav-dd>
+    <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-sports-menu" aria-haspopup="menu"${sportOn ? ' data-active="true"' : ""}>Sports</button>
+    <div id="nav-sports-menu" class="nav-dd-panel" role="menu" hidden>${sportItems}</div>
+  </div>`;
+  const at = howIdx >= 0 ? howIdx + 1 : links.length - 2;
+  links.splice(at, 0, sports);
   return `<header class="top site-head"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
   <a class="nav-today" href="/today">Today</a>
   <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">Menu</button>
-  <nav id="site-menu" class="site-nav" aria-label="Main">${links}</nav>
+  <nav id="site-menu" class="site-nav" aria-label="Main">${links.join("")}</nav>
 </div></header>`;
 }
 
@@ -374,7 +398,8 @@ export function renderGame(g, all, rec, review = null, inj = null) {
         <span class="at">@</span>
         <span class="team r ${g.pick === g.home ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(H)}"><span class="ab">${esc(g.home)}</span>${esc(H)}</a><span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
-      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}${g.sport === "nba" ? injuryBadge(g) : ""}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
+      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
+      ${g.sport === "nba" ? injuryBadge(g) : ""}
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
@@ -417,8 +442,8 @@ export function renderGame(g, all, rec, review = null, inj = null) {
 export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
   const warn = g.sport === "nba" ? injuryBadge(g) : "";
-  return `<li><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
-    <span class="p">${g.pick ? `${esc(g.pick)} ${pct(g.pick_p)}` : "soon"}</span>${chip(g.light)}${warn}${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}</a></li>`;
+  return `<li class="${warn ? "has-injury-watch" : ""}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
+    <span class="p">${g.pick ? `${esc(g.pick)} ${pct(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
 }
 
 // ------------------------------------------------------------------ sport hub

@@ -5,7 +5,8 @@ header.top.site-head .wrap,
   max-width: 1240px;
 }
 /* Unified site nav: one set of labels everywhere. Desktop is a single row;
-   below 1180px it collapses to logo + Today + a menu drawer (Esc closes). */
+   below 1180px it collapses to logo + Today + a menu drawer (Esc closes).
+   Sports hubs share one dropdown / mobile sub-list. */
 .site-head .wrap {
   display: flex;
   align-items: center;
@@ -30,14 +31,69 @@ header.top.site-head .wrap,
   word-spacing: .12em;
   font-size: 13px;
 }
-.site-nav a {
+.site-nav > a,
+.site-nav .nav-dd-btn {
   color: var(--muted);
   text-decoration: none;
   white-space: nowrap;
   padding: 6px 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  word-spacing: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
 }
-.site-nav a:hover { color: var(--ink); }
-.site-nav a[aria-current="page"] { color: var(--cyan); }
+.site-nav > a:hover,
+.site-nav .nav-dd-btn:hover { color: var(--ink); }
+.site-nav > a[aria-current="page"],
+.site-nav .nav-dd-btn[data-active="true"],
+.site-nav .nav-dd-btn[aria-expanded="true"] { color: var(--cyan); }
+
+.nav-dd { position: relative; flex: 0 0 auto; }
+.nav-dd-btn { display: inline-flex; align-items: center; gap: 5px; }
+.nav-dd-btn::after {
+  content: "";
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: .85;
+}
+.nav-dd-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  min-width: 188px;
+  padding: 8px 0;
+  background: #121526;
+  border: 1px solid var(--line-hi);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.nav-dd-panel[hidden] { display: none !important; }
+.nav-dd-panel a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 9px 14px;
+  white-space: nowrap;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.nav-dd-panel a:hover,
+.nav-dd-panel a:focus-visible {
+  color: var(--ink);
+  background: rgba(25, 227, 255, 0.08);
+  outline: none;
+}
+.nav-dd-panel a[aria-current="page"] { color: var(--cyan); }
+
 .nav-today {
   font-family: var(--f-display);
   font-weight: 700;
@@ -99,10 +155,40 @@ body.nav-open { overflow: hidden; }
     font-size: 16px;
   }
   .site-nav.is-open { display: flex; }
-  .site-nav a {
+  .site-nav > a {
     padding: 12px 4px;
     border-bottom: 1px solid var(--line);
   }
+  .nav-dd {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-dd-btn {
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 4px;
+    text-align: left;
+  }
+  .nav-dd-panel {
+    position: static;
+    min-width: 0;
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 0 0 6px 12px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .nav-dd-panel a {
+    display: block;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(42, 49, 80, 0.55);
+    font-size: 15px;
+  }
+  .nav-dd-panel a:last-child { border-bottom: 0; }
 }
 
 /* Cookie banner should not cover page content */

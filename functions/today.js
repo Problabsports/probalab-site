@@ -102,13 +102,14 @@ function todayRow(g, showMkt) {
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   const warn = g.injuryBadgeHtml || "";
-  return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
+  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
-      <span class="p">${esc(g.pick)}</span><span class="chip-with-warn">${chip(g.light)}${warn}</span>
+      <span class="p">${esc(g.pick)}</span><span class="chip-with-warn">${chip(g.light)}</span>
       <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>${mktCols}
     </a>
+    ${warn}
   </li>`;
 }
 
@@ -131,7 +132,7 @@ function section(id, name, games, links, extra, showMkt = true) {
 }
 
 const HOW_TO = `<section class="panel howto compact" id="how-to-read">
-  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · ⚠️ injury note. <a href="/lights">How to read the lights →</a></p>
+  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may play fewer minutes. <a href="/lights">How to read the lights →</a></p>
 </section>`;
 
 export async function onRequestGet(ctx) {

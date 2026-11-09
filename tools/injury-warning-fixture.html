@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Injury warning fixture · ProbaLab</title>
+<title>Injury watch fixture · ProbaLab</title>
 <link rel="stylesheet" href="/page.css">
 <style>
   body { margin: 0; background: #07080f; color: var(--ink, #e8ecff); font-family: var(--f-body, system-ui); }
@@ -16,23 +16,20 @@
 </head>
 <body>
 <main class="wrap">
-  <h1>Injury warning fixture</h1>
-  <p>Local fixture for the ⚠️ badge. Feed fields: <code>injury_warning: true</code>, <code>injury_note</code> as shown. Tap or hover the badge.</p>
+  <h1>Injury watch fixture</h1>
+  <p>Label and note are visible without tapping. Tap <b>more</b> only when the note is truncated.</p>
   <div class="card-top" id="demo">
     <span class="time">Mon 11:30am</span>
     <span class="chip ORANGE">Orange</span>
-    <button type="button" class="injury-warn-btn" data-injury-note="Barnes, Quickley and Murray-Boyles are uncertain (GTD)." aria-expanded="false" aria-label="Injury warning" title="Injury warning">⚠️</button>
+    <span class="injury-watch" role="note">
+      <span class="injury-watch-label">⚠️ Injury watch</span>
+      <span class="injury-watch-note">Key players uncertain: Collin Murray-Boyles (Questionable), Immanuel Quickley (Questionable), Scottie Barnes…</span>
+      <button type="button" class="injury-warn-btn injury-watch-more" data-injury-note="Key players uncertain: Collin Murray-Boyles (Questionable), Immanuel Quickley (Questionable), Scottie Barnes (Questionable)." aria-expanded="false" aria-label="Show full injury note">more</button>
+    </span>
     <span class="p">TOR 63%</span>
   </div>
-  <p class="small" style="margin-top:16px;color:#8b93b3">MEM @ TOR · light stays Orange · badge only appears when injury_warning is true.</p>
+  <p class="small" style="margin-top:16px;color:#8b93b3">MEM @ TOR · light stays Orange · Injury watch appears when injury_warning is true.</p>
 </main>
 <script src="/injury-warning.js"></script>
-<script>
-  // Auto-open once so screenshots can capture the popover without a click race.
-  requestAnimationFrame(() => {
-    const btn = document.querySelector(".injury-warn-btn");
-    if (btn) btn.click();
-  });
-</script>
 </body>
 </html>

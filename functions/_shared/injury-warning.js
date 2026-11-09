@@ -1,22 +1,48 @@
-// NBA injury warning badge: driven only by public feed fields injury_warning + injury_note.
+// NBA injury watch: driven only by public feed fields injury_warning + injury_note.
 // If those keys are absent, show nothing. Light colours are never changed here.
+// The amber "Injury watch" label + note are visible without tapping; "more" opens the full note.
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const EXCERPT_MAX = 96;
+
+/** Strip a leading warning glyph the feed sometimes prefixes. */
+function cleanNote(note) {
+  return String(note ?? "").replace(/^⚠️\s*/u, "").trim();
+}
+
+/** @returns {{ text: string, more: boolean }} */
+export function injuryExcerpt(note, max = EXCERPT_MAX) {
+  const t = cleanNote(note);
+  if (!t) return { text: "Key players are uncertain.", more: false };
+  if (t.length <= max) return { text: t, more: false };
+  let cut = t.slice(0, max);
+  const sp = cut.lastIndexOf(" ");
+  if (sp > Math.floor(max * 0.55)) cut = cut.slice(0, sp);
+  return { text: cut.replace(/[.,;:]\s*$/, ""), more: true };
+}
 
 /** @returns {{ note: string } | null} */
 export function injuryOf(g) {
   if (!g || typeof g !== "object") return null;
   if (!Object.prototype.hasOwnProperty.call(g, "injury_warning")) return null;
   if (!g.injury_warning) return null;
-  const note = g.injury_note == null ? "" : String(g.injury_note).trim();
+  const note = cleanNote(g.injury_note == null ? "" : String(g.injury_note));
   return { note: note || "Key players are uncertain." };
 }
 
-/** Small amber ⚠️ control; note rides in data-injury-note for the client popover. */
+/**
+ * Prominent amber Injury watch block: label always visible, note inline (excerpt + more when long).
+ * Light colours stay unchanged — this sits beside / under the chip.
+ */
 export function injuryBadge(g) {
   const info = injuryOf(g);
   if (!info) return "";
-  return `<button type="button" class="injury-warn-btn" data-injury-note="${esc(info.note)}" aria-expanded="false" aria-label="Injury warning" title="Injury warning">⚠️</button>`;
+  const { text, more } = injuryExcerpt(info.note);
+  const moreBtn = more
+    ? `<button type="button" class="injury-warn-btn injury-watch-more" data-injury-note="${esc(info.note)}" aria-expanded="false" aria-label="Show full injury note">more</button>`
+    : "";
+  return `<span class="injury-watch" role="note"><span class="injury-watch-label">⚠️ Injury watch</span><span class="injury-watch-note">${esc(text)}${more ? "…" : ""}</span>${moreBtn}</span>`;
 }
 
 /**
@@ -26,7 +52,7 @@ export function injuryBadge(g) {
  */
 export function applyInjuryPreviewDemo(games, hostname) {
   if (!Array.isArray(games) || !hostname) return;
-  if (!/preview-injury-warning/i.test(hostname)) return;
+  if (!/preview-injury-(warning|prominent)/i.test(hostname)) return;
   if (games.some((g) => g && Object.prototype.hasOwnProperty.call(g, "injury_warning"))) return;
   for (const g of games) {
     if (String(g?.game_id) !== "401909955") continue;

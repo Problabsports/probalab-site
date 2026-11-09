@@ -206,17 +206,19 @@ ul.games.today-games .best-tag, .best-tag {
       "time match"
       "pick chip"
       "fair market"
-      "value value";
+      "value value"
+      "injury injury";
     row-gap: 4px;
     column-gap: 10px;
   }
   ul.games.today-games .d { grid-area: time; }
   ul.games.today-games .m { grid-area: match; }
   ul.games.today-games .p { grid-area: pick; }
-  ul.games.today-games .chip, ul.games.today-games .chip-slot { grid-area: chip; }
+  ul.games.today-games .chip, ul.games.today-games .chip-slot, ul.games.today-games .chip-with-warn { grid-area: chip; }
   ul.games.today-games .fp { grid-area: fair; text-align: left; }
   ul.games.today-games .mk { grid-area: market; text-align: left; }
   ul.games.today-games .gap { grid-area: value; text-align: left; }
+  ul.games.today-games .injury-watch { grid-area: injury; }
   ul.games.today-games > li.head .fp::before { content: "Fair "; text-transform: none; letter-spacing: 0; color: var(--muted); }
   ul.games.today-games > li.head .mk::before { content: "Market "; text-transform: none; letter-spacing: 0; color: var(--muted); }
   ul.games.today-games > li.head .gap::before { content: "Value "; text-transform: none; letter-spacing: 0; color: var(--muted); }
@@ -411,24 +413,84 @@ table.record-picks a:hover { color: var(--cyan); }
   .units-tiles { grid-template-columns: 1fr; }
 }
 
-/* NBA injury warning (feed injury_warning) — tipster-popover style */
-.injury-warn-btn {
-  appearance: none; background: none; border: 0; padding: 0 2px; margin: 0 0 0 4px;
-  display: inline-grid; place-items: center;
-  width: 26px; height: 24px; cursor: pointer;
-  font-size: 15px; line-height: 1; vertical-align: middle;
-  color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.55);
-  border-radius: 6px;
+/* NBA injury watch (feed injury_warning) — visible label + inline note; light colours unchanged */
+.injury-watch {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px;
+  max-width: 100%;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 176, 32, 0.45);
+  background: rgba(255, 176, 32, 0.10);
+  box-shadow: 0 0 14px rgba(255, 176, 32, 0.12);
+  color: #ffd27a;
+  font-size: 13px;
+  line-height: 1.35;
+  position: relative;
 }
-.injury-warn-btn:hover, .injury-warn-btn:focus-visible {
-  outline: none; background: rgba(255, 176, 32, 0.12);
-  color: #ffc857;
+.injury-watch-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  flex: 0 0 auto;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffb020;
+  text-shadow: 0 0 10px rgba(255, 176, 32, 0.45);
+  white-space: nowrap;
+}
+.legend-line .injury-watch-label,
+.howto .injury-watch-label {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 176, 32, 0.45);
+  background: rgba(255, 176, 32, 0.10);
+}
+.injury-watch-note {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: #ffe6b0;
+  overflow-wrap: anywhere;
+}
+.injury-warn-btn, .injury-watch-more {
+  appearance: none; background: transparent; border: 0; padding: 0;
+  margin: 0; cursor: pointer;
+  font-family: var(--f-mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: #ffb020; text-decoration: underline; text-underline-offset: 2px;
+  border-radius: 4px;
+}
+.injury-warn-btn:hover, .injury-warn-btn:focus-visible,
+.injury-watch-more:hover, .injury-watch-more:focus-visible {
+  outline: none; color: #ffc857;
+  background: rgba(255, 176, 32, 0.12);
 }
 .chip-with-warn {
-  display: inline-flex; align-items: center; gap: 2px; flex-wrap: wrap;
+  display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
 ul.games.today-games .chip-with-warn { grid-area: chip; justify-self: start; }
 ul.games.today-games .chip-with-warn .chip { grid-area: auto; }
+ul.games.today-games .injury-watch,
+ul.games .injury-watch {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+ul.games > li.has-injury-watch > a { align-items: flex-start; }
+ul.games > li.has-injury-watch { align-items: start; }
+ul.games a > .injury-watch { flex: 1 1 100%; order: 40; margin-top: 4px; }
+/* "more" inside a row link should not navigate away */
+ul.games a .injury-watch-more { pointer-events: auto; }
+.panel.pick .injury-watch,
+.card-top .injury-watch,
+dd .injury-watch {
+  margin-top: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.card-top { align-items: flex-start; }
 .injury-popover.tipster-popover {
   position: absolute; z-index: 40; left: 0; top: calc(100% + 8px);
   width: min(320px, calc(100vw - 32px));
@@ -445,6 +507,10 @@ ul.games.today-games .chip-with-warn .chip { grid-area: auto; }
   transform: rotate(45deg);
 }
 .injury-popover .tipster-pop-title { color: #ffb020; }
+@media (max-width: 640px) {
+  .injury-watch { padding: 7px 10px; font-size: 12.5px; }
+  .injury-watch-label { font-size: 10.5px; }
+}
 .banner-backtest { border-color: rgba(255, 173, 51, 0.55); background: rgba(255, 173, 51, 0.07); }
 .banner-backtest h2 { color: var(--orange); margin-top: 0; }
 .caveats { border-color: rgba(25, 227, 255, 0.35); }
