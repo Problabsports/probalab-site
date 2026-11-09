@@ -249,7 +249,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
-  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/nba/record">Record</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
+  <nav aria-label="Main"><a href="/today">Today</a><a href="/teams">Teams</a><a href="/injuries">Injuries</a><a href="/accuracy">Accuracy</a><a href="/record">Record</a><a href="/lights">Lights</a><a href="/#nba-predictions">NBA</a><a href="/#nfl-predictions">NFL</a><a href="/about">About</a><a href="/members">Members</a></nav>
 </div></header>
 <main class="wrap">
 ${body}
@@ -258,7 +258,7 @@ ${body}
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
-  <p class="links"><a href="/about">About</a><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+  <p class="links"><a href="/about">About</a><a href="/record">Record</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
@@ -278,7 +278,7 @@ export const html = (s, status = 200, maxAge = 120) => new Response(s, { status,
 
 // ------------------------------------------------------------------ game page
 export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
-export const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League" }[s] ?? String(s).toUpperCase());
+export const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League", championship: "Championship", tennis: "Tennis" }[s] ?? String(s).toUpperCase());
 
 // the pre-game preview section: one code path for the game page (/nba/<game>) and the app's game view (via /api/preview)
 export function previewSection(g, all) {
@@ -512,6 +512,11 @@ export async function handleSport(ctx, sport) {
 async function renderSport(ctx, sport) {
   const parts = ctx.params.path ?? [];
   const p = Array.isArray(parts) ? parts : [parts];
+  if ((p[0] === "record" || p[0] === "record.csv") && p.length === 1) {
+    const { handleSportRecordRequest } = await import("./record-pages.js");
+    const rec = await handleSportRecordRequest(ctx, sport);
+    if (rec) return rec;
+  }
   let feed;
   try { feed = await getFeed(ctx, sport); } catch (e) {
     return html(shell({ title: "Predictions are loading | ProbaLab", description: "Please try again in a minute.", path: `/${sport}`, noindex: true,
@@ -520,7 +525,6 @@ async function renderSport(ctx, sport) {
   const data = gamesOf(sport, feed);
   if (!p.length || p[0] === "") return html(renderHub(sport, data));
   if (p[0] === "today" && p.length === 1) return html(renderToday(sport, data));
-  if (p[0] === "record" && p.length === 1) return html(renderRecord(sport, data));
   if (p[0] === "team" && (p.length === 1 || p.length === 2)) {
     const { renderTeamIndex, renderTeamPage, resolveTeamSlug } = await import("./teams.js");
     if (p.length === 1) return html(renderTeamIndex(sport, data));

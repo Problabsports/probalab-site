@@ -121,6 +121,7 @@ const HOW_TO = `<section class="panel howto" id="how-to-read">
     ${chip("ORANGE")}<span>lean (55 to 65%)</span>
     ${chip("RED")}<span>close to a coin flip (under 55%)</span>
   </div>
+  <p class="small">Those cut-offs are for NBA, NFL and NHL. Premier League and Championship greens start at 55% because a draw is possible. Tennis greens start at 70%. <a href="/lights">How the lights work</a></p>
   <ul class="howto-list">
     <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is <span class="odds" data-dec="1.6666667">1.67</span>; a 75% call is <span class="odds" data-dec="1.3333333">1.33</span>.</li>
     <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>

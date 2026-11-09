@@ -301,3 +301,26 @@ ul.team-index a { grid-template-columns: 36px 1fr auto; }
   .team-hero .team-logo-fallback { width: 36px; height: 36px; font-size: 12px; }
   .team-hero h1 { font-size: clamp(22px, 7vw, 32px); }
 }
+
+
+/* Unified track-record pages */
+.record-sports { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 8px 0 16px; font: 600 12.5px var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.record-sports a, .record-sports span { color: var(--muted); text-decoration: none; }
+.record-sports a:hover { color: var(--cyan); }
+.record-sports .on { color: var(--cyan); }
+.record-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 18px; }
+.csv-btn { display: inline-block; padding: 8px 14px; border: 1px solid var(--cyan); color: var(--cyan); text-decoration: none; font: 700 12.5px var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; }
+.csv-btn:hover { background: rgba(25, 227, 255, 0.12); color: var(--ink); }
+.record-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 18px 0; }
+.record-hero { font-size: 28px; margin: 6px 0; }
+.record-hero span { font-size: 16px; color: var(--muted); }
+table.record-picks { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.record-picks th, table.record-picks td { border-top: 1px solid var(--line); padding: 8px 8px; text-align: left; vertical-align: top; }
+table.record-picks th.n, table.record-picks td.n { text-align: right; font-variant-numeric: tabular-nums; }
+table.record-picks .posted-note { color: var(--muted); font-size: 12px; }
+table.record-picks a { color: inherit; }
+table.record-picks a:hover { color: var(--cyan); }
+@media (max-width: 800px) {
+  .tablewrap { overflow-x: auto; }
+  table.record-picks { min-width: 720px; }
+}

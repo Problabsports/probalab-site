@@ -551,7 +551,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <a href="/teams" data-top="teams">Teams</a>
       <a href="/injuries" data-top="injuries">Injuries</a>
       <a href="/accuracy" data-top="record">Accuracy</a>
-      <a href="/nba/record" data-top="record">Record</a>
+      <a href="/record" data-top="record">Record</a>
       <a href="#about" data-top="about">How it works</a>
       <a href="/members" data-top="members">Members</a>
     </nav>
@@ -637,11 +637,12 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <p>The model was tested on the 2025–26 season game by game, using only information available before each game time. Its percentages lined up with real results: picks given 70–75% won 74% of the time.</p>
       <p><b>NFL:</b> the model rates every team from results and winning margins, adds home field and rest, and checks who is expected to start at quarterback (a backup or inexperienced starter counts against a team). Tested on the 2021–2025 seasons, it picked 65% of winners, and its percentages matched results: games rated 70–75% were won 73% of the time.</p>
       <h2>The lights</h2>
+      <p>The cut-offs depend on the sport. NBA, NFL and NHL use the two-way scale below. Football (where a draw is possible) and tennis use different cut-offs — <a href="/lights">how the lights work</a>.</p>
       <div class="lights">
-        <div><span><i class="chip SUPER">Super</i></span><p>The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</p></div>
-        <div><span><i class="chip GREEN">Green</i></span><p>The model gives the pick 65% or more. One of our top picks.</p></div>
-        <div><span><i class="chip ORANGE">Orange</i></span><p>A lean, 55 to 65%.</p></div>
-        <div><span><i class="chip RED">Red</i></span><p>Under 55%. Close to a coin flip.</p></div>
+        <div><span><i class="chip SUPER">Super</i></span><p>NBA only. The model is confident (60%+) and rates the team well above its usual level. Our strongest picks.</p></div>
+        <div><span><i class="chip GREEN">Green</i></span><p>On NBA, NFL and NHL: 65% or more. One of our top picks.</p></div>
+        <div><span><i class="chip ORANGE">Orange</i></span><p>On NBA, NFL and NHL: a lean, 55 to 65%.</p></div>
+        <div><span><i class="chip RED">Red</i></span><p>On NBA, NFL and NHL: under 55%. Close to a coin flip.</p></div>
       </div>
       <h2>Frozen before the start</h2>
       <p>Every pick is timestamped before the game starts and frozen when it begins. It stays on the record, right or wrong.</p>
@@ -668,7 +669,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
     <p class="small">As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.</p>
-    <p class="flinks"><a href="/about">About</a><a href="/nba">NBA predictions</a><a href="/nfl">NFL predictions</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+    <p class="flinks"><a href="/about">About</a><a href="/record">Record</a><a href="/lights">How the lights work</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
   </div>
 </footer>
@@ -841,7 +842,8 @@ function renderRecord() {
   if (!done.length) { document.getElementById("main").innerHTML = `<div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
     <div class="panel"><h2>No results yet</h2><p>Our record starts with ${SP === "nfl" ? `our first NFL picks (${NFL?.season} season, from week 6)` : `the first game of ${seasonLabel(CUR)}`}. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p></div>`; return; }
   document.getElementById("main").innerHTML = `
-    <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p></div>
+    <div><h2>Our record</h2><p class="lede" style="margin-top:6px">How our predictions have done. For every game's score, see Standings &amp; scores.</p>
+      <p class="note"><a href="/${SP}/record">Full track record, every pick and CSV →</a> · <a href="/lights">How the lights work</a></p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
       ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + super"}`],
