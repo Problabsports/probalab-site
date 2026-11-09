@@ -435,7 +435,6 @@ function resultsGrowthChart(allRows, filters) {
     .slice()
     .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
   const withPrice = greens.filter((g) => g.posted_price != null && Number(g.posted_price) > 1);
-  const excluded = greens.length - withPrice.length;
   const pills = ["all", ...SPORT_ORDER.filter((s) => sportsPresent.has(s))].map((id) => {
     const on = sport === id;
     const href = resultsHref({ sport: id, light: filters.light || "green" }) + "#growth";
@@ -445,15 +444,9 @@ function resultsGrowthChart(allRows, filters) {
       : `<a class="gf-btn" href="${esc(href)}">${esc(label)}</a>`;
   }).join("");
 
-  const basis = "Flat 1 unit on every Green pick at the price shown at the time (posted bookmaker price before the start).";
-  const excludeNote = excluded
-    ? ` ${excluded} finished green pick${excluded === 1 ? "" : "s"} had no recorded price and ${excluded === 1 ? "is" : "are"} excluded.`
-    : "";
-
   if (!withPrice.length) {
     return `<section class="panel" id="growth">
       <h2>Green units</h2>
-      <p class="small">${esc(basis)}${esc(excludeNote)}</p>
       <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
       <p class="muted">No finished green picks with a recorded price in this view yet.</p>
     </section>`;
@@ -550,7 +543,6 @@ function resultsGrowthChart(allRows, filters) {
 
   return `<section class="panel" id="growth">
     <h2>Green units</h2>
-    <p class="small">${esc(basis)} Not a staking plan — a paper track on the public green record.${esc(excludeNote)}</p>
     ${tiles}
     <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
     <div class="chart-wrap">
