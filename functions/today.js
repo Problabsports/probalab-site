@@ -4,6 +4,10 @@
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
  // (built on the box from existing comparison CSVs — no new Odds API credits).
 import { getFeed, gamesOf, shell, html, esc, chip, slug } from "./_shared/site.js";
+import {
+  parseGameFilters, matchesLightFilter, sortGreenFirst,
+  renderFilterBar, emptyFilterMessage,
+} from "./_shared/game-filters.js";
 
 const teamHref = (sport, name) => `/${sport}/team/${slug(name)}`;
 const teamA = (sport, name) => `<a class="team-link" href="${esc(teamHref(sport, name))}">${esc(name)}</a>`;
@@ -139,17 +143,18 @@ const HOW_TO = `<section class="panel howto" id="how-to-read">
 
 export async function onRequestGet(ctx) {
   const now = Date.now();
+  const filters = parseGameFilters(ctx.request.url);
   const market = marketIndex(await asset(ctx, "/data/market-implied.json", { games: [] }));
   const marketAgeMs = market.generated ? (Date.now() - new Date(market.generated).getTime()) : Infinity;
   const showMkt = Number.isFinite(marketAgeMs) && marketAgeMs >= 0 && marketAgeMs <= MARKET_STALE_MS;
-  const out = [];
+  const sections = [];
   let total = 0;
 
   for (const [sport, S] of [["nba", "NBA"], ["nfl", "NFL"]]) {
     let data = null;
     try { data = gamesOf(sport, await getFeed(ctx, sport)); } catch (e) {}
     if (!data) {
-      out.push(`<section class="panel" id="${sport}"><h2>${S}</h2><p>We couldn't load ${S} games just now. Please refresh in a minute.</p></section>`);
+      sections.push({ id: sport, name: S, games: null, error: true, links: "" });
       continue;
     }
     const upcoming = data.games
@@ -177,7 +182,10 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section(sport, S, games, `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+    sections.push({
+      id: sport, name: S, games: games.map((g) => ({ ...g, sport })),
+      links: `<a href="/${sport}/today">All ${S} games this week →</a> · <a href="/results?sport=${sport}">${S} results →</a> · <a href="/${sport}/team">${S} teams →</a>`,
+    });
   }
 
   {
@@ -219,7 +227,10 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("nhl", "NHL", games, `<a href="/nhl">All NHL games →</a> · <a href="/nhl/team">NHL teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+    sections.push({
+      id: "nhl", name: "NHL", games: games.map((g) => ({ ...g, sport: "nhl" })),
+      links: `<a href="/nhl">All NHL games →</a> · <a href="/nhl/team">NHL teams →</a>`,
+    });
   }
 
   {
@@ -259,7 +270,10 @@ export async function onRequestGet(ctx) {
         start_utc: g.start_utc,
       };
     });
-    out.push(section("epl", "Premier League", games, `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+    sections.push({
+      id: "epl", name: "Premier League", games: games.map((g) => ({ ...g, sport: "epl" })),
+      links: `<a href="/epl">All Premier League matches →</a> · <a href="/epl/team">Premier League teams →</a>`,
+    });
   }
 
   {
@@ -295,7 +309,10 @@ export async function onRequestGet(ctx) {
       value: null,
       start_utc: g.start_utc,
     }));
-    out.push(section("championship", "Championship", games, `<a href="/championship">All Championship matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+    sections.push({
+      id: "championship", name: "Championship", games: games.map((g) => ({ ...g, sport: "championship" })),
+      links: `<a href="/championship">All Championship matches →</a>`,
+    });
   }
 
   {
@@ -321,7 +338,10 @@ export async function onRequestGet(ctx) {
         start_utc: m.start_utc,
       };
     });
-    out.push(section("tennis", "Tennis", games, `<a href="/tennis">All tennis matches →</a>`, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+    sections.push({
+      id: "tennis", name: "Tennis", games: games.map((g) => ({ ...g, sport: "tennis" })),
+      links: `<a href="/tennis">All tennis matches →</a>`,
+    });
   }
 
   let marketNote;
@@ -335,14 +355,37 @@ export async function onRequestGet(ctx) {
     marketNote = `Odds as of ${esc(when)} from prices already on file (no live book lookup).`;
   }
 
+  const available = new Set(sections.filter((s) => s.games && s.games.length).map((s) => s.id));
+  const filteredSections = [];
+  let shown = 0;
+  for (const s of sections) {
+    if (s.error) {
+      if (filters.sport === "all" || filters.sport === s.id) {
+        filteredSections.push(`<section class="panel" id="${s.id}"><h2>${esc(s.name)}</h2><p>We couldn't load ${esc(s.name)} games just now. Please refresh in a minute.</p></section>`);
+      }
+      continue;
+    }
+    if (filters.sport !== "all" && filters.sport !== s.id) continue;
+    let games = (s.games || []).filter((g) => matchesLightFilter(g.light, filters.light));
+    if (filters.light === "all") games = sortGreenFirst(games);
+    shown += games.length;
+    if (!games.length && filters.sport === "all" && filters.light !== "all") continue; // hide empty sports when colour-filtered
+    filteredSections.push(section(s.id, s.name, games, s.links, games.length ? dayAEDT(games[0].start_utc) : null, showMkt));
+  }
+
+  const filterBar = renderFilterBar(filters, { basePath: "/today", availableSports: available.size ? available : null, showSuper: true });
+  const anyGames = filteredSections.some((html) => html.includes("today-games") || html.includes("couldn't load"));
+  const bodyList = anyGames ? filteredSections.join("\n") : emptyFilterMessage(filters, { basePath: "/today" });
+
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Today's games</span></nav>
   <p class="eyebrow">// next 24 hours · Australia/Sydney</p>
   <h1>Today's predictions: every sport</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
-  Each row shows the model's pick and win chance, its fair price, the light colour, the market chance for the same side when we have it, and the value % (our chance minus the market). GREEN/SUPER picks with at least +3.0 value get a Value badge.</p>
+  Filter by sport and light colour — same idea as the members desk. Default is Green + Best value, matching <a href="/results">Results</a>.</p>
+  ${filterBar}
   <nav class="crumbs" aria-label="Jump to sport"><a href="#how-to-read">How to read this</a> · <a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
-  ${out.join("\n")}
+  ${bodyList}
   <p class="small">${marketNote}${market.gaps?.length ? ` Gaps: ${esc(market.gaps.join("; "))}.` : ""}</p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
 

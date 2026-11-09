@@ -5,6 +5,10 @@ import { WRITTEN } from "./written.js";
 // Rules: no bookmaker names or prices; no third-party written text (injury statuses are our own labels).
 
 import { venueOf } from "./venues.js";
+import {
+  parseGameFilters, matchesLightFilter, sortGreenFirst,
+  renderFilterBar, emptyFilterMessage,
+} from "./game-filters.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -34,6 +38,19 @@ export function gamesOf(sport, feed) {
     pick_p: g.pick_p == null ? null : Number(g.pick_p), clv: g.clv == null ? null : Number(g.clv),
     fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
+  // NBA light guard: Green is 65%+. A feed GREEN below 65% is almost always a mis-tagged
+  // Super — best value pick (value flag, can sit in the 60–65% band). Demote anything else.
+  if (sport === "nba") {
+    for (const g of games) {
+      if (g.pick_p == null || !g.light) continue;
+      const p = Number(g.pick_p);
+      if (g.light === "GREEN" && p < 0.65) {
+        g.light = p >= 0.6 ? "SUPER" : p >= 0.55 ? "ORANGE" : "RED";
+      } else if (g.light === "SUPER" && p < 0.6) {
+        g.light = p >= 0.55 ? "ORANGE" : "RED";
+      }
+    }
+  }
   games.forEach((g) => (g.path = gamePath(g)));
   return { games, names, season: feed.season, teams: feed.teams ?? [] };
 }
@@ -78,7 +95,7 @@ const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: 
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
 export const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
 const LIGHT = {
-  SUPER: ["Super", "our strongest pick"], GREEN: ["Green", "a 65%+ top pick"],
+  SUPER: ["Super — best value", "a value pick (NBA; bookie price beats our fair price)"], GREEN: ["Green", "a 65%+ top pick"],
   ORANGE: ["Orange", "a lean (55 to 65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
 };
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
@@ -257,7 +274,7 @@ ${body}
 <footer><div class="wrap">
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
   <p><b>Predictions for entertainment, not advice.</b></p>
-  <p class="small">18+. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
+  <p class="small">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
   <p class="links"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
@@ -420,34 +437,48 @@ function trendsHtml(g, all) {
 }
 
 // /nba/today: today's games plus the rest of this week
-export function renderToday(sport, data) {
+export function renderToday(sport, data, reqUrl) {
   const S = sportName(sport), now = Date.now(), wk = now + 7 * 864e5;
-  const up = data.games.filter((g) => g.status !== "post" && new Date(g.start_utc).getTime() > now - 4 * 3600e3 && new Date(g.start_utc).getTime() < wk)
+  const filters = parseGameFilters(reqUrl || `https://probalabsports.com/${sport}/today`, { defaultLight: "green" });
+  const light = filters.light;
+  const allUp = data.games.filter((g) => g.status !== "post" && new Date(g.start_utc).getTime() > now - 4 * 3600e3 && new Date(g.start_utc).getTime() < wk)
     .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  let up = light === "all"
+    ? allUp
+    : allUp.filter((g) => g.pick && matchesLightFilter(g.light, light));
+  if (light === "all") up = sortGreenFirst(up);
   const picked = up.filter((g) => g.pick);
   const groups = {}; up.forEach((g) => (groups[dayET(g.start_utc)] ??= []).push(g));
   const days = Object.keys(groups);
   const strongest = [...picked].sort((a, b) => b.pick_p - a.pick_p)[0];
   const closest = [...picked].sort((a, b) => a.pick_p - b.pick_p)[0];
-  const byLight = (l) => picked.filter((g) => g.light === l).length;
-  const title = `${S} Predictions Today and This Week: Win Chances for ${up.length} Games | ProbaLab`;
-  const description = `${S} win chances for ${up.length} games over the next 7 days${strongest ? `, led by ${strongest.pick_name} at ${pct(strongest.pick_p)}` : ""}. Updated with injury news before every game.`;
-  const summary = picked.length ? `<p>Across the next seven days there are ${up.length} ${S} games on the schedule, and ${picked.length} already have a model prediction. ${strongest ? `The model's most confident call is ${esc(strongest.pick_name)} (${pct(strongest.pick_p)}) in ${esc(strongest.away_name)} vs ${esc(strongest.home_name)} on ${esc(shortDay(strongest.start_utc))}.` : ""} ${closest && closest !== strongest ? `The tightest game is ${esc(closest.away_name)} vs ${esc(closest.home_name)}, where ${esc(closest.pick_name)} are only ${pct(closest.pick_p)}.` : ""}</p>
-    <p>By confidence: ${byLight("SUPER")} very high, ${byLight("GREEN")} high, ${byLight("ORANGE")} medium and ${byLight("RED")} low. Games without a figure yet get one about 48 hours before the start.</p>`
+  const byLight = (l) => allUp.filter((g) => g.pick && g.light === l).length;
+  const title = `${S} Predictions Today and This Week: Win Chances for ${allUp.length} Games | ProbaLab`;
+  const description = `${S} win chances for ${allUp.length} games over the next 7 days${strongest ? `, led by ${strongest.pick_name} at ${pct(strongest.pick_p)}` : ""}. Updated with injury news before every game.`;
+  const summary = allUp.filter((g) => g.pick).length ? `<p>Across the next seven days there are ${allUp.length} ${S} games on the schedule, and ${allUp.filter((g) => g.pick).length} already have a model prediction. ${strongest ? `The model's most confident call in this view is ${esc(strongest.pick_name)} (${pct(strongest.pick_p)}) in ${esc(strongest.away_name)} vs ${esc(strongest.home_name)} on ${esc(shortDay(strongest.start_utc))}.` : ""} ${closest && closest !== strongest ? `The tightest game in this view is ${esc(closest.away_name)} vs ${esc(closest.home_name)}, where ${esc(closest.pick_name)} are only ${pct(closest.pick_p)}.` : ""}</p>
+    <p>By confidence (all lights): ${byLight("SUPER")} very high, ${byLight("GREEN")} high, ${byLight("ORANGE")} medium and ${byLight("RED")} low. Games without a figure yet get one about 48 hours before the start.</p>`
     : `<p>No ${S} predictions are posted for the next seven days yet.</p>`;
+  const filterBar = renderFilterBar({ sport, light }, {
+    basePath: `/${sport}/today`,
+    availableSports: new Set([sport]),
+    showSport: false,
+    showSuper: sport === "nba",
+  });
+  const dayBlocks = days.map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(gameRow).join("")}</ul></section>`).join("") || "";
+  const list = dayBlocks || emptyFilterMessage({ sport, light }, { basePath: `/${sport}/today` });
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${S} predictions</a> › <span>Today and this week</span></nav>
   <p class="eyebrow">// ${S} · next 7 days · updated every 15 minutes</p>
   <h1>${S} predictions today and this week</h1>
   ${summary}
-  ${days.map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(gameRow).join("")}</ul></section>`).join("") || ""}
+  ${filterBar}
+  ${list}
   <p class="cta"><a class="btn" href="/results?sport=${sport}">How accurate is the model? See the results →</a></p>
-  <p class="small"><a href="/${sport}/team">All ${S} teams →</a></p>
+  <p class="small"><a href="/${sport}/team">All ${S} teams →</a> · <a href="/today">All sports today →</a></p>
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
   const jsonld = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${S} predictions today and this week`, url: `${ORIGIN}/${sport}/today`, description,
-    mainEntity: { "@type": "ItemList", numberOfItems: up.length, itemListElement: up.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
+    mainEntity: { "@type": "ItemList", numberOfItems: allUp.length, itemListElement: allUp.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: ORIGIN + g.path, name: `${g.away_name} vs ${g.home_name} prediction` })) } };
   return shell({ title, description, path: `/${sport}/today`, body, jsonld });
 }
-
 // /nba/record: model record and calibration chart from finished games
 export function renderRecord(sport, data) {
   const S = sportName(sport);
@@ -525,7 +556,7 @@ async function renderSport(ctx, sport) {
   }
   const data = gamesOf(sport, feed);
   if (!p.length || p[0] === "") return html(renderHub(sport, data));
-  if (p[0] === "today" && p.length === 1) return html(renderToday(sport, data));
+  if (p[0] === "today" && p.length === 1) return html(renderToday(sport, data, ctx.request.url));
   if (p[0] === "team" && (p.length === 1 || p.length === 2)) {
     const { renderTeamIndex, renderTeamPage, resolveTeamSlug } = await import("./teams.js");
     if (p.length === 1) return html(renderTeamIndex(sport, data));

@@ -54,6 +54,35 @@ export async function onRequestGet() {
       <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
     </section>
 
+
+    <section class="panel prose" id="not-for-everyone">
+      <h2>This isn't for everyone</h2>
+      <p>ProbaLab members desks publish tipsters' picks and their records. There are <b>no guaranteed winners</b> and <b>no risk-free returns</b>. Models and tipsters have losing runs. Every pick and every result is posted — wins and losses — on the public <a href="/results">Results</a> page and in the CSV.</p>
+      <p>This rewards patience and discipline, not quick wins. It is <b>18+ only</b>. If you bet, stake only what you can afford to lose. Read our <a href="/responsible-gambling">responsible gambling</a> commitment.</p>
+    </section>
+
+    <section class="panel" id="members-faq">
+      <h2>Members FAQ</h2>
+      <details class="faq-item"><summary>Which sports are covered?</summary>
+        <p>Live desks cover the sports we publish publicly: NBA, NFL, NHL, Premier League, Championship and tennis. Each tipster lists the sports it tips. We do not tip sports that are not live on the site.</p>
+      </details>
+      <details class="faq-item"><summary>How are tips delivered?</summary>
+        <p>Tips appear on the members tipster desks on this site. Some desks also send Discord alerts when a tip qualifies. There is no Telegram channel.</p>
+      </details>
+      <details class="faq-item"><summary>How many tips per day?</summary>
+        <p>It varies. Tipsters only post when they see value on their own rules — some days several, some days none. There is no fixed daily quota.</p>
+      </details>
+      <details class="faq-item"><summary>What is a unit?</summary>
+        <p>A unit is a flat stake size used to keep records comparable. Most desks paper-trade at 1 unit per tip unless the tipster states otherwise. Units are for tracking, not a staking plan we tell you to follow.</p>
+      </details>
+      <details class="faq-item"><summary>How are results verified?</summary>
+        <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
+      </details>
+      <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
+        <p>Membership is opening soon — join the waitlist and we will email you when seats open. We will publish clear cancel and payment details before any paid checkout goes live. Nothing is charged from this waitlist form.</p>
+      </details>
+    </section>
+
     <section class="panel">
       <h2>Not a member yet?</h2>
       <p>Join the waitlist and we will email you when more seats open.</p>

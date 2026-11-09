@@ -173,6 +173,35 @@ svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .filters button { font: 600 12px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: transparent; border: 1px solid var(--line-hi); padding: 5px 12px; cursor: pointer; }
 .filters button[aria-pressed="true"] { color: var(--cyan); border-color: var(--cyan); background: var(--cyan-soft); }
+
+.game-filter-bar { display: grid; gap: 8px; margin: 10px 0 14px; }
+.game-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.game-filters .gf-btn {
+  font: 600 12px var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); background: transparent; border: 1px solid var(--line-hi);
+  padding: 6px 12px; border-radius: 999px; text-decoration: none; cursor: pointer;
+  min-height: 36px; display: inline-flex; align-items: center;
+}
+.game-filters .gf-btn:hover { color: var(--ink); border-color: var(--cyan); }
+.game-filters .gf-btn.on { color: #07080f; background: var(--cyan); border-color: var(--cyan); }
+.game-filters.lights .gf-btn.SUPER { color: #cfa5ff; border-color: #cfa5ff; }
+.game-filters.lights .gf-btn.GREEN { color: var(--green); border-color: var(--green); }
+.game-filters.lights .gf-btn.ORANGE { color: var(--orange); border-color: var(--orange); }
+.game-filters.lights .gf-btn.RED { color: var(--red); border-color: var(--red); }
+.game-filters.lights .gf-btn.SUPER.on { background: #cfa5ff; color: #07080f; }
+.game-filters.lights .gf-btn.GREEN.on { background: var(--green); color: #07080f; }
+.game-filters.lights .gf-btn.ORANGE.on { background: var(--orange); color: #07080f; }
+.game-filters.lights .gf-btn.RED.on { background: var(--red); color: #07080f; }
+.game-filter-bar .filter-note { margin: 0; color: var(--muted); font-size: 13px; }
+.chart-summary { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 10px 0 0; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.chart-summary b { color: var(--ink); }
+.chart-summary .pos { color: var(--green); }
+.pill-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.pill-tabs .gf-btn { border-radius: 999px; }
+@media (max-width: 420px) {
+  .game-filters .gf-btn { padding: 7px 10px; font-size: 11px; }
+}
+
 .clv-pos { color: var(--win); } .clv-neg { color: var(--red); }
 
 /* about */
@@ -685,7 +714,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
     </form>
     <p><b>Predictions for entertainment, not advice.</b></p>
-    <p class="small">18+. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
+    <p class="small">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
     <p class="small">As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.</p>
     <p class="flinks"><a href="/about">About</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
@@ -712,6 +741,13 @@ function sampleFeed() {
   let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const codes = Object.keys(TEAMS); const games = []; let id = 1;
   const lightOf = (p, sup) => sup ? "SUPER" : p >= 0.65 ? "GREEN" : p >= 0.55 ? "ORANGE" : "RED";
+function normalizeNbaGameLight(g) {
+  if (!g || g.pick_p == null || !g.light) return g;
+  const p = Number(g.pick_p);
+  if (g.light === "GREEN" && p < 0.65) g.light = p >= 0.6 ? "SUPER" : p >= 0.55 ? "ORANGE" : "RED";
+  else if (g.light === "SUPER" && p < 0.6) g.light = p >= 0.55 ? "ORANGE" : "RED";
+  return g;
+}
   const STAT = ["Out", "Doubtful", "Questionable"];
   const missing = (n) => Array.from({ length: n }, (_, i) => ({ player: "Sample player " + (i + 1), status: STAT[Math.floor(rnd() * 3)], min: +(14 + rnd() * 20).toFixed(1) }));
   function make(startMs, settled, season, withPick = true) {
@@ -764,7 +800,7 @@ const pct = (x) => Math.round(x * 100) + "%";
 const money = (x) => "$" + Number(x).toFixed(2);
 const sgn = (x, dp = 1) => (x > 0 ? "+" : "") + Number(x).toFixed(dp);
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const LNAME = { SUPER: "Super", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
+const LNAME = { SUPER: "Super — best value", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
 const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
@@ -798,6 +834,30 @@ function card(g) {
 
 // ---------- calendar ----------
 let SEL = keyOf(Date.now()), CALM = null, CAL_OPEN = false;
+let PRED_LIGHT = (() => { const l = (new URLSearchParams(location.search).get("light") || "green").toLowerCase(); return ["green","all","super","orange","red"].includes(l) ? l : "green"; })();
+const matchesPredLight = (light, f) => {
+  if (f === "all") return true;
+  if (f === "green") return light === "GREEN" || light === "SUPER";
+  if (f === "super") return light === "SUPER";
+  if (f === "orange") return light === "ORANGE";
+  if (f === "red") return light === "RED";
+  return true;
+};
+const lightRank = (l) => (l === "SUPER" ? 0 : l === "GREEN" ? 1 : l === "ORANGE" ? 2 : l === "RED" ? 3 : 4);
+function setPredLight(l) {
+  PRED_LIGHT = l;
+  const u = new URL(location.href);
+  if (l === "green") u.searchParams.delete("light"); else u.searchParams.set("light", l);
+  history.replaceState(null, "", u.pathname + u.search + u.hash);
+}
+function predLightBar(showSuper) {
+  const btns = [["green","Green","GREEN"],["all","All",""],...(showSuper?[["super","Super — best value","SUPER"]]:[]),["orange","Orange","ORANGE"],["red","Red","RED"]];
+  return `<div class="game-filter-bar"><nav class="game-filters lights" aria-label="Filter by light">${btns.map(([id,lab,cls]) => {
+    const on = PRED_LIGHT === id;
+    return `<button type="button" class="gf-btn${cls?` ${cls}`:""}${on?" on":""}" data-pred-light="${id}"${on?' aria-current="true"':""}>${lab}</button>`;
+  }).join("")}</nav>${PRED_LIGHT==="green"?`<p class="filter-note">Showing Green + Best value. Choose All lights to see every colour.</p>`:PRED_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`;
+}
+
 function calHtml() {
   const has = new Set(curGames().map((g) => keyOf(g.start_utc)));
   const sel = dateOfKey(SEL); if (!CALM) CALM = new Date(sel.getFullYear(), sel.getMonth(), 1);
@@ -822,7 +882,9 @@ function cardSoon(g) {
   </article>`;
 }
 function renderPredictions() {
-  const list = curGames().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const dayAll = curGames().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  let list = dayAll.filter((g) => !g.pick || matchesPredLight(g.light, PRED_LIGHT));
+  if (PRED_LIGHT === "all") list = list.slice().sort((a, b) => lightRank(a.light) - lightRank(b.light) || a.start_utc.localeCompare(b.start_utc));
   const pl = list.filter((g) => g.pick);
   const done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip);
   const w = (xs) => xs.filter((g) => g.won).length;
@@ -834,17 +896,18 @@ function renderPredictions() {
       <button type="button" class="calbtn" id="calToggle" aria-expanded="${CAL_OPEN}">Calendar</button>
     </div>
     <div class="mini ${CAL_OPEN ? "open" : ""}" id="calInline">${calHtml()}</div>
-    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> top picks</span>
+    ${predLightBar(true)}
+    <div class="daysum"><span><b>${list.length}</b> shown</span><span><b>${dayAll.length}</b> this day</span><span><b>${tips.length}</b> top picks</span>
       ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
-      <span><i class="chip SUPER">Super</i> best value</span><span><i class="chip GREEN">Green</i> 65%+</span>
+      <span><i class="chip SUPER">Super — best value</i></span><span><i class="chip GREEN">Green</i> 65%+</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
-      ${noteLegend(list)}
+      ${noteLegend(dayAll)}
     </div>
-    ${list.length ? list.map((g) => (g.pick ? card(g) : cardSoon(g))).join("") : `<div class="panel"><h2>No games this day</h2><p>${SEL > keyOf(Date.now())
+    ${list.length ? list.map((g) => (g.pick ? card(g) : cardSoon(g))).join("") : `<div class="panel"><h2>No games match these filters</h2><p>${dayAll.length ? "Try another light colour, or choose All lights." : (SEL > keyOf(Date.now())
       ? "Games and predictions appear here about two days before game time and update as injury news comes in."
-      : "Pick another date in the calendar. Days with games have a dot."}</p></div>`}`;
+      : "Pick another date in the calendar. Days with games have a dot.")}</p></div>`}`;
 }
 
 // ---------- our record ----------
@@ -1450,7 +1513,9 @@ function showQb(id) {
 
 // predictions by week
 function renderNflPredictions() {
-  const weeks = nflWeeks(NFL.season), list = nflSeasonGames(NFL.season).filter((g) => g.week === NWEEK).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const weeks = nflWeeks(NFL.season), weekAll = nflSeasonGames(NFL.season).filter((g) => g.week === NWEEK).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  let list = weekAll.filter((g) => !g.pick || matchesPredLight(g.light, PRED_LIGHT === "super" ? "green" : PRED_LIGHT));
+  if (PRED_LIGHT === "all") list = list.slice().sort((a, b) => lightRank(a.light) - lightRank(b.light) || a.start_utc.localeCompare(b.start_utc));
   const pl = list.filter((g) => g.pick), done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip), w = (xs) => xs.filter((g) => g.won).length;
   const byDay = {}; list.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
   document.getElementById("main").innerHTML = `
@@ -1460,15 +1525,16 @@ function renderNflPredictions() {
       <button type="button" data-wk="1" aria-label="Next week" ${NWEEK >= weeks[weeks.length - 1] ? "disabled" : ""}>›</button>
       <select class="season" id="nweekSel" aria-label="Week">${weeks.map((x) => `<option value="${x}" ${x === NWEEK ? "selected" : ""}>${wkLabel(x)}</option>`).join("")}</select>
     </div>
-    <div class="daysum"><span><b>${list.length}</b> games</span><span><b>${tips.length}</b> top picks</span>
+    ${predLightBar(false)}
+    <div class="daysum"><span><b>${list.length}</b> shown</span><span><b>${weekAll.length}</b> this week</span><span><b>${tips.length}</b> top picks</span>
       ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
       <span><i class="chip GREEN">Green</i> 65%+</span><span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
-      ${noteLegend(list)}
+      ${noteLegend(weekAll)}
     </div>
     ${list.length ? Object.keys(byDay).sort().map((k) => `<div class="dayhead">${fmtDay.format(dateOfKey(k))}</div>${byDay[k].map((g) => (g.pick ? card(g) : cardSoon(g))).join("")}`).join("")
-      : `<div class="panel"><h2>No games this week</h2></div>`}
+      : `<div class="panel"><h2>No games match these filters</h2></div>`}
     <p class="note">Picks are posted up to 8 days before kick-off and update as quarterback news comes in.</p>`;
 }
 
@@ -1766,6 +1832,7 @@ document.addEventListener("click", (e) => {
   const cm = e.target.closest("[data-cal]"); if (cm) { CALM = new Date(CALM.getFullYear(), CALM.getMonth() + Number(cm.dataset.cal), 1); const open = CAL_OPEN; rerenderPred(); CAL_OPEN = open; return; }
   const st = e.target.closest("[data-step]"); if (st) { SEL = keyOf(dateOfKey(SEL).getTime() + Number(st.dataset.step) * 864e5); const d = dateOfKey(SEL); CALM = new Date(d.getFullYear(), d.getMonth(), 1); rerenderPred(); return; }
   if (e.target.closest("#calToggle")) { CAL_OPEN = !CAL_OPEN; rerenderPred(); return; }
+  const plb = e.target.closest("[data-pred-light]"); if (plb) { setPredLight(plb.dataset.predLight); if (SP === "nfl") renderNflPredictions(); else rerenderPred(); return; }
   const f = e.target.closest("#filters [data-f]"); if (f) { FILTER = f.dataset.f; renderRecord(); return; }
   const tm = e.target.closest("[data-team]"); if (tm) { location.hash = "nba-stats-" + tm.dataset.team; return; }
   if (e.target.closest("a.team-link")) return;
@@ -1784,7 +1851,7 @@ document.getElementById("yr").textContent = new Date().getFullYear();
 // turn the live feed (+ static past seasons) into the shape the page uses
 function buildData(feed, pasts) {
   const nm = (c) => TEAMS[c] ?? c, n = (x) => (x == null ? null : Number(x));
-  const games = (feed.games ?? []).map((g) => ({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
+  const games = (feed.games ?? []).map((g) => normalizeNbaGameLight({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
     pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv),
     posted_price: n(g.posted_price), close_price: n(g.close_price), vs_close: n(g.vs_close) }));
   const players = (feed.players ?? []).map(([team, player, gp, pts, reb, ast, stl, blk]) =>

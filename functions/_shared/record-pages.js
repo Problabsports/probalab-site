@@ -426,6 +426,126 @@ function sportGreenCard(v) {
   </article>`;
 }
 
+
+/** Sen.Bets-style neon cumulative chart for green (+ Super) hits on Results. */
+function resultsGrowthChart(allRows, filters) {
+  const sport = filters.sport || "all";
+  const sportsPresent = new Set(allRows.map((r) => r.sport).filter(Boolean));
+  const pool = allRows.filter((r) => (sport === "all" || r.sport === sport) && isTip(r.light) && r.won != null && r.start_utc)
+    .slice()
+    .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
+  const pills = ["all", ...SPORT_ORDER.filter((s) => sportsPresent.has(s))].map((id) => {
+    const on = sport === id;
+    const href = resultsHref({ sport: id, light: filters.light || "green" }) + "#growth";
+    const label = id === "all" ? "All" : (id === "championship" ? "Champ" : id === "epl" ? "EPL" : id.toUpperCase());
+    return on
+      ? `<a class="gf-btn on" href="${esc(href)}" aria-current="true">${esc(label)}</a>`
+      : `<a class="gf-btn" href="${esc(href)}">${esc(label)}</a>`;
+  }).join("");
+
+  if (!pool.length) {
+    return `<section class="panel" id="growth">
+      <h2>Green performance</h2>
+      <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
+      <p class="muted">No finished green or Super — best value picks in this view yet.</p>
+    </section>`;
+  }
+
+  // Cumulative flat +1 / −1 on green + Super (paper hits, not staking advice).
+  let run = 0;
+  const pts = [];
+  const byMonth = {};
+  for (const g of pool) {
+    run += g.won ? 1 : -1;
+    const day = String(g.start_utc).slice(0, 10);
+    pts.push({ date: day, units: run, won: g.won });
+    const m = day.slice(0, 7);
+    byMonth[m] = (byMonth[m] || 0) + (g.won ? 1 : -1);
+  }
+  // Collapse to last point per day for a clean line
+  const byDay = new Map();
+  pts.forEach((p) => byDay.set(p.date, p));
+  const series = [...byDay.values()];
+
+  const W = 800, H = 340, L = 52, R = 28, T = 18, B = 44;
+  const dates = series.map((p) => p.date);
+  const start = Date.parse(dates[0]), end = Date.parse(dates[dates.length - 1]);
+  const vals = [0, ...series.map((p) => p.units)];
+  const span = Math.max(1, Math.max(...vals) - Math.min(...vals));
+  const step = [1, 2, 5, 10, 20, 50].find((st) => span / st <= 8) || 100;
+  const low = Math.floor(Math.min(...vals) / step) * step;
+  const high = Math.ceil(Math.max(...vals) / step) * step || step;
+  const x = (d) => L + (Date.parse(d) - start) / Math.max(864e5, end - start) * (W - L - R);
+  const y = (v) => T + (high - v) / Math.max(step, high - low) * (H - T - B);
+  const fu = (v) => `${v > 0 ? "+" : ""}${v}`;
+  const dfmt = (d) => {
+    try {
+      return new Intl.DateTimeFormat("en-AU", { day: "2-digit", month: "short", timeZone: "UTC" }).format(new Date(d + "T00:00:00Z"));
+    } catch { return d; }
+  };
+  const xy = series.map((p) => [x(p.date), y(p.units)]);
+  const smooth = (pts) => {
+    if (!pts.length) return "";
+    if (pts.length === 1) return `M ${pts[0][0]} ${pts[0][1]}`;
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6, cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6, cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
+  const line = smooth(xy);
+  const area = line ? `${line} L ${xy[xy.length - 1][0]} ${y(0)} L ${xy[0][0]} ${y(0)} Z` : "";
+  let grid = "";
+  for (let v = low; v <= high + 1e-9; v += step) {
+    const zero = Math.abs(v) < 1e-9;
+    grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${zero ? "rgba(138,150,171,.55)" : "rgba(138,150,171,.22)"}" stroke-dasharray="${zero ? "" : "4 6"}"${zero ? ' stroke-width="1.4"' : ""}/>`
+      + `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end"${zero ? ' font-weight="700"' : ""}>${zero ? "0" : fu(v)}</text>`;
+  }
+  const every = Math.max(1, Math.ceil(dates.length / 8));
+  dates.forEach((d, i) => {
+    if (i % every === 0 || i === dates.length - 1) {
+      grid += `<text x="${x(d)}" y="${H - B + 20}" text-anchor="middle">${esc(dfmt(d))}</text>`;
+    }
+  });
+  const last = series[series.length - 1];
+  const endDot = `<circle cx="${x(last.date)}" cy="${y(last.units)}" r="5" fill="#2fd7a0" stroke="#07080f" stroke-width="2"/>`
+    + `<text x="${x(last.date) - 8}" y="${y(last.units) - 10}" text-anchor="end" fill="#2fd7a0" font-weight="700">${fu(last.units)}</text>`;
+
+  let bestM = null, bestV = -Infinity;
+  for (const [m, v] of Object.entries(byMonth)) {
+    if (v > bestV) { bestV = v; bestM = m; }
+  }
+  const w = pool.filter((g) => g.won).length, n = pool.length;
+  const summary = `<div class="chart-summary">
+    <span>Total <b class="${last.units >= 0 ? "pos" : ""}">${fu(last.units)}</b> <small>(flat ±1 on green + Super)</small></span>
+    <span>Best month <b>${bestM ? `${esc(bestM)} (${fu(bestV)})` : "—"}</b></span>
+    <span>Hit <b>${n ? pct(w / n) : "—"}</b> <small>${w} of ${n}</small></span>
+  </div>`;
+
+  return `<section class="panel" id="growth">
+    <h2>Green performance</h2>
+    <p class="small">Cumulative flat +1 / −1 on finished Green and Super — best value picks only. Not a staking plan — a paper track of the stronger calls.</p>
+    <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
+    <div class="chart-wrap">
+      <svg class="units-chart results-growth" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cumulative green and Super hits">
+        <defs><linearGradient id="resultsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2fd7a0" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#2fd7a0" stop-opacity="0"/>
+        </linearGradient></defs>
+        ${grid}
+        ${area ? `<path d="${area}" fill="url(#resultsAreaGrad)"></path>` : ""}
+        ${line ? `<path d="${line}" fill="none" stroke="#2fd7a0" stroke-width="3" stroke-linejoin="round"/>` : ""}
+        ${endDot}
+        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative green hits</text>
+      </svg>
+    </div>
+    ${summary}
+  </section>`;
+}
+
 export function renderResultsPage(views, filters = { sport: "all", light: "green" }) {
   const allRows = views.flatMap((v) => (v.error ? [] : v.rows));
   const shown = filterResultRows(allRows, filters);
@@ -461,6 +581,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   <h1>Results</h1>
   <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all.</p>
   ${overall}
+  ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
   ${signupMain("results")}
   <section class="panel" id="picks">

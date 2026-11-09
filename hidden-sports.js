@@ -23,6 +23,17 @@
   const vcStat = (done) => { const v = done.filter((g) => g.vs_close != null);
     return v.length ? [["Beat the close", pct(v.filter((g) => g.vs_close > 0).length / v.length), `avg ${sgnPct(v.reduce((a, g) => a + g.vs_close, 0) / v.length)} vs close · ${v.length} pick${v.length > 1 ? "s" : ""}`]] : []; };
   let SELR = null, SELD = null;
+  let H_LIGHT = (() => { const l = (new URLSearchParams(location.search).get("light") || "green").toLowerCase(); return ["green","all","orange","red"].includes(l) ? l : "green"; })();
+  const matchHL = (light, f) => f === "all" || (f === "green" ? light === "GREEN" : light === f.toUpperCase());
+  const lRank = (l) => (l === "GREEN" ? 0 : l === "ORANGE" ? 1 : l === "RED" ? 2 : 3);
+  function hLightBar() {
+    const btns = [["green","Green","GREEN"],["all","All",""],["orange","Orange","ORANGE"],["red","Red","RED"]];
+    return `<div class="game-filter-bar"><nav class="game-filters lights" aria-label="Filter by light">${btns.map(([id,lab,cls]) => {
+      const on = H_LIGHT === id;
+      return `<button type="button" class="gf-btn${cls?` ${cls}`:""}${on?" on":""}" data-h-light="${id}"${on?' aria-current="true"':""}>${lab}</button>`;
+    }).join("")}</nav>${H_LIGHT==="green"?`<p class="filter-note">Showing Green picks. Choose All lights to see every colour.</p>`:H_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`;
+  }
+
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   async function load() {
     const [raw, grades, table, bt, snap, w2, mk] = await Promise.all([get(`/data/${HS}-picks.json`, []), get(`/data/${HS}-grades.json`, {}), get(`/api/hidden-table?sport=${HS}`, null), get(`/data/${HS}-backtest.json`, null), IS_SOC ? {} : get("/data/nhl-pretip.json", {}), IS_EPL ? get("/data/epl-win2.json", {}) : {}, get(`/data/${HS}-market.json`, {})]);
@@ -74,9 +85,11 @@
 
   // ---------- predictions ----------
   function predictions() {
-    let list, head, keys, cur;
-    if (IS_SOC) { keys = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); cur = SELR; list = H.games.filter((g) => g.round === SELR); head = `Round ${SELR ?? "–"} · 2026–27`; }
-    else { keys = [...new Set(H.games.map((g) => keyOf(g.start_utc)))].sort(); cur = SELD; list = H.games.filter((g) => keyOf(g.start_utc) === SELD); head = SELD ? `${SELD === keyOf(Date.now()) ? "Today · " : ""}${fmtDay.format(new Date(SELD + "T12:00"))}` : "No games"; }
+    let dayAll, head, keys, cur;
+    if (IS_SOC) { keys = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); cur = SELR; dayAll = H.games.filter((g) => g.round === SELR); head = `Round ${SELR ?? "–"} · 2026–27`; }
+    else { keys = [...new Set(H.games.map((g) => keyOf(g.start_utc)))].sort(); cur = SELD; dayAll = H.games.filter((g) => keyOf(g.start_utc) === SELD); head = SELD ? `${SELD === keyOf(Date.now()) ? "Today · " : ""}${fmtDay.format(new Date(SELD + "T12:00"))}` : "No games"; }
+    let list = !LIGHTS ? dayAll : dayAll.filter((g) => !g.light || matchHL(g.light, H_LIGHT));
+    if (LIGHTS && H_LIGHT === "all") list = list.slice().sort((a, b) => lRank(a.light) - lRank(b.light) || a.start_utc.localeCompare(b.start_utc));
     const i = keys.indexOf(cur), done = list.filter((g) => g.graded), gr = list.filter((g) => g.light === "GREEN");
     const byDay = {}; list.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
     document.getElementById("main").innerHTML = `
@@ -85,10 +98,11 @@
       <button type="button" data-hstep="1" aria-label="Next" ${i >= keys.length - 1 ? "disabled" : ""}>›</button>
       ${IS_SOC ? `<select class="season" id="hroundSel" aria-label="Round">${keys.map((k) => `<option value="${k}" ${k === cur ? "selected" : ""}>Round ${k}</option>`).join("")}</select>` : ""}
     </div>
-    <div class="daysum"><span><b>${list.length}</b> games</span>${LIGHTS ? `<span><b>${gr.length}</b> green</span>` : ""}${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
+    ${LIGHTS ? hLightBar() : ""}
+    <div class="daysum"><span><b>${list.length}</b> shown</span>${LIGHTS ? `<span><b>${gr.length}</b> green</span>` : ""}${done.length ? `<span>Picks <b>${W(done)}–${done.length - W(done)}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
     ${legend()}
     ${list.length ? Object.entries(byDay).map(([k, xs]) => `<div class="dayhead">${esc(fmtDay.format(new Date(k + "T12:00")))}</div>${xs.map(hcard).join("")}`).join("")
-      : `<div class="panel"><h2>No games yet</h2><p>Predictions appear here before ${IS_SOC ? "kick-off" : "puck drop"}.</p></div>`}`;
+      : `<div class="panel"><h2>${dayAll.length ? "No games match these filters" : "No games yet"}</h2><p>${dayAll.length ? "Try another light colour." : `Predictions appear here before ${IS_SOC ? "kick-off" : "puck drop"}.`}</p></div>`}`;
   }
   // ---------- record ----------
   let HFILTER = "all";
@@ -276,6 +290,16 @@
   route = hroute; // eslint-disable-line no-global-assign
   window.addEventListener("hashchange", hroute);
   document.addEventListener("click", (e) => {
+    const hl = e.target.closest("[data-h-light]");
+    if (hl) {
+      e.stopPropagation();
+      H_LIGHT = hl.dataset.hLight;
+      const u = new URL(location.href);
+      if (H_LIGHT === "green") u.searchParams.delete("light"); else u.searchParams.set("light", H_LIGHT);
+      history.replaceState(null, "", u.pathname + u.search + u.hash);
+      predictions(); side();
+      return;
+    }
     const b = e.target.closest("[data-hstep]"); if (!b) return; e.stopPropagation();
     const d = Number(b.dataset.hstep);
     if (IS_SOC) { const ks = [...new Set(H.games.map((g) => g.round))].sort((a, b) => a - b); SELR = ks[Math.max(0, Math.min(ks.length - 1, ks.indexOf(SELR) + d))]; }
