@@ -9,6 +9,7 @@ import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
   renderFilterBar, emptyFilterMessage,
 } from "./game-filters.js";
+import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -20,13 +21,18 @@ export async function getFeed(ctx, sport) {
   const cache = caches.default;
   const key = new Request(new URL(`/api/feed?sport=${sport}`, ctx.request.url).toString(), { method: "GET" });
   const hit = await cache.match(key);
-  if (hit) return await hit.json();
-  const base = ctx.env?.FEED_BASE || FEED;
-  const up = await fetch(`${base}?sport=${sport}`, { headers: { accept: "application/json" } });
-  if (!up.ok) throw new Error(`feed ${sport} ${up.status}`);
-  const body = await up.text();
-  ctx.waitUntil(cache.put(key, new Response(body, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${TTL}` } })));
-  return JSON.parse(body);
+  let feed;
+  if (hit) feed = await hit.json();
+  else {
+    const base = ctx.env?.FEED_BASE || FEED;
+    const up = await fetch(`${base}?sport=${sport}`, { headers: { accept: "application/json" } });
+    if (!up.ok) throw new Error(`feed ${sport} ${up.status}`);
+    const body = await up.text();
+    ctx.waitUntil(cache.put(key, new Response(body, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${TTL}` } })));
+    feed = JSON.parse(body);
+  }
+  try { feed.__hostname = new URL(ctx.request.url).hostname; } catch (_) {}
+  return feed;
 }
 
 // normalised game list for one sport
@@ -38,6 +44,7 @@ export function gamesOf(sport, feed) {
     pick_p: g.pick_p == null ? null : Number(g.pick_p), clv: g.clv == null ? null : Number(g.clv),
     fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
+  if (sport === "nba") applyInjuryPreviewDemo(games, feed.__hostname);
   // NBA light guard: Green is 65%+. A feed GREEN below 65% is a held value pick
   // (injury uncertainty) — keep the threshold light (Orange/Red), never promote to SUPER.
   if (sport === "nba") {
@@ -287,6 +294,7 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 });
 </script>
 <script src="/odds.js"></script>
+<script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>`;
@@ -332,7 +340,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
         <span class="at">@</span>
         <span class="team r ${g.pick === g.home ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(H)}"><span class="ab">${esc(g.home)}</span>${esc(H)}</a><span class="pc">${pct(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${pct(pAway)}, ${esc(H)} ${pct(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
-      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
+      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}${g.sport === "nba" ? injuryBadge(g) : ""}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${g.sport}">${S} predictions</a> › <span>${esc(A)} vs ${esc(H)}</span></nav>
@@ -374,8 +382,9 @@ export function renderGame(g, all, rec, review = null, inj = null) {
 
 export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
+  const warn = g.sport === "nba" ? injuryBadge(g) : "";
   return `<li><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
-    <span class="p">${g.pick ? `${esc(g.pick)} ${pct(g.pick_p)}` : "soon"}</span>${chip(g.light)}${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}</a></li>`;
+    <span class="p">${g.pick ? `${esc(g.pick)} ${pct(g.pick_p)}` : "soon"}</span>${chip(g.light)}${warn}${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}</a></li>`;
 }
 
 // ------------------------------------------------------------------ sport hub

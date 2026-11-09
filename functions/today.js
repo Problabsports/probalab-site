@@ -4,6 +4,7 @@
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
  // (built on the box from existing comparison CSVs — no new Odds API credits).
 import { getFeed, gamesOf, shell, html, esc, chip, slug } from "./_shared/site.js";
+import { injuryBadge } from "./_shared/injury-warning.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
   renderFilterBar, emptyFilterMessage,
@@ -100,11 +101,12 @@ function todayRow(g, showMkt) {
   const mktCols = showMkt ? `
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
+  const warn = g.injuryBadgeHtml || "";
   return `<li class="${valued ? "has-value" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
-      <span class="p">${esc(g.pick)}</span>${chip(g.light)}
+      <span class="p">${esc(g.pick)}</span><span class="chip-with-warn">${chip(g.light)}${warn}</span>
       <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>${mktCols}
     </a>
   </li>`;
@@ -141,6 +143,7 @@ const HOW_TO = `<section class="panel howto" id="how-to-read">
     <li><b>Fair</b> — our price for the pick (= 1 ÷ our win chance). A 60% call is <span class="odds" data-dec="1.6666667">1.67</span>; a 75% call is <span class="odds" data-dec="1.3333333">1.33</span>.</li>
     <li><b>Market</b> — the bookies' implied chance for the same side, from prices we already have on file. A dash means no market figure yet.</li>
     <li><b>Value</b> — our chance minus the market chance. Positive means we rate the team higher than the bookies. A <span class="best-tag">Value</span> badge appears on GREEN or SUPER picks with at least <b>+3.0</b> points of value (there can be several, or none).</li>
+    <li><b>⚠️</b> — on an NBA pick, key players are uncertain. Tap the warning for the names. The light colour still follows the usual thresholds.</li>
   </ul>
   <p class="legend-example"><b>Example:</b> we make the home team 68% (fair <span class="odds" data-dec="1.4705882">1.47</span>, GREEN). The market has them at 62%. Value = +6.0. That pick gets a Value badge. A RED pick at +0.5 does not — the number still shows, in a neutral colour.</p>
   <p class="small">Figures are for entertainment, not advice. Fair prices are from the model alone.</p>
@@ -185,6 +188,7 @@ export async function onRequestGet(ctx) {
         marketP,
         value: valueOf(modelP, marketP),
         heldNote: heldNoteOf(g),
+        injuryBadgeHtml: sport === "nba" ? injuryBadge(g) : "",
         start_utc: g.start_utc,
       };
     });

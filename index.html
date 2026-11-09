@@ -569,6 +569,13 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 @media (max-width: 800px) { .home-hero { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) { nav.tabs a { white-space: nowrap; padding-inline: 9px; font-size: 12.5px; letter-spacing: 0.08em; } .sportgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sport-tile.live { grid-column: 1 / -1; } .steps { grid-template-columns: minmax(0, 1fr); } .sport-tile { min-height: 160px; } }
 .qbwarn { display: inline-grid; place-items: center; width: 26px; height: 24px; margin-left: 4px; padding: 0; border: 0; background: transparent; color: rgba(245, 233, 0, 0.55); font-size: 17px; line-height: 1; cursor: pointer; }
+.injury-warn-btn { appearance: none; background: none; border: 0; padding: 0 2px; margin: 0 0 0 4px; display: inline-grid; place-items: center; width: 26px; height: 24px; cursor: pointer; font-size: 15px; line-height: 1; vertical-align: middle; color: #ffb020; text-shadow: 0 0 10px rgba(255, 176, 32, 0.55); border-radius: 6px; }
+.injury-warn-btn:hover, .injury-warn-btn:focus-visible { outline: none; background: rgba(255, 176, 32, 0.12); color: #ffc857; }
+.chip-with-warn { display: inline-flex; align-items: center; gap: 2px; }
+.injury-popover.tipster-popover { position: absolute; z-index: 40; left: 0; top: calc(100% + 8px); width: min(320px, calc(100vw - 32px)); background: #121526; color: var(--ink); border: 1px solid var(--line-hi); border-radius: 10px; padding: 12px 14px; box-shadow: 0 10px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(255, 176, 32, .18); }
+.injury-popover.tipster-popover::before { content: ""; position: absolute; left: 16px; top: -6px; width: 10px; height: 10px; background: #121526; border-left: 1px solid var(--line-hi); border-top: 1px solid var(--line-hi); transform: rotate(45deg); }
+.injury-popover .tipster-pop-title { margin: 0 0 6px; font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 12px; color: #ffb020; }
+.injury-popover .tipster-pop-body { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink); }
 .qbwarn.hot { color: var(--yellow); text-shadow: 0 0 10px rgba(245, 233, 0, 0.7); animation: qbpulse 2.4s ease-in-out infinite; }
 .qbwarn:hover, .qbwarn:focus-visible { color: var(--yellow); }
 @keyframes qbpulse { 50% { text-shadow: 0 0 2px rgba(245, 233, 0, 0.2); } }
@@ -820,7 +827,7 @@ function card(g) {
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm"><a class="team-link" href="/${g.sport === "NFL" ? "nfl" : "nba"}/team/${slugify(name)}">${esc(name)}</a></div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
   return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
-    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
@@ -1374,7 +1381,7 @@ function renderGame(id) {
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
   el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
+      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
@@ -1483,8 +1490,21 @@ const nbaUnsure = (arr) => (arr ?? []).filter((m) => NBA_UNSURE.test(m.status ??
 function hasNote(g) {
   const d = g?.detail; if (!d || !g.pick || g.status === "post") return false;
   if (g.sport === "NFL") return !!(d.qb_flag_home || d.qb_flag_away || [d.qb_home, d.qb_away].some((q) => QB_OUT.test(q?.status ?? "") || QB_Q.test(q?.status ?? "")));
+  // When the feed ships injury_warning, that badge owns the NBA warning UI.
+  if (Object.prototype.hasOwnProperty.call(g, "injury_warning")) return false;
   return nbaUnsure(d.missing_home).length + nbaUnsure(d.missing_away).length > 0;
 }
+function injuryWarnNote(g) {
+  if (!g || !Object.prototype.hasOwnProperty.call(g, "injury_warning")) return "";
+  if (!g.injury_warning) return "";
+  const note = g.injury_note == null ? "" : String(g.injury_note).trim();
+  return note || "Key players are uncertain.";
+}
+const injuryBtn = (g) => {
+  const note = injuryWarnNote(g);
+  if (!note) return "";
+  return `<button type="button" class="injury-warn-btn" data-injury-note="${esc(note)}" aria-expanded="false" aria-label="Injury warning" title="Injury warning">⚠️</button>`;
+};
 const noteBtn = (g) => hasNote(g) ? `<button type="button" class="qbwarn hot" data-qb="${esc(g.game_id)}" aria-label="Important note" title="Important note">⚠</button>` : "";
 const noteLegend = (games) => games.some(hasNote) ? `<span><b class="qbwarn hot" aria-hidden="true">⚠</b> IMPORTANT NOTE</span>` : "";
 function qbLine(team, q, flag) {
@@ -1647,7 +1667,7 @@ function renderNflGame(id) {
   const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
   el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${noteBtn(g)}
+      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
@@ -1859,6 +1879,17 @@ function buildData(feed, pasts) {
   const games = (feed.games ?? []).map((g) => normalizeNbaGameLight({ ...g, sport: "NBA", home_name: nm(g.home), away_name: nm(g.away), has_pick: !!g.pick,
     pick_name: g.pick ? nm(g.pick) : null, pick_p: n(g.pick_p), clv: n(g.clv),
     posted_price: n(g.posted_price), close_price: n(g.close_price), vs_close: n(g.vs_close) }));
+  // Preview-only: if feed has not shipped injury_* yet, demo MEM@TOR on this branch hostname.
+  try {
+    if (/preview-injury-warning/i.test(location.hostname)
+      && !games.some((g) => Object.prototype.hasOwnProperty.call(g, "injury_warning"))) {
+      const tor = games.find((g) => String(g.game_id) === "401909955");
+      if (tor) {
+        tor.injury_warning = true;
+        tor.injury_note = "Barnes, Quickley and Murray-Boyles are uncertain (GTD).";
+      }
+    }
+  } catch (_) {}
   const players = (feed.players ?? []).map(([team, player, gp, pts, reb, ast, stl, blk]) =>
     ({ season: feed.season, team, player, gp, pts: +pts, reb: +reb, ast: +ast, stl: +stl, blk: +blk }));
   for (const p of pasts) {
@@ -1936,6 +1967,7 @@ async function refresh() {
 route();
 </script>
 <script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
+<script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
 <script>
 // pre-game preview in the app's game view: same section as the /nba/<game> page, from /api/preview (no duplicated text)
