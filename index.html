@@ -480,14 +480,22 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: center; padding-top: 6px; }
 .home-green { display: grid; gap: 8px; margin: 2px 0 4px; }
-.home-green .green-chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; text-decoration: none; color: var(--ink); background: rgba(47, 215, 160, 0.12); border: 1px solid rgba(47, 215, 160, 0.55); padding: 10px 14px; border-radius: 10px; font-family: var(--f-mono); font-size: 14px; font-weight: 600; box-shadow: 0 0 18px rgba(47, 215, 160, 0.18); }
+.home-green .green-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; width: fit-content; max-width: 100%; text-decoration: none; color: var(--ink); background: rgba(47, 215, 160, 0.12); border: 1px solid rgba(47, 215, 160, 0.55); padding: 10px 14px; border-radius: 10px; font-family: var(--f-mono); font-size: 14px; font-weight: 600; box-shadow: 0 0 18px rgba(47, 215, 160, 0.18); box-sizing: border-box; }
 .home-green .green-chip:hover { border-color: var(--green, #2fd7a0); color: #fff; }
 .home-green .green-chip b { color: var(--green, #2fd7a0); font-size: 16px; }
+.home-green .green-main { line-height: 1.3; }
+.home-green .green-updated { display: grid; gap: 1px; font-weight: 500; font-size: 12px; color: var(--muted); line-height: 1.25; }
+.home-green .green-updated .lu { text-transform: uppercase; letter-spacing: 0.06em; font-size: 10.5px; color: var(--muted); }
+.home-green .green-updated .when { color: var(--ink); font-weight: 600; }
+.home-green .green-chip:hover .green-updated .when { color: #fff; }
 .home-green .sport-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .home-green .sport-chips a { text-decoration: none; color: var(--muted); border: 1px solid var(--line-hi); background: rgba(16, 19, 31, 0.8); padding: 5px 9px; border-radius: 999px; font-size: 12px; font-family: var(--f-mono); }
 .home-green .sport-chips a:hover { color: var(--ink); border-color: var(--cyan); }
-.home-green .super-line { margin: 0; color: var(--muted); font-size: 12.5px; }
-.home-green .super-line a { color: var(--super, #b56cff); }
+@media (max-width: 480px) {
+  .home-green .green-chip { max-width: 100%; padding: 9px 12px; font-size: 13px; }
+  .home-green .green-chip b { font-size: 15px; }
+  .home-green .green-updated { font-size: 11.5px; }
+}
 .home-hero h1 { font-size: clamp(38px, 6.4vw, 72px); line-height: 0.98; }
 .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
 .btn { font: 700 13px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 13px 20px; border: 1px solid var(--cyan); color: var(--cyan); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); transition: background 0.15s, color 0.15s; }
@@ -1062,6 +1070,27 @@ function nhlTile() {
 }
 
 // ---------- home green record (same source as /results) ----------
+function fmtGreenUpdated(iso) {
+  if (!iso) return null;
+  try {
+    const d = new Date(iso);
+    if (!Number.isFinite(d.getTime())) return null;
+    const parts = new Intl.DateTimeFormat("en-AU", {
+      timeZone: "Australia/Sydney",
+      weekday: "short", day: "numeric", month: "short",
+      hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short",
+    }).formatToParts(d);
+    const get = (t) => parts.find((p) => p.type === t)?.value ?? "";
+    const day = get("day");
+    const mon = get("month");
+    const wk = get("weekday");
+    const hour = get("hour");
+    const min = get("minute");
+    const ap = (get("dayPeriod") || "").toLowerCase();
+    const tz = get("timeZoneName") || "AEDT";
+    return `${wk} ${day} ${mon}, ${hour}:${min}${ap} ${tz}`;
+  } catch (e) { return null; }
+}
 async function loadHomeGreenRecord() {
   const el = document.getElementById("homeGreenRecord");
   if (!el) return;
@@ -1070,18 +1099,19 @@ async function loadHomeGreenRecord() {
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
     const g = d.green || {};
-    const label = (g.n != null && g.w != null)
-      ? `Green picks: <b>${g.w} of ${g.n} won (${g.pct ?? "—"}%)</b> · updated daily`
+    const when = fmtGreenUpdated(d.generated_at);
+    const main = (g.n != null && g.w != null)
+      ? `Green picks: <b>${g.w} of ${g.n} won (${g.pct ?? "—"}%)</b>`
       : "Green picks · see Results";
+    const updated = when
+      ? `<span class="green-updated"><span class="lu">Last updated</span><span class="when">${when}</span></span>`
+      : "";
     const chips = (d.sports || []).map((s) => {
       const gg = s.green || {};
       const txt = gg.n ? `${s.sport === "championship" ? "Champ" : (s.name === "Premier League" ? "EPL" : s.name)} ${gg.w}/${gg.n}` : `${s.name}`;
       return `<a href="/results?sport=${encodeURIComponent(s.sport)}">${txt}</a>`;
     }).join("");
-    const superLine = d.super && d.super.n
-      ? `<p class="super-line"><a href="/results?light=super">Super — best value: ${d.super.w} of ${d.super.n} (${d.super.pct}%) · NBA only</a></p>`
-      : "";
-    el.innerHTML = `<a class="green-chip" href="/results">${label}</a><div class="sport-chips">${chips}</div>${superLine}`;
+    el.innerHTML = `<a class="green-chip" href="/results"><span class="green-main">${main}</span>${updated}</a><div class="sport-chips">${chips}</div>`;
   } catch (e) {
     el.innerHTML = `<a class="green-chip" href="/results">Green picks · see Results →</a>`;
   }

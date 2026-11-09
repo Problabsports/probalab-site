@@ -6,6 +6,22 @@ function pct(w, n) {
   return n ? Math.round((100 * w) / n) : null;
 }
 
+/** Latest real results timestamp across finished picks (not request time). */
+function resultsUpdatedAt(views) {
+  let best = null;
+  for (const v of views) {
+    if (v.error) continue;
+    for (const row of v.rows || []) {
+      const ts = row.last_update_utc || row.posted_utc || row.start_utc || null;
+      if (!ts) continue;
+      const t = Date.parse(ts);
+      if (!Number.isFinite(t)) continue;
+      if (best == null || t > best) best = t;
+    }
+  }
+  return best == null ? null : new Date(best).toISOString();
+}
+
 export async function onRequestGet(ctx) {
   const views = await Promise.all(SPORT_ORDER.map((sport) => loadSportRecord(ctx, sport)));
   const sports = [];
@@ -26,11 +42,10 @@ export async function onRequestGet(ctx) {
     });
   }
   const body = {
-    generated_at: new Date().toISOString(),
+    generated_at: resultsUpdatedAt(views),
     green: { w: gW, n: gN, pct: pct(gW, gN) },
     super: sN ? { w: sW, n: sN, pct: pct(sW, sN), label: "Super — best value", note: "NBA only" } : null,
     sports,
-    updated: "daily",
   };
   return new Response(JSON.stringify(body), {
     status: 200,
