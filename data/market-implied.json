@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-09T20:51:19Z",
+  "generated_utc": "2026-11-09T21:51:20Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -9,8 +9,8 @@
       "away": "LAL",
       "home": "ATL",
       "start_utc": "2026-11-10T00:00:00Z",
-      "market_home": 0.5333,
-      "market_away": 0.4667
+      "market_home": 0.5308,
+      "market_away": 0.4692
     },
     {
       "sport": "nba",
@@ -18,8 +18,8 @@
       "away": "CLE",
       "home": "CHA",
       "start_utc": "2026-11-10T00:00:00Z",
-      "market_home": 0.2519,
-      "market_away": 0.7481
+      "market_home": 0.2486,
+      "market_away": 0.7514
     },
     {
       "sport": "nba",
@@ -27,8 +27,8 @@
       "away": "WSH",
       "home": "DET",
       "start_utc": "2026-11-10T00:00:00Z",
-      "market_home": 0.8049,
-      "market_away": 0.1951
+      "market_home": 0.8039,
+      "market_away": 0.1961
     },
     {
       "sport": "nba",
@@ -36,8 +36,8 @@
       "away": "MEM",
       "home": "TOR",
       "start_utc": "2026-11-10T00:30:00Z",
-      "market_home": 0.5558,
-      "market_away": 0.4442
+      "market_home": 0.5434,
+      "market_away": 0.4566
     },
     {
       "sport": "nba",
@@ -45,8 +45,8 @@
       "away": "IND",
       "home": "DAL",
       "start_utc": "2026-11-10T01:00:00Z",
-      "market_home": 0.6044,
-      "market_away": 0.3956
+      "market_home": 0.6135,
+      "market_away": 0.3865
     },
     {
       "sport": "nba",
@@ -54,8 +54,8 @@
       "away": "DEN",
       "home": "HOU",
       "start_utc": "2026-11-10T01:30:00Z",
-      "market_home": 0.6069,
-      "market_away": 0.3931
+      "market_home": 0.6117,
+      "market_away": 0.3883
     },
     {
       "sport": "nba",
@@ -63,8 +63,8 @@
       "away": "SA",
       "home": "PHX",
       "start_utc": "2026-11-10T02:00:00Z",
-      "market_home": 0.2378,
-      "market_away": 0.7622
+      "market_home": 0.2452,
+      "market_away": 0.7548
     },
     {
       "sport": "nba",
@@ -72,8 +72,8 @@
       "away": "NO",
       "home": "GS",
       "start_utc": "2026-11-10T03:00:00Z",
-      "market_home": 0.7657,
-      "market_away": 0.2343
+      "market_home": 0.8212,
+      "market_away": 0.1788
     },
     {
       "sport": "nba",
@@ -90,8 +90,8 @@
       "away": "BUF",
       "home": "MIN",
       "start_utc": "2026-11-10T01:15:00Z",
-      "market_home": 0.3626,
-      "market_away": 0.6374
+      "market_home": 0.3675,
+      "market_away": 0.6325
     },
     {
       "sport": "epl",
