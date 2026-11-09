@@ -21,11 +21,21 @@ export async function onRequestGet() {
     <p id="lobbyMeta" class="subline"></p>
     <p id="lobbyMsg" class="msg"></p>
     <div id="tipsterCards" class="tipster-grid"></div>
+    <aside class="trust-strip compact" aria-label="How we keep the record honest">
+        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+      </aside>
   </div>
 
   <div id="publicPane" class="hidden">
     <h1>ProbaLab members</h1>
     <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <aside class="trust-strip compact" aria-label="How we keep the record honest">
+        <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+        <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+        <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+      </aside>
 
     <section class="panel" id="memberSignIn">
       <h2>Sign in</h2>
@@ -44,14 +54,43 @@ export async function onRequestGet() {
       <h2>Live tipster desks</h2>
       <p>Sign in to open a desk. Each tipster keeps its own record, separate from the public board.</p>
       <ul class="desk-list">
-        <li><b>John</b> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
-        <li><b>ProbaLab</b> — site greens and supers across NBA, NFL, NHL and EPL</li>
-        <li><b>Closing Line Sniper</b> — selective Closing Line tips</li>
-        <li><b>NFL Totals</b> — NFL overs and unders</li>
-        <li><b>NBA Price Gap</b> — NBA moneylines when AU books beat Pinnacle</li>
-        <li><b>NHL Value</b> — NHL moneylines at or above model fair</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John</b></button> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — selective Closing Line tips</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nfl-weather" aria-expanded="false" aria-haspopup="dialog"><b>NFL Totals</b></button> — NFL overs and unders</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nba-price-gap" aria-expanded="false" aria-haspopup="dialog"><b>NBA Price Gap</b></button> — NBA moneylines when AU books beat Pinnacle</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="nhl-value" aria-expanded="false" aria-haspopup="dialog"><b>NHL Value</b></button> — NHL moneylines at or above model fair</li>
       </ul>
       <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
+    </section>
+
+
+    <section class="panel prose" id="not-for-everyone">
+      <h2>This isn't for everyone</h2>
+      <p>ProbaLab members desks publish tipsters' picks and their records. There are <b>no guaranteed winners</b> and <b>no risk-free returns</b>. Models and tipsters have losing runs. Every pick and every result is posted — wins and losses — on the public <a href="/results">Results</a> page and in the CSV.</p>
+      <p>This rewards patience and discipline, not quick wins. It is <b>18+ only</b>. If you bet, stake only what you can afford to lose. Read our <a href="/responsible-gambling">responsible gambling</a> commitment.</p>
+    </section>
+
+    <section class="panel" id="members-faq">
+      <h2>Members FAQ</h2>
+      <details class="faq-item"><summary>Which sports are covered?</summary>
+        <p>Live desks cover the sports we publish publicly: NBA, NFL, NHL, Premier League, Championship and tennis. Each tipster lists the sports it tips. We do not tip sports that are not live on the site.</p>
+      </details>
+      <details class="faq-item"><summary>How are tips delivered?</summary>
+        <p>Tips appear on the members tipster desks on this site. Some desks also send Discord alerts when a tip qualifies. There is no Telegram channel.</p>
+      </details>
+      <details class="faq-item"><summary>How many tips per day?</summary>
+        <p>It varies. Tipsters only post when they see value on their own rules — some days several, some days none. There is no fixed daily quota.</p>
+      </details>
+      <details class="faq-item"><summary>What is a unit?</summary>
+        <p>A unit is a flat stake size used to keep records comparable. Most desks paper-trade at 1 unit per tip unless the tipster states otherwise. Units are for tracking, not a staking plan we tell you to follow.</p>
+      </details>
+      <details class="faq-item"><summary>How are results verified?</summary>
+        <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
+      </details>
+      <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
+        <p>Membership is opening soon — join the waitlist and we will email you when seats open. We will publish clear cancel and payment details before any paid checkout goes live. Nothing is charged from this waitlist form.</p>
+      </details>
     </section>
 
     <section class="panel">

@@ -26,11 +26,22 @@
     return M.stats(rows);
   }
 
+  function tipsterBlurb(id) {
+    const meta = (M && M.tipsterMeta) ? M.tipsterMeta(id) : null;
+    return (meta && meta.blurb) || (meta && meta.pitch) || "";
+  }
+
+  function nameBtn(id, name) {
+    return '<button type="button" class="tipster-name-btn" data-tipster-info="' + esc(id)
+      + '" aria-expanded="false" aria-haspopup="dialog">' + esc(name) + '</button>';
+  }
+
   function liveCard(opts) {
     const st = opts.stats || {};
     const wl = (st.wins != null && st.losses != null) ? (st.wins + "–" + st.losses) : "—";
+    const tid = opts.id || "john";
     return '<a class="tipster-card live" href="' + esc(opts.href) + '">'
-      + '<div class="tipster-card-top"><h2>' + esc(opts.name) + '</h2><span class="badge ok">Live</span></div>'
+      + '<div class="tipster-card-top"><h2>' + nameBtn(tid, opts.name) + '</h2><span class="badge ok">Live</span></div>'
       + '<p class="tipster-focus">' + esc(opts.focus) + '</p>'
       + '<p class="tipster-pitch">' + esc(opts.pitch) + '</p>'
       + '<dl class="stat-grid tipster-stats">'
@@ -54,6 +65,7 @@
     $("lobbyMeta").textContent = "Updated " + gen + " · units only · still proving the record";
     $("tipsterCards").innerHTML =
       liveCard({
+        id: "john",
         name: "John",
         focus: "NBA · NFL · NHL · EPL · Championship",
         pitch: "Tips selected from ProbaLab greens across five sports, using John's own strategy.",
@@ -62,6 +74,7 @@
         stats: john,
       })
       + liveCard({
+        id: "sniper",
         name: "Closing Line Sniper",
         focus: "Selective Closing Line tips",
         pitch: "Fewer tips, only when the market agrees — a slower, sharper Closing Line system aimed at CLV.",
@@ -70,6 +83,7 @@
         stats: sniper,
       })
       + liveCard({
+        id: "probalab",
         name: "ProbaLab",
         focus: "NBA · NFL · NHL · EPL",
         pitch: "Tips the site's green and super picks (about 65%+) across NBA, NFL, NHL and EPL.",
@@ -78,6 +92,7 @@
         stats: probalab,
       })
       + liveCard({
+        id: "nfl-weather",
         name: "NFL Totals",
         focus: "NFL totals · overs and unders",
         pitch: "NFL game totals — overs and unders, mostly unders. Flat 1u.",
@@ -86,6 +101,7 @@
         stats: weather,
       })
       + liveCard({
+        id: "nba-price-gap",
         name: "NBA Price Gap",
         focus: "NBA moneylines",
         pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
@@ -94,6 +110,7 @@
         stats: gap,
       })
       + liveCard({
+        id: "nhl-value",
         name: "NHL Value",
         focus: "NHL moneylines",
         pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
@@ -164,6 +181,7 @@
   }
 
   function wirePublic() {
+    wireTipsterInfo(document);
     if (/[?&]denied=1/.test(location.search)) {
       const dn = $("deniedNote");
       if (dn) dn.style.display = "block";
@@ -205,6 +223,63 @@
         });
       });
     }
+  }
+
+
+  let openPop = null;
+
+  function closeTipsterPop() {
+    if (!openPop) return;
+    const { btn, pop } = openPop;
+    btn.setAttribute("aria-expanded", "false");
+    btn.removeAttribute("aria-controls");
+    pop.remove();
+    openPop = null;
+  }
+
+  function openTipsterPop(btn) {
+    const id = btn.getAttribute("data-tipster-info") || "john";
+    const meta = (M && M.tipsterMeta) ? M.tipsterMeta(id) : { name: btn.textContent.trim(), blurb: tipsterBlurb(id) };
+    const text = meta.blurb || meta.pitch || tipsterBlurb(id);
+    if (!text) return;
+    closeTipsterPop();
+    const pop = document.createElement("div");
+    pop.className = "tipster-popover";
+    pop.id = "tipster-pop-" + id;
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", (meta.name || id) + " tipster");
+    pop.innerHTML = '<p class="tipster-pop-title">' + esc(meta.name || btn.textContent.trim()) + '</p>'
+      + '<p class="tipster-pop-body">' + esc(text) + '</p>';
+    const host = btn.closest("li, .tipster-card-top, h2") || btn.parentElement || document.body;
+    if (getComputedStyle(host).position === "static") host.style.position = "relative";
+    host.appendChild(pop);
+    btn.setAttribute("aria-expanded", "true");
+    btn.setAttribute("aria-controls", pop.id);
+    openPop = { btn, pop };
+    // Keep inside viewport on small screens
+    requestAnimationFrame(() => {
+      const r = pop.getBoundingClientRect();
+      if (r.right > window.innerWidth - 8) pop.style.left = Math.max(8, window.innerWidth - r.width - 8 - host.getBoundingClientRect().left) + "px";
+      if (r.bottom > window.innerHeight - 8) pop.style.top = "auto", pop.style.bottom = "calc(100% + 8px)";
+    });
+  }
+
+  function wireTipsterInfo(root) {
+    const scope = root || document;
+    scope.addEventListener("click", (e) => {
+      const btn = e.target.closest && e.target.closest("[data-tipster-info]");
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (openPop && openPop.btn === btn) { closeTipsterPop(); return; }
+        openTipsterPop(btn);
+        return;
+      }
+      if (openPop && !(e.target.closest && e.target.closest(".tipster-popover"))) closeTipsterPop();
+    }, true);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeTipsterPop();
+    });
   }
 
   async function boot() {

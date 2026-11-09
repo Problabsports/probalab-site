@@ -25,7 +25,11 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>Is this betting advice?</h2>
-  <p>No. The figures are for entertainment. We publish probabilities, not guarantees. A 70% pick is still meant to miss about three times in ten.</p>
+  <p>No. The figures are for entertainment. We publish probabilities, not guarantees. A 70% pick is still meant to miss about three times in ten. Read our <a href="/responsible-gambling">responsible gambling commitment</a>.</p>
+</section>
+<section class="panel prose">
+  <h2>Where can I get help with gambling?</h2>
+  <p>In Australia, call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">Gambling Help Online</a>. To self-exclude from wagering, use <a href="https://www.betstop.gov.au" rel="noopener" target="_blank">BetStop</a>. Full detail is on our <a href="/responsible-gambling">responsible gambling</a> page.</p>
 </section>
 <section class="panel prose">
   <h2>How do I get the newsletter?</h2>
@@ -33,9 +37,17 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>Who can join Members?</h2>
-  <p>Members is invite-only while tipsters prove their records. You can <a href="/members">sign in or join the waitlist</a>.</p>
+  <p>Members is invite-only while tipsters prove their records. You can <a href="/members">sign in or join the waitlist</a>. Membership is opening soon — the waitlist does not charge you.</p>
 </section>
-<p class="note">18+. For free and confidential support call 1800 858 858 or visit gamblinghelponline.org.au</p>`;
+<section class="panel prose">
+  <h2>How are members tips delivered?</h2>
+  <p>On the members tipster desks on this site, with Discord alerts for some desks. There is no Telegram. Tip volume varies day to day — value only, no fixed quota.</p>
+</section>
+<section class="panel prose">
+  <h2>How are results verified?</h2>
+  <p>Picks are timestamped before the start and frozen at tip-off. Wins and losses stay on <a href="/results">Results</a> and in the CSV.</p>
+</section>
+<p class="note">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>`;
   return html(shell({
     title,
     description,

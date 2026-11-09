@@ -426,6 +426,155 @@ function sportGreenCard(v) {
   </article>`;
 }
 
+
+/** Sen.Bets-style neon cumulative units chart for finished Green picks with a recorded price. */
+function resultsGrowthChart(allRows, filters) {
+  const sport = filters.sport || "all";
+  const sportsPresent = new Set(allRows.map((r) => r.sport).filter(Boolean));
+  const greens = allRows.filter((r) => (sport === "all" || r.sport === sport) && r.light === "GREEN" && r.won != null && r.start_utc)
+    .slice()
+    .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
+  const withPrice = greens.filter((g) => g.posted_price != null && Number(g.posted_price) > 1);
+  const pills = ["all", ...SPORT_ORDER.filter((s) => sportsPresent.has(s))].map((id) => {
+    const on = sport === id;
+    const href = resultsHref({ sport: id, light: filters.light || "green" }) + "#growth";
+    const label = id === "all" ? "All" : (id === "championship" ? "Champ" : id === "epl" ? "EPL" : id.toUpperCase());
+    return on
+      ? `<a class="gf-btn on" href="${esc(href)}" aria-current="true">${esc(label)}</a>`
+      : `<a class="gf-btn" href="${esc(href)}">${esc(label)}</a>`;
+  }).join("");
+
+  if (!withPrice.length) {
+    return `<section class="panel" id="growth">
+      <h2>Green units</h2>
+      <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
+      <p class="muted">No finished green picks with a recorded price in this view yet.</p>
+    </section>`;
+  }
+
+  const unitOf = (g) => (g.won ? Number(g.posted_price) - 1 : -1);
+  let run = 0;
+  const pts = [];
+  const byMonth = {};
+  for (const g of withPrice) {
+    const u = unitOf(g);
+    run += u;
+    const day = String(g.start_utc).slice(0, 10);
+    pts.push({ date: day, units: run, won: g.won, u });
+    const m = day.slice(0, 7);
+    byMonth[m] = (byMonth[m] || 0) + u;
+  }
+  const byDay = new Map();
+  pts.forEach((p) => byDay.set(p.date, p));
+  const series = [...byDay.values()];
+
+  const W = 800, H = 340, L = 52, R = 28, T = 18, B = 44;
+  const dates = series.map((p) => p.date);
+  const start = Date.parse(dates[0]), end = Date.parse(dates[dates.length - 1]);
+  const vals = [0, ...series.map((p) => p.units)];
+  const span = Math.max(1, Math.max(...vals) - Math.min(...vals));
+  const step = [0.5, 1, 2, 5, 10, 20, 50].find((st) => span / st <= 8) || 100;
+  const low = Math.floor(Math.min(...vals) / step) * step;
+  const high = Math.ceil(Math.max(...vals) / step) * step || step;
+  const x = (d) => L + (Date.parse(d) - start) / Math.max(864e5, end - start) * (W - L - R);
+  const y = (v) => T + (high - v) / Math.max(step, high - low) * (H - T - B);
+  const fu = (v) => `${v > 0 ? "+" : ""}${Number(v).toFixed(Math.abs(v) >= 10 && Number.isInteger(v) ? 0 : 2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1")}`;
+  const dfmt = (d) => {
+    try {
+      return new Intl.DateTimeFormat("en-AU", { day: "2-digit", month: "short", timeZone: "UTC" }).format(new Date(d + "T00:00:00Z"));
+    } catch { return d; }
+  };
+  const xy = series.map((p) => [x(p.date), y(p.units)]);
+  const smooth = (pts) => {
+    if (!pts.length) return "";
+    if (pts.length === 1) return `M ${pts[0][0]} ${pts[0][1]}`;
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6, cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6, cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
+  const line = smooth(xy);
+  const area = line ? `${line} L ${xy[xy.length - 1][0]} ${y(0)} L ${xy[0][0]} ${y(0)} Z` : "";
+  let grid = "";
+  for (let v = low; v <= high + 1e-9; v += step) {
+    const zero = Math.abs(v) < 1e-9;
+    grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${zero ? "rgba(138,150,171,.55)" : "rgba(138,150,171,.22)"}" stroke-dasharray="${zero ? "" : "4 6"}"${zero ? ' stroke-width="1.4"' : ""}/>`
+      + `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end"${zero ? ' font-weight="700"' : ""}>${zero ? "0" : fu(v)}</text>`;
+  }
+  const every = Math.max(1, Math.ceil(dates.length / 8));
+  dates.forEach((d, i) => {
+    if (i % every === 0 || i === dates.length - 1) {
+      grid += `<text x="${x(d)}" y="${H - B + 20}" text-anchor="middle">${esc(dfmt(d))}</text>`;
+    }
+  });
+  const last = series[series.length - 1];
+  const endDot = `<circle cx="${x(last.date)}" cy="${y(last.units)}" r="5" fill="#2fd7a0" stroke="#07080f" stroke-width="2"/>`
+    + `<text x="${x(last.date) - 8}" y="${y(last.units) - 10}" text-anchor="end" fill="#2fd7a0" font-weight="700">${fu(last.units)}u</text>`;
+
+  let bestM = null, bestV = -Infinity;
+  for (const [m, v] of Object.entries(byMonth)) {
+    if (v > bestV) { bestV = v; bestM = m; }
+  }
+  const n = withPrice.length;
+  const total = last.units;
+  const roi = n ? (total / n) : 0;
+  const roiPct = `${roi > 0 ? "+" : roi < 0 ? "−" : ""}${Math.abs(roi * 100).toFixed(1)}%`;
+  const growthPct = roiPct; // flat 1u → growth % equals ROI
+  const monthLabel = (m) => {
+    if (!m) return "—";
+    try {
+      return new Intl.DateTimeFormat("en-AU", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(m + "-01T00:00:00Z"));
+    } catch { return m; }
+  };
+  const tiles = `<div class="units-tiles" aria-label="Green units summary">
+    <div><span class="ut-k">Total units</span><b class="${total >= 0 ? "pos" : "neg"}">${fu(total)}u</b></div>
+    <div><span class="ut-k">ROI / growth</span><b class="${roi >= 0 ? "pos" : "neg"}">${esc(roiPct)}</b></div>
+    <div><span class="ut-k">Picks priced</span><b>${n}</b></div>
+  </div>`;
+  const summary = `<div class="chart-summary">
+    <span>Total profit <b class="${total >= 0 ? "pos" : "neg"}">${fu(total)}u</b></span>
+    <span>Best month <b>${bestM ? `${esc(monthLabel(bestM))} (${fu(bestV)}u)` : "—"}</b></span>
+    <span>ROI <b class="${roi >= 0 ? "pos" : "neg"}">${esc(roiPct)}</b> <small>${n} × 1u</small></span>
+  </div>`;
+
+  return `<section class="panel" id="growth">
+    <h2>Green units</h2>
+    ${tiles}
+    <div class="pill-tabs game-filters sports" role="tablist" aria-label="Chart sport">${pills}</div>
+    <div class="chart-wrap">
+      <svg class="units-chart results-growth" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cumulative green units at posted price">
+        <defs><linearGradient id="resultsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2fd7a0" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#2fd7a0" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="resultsGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2.2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+        ${grid}
+        ${area ? `<path d="${area}" fill="url(#resultsAreaGrad)"></path>` : ""}
+        ${line ? `<path d="${line}" fill="none" stroke="#2fd7a0" stroke-width="3" stroke-linejoin="round" filter="url(#resultsGlow)"/>` : ""}
+        ${endDot}
+        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units · green · posted price</text>
+      </svg>
+    </div>
+    ${summary}
+  </section>`;
+}
+
+export function trustStrip({ compact = false } = {}) {
+  const cls = compact ? "trust-strip compact" : "trust-strip";
+  return `<aside class="${cls}" aria-label="How we keep the record honest">
+    <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
+    <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
+    <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+  </aside>`;
+}
+
 export function renderResultsPage(views, filters = { sport: "all", light: "green" }) {
   const allRows = views.flatMap((v) => (v.error ? [] : v.rows));
   const shown = filterResultRows(allRows, filters);
@@ -453,7 +602,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
     ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a></p>
-    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. The public record is wins and losses, not staking units.</p>
+    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Paper units below use the recorded posted price only — still not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Results</span></nav>
@@ -461,6 +610,8 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   <h1>Results</h1>
   <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all.</p>
   ${overall}
+  ${trustStrip()}
+  ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
   ${signupMain("results")}
   <section class="panel" id="picks">

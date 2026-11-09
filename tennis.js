@@ -16,7 +16,7 @@
     ["Season finals", [["WTA Finals", "Nov", /wta finals/i], ["ATP Finals", "Nov", /atp finals|nitto/i]]],
   ];
   const H = { feed: null, bt: null, ready: false, all: [], tours: [] };
-  const S = { sel: "", day: null, tour: "all", greens: false, sort: "conf", q: "", open: false };
+  const S = { sel: "", day: null, tour: "all", light: (["green","all","orange","red"].includes((new URLSearchParams(location.search).get("light")||"green").toLowerCase()) ? (new URLSearchParams(location.search).get("light")||"green").toLowerCase() : "green"), sort: "conf", q: "", open: false };
   const get = (u, d) => fetch(u, { cache: "no-store" }).then((r) => (r.ok ? r.json() : d)).catch(() => d);
   const fmtDayShort = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" });
   const live = (t) => t && t.live;
@@ -106,7 +106,9 @@
     const ks = daysOf(base); if (!ks.includes(S.day)) pickDay();
     const i = ks.indexOf(S.day), dayAll = base.filter((m) => m.key === S.day);
     const q = S.q.trim().toLowerCase();
-    let list = dayAll.filter((m) => (S.tour === "all" || m.tour === S.tour) && (!S.greens || m.light === "GREEN") && (!q || `${m.player_a} ${m.player_b}`.toLowerCase().includes(q)));
+    const matchTL = (light, f) => f === "all" || (f === "green" ? light === "GREEN" : light === f.toUpperCase());
+    let list = dayAll.filter((m) => (S.tour === "all" || m.tour === S.tour) && matchTL(m.light, S.light) && (!q || `${m.player_a} ${m.player_b}`.toLowerCase().includes(q)));
+    if (S.light === "all") list = list.slice().sort((a, b) => (a.light === "GREEN" ? 0 : a.light === "ORANGE" ? 1 : 2) - (b.light === "GREEN" ? 0 : b.light === "ORANGE" ? 1 : 2) || a.start_utc.localeCompare(b.start_utc));
     list = list.slice().sort(S.sort === "conf" ? (x, y) => y.pick_pct - x.pick_pct : (x, y) => x.start_utc.localeCompare(y.start_utc) || x.id.localeCompare(y.id));
     const rounds = [...new Set(dayAll.map((m) => m.round))];
     const ts = selTours().filter((t) => (S.tour === "all" || t.tour === S.tour));
@@ -121,11 +123,11 @@
     </div>
     <div class="tn-tools">
       <div class="seg tn-seg" role="group" aria-label="Tour">${tb("all", "All")}${tb("ATP", "ATP")}${tb("WTA", "WTA")}</div>
-      <button type="button" class="tn-btn ${S.greens ? "on" : ""}" id="tnGreens" aria-pressed="${S.greens}">${S.greens ? "●" : "○"} Greens only</button>
       <button type="button" class="tn-btn" id="tnSort">${S.sort === "conf" ? "Sort: most confident" : "Sort: start time"}</button>
       <label class="tn-q"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
         <span class="sr">Find a player</span><input type="search" id="tnQ" value="${esc(S.q)}" placeholder="Find a player" autocomplete="off"></label>
     </div>
+    ${(() => { const btns=[["green","Green","GREEN"],["all","All",""],["orange","Orange","ORANGE"],["red","Red","RED"]]; return `<div class="game-filter-bar"><nav class="game-filters lights" aria-label="Filter by light">${btns.map(([id,lab,cls])=>{const on=S.light===id;return `<button type="button" class="gf-btn${cls?` ${cls}`:""}${on?" on":""}" data-t-light="${id}"${on?' aria-current="true"':""}>${lab}</button>`;}).join("")}</nav>${S.light==="green"?`<p class="filter-note">Showing Green (70%+). Choose All lights for every colour.</p>`:S.light==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`; })()}
     <div class="daysum"><span><b>${list.length}</b> shown</span><span><b>${list.filter((m) => m.light === "GREEN").length}</b> green</span>${d.length ? `<span>Picks <b>${w}–${d.length - w}</b></span>` : ""}<span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key"><span>${chip("GREEN")} 70%+</span><span>${chip("ORANGE")} 60–70%</span><span>${chip("RED")} under 60%, a close match</span><span><a href="/lights">How the lights work</a></span></div>
     <p class="note" style="margin:0">Fair price = 1 ÷ our chance for the pick. Any price above it is better than our model's number; it isn't a tip.</p>
@@ -286,7 +288,7 @@
     const dd = t.closest("[data-tday]");
     if (dd) { e.stopPropagation(); const ks = daysOf(inSel()), i = ks.indexOf(S.day) + Number(dd.dataset.tday); if (ks[i]) { S.day = ks[i]; repaint(); } return; }
     const tt = t.closest("[data-ttour]"); if (tt) { e.stopPropagation(); S.tour = tt.dataset.ttour; predictions(); return; }
-    if (t.closest("#tnGreens")) { e.stopPropagation(); S.greens = !S.greens; predictions(); return; }
+    const tlb = t.closest("[data-t-light]"); if (tlb) { e.stopPropagation(); S.light = tlb.dataset.tLight; const u = new URL(location.href); if (S.light === "green") u.searchParams.delete("light"); else u.searchParams.set("light", S.light); history.replaceState(null, "", u.pathname + u.search + u.hash); predictions(); return; }
     if (t.closest("#tnSort")) { e.stopPropagation(); S.sort = S.sort === "conf" ? "time" : "conf"; predictions(); }
   }, true);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.open) { S.open = false; predictions(); document.getElementById("tnPickBtn")?.focus(); } });

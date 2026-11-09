@@ -335,3 +335,79 @@ table.record-picks a:hover { color: var(--cyan); }
 .results-toolbar h2 { margin: 0; }
 .results-filters { display: grid; gap: 6px; margin: 8px 0 10px; }
 .light-filters .on { color: var(--green); }
+
+/* Public Today / Predictions sport + light filters (John-desk style chips) */
+.game-filter-bar { display: grid; gap: 8px; margin: 10px 0 16px; }
+.game-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.game-filters .gf-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; border: 1px solid var(--line-hi); background: var(--surface-2); color: var(--muted);
+  padding: 8px 12px; min-height: 40px; text-decoration: none; cursor: pointer;
+  white-space: nowrap;
+}
+.game-filters .gf-btn:hover { color: var(--ink); border-color: var(--cyan); }
+.game-filters .gf-btn.on { color: #07080f; background: var(--cyan); border-color: var(--cyan); }
+.game-filters.lights .gf-btn.SUPER { color: #cfa5ff; border-color: #cfa5ff; }
+.game-filters.lights .gf-btn.GREEN { color: var(--green); border-color: var(--green); }
+.game-filters.lights .gf-btn.ORANGE { color: var(--orange); border-color: var(--orange); }
+.game-filters.lights .gf-btn.RED { color: var(--red); border-color: var(--red); }
+.game-filters.lights .gf-btn.SUPER.on,
+.game-filters.lights .gf-btn.GREEN.on,
+.game-filters.lights .gf-btn.ORANGE.on,
+.game-filters.lights .gf-btn.RED.on { color: #07080f; background: currentColor; border-color: currentColor; }
+.game-filters.lights .gf-btn.SUPER.on { background: #cfa5ff; color: #07080f; }
+.game-filters.lights .gf-btn.GREEN.on { background: var(--green); color: #07080f; }
+.game-filters.lights .gf-btn.ORANGE.on { background: var(--orange); color: #07080f; }
+.game-filters.lights .gf-btn.RED.on { background: var(--red); color: #07080f; }
+.game-filter-bar .filter-note { margin: 0; }
+.filter-empty { margin: 12px 0; }
+@media (max-width: 480px) {
+  .game-filters { gap: 6px; }
+  .game-filters .gf-btn { padding: 7px 10px; font-size: 11px; min-height: 36px; }
+}
+
+/* Results / growth charts */
+.units-chart, .results-growth { width: 100%; height: auto; max-height: 380px; }
+.units-chart text, .results-growth text { fill: var(--muted); font-family: var(--f-mono); font-size: 12px; }
+.chart-wrap { position: relative; }
+.chart-summary { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 12px 0 0; font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.chart-summary b { color: var(--ink); }
+.chart-summary .pos { color: var(--green); }
+.pill-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+@media (max-width: 420px) {
+  .units-chart text, .results-growth text { font-size: 11px; }
+  .chart-summary { font-size: 12px; gap: 8px 12px; }
+}
+
+.held-note { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.35; }
+
+/* Trust strip */
+.trust-strip {
+  display: grid; gap: 10px; margin: 14px 0 18px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 800px) {
+  .trust-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.trust-strip .trust-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px; border: 1px solid var(--line-hi);
+  border-radius: 10px; background: rgba(47,215,160,.04);
+  color: var(--ink); text-decoration: none; font-size: 13px; line-height: 1.4;
+}
+.trust-strip .trust-item:hover { border-color: var(--green); color: var(--green); }
+.trust-ico { color: var(--green); font-size: 16px; line-height: 1.2; }
+.trust-strip.compact { margin: 10px 0 14px; }
+.units-tiles {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px;
+}
+.units-tiles > div {
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: rgba(47,215,160,.05);
+}
+.units-tiles .ut-k { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.units-tiles b { font-size: 20px; color: var(--green); }
+.units-tiles b.neg { color: var(--red); }
+@media (max-width: 640px) {
+  .units-tiles { grid-template-columns: 1fr; }
+}

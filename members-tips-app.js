@@ -98,7 +98,7 @@
         : tipsterId === 'nhl-value'
           ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat paper 1 unit) and starts with the first graded tip.</p>'
           : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
-    const W=800,H=380,L=58,R=withPl?118:78,T=18,B=44;
+    const W=800,H=380,L=58,R=withPl?118:78,T=22,B=48;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
     const span=Math.max(1,Math.max(...vals)-Math.min(...vals));
@@ -108,37 +108,60 @@
     const y=v=>T+(high-v)/Math.max(step,high-low)*(H-T-B);
     const dfmt=d=>new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));
     const fu=v=>(v>0?'+':'')+(Math.round(v*100)/100)+'u';
+    const ptsOf=(series)=>{ const m={}; let v=0; series.forEach(q=>m[q.date]=q.units); return dates.map(d=>{ if(d in m) v=m[d]; return [x(d), y(v), v, d]; }); };
+    const smooth=(pts)=>{ if(!pts.length) return ''; if(pts.length===1) return 'M '+pts[0][0]+' '+pts[0][1]; let d='M '+pts[0][0]+' '+pts[0][1]; for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2; const cp1x=p1[0]+(p2[0]-p0[0])/6, cp1y=p1[1]+(p2[1]-p0[1])/6, cp2x=p2[0]-(p3[0]-p1[0])/6, cp2y=p2[1]-(p3[1]-p1[1])/6; d+=' C '+cp1x+' '+cp1y+', '+cp2x+' '+cp2y+', '+p2[0]+' '+p2[1]; } return d; };
+    const area=(pts,baseY)=>{ if(!pts.length) return ''; return smooth(pts)+' L '+pts[pts.length-1][0]+' '+baseY+' L '+pts[0][0]+' '+baseY+' Z'; };
     let g='';
     for(let v=low; v<=high+1e-9; v+=step){
       const zero=Math.abs(v)<1e-9;
-      g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+(zero?'#8a96ab':'rgba(138,150,171,.18)')+'"'+(zero?' stroke-width="1.5"':'')+'/>'
+      g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+(zero?'rgba(138,150,171,.55)':'rgba(138,150,171,.22)')+'" stroke-dasharray="'+(zero?'':'4 6')+'"'+(zero?' stroke-width="1.4"':'')+'/>'
         +'<text x="'+(L-8)+'" y="'+(y(v)+4)+'" text-anchor="end"'+(zero?' font-weight="700"':'')+'>'+(zero?'0u':fu(v))+'</text>';
     }
     const n=dates.length, every=Math.max(1,Math.ceil(n/(window.innerWidth<600?4:8)));
-    dates.forEach((d,i)=>{ if(i%every===0||i===n-1) g+='<text x="'+x(d)+'" y="'+(H-B+20)+'" text-anchor="middle">'+dfmt(d)+'</text>'; });
-    const line=(pts,c)=>{ if(!pts.length) return ''; let p='M '+x(dates[0])+' '+y(0); pts.forEach(q=>{p+=' L '+x(q.date)+' '+y(q.units);}); return '<path d="'+p+'" fill="none" stroke="'+c+'" stroke-width="3" stroke-linejoin="round"/>'; };
-    const endLab=(pts,c,lab)=>{ if(!pts.length) return ''; const q=pts[pts.length-1]; return '<circle cx="'+x(q.date)+'" cy="'+y(q.units)+'" r="4.5" fill="'+c+'"/><text x="'+(x(q.date)+8)+'" y="'+(y(q.units)+4)+'" fill="'+c+'" style="fill:'+c+'" font-weight="700">'+lab+' '+fu(q.units)+'</text>'; };
-    // avoid overlapping end labels when both series are drawn
+    dates.forEach((d,i)=>{ if(i%every===0||i===n-1) g+='<text x="'+x(d)+'" y="'+(H-B+22)+'" text-anchor="middle">'+dfmt(d)+'</text>'; });
+    g+='<text x="'+L+'" y="'+(H-6)+'" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units</text>';
+    const pa=ptsOf(a), pb=withPl?ptsOf(b):[];
+    const primary='#2fd7a0', secondary='#63b3ff';
+    const endLab=(pts,c,lab)=>{ if(!pts.length) return ''; const q=pts[pts.length-1]; return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="5" fill="'+c+'" stroke="#07080f" stroke-width="2"/><text x="'+(q[0]+10)+'" y="'+(q[1]+4)+'" fill="'+c+'" style="fill:'+c+'" font-weight="700">'+lab+' '+fu(q[2])+'</text>'; };
     let la=a.length?y(a[a.length-1].units):0, lb=b.length?y(b[b.length-1].units):0;
     const at=(pts)=>{const m={};let v=0;pts.forEach(q=>m[q.date]=q.units);return dates.map(d=>(v=(d in m?m[d]:v)));};
     const ca=at(a), cb=at(b);
     const data=JSON.stringify(withPl
       ? dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—'])
       : dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—']));
-    let lbB=withPl?endLab(b,'#39d98a','PL'):'';
+    let lbB=withPl?endLab(pb,secondary,'PL'):'';
     if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
     const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
     const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : tipsterId === 'nba-price-gap' ? (tipster.shortLabel || 'Price Gap') : (tipster.shortLabel || 'Tips');
     const legend=withPl
-      ? '<p class="note"><span style="color:#63b3ff">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:#39d98a">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
-      : '<p class="note"><span style="color:#63b3ff">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
+      ? '<p class="note"><span style="color:'+primary+'">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:'+secondary+'">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
+      : '<p class="note"><span style="color:'+primary+'">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
+    // Summary row: Total, Best month, ROI
+    const st = M.stats(john);
+    const byMonth = {};
+    john.filter(r => r.result==='W'||r.result==='L').forEach(r => {
+      const day = (r.settled_date || r.game_date || r.placed_date || '').slice(0,7);
+      if (!day || day.length < 7) return;
+      const u = Number(r.units_net != null ? r.units_net : (r.result==='W' ? (r.units||1) : r.result==='L' ? -(r.units||1) : 0));
+      if (!Number.isFinite(u)) return;
+      byMonth[day] = (byMonth[day]||0) + u;
+    });
+    let bestM = null, bestV = -Infinity;
+    Object.entries(byMonth).forEach(([m,v]) => { if (v > bestV) { bestV = v; bestM = m; } });
+    const bestLabel = bestM ? (bestM + ' (' + fu(bestV) + ')') : '—';
+    const summary = '<div class="chart-summary"><span>Total <b class="'+(st.units>=0?'pos':'')+'">'+fmtU(st.units)+'</b></span><span>Best month <b>'+esc(bestLabel)+'</b></span><span>ROI <b>'+fmtPct(st.roi)+'</b></span><span>Hit <b>'+fmtPct(st.win_pct)+'</b></span></div>';
+    const defs = '<defs><linearGradient id="plAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+primary+'" stop-opacity="0.35"/><stop offset="100%" stop-color="'+primary+'" stop-opacity="0"/></linearGradient><linearGradient id="plAreaGrad2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+secondary+'" stop-opacity="0.22"/><stop offset="100%" stop-color="'+secondary+'" stop-opacity="0"/></linearGradient></defs>';
     return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+aria+'">'
-      +g+(withPl?line(b,'#39d98a'):'')+line(a,'#63b3ff')+endLab(a,'#63b3ff',lineLab)+lbB
+      +defs+g
+      +(withPl&&pb.length?'<path d="'+area(pb,y(0))+'" fill="url(#plAreaGrad2)"></path><path d="'+smooth(pb)+'" fill="none" stroke="'+secondary+'" stroke-width="2.5" stroke-linejoin="round"/>':'')
+      +(pa.length?'<path d="'+area(pa,y(0))+'" fill="url(#plAreaGrad)"></path><path d="'+smooth(pa)+'" fill="none" stroke="'+primary+'" stroke-width="3" stroke-linejoin="round"/>':'')
+      +endLab(pa,primary,lineLab)+lbB
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
-      +legend;
+      +legend+summary;
   }
+
   function wireChart() {
     const w=document.querySelector('#summary .chart-wrap'); if(!w) return;
     const pts=JSON.parse(w.dataset.pts), svg=w.querySelector('svg'), tip=w.querySelector('.chart-tip'), hov=svg.querySelector('.hov');
