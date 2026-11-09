@@ -2,6 +2,7 @@
 (function () {
   const SB_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
   const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
+  window.__SB_ANON = SB_ANON;
   const M = window.TipsModel;
   const selectedColours = new Set(M.colours);
   const summarySports = new Set(["NBA", "NFL", "NHL", "EPL", "CHAMP", "TENNIS"]);
@@ -194,7 +195,16 @@
     } else {
       comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     }
+    let multiLine='';
+    if (tipsterId==='john') {
+      const multiRows=(tipsterData && tipsterData.results || []).filter(isMulti).concat((tipsterData && tipsterData.open_bets || []).filter(isMulti));
+      const settled=multiRows.filter(r=>r.result==='W'||r.result==='L'||r.result==='void');
+      const st=M.stats(settled);
+      multiLine='<section class="panel"><h3>Multis</h3><p class="note">Separate Sportsbet multi line. Included in overall units above.</p>'
+        +statsHtml('Multis settled', settled)+'</section>';
+    }
     $("summary").innerHTML=controls+note+cards
+      + multiLine
       +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine,pl,withPl)+'</section>'
       +comparison;
     wireChart();
@@ -613,6 +623,23 @@
     if (!Number.isFinite(ko)) return false;
     return ko - now <= NFL_TOTALS_TIPS_WINDOW_MS;
   }
+
+  function isMulti(r) { return !!(r && (r.is_multi || String(r.tag || "").toUpperCase() === "MULTI" || String(r.market || "").toLowerCase() === "multi")); }
+  function multiLegsHtml(r) {
+    const legs = r.legs || [];
+    if (!legs.length) return "";
+    return '<details class="multi-legs-details"><summary class="muted">' + legs.length + ' legs</summary>'
+      + '<table class="multi-legs-table"><tbody>'
+      + legs.map((leg) => '<tr><td>' + esc(leg.sport || "") + '</td><td>' + esc(leg.game || "") + '</td><td>' + esc(leg.selection || "")
+        + '</td><td>$' + Number(leg.leg_price || 0).toFixed(2) + '</td><td>' + esc(leg.start_aedt || leg.start_utc || "") + '</td><td>' + esc(leg.result || "open") + '</td></tr>').join("")
+      + '</tbody></table></details>';
+  }
+  function multiPickCell(r) {
+    const price = r.settled_price != null ? r.settled_price : r.combined_price != null ? r.combined_price : r.price_taken;
+    return '<td><span class="chip MULTI">MULTI</span> ' + esc(r.bookie || "Sportsbet") + ' · $' + Number(price || 0).toFixed(2)
+      + multiLegsHtml(r) + '</td>';
+  }
+
   function renderOpen() {
     if (tipsterId === "nba-price-gap") {
       const rows = gapRows((tipsterData && tipsterData.open_bets) || [])
@@ -642,12 +669,23 @@
     $("open").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Placed</th><th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Price</th><th>Units</th><th>Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
-        + "<td>" + esc(shortSel(r.selection)) + "</td>"
-        + "<td>" + chip(r.light) + "</td>"
-        + "<td>" + fmtOdds(r.price_taken) + "</td>"
-        + '<td class="u">' + fmtU(r.units) + "</td>"
-        + '<td class="fl">' + betFlags(r) + "</td></tr>").join("")
+      + rows.map((r) => {
+          if (isMulti(r)) {
+            return '<tr class="multi-row"><td>' + esc(shortDate(r.placed_utc)) + '</td><td>' + esc(shortDate(r.kickoff_utc)) + '</td>'
+              + '<td class="game"><span class="sp">MULTI</span> ' + esc(r.game || "") + '</td>'
+              + multiPickCell(r)
+              + '<td>' + chip("MULTI") + '</td>'
+              + '<td>$' + Number(r.combined_price || r.price_taken || 0).toFixed(2) + '</td>'
+              + '<td class="u">' + fmtU(r.units) + '</td>'
+              + '<td class="fl">' + betFlags(r) + '</td></tr>';
+          }
+          return "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
+            + "<td>" + esc(shortSel(r.selection)) + "</td>"
+            + "<td>" + chip(r.light) + "</td>"
+            + "<td>" + fmtOdds(r.price_taken) + "</td>"
+            + '<td class="u">' + fmtU(r.units) + "</td>"
+            + '<td class="fl">' + betFlags(r) + "</td></tr>";
+        }).join("")
       + "</tbody></table></div>";
   }
   function renderResults() {
@@ -680,15 +718,29 @@
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
-      + rows.map((r) => "<tr><td>" + esc(shortDate(r.kickoff_utc || r.placed_utc)) + "</td>" + gameCell(r)
-        + "<td>" + esc(shortSel(r.selection)) + "</td>"
-        + "<td>" + chip(r.light) + "</td>"
-        + "<td>" + fmtOdds(r.price_taken) + "</td>"
-        + "<td>" + esc(r.result) + "</td>"
-        + '<td class="u">' + fmtU(r.units) + "</td>"
-        + '<td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
-        + '<td class="opt">' + fmtPct(r.clv_pct) + "</td>"
-        + '<td class="opt fl">' + betFlags(r) + "</td></tr>").join("")
+      + rows.map((r) => {
+          if (isMulti(r)) {
+            return '<tr class="multi-row"><td>' + esc(shortDate(r.kickoff_utc || r.placed_utc)) + '</td>'
+              + '<td class="game"><span class="sp">MULTI</span> ' + esc(r.game || "") + '</td>'
+              + multiPickCell(r)
+              + '<td>' + chip("MULTI") + '</td>'
+              + '<td>$' + Number((r.settled_price != null ? r.settled_price : r.combined_price) || r.price_taken || 0).toFixed(2) + '</td>'
+              + '<td>' + esc(r.result) + '</td>'
+              + '<td class="u">' + fmtU(r.units) + '</td>'
+              + '<td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + '</td>'
+              + '<td class="opt">—</td>'
+              + '<td class="opt fl">' + betFlags(r) + '</td></tr>';
+          }
+          return "<tr><td>" + esc(shortDate(r.kickoff_utc || r.placed_utc)) + "</td>" + gameCell(r)
+            + "<td>" + esc(shortSel(r.selection)) + "</td>"
+            + "<td>" + chip(r.light) + "</td>"
+            + "<td>" + fmtOdds(r.price_taken) + "</td>"
+            + "<td>" + esc(r.result) + "</td>"
+            + '<td class="u">' + fmtU(r.units) + "</td>"
+            + '<td class="u ' + clsU(M.pnl(r)) + '">' + fmtU(M.pnl(r)) + "</td>"
+            + '<td class="opt">' + fmtPct(r.clv_pct) + "</td>"
+            + '<td class="opt fl">' + betFlags(r) + "</td></tr>";
+        }).join("")
       + "</tbody></table></div>";
   }
   function showTab(name) {
@@ -729,11 +781,19 @@
     renderToday();
     renderOpen();
     renderResults();
+    if (window.JohnMultis) window.JohnMultis.setUpcoming((data && data.today) || []);
+  }
+  let memberRole = null;
+  async function wireJohnMultis(session) {
+    if (tipsterId !== "john" || !window.JohnMultis) return;
+    const owner = memberRole === "owner";
+    window.JohnMultis.init(sb, session, owner, (data && data.today) || []);
   }
   async function ensureProfile(session) {
     const email = session.user.email;
     const { data: allow } = await sb.from("member_allowlist").select("role").ilike("email", email).maybeSingle();
     if (!allow) return false;
+    memberRole = allow.role;
     await sb.from("member_profiles").upsert({ user_id: session.user.id, email, role: allow.role }, { onConflict: "user_id" });
     return true;
   }
@@ -823,6 +883,31 @@
         open_bets: data.open_bets || [],
         results: data.results || [],
       };
+      // Live overlay: open multis from john_multis (form) until export settles them into the snapshot.
+      try {
+        if (memberRole === "owner") {
+          const { data: liveMultis } = await sb.from("john_multis").select("*").is("deleted_at", null);
+          const mapped = (liveMultis || []).map((m) => {
+            const status = String(m.status || "open").toLowerCase();
+            const result = status === "won" ? "W" : status === "lost" ? "L" : status === "void" ? "void" : "open";
+            const price = m.settled_price != null ? m.settled_price : m.combined_price;
+            return {
+              bet_id: m.id, placed_utc: m.placed_at, sport: "MULTI", game: (m.legs || []).map((l) => l.game).join(" / "),
+              selection: (m.legs || []).map((l) => l.selection + " @ " + Number(l.leg_price).toFixed(2)).join(" + "),
+              tag: "MULTI", light: null, price_taken: Number(price), units: Number(m.stake_units), result,
+              market: "Multi", pnl_units: m.pnl_units != null && result !== "open" ? Number(m.pnl_units) : null,
+              rule_flags: ["MULTI"], system: "Multis", bookie: m.bookie || "Sportsbet", is_multi: true,
+              legs: m.legs || [], combined_price: Number(m.combined_price), settled_price: m.settled_price != null ? Number(m.settled_price) : null,
+              kickoff_utc: (m.legs || []).map((l) => l.start_utc).filter(Boolean).sort()[0] || null,
+            };
+          });
+          const byId = new Set(mapped.map((r) => r.bet_id));
+          tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
+            .concat(mapped.filter((r) => r.result === "open"));
+          tipsterData.results = (tipsterData.results || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
+            .concat(mapped.filter((r) => r.result !== "open"));
+        }
+      } catch (_) { /* overlay optional */ }
     }
     renderAll();
   }
@@ -874,8 +959,11 @@
         return;
       }
       setAuthed(true, session.user.email);
-      try { await loadTips(); $("loadMsg").textContent = ""; }
-      catch (err) { $("loadMsg").textContent = "Could not load tips: " + (err.message || err); }
+      try {
+        await loadTips();
+        $("loadMsg").textContent = "";
+        await wireJohnMultis(session);
+      } catch (err) { $("loadMsg").textContent = "Could not load tips: " + (err.message || err); }
       }, 0);
     });
   }
