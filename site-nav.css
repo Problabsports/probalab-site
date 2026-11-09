@@ -27,6 +27,7 @@ header.top.site-head .wrap,
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .04em;
+  word-spacing: .12em;
   font-size: 13px;
 }
 .site-nav a {
