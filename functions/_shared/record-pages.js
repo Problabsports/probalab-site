@@ -431,7 +431,7 @@ function sportGreenCard(v) {
 function resultsGrowthChart(allRows, filters) {
   const sport = filters.sport || "all";
   const sportsPresent = new Set(allRows.map((r) => r.sport).filter(Boolean));
-  const greens = allRows.filter((r) => (sport === "all" || r.sport === sport) && r.light === "GREEN" && r.won != null && r.start_utc)
+  const greens = allRows.filter((r) => (sport === "all" || r.sport === sport) && (r.light === "GREEN" || r.light === "SUPER") && r.won != null && r.start_utc)
     .slice()
     .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
   const withPrice = greens.filter((g) => g.posted_price != null && Number(g.posted_price) > 1);
@@ -559,7 +559,7 @@ function resultsGrowthChart(allRows, filters) {
         ${area ? `<path d="${area}" fill="url(#resultsAreaGrad)"></path>` : ""}
         ${line ? `<path d="${line}" fill="none" stroke="#2fd7a0" stroke-width="3" stroke-linejoin="round" filter="url(#resultsGlow)"/>` : ""}
         ${endDot}
-        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units · green · posted price</text>
+        <text x="${L}" y="${H - 6}" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units · green + best value · posted price</text>
       </svg>
     </div>
     ${summary}

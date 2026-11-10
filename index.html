@@ -676,6 +676,27 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 }
 .record-cta-csv:hover { color: var(--cyan); }
 
+/* Yesterday's results strip — green ticks / loss crosses */
+.yest-strip { margin: 10px 0 4px; padding: 12px 14px; border: 1px solid rgba(47, 215, 160, 0.45); border-radius: 12px; background: rgba(47, 215, 160, 0.08); box-shadow: 0 0 18px rgba(47, 215, 160, 0.12); }
+.yest-strip[hidden] { display: none !important; }
+.yest-strip .yest-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; margin: 0 0 8px; }
+.yest-strip .yest-title { font: 700 13px var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin: 0; }
+.yest-strip .yest-day { font: 500 12px var(--f-mono); color: var(--muted); }
+.yest-strip .yest-score { font: 700 13px var(--f-mono); color: var(--ink); margin-left: auto; }
+.yest-ticks { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.yest-ticks li { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--line-hi); background: rgba(16, 19, 31, 0.85); font: 600 12px var(--f-mono); color: var(--ink); }
+.yest-ticks li.win { border-color: rgba(47, 215, 160, 0.55); color: var(--green); }
+.yest-ticks li.loss { border-color: rgba(255, 80, 120, 0.45); color: #ff6b8a; }
+.yest-ticks .mark { font-weight: 800; }
+.yest-ticks .sp { color: var(--muted); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.yest-other { margin: 8px 0 0; font: 500 12px var(--f-mono); color: var(--muted); }
+.yest-strip a.more { color: var(--cyan); font: 600 12px var(--f-mono); }
+/* Home newsletter under record box */
+.home-signup { margin: 8px 0 4px; padding: 12px 14px; border: 1px solid rgba(25, 227, 255, 0.4); border-radius: 12px; background: rgba(25, 227, 255, 0.06); max-width: 440px; }
+.home-signup label b { display: block; font: 700 13px var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); margin: 0 0 4px; }
+.home-signup .hs-lede { margin: 0 0 8px; font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+
 
 
 </style>
@@ -774,6 +795,17 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         </a>
         <a class="record-cta-csv" href="/results.csv">Download CSV</a>
       </div>
+        <div id="yesterdayStrip" class="yest-strip" hidden aria-live="polite"></div>
+        <form id="homeNewsletter" class="signup home-signup" action="/api/subscribe" method="post" data-signup>
+          <label for="home-su-email"><b>Free Tuesday &amp; Friday newsletter</b></label>
+          <p class="hs-lede">Predictions and results by email — same list as the footer signup. Confirm via email after you join.</p>
+          <div class="srow"><input id="home-su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="home-hero">
+          <button type="submit">Sign up</button></div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAF1-8hWamb8_PqUn" data-action="subscribe" data-theme="dark"></div>
+          <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
+        </form>
+
 
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
         <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
@@ -848,7 +880,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     </form>
     <div id="discordFooterSlot"></div>
     <p><b>Predictions for entertainment, not advice.</b></p>
-    <p class="small">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
+    <p class="small"><b>18+ only. Gamble responsibly.</b> <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
     <p class="small">As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.</p>
     <p class="flinks"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/backtest">Backtest</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
     <p>© <span id="yr"></span> ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
@@ -1341,6 +1373,35 @@ function fmtGreenUpdated(iso) {
     return `${wk} ${day} ${mon}, ${hour}:${min}${ap} ${tz}`;
   } catch (e) { return null; }
 }
+
+async function loadYesterdayStrip() {
+  const el = document.getElementById("yesterdayStrip");
+  if (!el) return;
+  try {
+    const r = await fetch("/api/yesterday-greens", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    if (!d || d.hide || !d.greens || !d.greens.length) { el.hidden = true; el.innerHTML = ""; return; }
+    const w = d.greens.filter((g) => g.won).length;
+    const n = d.greens.length;
+    const ticks = d.greens.map((g) => {
+      const mark = g.won ? "✓" : "✗";
+      const cls = g.won ? "win" : "loss";
+      const pctN = g.chance != null ? Math.round(Number(g.chance) * 100) + "%" : "";
+      const lab = g.light === "SUPER" ? "Super" : "Green";
+      return `<li class="${cls}" title="${esc(lab)} · ${esc(g.sport_name || g.sport)}"><span class="mark" aria-hidden="true">${mark}</span><span class="sp">${esc(String(g.sport || "").toUpperCase())}</span><span>${esc(g.pick)}</span>${pctN ? `<span>${pctN}</span>` : ""}</li>`;
+    }).join("");
+    const other = (d.other && d.other.n)
+      ? `<p class="yest-other">Other lights that day: ${d.other.w}–${d.other.n - d.other.w} · <a class="more" href="/results?light=all">All results →</a></p>`
+      : `<p class="yest-other"><a class="more" href="/results">Full results →</a></p>`;
+    el.innerHTML = `<div class="yest-head"><h2 class="yest-title">Yesterday's greens</h2><span class="yest-day">${esc(d.label || d.day)}</span><span class="yest-score">${w}–${n - w}</span></div><ul class="yest-ticks">${ticks}</ul>${other}`;
+    el.hidden = false;
+  } catch (e) {
+    el.hidden = true;
+    el.innerHTML = "";
+  }
+}
+
 async function loadHomeGreenRecord() {
   const el = document.getElementById("homeGreenRecord");
   if (!el) return;
@@ -1413,6 +1474,17 @@ function renderHome() {
         </a>
         <a class="record-cta-csv" href="/results.csv">Download CSV</a>
       </div>
+        <div id="yesterdayStrip" class="yest-strip" hidden aria-live="polite"></div>
+        <form id="homeNewsletter" class="signup home-signup" action="/api/subscribe" method="post" data-signup>
+          <label for="home-su-email"><b>Free Tuesday &amp; Friday newsletter</b></label>
+          <p class="hs-lede">Predictions and results by email — same list as the footer signup. Confirm via email after you join.</p>
+          <div class="srow"><input id="home-su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="home-hero">
+          <button type="submit">Sign up</button></div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAF1-8hWamb8_PqUn" data-action="subscribe" data-theme="dark"></div>
+          <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
+        </form>
+
 
         <div class="cta"><a class="btn primary today-btn" href="/today">Today's games →</a></div>
         <div class="cta"><a class="btn primary" href="/results">Results →</a><a class="btn primary" href="/nba">NBA</a><a class="btn primary" href="/nfl">NFL</a><a class="btn primary" href="/nhl">NHL</a><a class="btn primary" href="/epl">EPL</a><a class="btn" href="/how-it-works">How it works</a></div>
@@ -1431,6 +1503,7 @@ function renderHome() {
       ["Picks posted", (picksOf(DATA).length + picksOf(NFL).length).toLocaleString(), "NBA + NFL so far"], ["Picks deleted", "0", "losses stay on the record"]])}`;
   if (!SOFT) window.scrollTo(0, 0);
   loadHomeGreenRecord();
+  loadYesterdayStrip();
   mountDiscordCtas();
   // count-up on the big number
   const num = document.getElementById("hpNum");
@@ -2033,7 +2106,7 @@ document.addEventListener("submit", (e) => {
   const tokEl = f.querySelector("[name='cf-turnstile-response']");
   const token = tokEl && tokEl.value ? tokEl.value : "";
   b.disabled = true; m.textContent = "Signing you up…";
-  f.source.value = "app:" + (location.hash.slice(1).split("-").slice(0, 2).join("-") || "home");
+  if (f.source && (!f.source.value || f.source.value === "app")) f.source.value = "app:" + (location.hash.slice(1).split("-").slice(0, 2).join("-") || "home");
   fetch("api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source.value, "cf-turnstile-response": token }) })
     .then((r) => r.json().then((j) => ({ j })))
     .then(({ j }) => { m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again."); if (j.ok) f.email.value = ""; })
@@ -2166,6 +2239,7 @@ async function refresh() {
 })();
 route();
 loadHomeGreenRecord();
+loadYesterdayStrip();
 </script>
 <script src="/site-nav.js"></script>
 <script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
