@@ -29,7 +29,7 @@ jobs:
           # matches that have started keep exactly the chances, pick and light this file already shows; the result is graded from that pick
           jq -n --slurpfile n /tmp/tennis-new.json --slurpfile o /tmp/tennis-old.json --argjson now "$(date -u +%s)" '
             $n[0] as $new
-            | (($o[0].matches // []) | map(select((.start_utc | fromdateiso8601) <= $now)) | INDEX(.id)) as $fz
+                        | (($o[0].matches // []) | map(select((.start_utc | fromdateiso8601) <= $now and (.time_tbc != true))) | INDEX(.id)) as $fz
             | $new | .matches |= map(. as $m | $fz[$m.id] as $f
                 | if $f == null then $m
                   else ($m + { a_pct: $f.a_pct, b_pct: $f.b_pct, pick: $f.pick, pick_pct: $f.pick_pct, light: $f.light })
