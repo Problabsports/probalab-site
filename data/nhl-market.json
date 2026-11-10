@@ -82,5 +82,29 @@
       "posted_price": 1.92,
       "vs_close": 0.1632
     }
+  },
+  "2026020284": {
+    "away": {
+      "close_price": 1.754,
+      "posted_price": 2.15,
+      "vs_close": 0.226
+    },
+    "home": {
+      "close_price": 2.327,
+      "posted_price": 2.85,
+      "vs_close": 0.2248
+    }
+  },
+  "2026020285": {
+    "away": {
+      "close_price": 1.765,
+      "posted_price": 2.15,
+      "vs_close": 0.2181
+    },
+    "home": {
+      "close_price": 2.307,
+      "posted_price": 2.88,
+      "vs_close": 0.2483
+    }
   }
 }
