@@ -12,7 +12,7 @@
   };
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
 
-  let sb;
+  let sb, memberSession = null, memberRole = null, isOwner = false;
 
   function johnCardStats(payload) {
     const rows = (payload.results || []).filter((r) => M.visible(r) && M.colour(r) === "GREEN" && (r.result === "W" || r.result === "L"));
@@ -40,8 +40,10 @@
     const st = opts.stats || {};
     const wl = (st.wins != null && st.losses != null) ? (st.wins + "–" + st.losses) : "—";
     const tid = opts.id || "john";
+    const badge = opts.badge || "Live";
+    const badgeCls = opts.badgeClass || "ok";
     return '<a class="tipster-card live" href="' + esc(opts.href) + '">'
-      + '<div class="tipster-card-top"><h2>' + nameBtn(tid, opts.name) + '</h2><span class="badge ok">Live</span></div>'
+      + '<div class="tipster-card-top"><h2>' + nameBtn(tid, opts.name) + '</h2><span class="badge ' + esc(badgeCls) + '">' + esc(badge) + '</span></div>'
       + '<p class="tipster-focus">' + esc(opts.focus) + '</p>'
       + '<p class="tipster-pitch">' + esc(opts.pitch) + '</p>'
       + '<dl class="stat-grid tipster-stats">'
@@ -90,40 +92,51 @@
         footnote: "Fresh record from 7 Nov 2026. Paper units at the site's fair price.",
         href: "/members/tips/probalab",
         stats: probalab,
-      })
-      + liveCard({
-        id: "nfl-weather",
-        name: "NFL Totals",
-        focus: "NFL totals · overs and unders",
-        pitch: "NFL game totals — overs and unders, mostly unders. Flat 1u.",
-        footnote: "Fresh record. Flat 1u.",
-        href: "/members/tips/nfl-weather",
-        stats: weather,
-      })
-      + liveCard({
-        id: "nba-price-gap",
-        name: "NBA Price Gap",
-        focus: "NBA moneylines",
-        pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
-        footnote: "Flat 1 unit at the alerted price. Record starts 7 Nov 2026. Kept separate from the other desks.",
-        href: "/members/tips/nba-price-gap",
-        stats: gap,
-      })
-      + liveCard({
-        id: "nhl-value",
-        name: "NHL Value",
-        focus: "NHL moneylines",
-        pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
-        footnote: "Flat paper 1 unit. Record starts 7 Nov 2026. Separate from John's desk.",
-        href: "/members/tips/nhl-value",
-        stats: nhl,
       });
+    if (isOwner) {
+      $("tipsterCards").innerHTML +=
+        liveCard({
+          id: "nfl-weather",
+          name: "NFL Totals",
+          focus: "NFL totals · overs and unders",
+          pitch: "NFL game totals — overs and unders, mostly unders. Flat 1u.",
+          footnote: "Private — members cannot see this desk. Fresh record. Flat 1u.",
+          href: "/members/tips/nfl-weather",
+          stats: weather,
+          badge: "Private",
+          badgeClass: "warn",
+        })
+        + liveCard({
+          id: "nba-price-gap",
+          name: "NBA Price Gap",
+          focus: "NBA moneylines",
+          pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
+          footnote: "Private — members cannot see this desk. Flat 1 unit at the alerted price. Record starts 7 Nov 2026.",
+          href: "/members/tips/nba-price-gap",
+          stats: gap,
+          badge: "Private",
+          badgeClass: "warn",
+        })
+        + liveCard({
+          id: "nhl-value",
+          name: "NHL Value",
+          focus: "NHL moneylines",
+          pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
+          footnote: "Private — members cannot see this desk. Flat paper 1 unit. Record starts 7 Nov 2026.",
+          href: "/members/tips/nhl-value",
+          stats: nhl,
+          badge: "Private",
+          badgeClass: "warn",
+        });
+    }
   }
 
   async function ensureProfile(session) {
     const email = session.user.email;
     const { data: allow } = await sb.from("member_allowlist").select("role").ilike("email", email).maybeSingle();
     if (!allow) return false;
+    memberRole = allow.role;
+    isOwner = M.isOwnerAccount(email, allow.role);
     await sb.from("member_profiles").upsert({ user_id: session.user.id, email, role: allow.role }, { onConflict: "user_id" });
     return true;
   }
@@ -142,34 +155,37 @@
     let plPayload = null;
     const { data: plRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "probalab").maybeSingle();
     if (plRow && plRow.payload) plPayload = plRow.payload;
-    let weatherPayload = null;
-    for (const snapId of ["nfl-totals", "nfl-weather"]) {
-      const { data: wxRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", snapId).maybeSingle();
-      if (wxRow && wxRow.payload) { weatherPayload = wxRow.payload; break; }
-    }
-    if (!weatherPayload) {
-      try {
-        const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
-        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) weatherPayload = j;
-      } catch (_) {}
-    }
-    let gapPayload = null;
-    const { data: gapRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nba-price-gap").maybeSingle();
-    if (gapRow && gapRow.payload) gapPayload = gapRow.payload;
-    if (!gapPayload) {
-      try {
-        const j = await (await fetch("/data/tipsters/nba-price-gap.json", { cache: "no-store" })).json();
-        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) gapPayload = j;
-      } catch (_) {}
-    }
-    let nhlPayload = null;
-    const { data: nhlRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nhl-value").maybeSingle();
-    if (nhlRow && nhlRow.payload) nhlPayload = nhlRow.payload;
-    if (!nhlPayload) {
-      try {
-        const j = await (await fetch("/data/tipsters/nhl-value.json", { cache: "no-store" })).json();
-        if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) nhlPayload = j;
-      } catch (_) {}
+    let weatherPayload = null, gapPayload = null, nhlPayload = null;
+    if (isOwner) {
+      const hiddenFetch = (url) => (window.MembersOwner
+        ? MembersOwner.authFetch(url, { cache: "no-store" }, memberSession)
+        : fetch(url, { cache: "no-store" }));
+      for (const snapId of ["nfl-totals", "nfl-weather"]) {
+        const { data: wxRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", snapId).maybeSingle();
+        if (wxRow && wxRow.payload) { weatherPayload = wxRow.payload; break; }
+      }
+      if (!weatherPayload) {
+        try {
+          const j = await (await hiddenFetch("/data/tipsters/nfl-weather.json")).json();
+          if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) weatherPayload = j;
+        } catch (_) {}
+      }
+      const { data: gapRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nba-price-gap").maybeSingle();
+      if (gapRow && gapRow.payload) gapPayload = gapRow.payload;
+      if (!gapPayload) {
+        try {
+          const j = await (await hiddenFetch("/data/tipsters/nba-price-gap.json")).json();
+          if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) gapPayload = j;
+        } catch (_) {}
+      }
+      const { data: nhlRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "nhl-value").maybeSingle();
+      if (nhlRow && nhlRow.payload) nhlPayload = nhlRow.payload;
+      if (!nhlPayload) {
+        try {
+          const j = await (await hiddenFetch("/data/tipsters/nhl-value.json")).json();
+          if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) nhlPayload = j;
+        } catch (_) {}
+      }
     }
     renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload, nhlPayload);
   }
@@ -290,6 +306,7 @@
       auth: { persistSession: true, autoRefreshToken: true }
     });
     $("signOut").addEventListener("click", async () => {
+      if (window.MembersOwner) await MembersOwner.clear();
       await sb.auth.signOut();
       location.replace("/members");
     });
@@ -302,7 +319,9 @@
       location.replace("/members?denied=1");
       return;
     }
-    $("who").textContent = "Signed in as " + session.user.email;
+    memberSession = session;
+    if (isOwner && window.MembersOwner) await MembersOwner.claim(session);
+    $("who").textContent = "Signed in as " + session.user.email + (isOwner ? " · owner" : "");
     show("lobby");
     try {
       await loadSnapshot();

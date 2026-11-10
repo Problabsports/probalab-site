@@ -30,7 +30,7 @@ export async function onRequestGet() {
 
   <div id="publicPane" class="hidden">
     <h1>Sign in to ProbaLab members</h1>
-    <p>Six tipster desks are live. Sign in to open the lobby. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <p>Tipster desks are live. Sign in to open the lobby. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
     <aside class="trust-strip compact" aria-label="How we keep the record honest">
         <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
         <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
@@ -57,9 +57,6 @@ export async function onRequestGet() {
         <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John</b></button> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — selective Closing Line tips</li>
-        <li><button type="button" class="tipster-name-btn" data-tipster-info="nfl-weather" aria-expanded="false" aria-haspopup="dialog"><b>NFL Totals</b></button> — NFL overs and unders</li>
-        <li><button type="button" class="tipster-name-btn" data-tipster-info="nba-price-gap" aria-expanded="false" aria-haspopup="dialog"><b>NBA Price Gap</b></button> — NBA moneylines when AU books beat Pinnacle</li>
-        <li><button type="button" class="tipster-name-btn" data-tipster-info="nhl-value" aria-expanded="false" aria-haspopup="dialog"><b>NHL Value</b></button> — NHL moneylines at or above model fair</li>
       </ul>
       <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
     </section>
@@ -89,7 +86,7 @@ export async function onRequestGet() {
         <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
       </details>
       <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
-        <p>The six tipster desks are already live for members. Paid checkout is not open yet — we will publish clear cancel and payment details before any charge. The waitlist form does not charge you.</p>
+        <p>The member tipster desks are already live. Paid checkout is not open yet — we will publish clear cancel and payment details before any charge. The waitlist form does not charge you.</p>
       </details>
     </section>
 
@@ -114,11 +111,12 @@ export async function onRequestGet() {
   <link rel="stylesheet" href="/members-tips.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/members-tips-model.js"></script>
+  <script src="/members-owner.js"></script>
   <script src="/members-lobby.js"></script>`;
 
   const page = shell({
     title: "Members | ProbaLab",
-    description: "Sign in to ProbaLab members. Six live tipster desks, each with its own record. Join the waitlist if you don't have a login yet.",
+    description: "Sign in to ProbaLab members. Live tipster desks, each with its own record. Join the waitlist if you don't have a login yet.",
     path: "/members",
     body,
     noindex: false,

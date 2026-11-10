@@ -48,3 +48,12 @@ assert.equal(snap.summary.bets, 0);
 assert.match(snap.generated_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+11:00$/);
 assert.match(snap.source, /External NHL Value scanner publishes alerts/);
 console.log('Tips model tipster helpers: ok');
+
+assert.equal(M.canonicalDeskId('nfl-totals'), 'nfl-weather');
+assert.equal(M.canViewDesk('john', false), true);
+assert.equal(M.canViewDesk('nhl-value', false), false);
+assert.equal(M.canViewDesk('nhl-value', true), true);
+assert.equal(M.isOwnerAccount('jwcobley@gmail.com', 'member'), true);
+assert.equal(M.isOwnerAccount('other@example.com', 'member'), false);
+assert.deepEqual(M.desksFor(false), ['john', 'probalab', 'sniper']);
+console.log('Tips model visibility helpers: ok');

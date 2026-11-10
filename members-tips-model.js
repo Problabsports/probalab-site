@@ -116,11 +116,34 @@
     const first = startOf(future[0]);
     return { games: future.filter((g) => startOf(g) <= first + windowMs), limited: false };
   }
-  function tipsterMeta(id) {
-    const key = String(id || 'john').toLowerCase() === 'nfl-totals' ? 'nfl-weather' : String(id || 'john').toLowerCase();
-    return TIPSTERS[key] || TIPSTERS.john;
+  // Visibility: members see MEMBER_DESKS only. OWNER_ONLY_DESKS stay on for John.
+  // Move a desk id from OWNER_ONLY_DESKS into MEMBER_DESKS to show it to members again.
+  const MEMBER_DESKS = ['john', 'probalab', 'sniper'];
+  const OWNER_ONLY_DESKS = ['nhl-value', 'nba-price-gap', 'nfl-weather'];
+  const OWNER_EMAILS = ['jwcobley@gmail.com'];
+  function canonicalDeskId(id) {
+    const t = String(id || 'john').toLowerCase();
+    return t === 'nfl-totals' ? 'nfl-weather' : t;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS, comingWindow};
+  function isOwnerOnlyDesk(id) { return OWNER_ONLY_DESKS.includes(canonicalDeskId(id)); }
+  function isMemberDesk(id) { return MEMBER_DESKS.includes(canonicalDeskId(id)); }
+  function isOwnerEmail(email) { return OWNER_EMAILS.includes(String(email || '').trim().toLowerCase()); }
+  function isOwnerAccount(email, role) {
+    const r = String(role || '').trim().toLowerCase();
+    return isOwnerEmail(email) || r === 'owner' || r === 'admin';
+  }
+  function canViewDesk(id, isOwner) {
+    const t = canonicalDeskId(id);
+    if (isMemberDesk(t)) return true;
+    return !!(isOwner && isOwnerOnlyDesk(t));
+  }
+  function desksFor(isOwner) {
+    return isOwner ? MEMBER_DESKS.concat(OWNER_ONLY_DESKS) : MEMBER_DESKS.slice();
+  }
+  function tipsterMeta(id) {
+    return TIPSTERS[canonicalDeskId(id)] || TIPSTERS.john;
+  }
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);
