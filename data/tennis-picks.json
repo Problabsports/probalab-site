@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-10T12:25:13Z",
+  "generated_at": "2026-11-10T13:42:14Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "ATP-13-2026",
-      "tour": "ATP",
-      "name": "Rolex Paris Masters",
-      "city": "Paris",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-09T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "WTA-889-2026",
       "tour": "WTA",
       "name": "Chennai Open",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-10T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "ATP-13-2026",
+      "tour": "ATP",
+      "name": "Rolex Paris Masters",
+      "city": "Paris",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-09T04:59:00Z",
       "live": false
     },
     {
@@ -534,7 +534,7 @@
       "round": "Round 1",
       "court": "Court 1",
       "start_utc": "2026-11-10T12:00:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Adrian Mannarino",
       "player_b": "Aleksandr Shevchenko",
       "a_pct": 59.4,
@@ -542,10 +542,10 @@
       "pick": "a",
       "pick_pct": 59.4,
       "light": "RED",
-      "winner": null,
-      "score": "1-2",
+      "winner": "b",
+      "score": "1-6 3-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186541",
@@ -557,7 +557,7 @@
       "round": "Round 2",
       "court": "Center Court",
       "start_utc": "2026-11-10T12:05:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Alex Michelsen",
       "player_b": "Juan Manuel Cerundolo",
       "a_pct": 72.6,
@@ -565,10 +565,10 @@
       "pick": "a",
       "pick_pct": 72.6,
       "light": "GREEN",
-      "winner": null,
-      "score": "1-0",
+      "winner": "a",
+      "score": "6-3 6-2",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186533",
@@ -579,8 +579,8 @@
       "best_of": 3,
       "round": "Round 1",
       "court": "Court 1",
-      "start_utc": "2026-11-10T13:30:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-10T13:25:00Z",
+      "status": "in",
       "player_a": "Lorenzo Sonego",
       "player_b": "Quentin Halys",
       "a_pct": 35.9,
@@ -589,7 +589,7 @@
       "pick_pct": 64.1,
       "light": "ORANGE",
       "winner": null,
-      "score": null,
+      "score": "1-1",
       "retired": false,
       "result": null
     },
@@ -601,9 +601,9 @@
       "surface": "Hard",
       "best_of": 3,
       "round": "Round 2",
-      "court": "Center Court",
+      "court": "",
       "start_utc": "2026-11-10T13:30:00Z",
-      "status": "pre",
+      "status": "post",
       "player_a": "Tomas Martin Etcheverry",
       "player_b": "Thiago Agustin Tirante",
       "a_pct": 46.4,
@@ -611,10 +611,10 @@
       "pick": "b",
       "pick_pct": 53.6,
       "light": "RED",
-      "winner": null,
+      "winner": "b",
       "score": null,
       "retired": false,
-      "result": null
+      "result": "void"
     },
     {
       "id": "186527",
@@ -624,8 +624,8 @@
       "surface": "Hard",
       "best_of": 3,
       "round": "Round 1",
-      "court": "Court 1",
-      "start_utc": "2026-11-10T15:00:00Z",
+      "court": "Center Court",
+      "start_utc": "2026-11-10T14:30:00Z",
       "status": "pre",
       "player_a": "Arthur Rinderknech",
       "player_b": "Miomir Kecmanovic",
@@ -648,7 +648,7 @@
       "best_of": 3,
       "round": "Round 1",
       "court": "Center Court",
-      "start_utc": "2026-11-10T17:00:00Z",
+      "start_utc": "2026-11-10T17:30:00Z",
       "status": "pre",
       "player_a": "Holger Rune",
       "player_b": "Zizou Bergs",
@@ -671,7 +671,7 @@
       "best_of": 3,
       "round": "Round 2",
       "court": "Center Court",
-      "start_utc": "2026-11-10T18:30:00Z",
+      "start_utc": "2026-11-10T19:00:00Z",
       "status": "pre",
       "player_a": "Lorenzo Musetti",
       "player_b": "Toby Samuel",
@@ -726,6 +726,29 @@
       "pick": "a",
       "pick_pct": 62.7,
       "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186538",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Aleksandr Shevchenko",
+      "player_b": "Casper Ruud",
+      "a_pct": 25.9,
+      "b_pct": 74.1,
+      "pick": "b",
+      "pick_pct": 74.1,
+      "light": "GREEN",
       "winner": null,
       "score": null,
       "retired": false,
@@ -918,11 +941,11 @@
   ],
   "record": {
     "ALL": {
-      "won": 15,
-      "lost": 5
+      "won": 16,
+      "lost": 6
     },
     "GREEN": {
-      "won": 5,
+      "won": 6,
       "lost": 1
     },
     "ORANGE": {
@@ -931,7 +954,7 @@
     },
     "RED": {
       "won": 5,
-      "lost": 3
+      "lost": 4
     }
   }
 }
