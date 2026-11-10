@@ -13,7 +13,7 @@ export async function onRequestGet(ctx) {
     { loc: "/epl", pri: "0.9", freq: "hourly" }, { loc: "/epl/team", pri: "0.75", freq: "daily" },
     { loc: "/championship", pri: "0.85", freq: "hourly" },
     { loc: "/tennis", pri: "0.85", freq: "hourly" },
-    { loc: "/privacy", pri: "0.2", freq: "yearly" }, { loc: "/terms", pri: "0.2", freq: "yearly" }, { loc: "/contact", pri: "0.2", freq: "yearly" },
+    { loc: "/privacy", pri: "0.2", freq: "yearly" }, { loc: "/terms", pri: "0.2", freq: "yearly" }, { loc: "/refund", pri: "0.2", freq: "yearly" }, { loc: "/join", pri: "0.6", freq: "weekly" }, { loc: "/contact", pri: "0.2", freq: "yearly" },
   ];
   for (const sport of ["nba", "nfl"]) {
     try {
