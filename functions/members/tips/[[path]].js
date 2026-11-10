@@ -1,26 +1,33 @@
 // /members/tips and /members/tips/:tipster
 // [[path]] is an optional catch-all, so bare /members/tips hits this too.
 import { shell, html, notFound } from "../../_shared/site.js";
-import { tipsDeskResponse } from "../../_shared/members-tips-desk.js";
+import { tipsDeskResponse, ownerDeskGateResponse } from "../../_shared/members-tips-desk.js";
+import { canonicalDeskId, isKnownDesk, isMemberDesk, isOwnerOnlyDesk } from "../../_shared/members-desks.js";
+import { verifyOwner } from "../../_shared/owner-session.js";
 
 export async function onRequestGet(ctx) {
   const parts = [].concat(ctx.params.path ?? []).filter(Boolean);
   const url = new URL(ctx.request.url);
 
-  // Bare /members/tips → tipster lobby
+  // Bare /members/tips → tipster lobby, or a known ?tipster= redirect
   if (parts.length === 0) {
-    const q = (url.searchParams.get("tipster") || "").toLowerCase();
-    if (q === "sniper" || q === "john" || q === "probalab" || q === "nfl-weather" || q === "nfl-totals" || q === "nba-price-gap" || q === "nhl-value") {
+    const q = canonicalDeskId(url.searchParams.get("tipster") || "");
+    if (isKnownDesk(q)) {
       return Response.redirect(new URL(`/members/tips/${q}`, url).toString(), 302);
     }
     return Response.redirect(new URL("/members", url).toString(), 302);
   }
 
   if (parts.length !== 1) return notFound();
-  const raw = String(parts[0] || "").toLowerCase();
-  const id = raw === "nfl-totals" ? "nfl-weather" : raw;
-  if (id !== "john" && id !== "sniper" && id !== "probalab" && id !== "nfl-weather" && id !== "nba-price-gap" && id !== "nhl-value") return notFound();
-  return tipsDeskResponse(shell, html, id);
+  const id = canonicalDeskId(parts[0]);
+  if (!isKnownDesk(id)) return notFound();
+  if (isMemberDesk(id)) return tipsDeskResponse(shell, html, id);
+  if (isOwnerOnlyDesk(id)) {
+    const owner = await verifyOwner(ctx.request);
+    if (owner) return tipsDeskResponse(shell, html, id);
+    return ownerDeskGateResponse(shell, html, id);
+  }
+  return notFound();
 }
 
 export const onRequestHead = async (ctx) => {

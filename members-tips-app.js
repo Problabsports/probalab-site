@@ -445,6 +445,11 @@
       book: r.book || r.price_book || r.bookie || "",
     });
   }
+  function hiddenFetch(url) {
+    return (window.MembersOwner
+      ? MembersOwner.authFetch(url, { cache: "no-store" }, memberSession)
+      : fetch(url, { cache: "no-store", credentials: "include" }));
+  }
   async function loadNbaPriceGap() {
     let remote = { open_bets: [], results: [], generated_at: null, about: null };
     try {
@@ -454,7 +459,7 @@
     } catch (_) {}
     let file = null;
     try {
-      const res = await fetch("/data/tipsters/nba-price-gap.json", { cache: "no-store" });
+      const res = await hiddenFetch("/data/tipsters/nba-price-gap.json");
       if (res.ok) file = await res.json();
     } catch (_) {}
     const fileOpen = file && Array.isArray(file.open_bets) && file.open_bets.length ? file.open_bets : null;
@@ -593,7 +598,7 @@
     } catch (_) {}
     if (!src) {
       try {
-        const res = await fetch("/data/tipsters/nhl-value.json", { cache: "no-store" });
+        const res = await hiddenFetch("/data/tipsters/nhl-value.json");
         if (res.ok) src = await res.json();
       } catch (_) {}
     }
@@ -806,7 +811,7 @@
     renderResults();
     if (window.JohnMultis) window.JohnMultis.setUpcoming((data && data.today) || []);
   }
-  let memberRole = null;
+  let memberRole = null, memberSession = null, isOwner = false;
   async function wireJohnMultis(session) {
     if (tipsterId !== "john" || !window.JohnMultis) return;
     const owner = memberRole === "owner";
@@ -817,6 +822,7 @@
     const { data: allow } = await sb.from("member_allowlist").select("role").ilike("email", email).maybeSingle();
     if (!allow) return false;
     memberRole = allow.role;
+    isOwner = M.isOwnerAccount(email, allow.role);
     await sb.from("member_profiles").upsert({ user_id: session.user.id, email, role: allow.role }, { onConflict: "user_id" });
     return true;
   }
@@ -855,7 +861,7 @@
       if (block && block.found) return block;
     }
     try {
-      const j = await (await fetch("/data/tipsters/nfl-weather.json", { cache: "no-store" })).json();
+      const j = await (await hiddenFetch("/data/tipsters/nfl-weather.json")).json();
       const pub = (xs) => (xs || []).filter((r) => r.published !== false);
       if (j && (Array.isArray(j.open_bets) || Array.isArray(j.results))) {
         return {
@@ -954,6 +960,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     $("signOut").addEventListener("click", async () => {
+      if (window.MembersOwner) await MembersOwner.clear();
       await sb.auth.signOut();
       location.replace("/members");
     });
@@ -981,6 +988,13 @@
         location.replace("/members?denied=1");
         return;
       }
+      memberSession = session;
+      if (!M.canViewDesk(tipsterId, isOwner)) {
+        location.replace("/members");
+        return;
+      }
+      if (isOwner && window.MembersOwner) await MembersOwner.claim(session);
+      try { sessionStorage.removeItem("pl_owner_gate"); } catch (_) {}
       setAuthed(true, session.user.email);
       try {
         await loadTips();

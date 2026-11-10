@@ -87,9 +87,39 @@ export function tipsDeskBody(tipsterId = "john") {
   <link rel="stylesheet" href="/members-tips.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/members-tips-model.js"></script>
+  <script src="/members-owner.js"></script>
   <script src="/odds.js"></script>
   <script src="/members-john-multis.js"></script>
   <script src="/members-tips-app.js"></script>`;
+}
+
+export function ownerDeskGateResponse(shell, html, tipsterId = "john") {
+  const id = String(tipsterId || "john").toLowerCase();
+  const body = `
+  <div class="tips-app" data-tipster="${id}">
+    <p class="eyebrow">// private · members</p>
+    <section id="bootPane" class="panel">
+      <p class="muted" id="gateMsg">Checking your sign-in…</p>
+      <p class="note"><a href="/members">Members</a></p>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/members-tips-model.js"></script>
+  <script src="/members-owner.js"></script>
+  <script>window.MembersOwner && window.MembersOwner.gateDesk();</script>`;
+  const page = shell({
+    title: "Members | ProbaLab",
+    description: "Private tipster desk",
+    path: `/members/tips/${id}`,
+    body,
+    noindex: true,
+    signup: false,
+  });
+  const res = html(page, 200, 0);
+  const headers = new Headers(res.headers);
+  headers.set("cache-control", "no-store");
+  headers.set("x-robots-tag", "noindex, nofollow");
+  return new Response(res.body, { status: res.status, headers });
 }
 
 export function tipsDeskResponse(shell, html, tipsterId = "john") {
