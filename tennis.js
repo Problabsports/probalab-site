@@ -81,7 +81,7 @@
     const side = (k, name, p) => { const on = m.pick === k, won = post && m.winner === k;
       return `<div class="tn-pl"><span class="nm ${on ? "on" : ""}">${esc(name)}${won ? '<span class="w" title="Winner"> ●</span>' : ""}</span><span class="pc ${on ? "on" : ""}" style="${on ? `color:${col}` : ""}">${P1(p)}</span></div>`; };
     const tail = post ? (m.result === "void" ? `<span class="tn-st">No result</span>` : `<span class="tn-st"><b class="${m.right ? "pos" : "neg"}">${m.right ? "✓" : "✕"}</b> ${esc(m.score ?? "")}${m.retired ? " ret." : ""}</span>`)
-      : m.status === "in" ? `<span class="tn-st"><b class="tn-on">● Playing</b> ${esc(m.score ?? "")}</span>` : m.status === "due" ? `<span class="tn-st">Starting soon</span>` : `<span class="tn-st">${esc(fmtTime.format(new Date(m.start_utc)))}</span>`;
+      : m.status === "in" ? `<span class="tn-st"><b class="tn-on">● Playing</b> ${esc(m.score ?? "")}</span>` : m.status === "due" ? `<span class="tn-st">Starting soon</span>` : m.time_tbc ? `<span class="tn-st">time TBC</span>` : `<span class="tn-st">${esc(fmtTime.format(new Date(m.start_utc)))}</span>`;
     return `<div class="tn-row">
       <div class="tn-pls">${side("a", m.player_a, m.a_pct)}${side("b", m.player_b, m.b_pct)}
         <div class="tn-bar"><i style="width:${m.a_pct}%;background:${m.pick === "a" ? col : "var(--line-hi)"}"></i><i style="width:${m.b_pct}%;background:${m.pick === "b" ? col : "var(--line-hi)"}"></i></div></div>

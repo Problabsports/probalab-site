@@ -18,6 +18,34 @@ const dayET = (iso) => {
   return f.format(new Date(iso));
 };
 
+const dayAEDT = (iso) => {
+  const k = "dayAEDT";
+  let f = FMTS.get(k);
+  if (!f) {
+    f = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    FMTS.set(k, f);
+  }
+  return f.format(new Date(iso));
+};
+const shortDayAEDT = (iso) => {
+  const k = "shortDayAEDT";
+  let f = FMTS.get(k);
+  if (!f) {
+    f = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short" });
+    FMTS.set(k, f);
+  }
+  return f.format(new Date(iso));
+};
+const tennisDayLabel = (g) => {
+  if (g.time_tbc) {
+    return new Intl.DateTimeFormat("en-AU", { timeZone: "America/New_York", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(g.start_utc)) + " ET, time TBC";
+  }
+  return dayAEDT(g.start_utc);
+};
+const tennisShortDay = (g) => g.time_tbc
+  ? new Intl.DateTimeFormat("en-AU", { timeZone: "America/New_York", weekday: "short", day: "numeric", month: "short" }).format(new Date(g.start_utc)) + ", time TBC"
+  : shortDayAEDT(g.start_utc);
+
 function tennisDataFromFile(feed) {
   const games = (feed?.matches ?? []).map((m) => {
     const id = String(m.id ?? m.game_id);
@@ -33,6 +61,7 @@ function tennisDataFromFile(feed) {
       home_name: m.player_b,
       away_name: m.player_a,
       start_utc: m.start_utc,
+      time_tbc: !!m.time_tbc,
       status: done ? "post" : (m.status === "in" ? "in" : "pre"),
       pick: pickName,
       pick_p: pickP,
@@ -108,7 +137,8 @@ function soccerOrTennisRow(g) {
       ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"}</span>`
       : `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"}${g.home_score != null ? ` ${g.away_score}–${g.home_score}` : ""}</span>`)
     : "";
-  return `<li id="game-${esc(g.game_id)}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${match}</span>
+  const when = g.sport === "tennis" ? tennisShortDay(g) : shortDay(g.start_utc);
+  return `<li id="game-${esc(g.game_id)}"><a href="${esc(g.path)}"><span class="d">${esc(when)}</span><span class="m">${match}</span>
     <span class="p">${g.pick ? `${esc(g.pick_name || g.pick)} ${g.pick_p == null || !Number.isFinite(Number(g.pick_p)) ? "—" : `${Math.round(Number(g.pick_p) * 100)}%`}` : "soon"}</span>${chip(g.light)}${result}</a></li>`;
 }
 
@@ -138,7 +168,7 @@ export async function renderLeanHub(ctx, sport) {
   const settled = recRows.length ? recRows : data.games.filter((g) => g.pick && g.status === "post" && g.won != null);
   const tips = settled.filter((g) => isTip(g) || g.light === "GREEN" || g.light === "SUPER");
   const groups = {};
-  upcoming.forEach((g) => (groups[dayET(g.start_utc)] ??= []).push(g));
+  upcoming.forEach((g) => (groups[sport === "tennis" ? tennisDayLabel(g) : dayET(g.start_utc)] ??= []).push(g));
   const row = (g) => (sport === "nba" || sport === "nfl" ? gameRow(g) : soccerOrTennisRow(g));
   const filterBar = renderFilterBar(filters, {
     basePath: `/${sport}`,
