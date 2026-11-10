@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-10T14:55:58Z",
+  "generated_at": "2026-11-10T15:49:31Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "WTA-889-2026",
-      "tour": "WTA",
-      "name": "Chennai Open",
-      "city": "Chennai",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-10T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "ATP-13-2026",
       "tour": "ATP",
       "name": "Rolex Paris Masters",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-09T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "WTA-889-2026",
+      "tour": "WTA",
+      "name": "Chennai Open",
+      "city": "Chennai",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-10T04:59:00Z",
       "live": false
     },
     {
@@ -580,7 +580,7 @@
       "round": "Round 1",
       "court": "Court 1",
       "start_utc": "2026-11-10T13:25:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Lorenzo Sonego",
       "player_b": "Quentin Halys",
       "a_pct": 35.9,
@@ -588,10 +588,10 @@
       "pick": "b",
       "pick_pct": 64.1,
       "light": "ORANGE",
-      "winner": null,
-      "score": "6-4 6-6",
+      "winner": "a",
+      "score": "6-4 7-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186539",
@@ -635,7 +635,7 @@
       "pick_pct": 60,
       "light": "ORANGE",
       "winner": null,
-      "score": "1-1",
+      "score": "6-7 0-2",
       "retired": false,
       "result": null
     },
@@ -732,29 +732,6 @@
       "result": null
     },
     {
-      "id": "186545",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Round 2",
-      "court": "",
-      "start_utc": "2026-11-11T05:00:00Z",
-      "status": "pre",
-      "player_a": "Taylor Fritz",
-      "player_b": "Cameron Norrie",
-      "a_pct": 70.7,
-      "b_pct": 29.3,
-      "pick": "a",
-      "pick_pct": 70.7,
-      "light": "GREEN",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "186542",
       "tour": "ATP",
       "tournament_id": "ATP-148-2026",
@@ -794,6 +771,52 @@
       "b_pct": 74.1,
       "pick": "b",
       "pick_pct": 74.1,
+      "light": "GREEN",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186540",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Lorenzo Sonego",
+      "player_b": "Alejandro Tabilo",
+      "a_pct": 40.6,
+      "b_pct": 59.4,
+      "pick": "b",
+      "pick_pct": 59.4,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186545",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Taylor Fritz",
+      "player_b": "Cameron Norrie",
+      "a_pct": 70.7,
+      "b_pct": 29.3,
+      "pick": "a",
+      "pick_pct": 70.7,
       "light": "GREEN",
       "winner": null,
       "score": null,
@@ -942,7 +965,7 @@
   "record": {
     "ALL": {
       "won": 16,
-      "lost": 6
+      "lost": 7
     },
     "GREEN": {
       "won": 6,
@@ -950,7 +973,7 @@
     },
     "ORANGE": {
       "won": 5,
-      "lost": 1
+      "lost": 2
     },
     "RED": {
       "won": 5,
