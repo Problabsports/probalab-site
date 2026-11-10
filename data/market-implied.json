@@ -1,17 +1,8 @@
 {
-  "generated_utc": "2026-11-10T02:06:39Z",
+  "generated_utc": "2026-11-10T02:58:02Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
-    {
-      "sport": "nba",
-      "game_id": "401909958",
-      "away": "SA",
-      "home": "PHX",
-      "start_utc": "2026-11-10T02:00:00Z",
-      "market_home": 0.2416,
-      "market_away": 0.7584
-    },
     {
       "sport": "nba",
       "game_id": "401909959",
@@ -76,15 +67,6 @@
       "market_away": 0.532
     },
     {
-      "sport": "nba",
-      "game_id": "401909977",
-      "away": "DET",
-      "home": "WSH",
-      "start_utc": "2026-11-13T00:00:00Z",
-      "market_home": 0.1315,
-      "market_away": 0.8685
-    },
-    {
       "sport": "nfl",
       "game_id": "401873051",
       "away": "BUF",
@@ -125,8 +107,8 @@
       "away_name": "Philadelphia Flyers",
       "home_name": "Vancouver Canucks",
       "start_utc": "2026-11-10T02:40:00Z",
-      "market_home": 0.4484,
-      "market_away": 0.5516
+      "market_home": 0.4332,
+      "market_away": 0.5668
     },
     {
       "sport": "nhl",
@@ -136,8 +118,8 @@
       "away_name": "New York Islanders",
       "home_name": "San Jose Sharks",
       "start_utc": "2026-11-10T03:10:00Z",
-      "market_home": 0.4402,
-      "market_away": 0.5598
+      "market_home": 0.4358,
+      "market_away": 0.5642
     },
     {
       "sport": "nhl",
