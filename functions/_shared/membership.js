@@ -270,7 +270,14 @@ export function fillWelcomeEmail({ price, portalLink, founding = true }) {
   const opening = founding
     ? `Thanks for joining ProbaLab Members as a founding member. Your founding price of ${priceLabel} (US$24/month or US$240/year) stays locked for as long as you remain subscribed.`
     : `Thanks for joining ProbaLab Members. Your price is ${priceLabel}.`;
+  const discordStepText = `One last step: get your Discord access 🔓
+
+Join our Discord here: ${DISCORD_INVITE}
+
+Then send a message in #how-to (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.`;
   const text = `${opening}
+
+${discordStepText}
 
 Here's how to get started:
 
@@ -292,6 +299,15 @@ ProbaLab Sports
 18+. Gamble responsibly. If gambling is causing you harm, call Gambling Help on 1800 858 858 or visit gamblinghelponline.org.au.`;
 
   const html = `<p>${escapeHtml(opening)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-collapse:collapse;">
+  <tr>
+    <td style="padding:16px 18px;border:1px solid #1a9bb8;border-left:4px solid #1a9bb8;background:#f3fbfd;">
+      <p style="margin:0 0 10px;font-weight:700;font-size:16px;color:#0b1220;">One last step: get your Discord access 🔓</p>
+      <p style="margin:0 0 10px;color:#0b1220;">Join our Discord here: <a href="${DISCORD_INVITE}" style="color:#0b6e84;">${DISCORD_INVITE}</a></p>
+      <p style="margin:0;color:#0b1220;">Then send a message in #how-to (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
+    </td>
+  </tr>
+</table>
 <p>Here's how to get started:</p>
 <ol>
 <li>Join the members Discord: <a href="${DISCORD_INVITE}">${DISCORD_INVITE}</a><br>
