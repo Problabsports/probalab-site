@@ -5,7 +5,7 @@ export async function onRequestGet() {
   const body = `
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Members</span></nav>
   <p class="eyebrow">// members</p>
-  <p id="deniedNote" class="note" style="display:none;color:var(--orange)">That email isn't on the members list yet. Join the waitlist below.</p>
+  <p id="deniedNote" class="note" style="display:none;color:var(--orange)">That email isn't on the members list yet. <a href="/join">Join here</a>, or use the waitlist below.</p>
 
   <section id="bootPane" class="panel">
     <p class="muted">Checking your sign-in…</p>
@@ -16,6 +16,7 @@ export async function onRequestGet() {
     <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy and compare that record with the ProbaLab board. Everyone here is still building a track record.</p>
     <div class="tips-toolbar">
       <span id="who" class="muted"></span>
+      <a href="/members/billing">Manage billing</a>
       <button type="button" id="signOut">Sign out</button>
     </div>
     <p id="lobbyMeta" class="subline"></p>
@@ -30,7 +31,7 @@ export async function onRequestGet() {
 
   <div id="publicPane" class="hidden">
     <h1>Sign in to ProbaLab members</h1>
-    <p>Tipster desks are live. Sign in to open the lobby. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <p>Tipster desks are live. Sign in to open the lobby, or <a href="/join">join as a member</a>. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
     <aside class="trust-strip compact" aria-label="How we keep the record honest">
         <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
         <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
@@ -86,13 +87,20 @@ export async function onRequestGet() {
         <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
       </details>
       <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
-        <p>The member tipster desks are already live. Paid checkout is not open yet — we will publish clear cancel and payment details before any charge. The waitlist form does not charge you.</p>
+        <p>Yes. Join on the <a href="/join">join page</a>. Founding pricing is US$24/month or US$240/year for the first 10 members, locked for life while you stay subscribed. After that, new members pay US$39/month or US$390/year. Cancel any time from <a href="/members/billing">Manage billing</a>. Access continues until the end of the period you have paid for. See <a href="/refund">Refunds</a>.</p>
       </details>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="joinMembers">
       <h2>Not a member yet?</h2>
-      <p>If you don't have a login yet, join the waitlist and we will email you when a seat opens.</p>
+      <p>You can join now. Founding pricing is US$24/month or US$240/year for the first 10 members, locked for life while you stay subscribed. After the first 10, the price is US$39/month or US$390/year.</p>
+      <p><a class="btn" href="/join">Join ProbaLab Members</a></p>
+      <p class="note">18+ only. Cancel any time. <a href="/refund">Refunds</a> · <a href="/responsible-gambling">Gamble responsibly</a>.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Or join the waitlist</h2>
+      <p>If you're not ready to pay, leave your email and we will write when you ask us to.</p>
       <form class="signup main" id="waitlistForm" action="/api/members-waitlist" method="post" data-waitlist>
         <label for="wl-email"><b>Email me when a seat opens</b></label>
         <p>No spam. Waitlist mail only.</p>
@@ -116,7 +124,7 @@ export async function onRequestGet() {
 
   const page = shell({
     title: "Members | ProbaLab",
-    description: "Sign in to ProbaLab members. Live tipster desks, each with its own record. Join the waitlist if you don't have a login yet.",
+    description: "Sign in to ProbaLab members. Live tipster desks, each with its own record. Founding price for the first 10 members.",
     path: "/members",
     body,
     noindex: false,
