@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-09T23:17:44Z",
+  "generated_at": "2026-11-10T00:09:16Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -511,7 +511,7 @@
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-09T22:30:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Mirra Andreeva",
       "player_b": "Elina Svitolina",
       "a_pct": 48.9,
@@ -519,10 +519,10 @@
       "pick": "b",
       "pick_pct": 51.1,
       "light": "RED",
-      "winner": null,
-      "score": "5-4",
+      "winner": "a",
+      "score": "6-4 6-0",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186541",
@@ -744,10 +744,10 @@
       "status": "pre",
       "player_a": "Elina Svitolina",
       "player_b": "Karolina Muchova",
-      "a_pct": 49.4,
-      "b_pct": 50.6,
+      "a_pct": 48.4,
+      "b_pct": 51.6,
       "pick": "b",
-      "pick_pct": 50.6,
+      "pick_pct": 51.6,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -813,10 +813,10 @@
       "status": "pre",
       "player_a": "Aryna Sabalenka",
       "player_b": "Mirra Andreeva",
-      "a_pct": 65.2,
-      "b_pct": 34.8,
+      "a_pct": 63.8,
+      "b_pct": 36.2,
       "pick": "a",
-      "pick_pct": 65.2,
+      "pick_pct": 63.8,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -836,10 +836,10 @@
       "status": "pre",
       "player_a": "Aryna Sabalenka",
       "player_b": "Elina Svitolina",
-      "a_pct": 64.2,
-      "b_pct": 35.8,
+      "a_pct": 65.1,
+      "b_pct": 34.9,
       "pick": "a",
-      "pick_pct": 64.2,
+      "pick_pct": 65.1,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -859,10 +859,10 @@
       "status": "pre",
       "player_a": "Mirra Andreeva",
       "player_b": "Karolina Muchova",
-      "a_pct": 48.3,
-      "b_pct": 51.7,
+      "a_pct": 49.8,
+      "b_pct": 50.2,
       "pick": "b",
-      "pick_pct": 51.7,
+      "pick_pct": 50.2,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -919,7 +919,7 @@
   "record": {
     "ALL": {
       "won": 15,
-      "lost": 4
+      "lost": 5
     },
     "GREEN": {
       "won": 5,
@@ -931,7 +931,7 @@
     },
     "RED": {
       "won": 5,
-      "lost": 2
+      "lost": 3
     }
   }
 }
