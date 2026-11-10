@@ -28,6 +28,17 @@ const inWindow = (iso, now) => {
   const t = new Date(iso).getTime();
   return t >= now - 2 * 3600e3 && t <= now + WINDOW_MS;
 };
+// ESPN date-only tennis starts are midnight ET (shown as time_tbc). The match can
+// begin any time that ET calendar day — never treat 4:00pm AEDT as a real tip-off.
+const tennisWhen = (m) => m.time_tbc
+  ? `${new Intl.DateTimeFormat("en-AU", { timeZone: "America/New_York", weekday: "short", day: "numeric", month: "short" }).format(new Date(m.start_utc))} ET, time TBC`
+  : tAEDT(m.start_utc) + " AEDT";
+const tennisInWindow = (m, now) => {
+  if (!m.time_tbc) return inWindow(m.start_utc, now);
+  const start = new Date(m.start_utc).getTime();
+  const end = start + WINDOW_MS - 1000;
+  return now <= end + 2 * 3600e3 && now >= start - WINDOW_MS;
+};
 const abbrKey = (s) => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 const nameKey = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
@@ -330,7 +341,7 @@ export async function onRequestGet(ctx) {
   {
     // Tennis (live 7 Nov 2026): ATP and WTA main-draw singles; lights GREEN 70%+, ORANGE 60-70%, RED under 60%; no market comparison
     const feed = await asset(ctx, "/data/tennis-picks.json", null);
-    const upcoming = (feed?.matches ?? []).filter((m) => m.status === "pre" && inWindow(m.start_utc, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc) || String(a.id).localeCompare(String(b.id)));
+    const upcoming = (feed?.matches ?? []).filter((m) => m.status === "pre" && tennisInWindow(m, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc) || String(a.id).localeCompare(String(b.id)));
     total += upcoming.length;
     const games = upcoming.map((m) => {
       const pickName = m.pick === "a" ? m.player_a : m.player_b, p = Number(m.pick_pct) / 100;
@@ -338,7 +349,7 @@ export async function onRequestGet(ctx) {
         key: `tennis:${m.id}`,
         sportName: "Tennis",
         href: "/tennis",
-        when: tAEDT(m.start_utc) + " AEDT",
+        when: tennisWhen(m),
         match: `${m.player_a} v ${m.player_b}`,
         matchHtml: `${esc(m.player_a)} v ${esc(m.player_b)}<br><small>${esc(m.tournament)} · ${esc(m.round)}</small>`,
         pick: `${pickName} ${pct(p)}`,
