@@ -382,7 +382,7 @@ ProbaLab Sports
                   <td class="email-bar" width="4" bgcolor="#19e3ff" style="background-color:#19e3ff;width:4px;font-size:0;line-height:0;">&nbsp;</td>
                   <td class="email-discord" bgcolor="#161a2a" style="background-color:#161a2a;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
                     <p class="email-ink" style="margin:0 0 10px;font-weight:700;font-size:16px;color:#e8ecf8;">One last step: get your Discord access 🔓</p>
-                    <p class="email-ink" style="margin:0 0 14px;color:#e8ecf8;">Then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
+                    <p class="email-ink" style="margin:0 0 14px;color:#e8ecf8;">Join our Discord, then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
                     ${btn(DISCORD_INVITE, "Join Discord")}
                   </td>
                 </tr>

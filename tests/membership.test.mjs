@@ -64,6 +64,10 @@ assert(mail.text.includes("One last step: get your Discord access"), "discord ac
 assert(mail.text.includes("(or DM @teamjwc)"), "discord handle");
 assert(mail.text.includes("send a message in #questions (or DM @teamjwc)"), "questions channel");
 assert(mail.html.includes("send a message in #questions (or DM @teamjwc)"), "html questions channel");
+assert(mail.html.includes("Join our Discord, then send a message in #questions (or DM @teamjwc)"), "html discord box lead-in");
+assert(!mail.html.includes(">Then send a message in #questions"), "html box does not start with Then");
+assert(mail.text.includes("Join our Discord here:"), "plain text keeps separate join line");
+
 assert(!mail.text.includes("send a message in #how-to"), "does not message in how-to");
 assert(mail.text.includes("Start in #how-to. The pinned posts cover"), "how-to remains reading channel");
 assert(mail.html.includes("Start in #how-to."), "html how-to remains reading channel");
