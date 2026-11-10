@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-10T12:05:00Z",
+  "generated_utc": "2026-11-10T17:28:34Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -9,8 +9,8 @@
       "away": "MIL",
       "home": "NY",
       "start_utc": "2026-11-11T00:30:00Z",
-      "market_home": 0.8782,
-      "market_away": 0.1218
+      "market_home": 0.8711,
+      "market_away": 0.1289
     },
     {
       "sport": "nba",
@@ -18,8 +18,8 @@
       "away": "BOS",
       "home": "PHI",
       "start_utc": "2026-11-11T01:00:00Z",
-      "market_home": 0.4936,
-      "market_away": 0.5064
+      "market_home": 0.4719,
+      "market_away": 0.5281
     },
     {
       "sport": "nba",
@@ -27,8 +27,8 @@
       "away": "LAC",
       "home": "PHX",
       "start_utc": "2026-11-11T02:00:00Z",
-      "market_home": 0.599,
-      "market_away": 0.401
+      "market_home": 0.6029,
+      "market_away": 0.3971
     },
     {
       "sport": "nba",
@@ -36,8 +36,8 @@
       "away": "MIA",
       "home": "UTAH",
       "start_utc": "2026-11-11T02:00:00Z",
-      "market_home": 0.2505,
-      "market_away": 0.7495
+      "market_home": 0.2539,
+      "market_away": 0.7461
     },
     {
       "sport": "nba",
@@ -45,8 +45,8 @@
       "away": "ORL",
       "home": "SAC",
       "start_utc": "2026-11-11T03:00:00Z",
-      "market_home": 0.3326,
-      "market_away": 0.6674
+      "market_home": 0.3273,
+      "market_away": 0.6727
     },
     {
       "sport": "nba",
@@ -54,8 +54,8 @@
       "away": "OKC",
       "home": "POR",
       "start_utc": "2026-11-11T04:00:00Z",
-      "market_home": 0.4405,
-      "market_away": 0.5595
+      "market_home": 0.4555,
+      "market_away": 0.5445
     },
     {
       "sport": "nba",
@@ -63,8 +63,8 @@
       "away": "OKC",
       "home": "POR",
       "start_utc": "2026-11-12T03:00:00Z",
-      "market_home": 0.4405,
-      "market_away": 0.5595
+      "market_home": 0.4555,
+      "market_away": 0.5445
     },
     {
       "sport": "nfl",
