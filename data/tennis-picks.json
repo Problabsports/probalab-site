@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-10T16:52:47Z",
+  "generated_at": "2026-11-10T17:48:39Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "ATP-13-2026",
-      "tour": "ATP",
-      "name": "Rolex Paris Masters",
-      "city": "Paris",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-09T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "WTA-889-2026",
       "tour": "WTA",
       "name": "Chennai Open",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-10T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "ATP-13-2026",
+      "tour": "ATP",
+      "name": "Rolex Paris Masters",
+      "city": "Paris",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-09T04:59:00Z",
       "live": false
     },
     {
@@ -626,7 +626,7 @@
       "round": "Round 1",
       "court": "Center Court",
       "start_utc": "2026-11-10T14:35:00Z",
-      "status": "in",
+      "status": "post",
       "player_a": "Arthur Rinderknech",
       "player_b": "Miomir Kecmanovic",
       "a_pct": 60,
@@ -634,10 +634,10 @@
       "pick": "a",
       "pick_pct": 60,
       "light": "ORANGE",
-      "winner": null,
-      "score": "6-7 6-4 3-4",
+      "winner": "b",
+      "score": "6-7 6-4 4-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186525",
@@ -648,8 +648,8 @@
       "best_of": 3,
       "round": "Round 1",
       "court": "Center Court",
-      "start_utc": "2026-11-10T17:00:00Z",
-      "status": "pre",
+      "start_utc": "2026-11-10T17:15:00Z",
+      "status": "in",
       "player_a": "Holger Rune",
       "player_b": "Zizou Bergs",
       "a_pct": 45.7,
@@ -658,7 +658,7 @@
       "pick_pct": 54.3,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "0-0",
       "retired": false,
       "result": null
     },
@@ -732,52 +732,6 @@
       "result": null
     },
     {
-      "id": "186542",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Round 2",
-      "court": "",
-      "start_utc": "2026-11-11T05:00:00Z",
-      "status": "pre",
-      "player_a": "Borna Gojo",
-      "player_b": "Ugo Humbert",
-      "a_pct": 30.2,
-      "b_pct": 69.8,
-      "pick": "b",
-      "pick_pct": 69.8,
-      "light": "ORANGE",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
-      "id": "186538",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Round 2",
-      "court": "",
-      "start_utc": "2026-11-11T05:00:00Z",
-      "status": "pre",
-      "player_a": "Aleksandr Shevchenko",
-      "player_b": "Casper Ruud",
-      "a_pct": 25.9,
-      "b_pct": 74.1,
-      "pick": "b",
-      "pick_pct": 74.1,
-      "light": "GREEN",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "186540",
       "tour": "ATP",
       "tournament_id": "ATP-148-2026",
@@ -817,6 +771,52 @@
       "b_pct": 29.3,
       "pick": "a",
       "pick_pct": 70.7,
+      "light": "GREEN",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186542",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Borna Gojo",
+      "player_b": "Ugo Humbert",
+      "a_pct": 30.2,
+      "b_pct": 69.8,
+      "pick": "b",
+      "pick_pct": 69.8,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186538",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Round 2",
+      "court": "",
+      "start_utc": "2026-11-11T05:00:00Z",
+      "status": "pre",
+      "player_a": "Aleksandr Shevchenko",
+      "player_b": "Casper Ruud",
+      "a_pct": 25.9,
+      "b_pct": 74.1,
+      "pick": "b",
+      "pick_pct": 74.1,
       "light": "GREEN",
       "winner": null,
       "score": null,
@@ -870,29 +870,6 @@
       "result": null
     },
     {
-      "id": "187376",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "",
-      "start_utc": "2026-11-12T05:00:00Z",
-      "status": "pre",
-      "player_a": "Jessica Pegula",
-      "player_b": "Linda Noskova",
-      "a_pct": 58.8,
-      "b_pct": 41.2,
-      "pick": "a",
-      "pick_pct": 58.8,
-      "light": "RED",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "187379",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -939,6 +916,29 @@
       "result": null
     },
     {
+      "id": "187376",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Group Stage",
+      "court": "",
+      "start_utc": "2026-11-12T05:00:00Z",
+      "status": "pre",
+      "player_a": "Jessica Pegula",
+      "player_b": "Linda Noskova",
+      "a_pct": 58.8,
+      "b_pct": 41.2,
+      "pick": "a",
+      "pick_pct": 58.8,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187384",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -965,7 +965,7 @@
   "record": {
     "ALL": {
       "won": 16,
-      "lost": 7
+      "lost": 8
     },
     "GREEN": {
       "won": 6,
@@ -973,7 +973,7 @@
     },
     "ORANGE": {
       "won": 5,
-      "lost": 2
+      "lost": 3
     },
     "RED": {
       "won": 5,
