@@ -9,6 +9,7 @@ export const OWNER_EMAILS = ["jwcobley@gmail.com"];
 export const WELCOME_TEST_EMAIL = "jwcobley@gmail.com";
 export const FROM_EMAIL = "ProbaLab Sports <hello@probalabsports.com>";
 export const DISCORD_INVITE = "https://discord.gg/KPZ2BdfHuU";
+export const LOGO_URL = "https://probalabsports.com/icon-192.png";
 export const SUPABASE_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
 
 export const PRICES = {
@@ -266,16 +267,21 @@ export function nextMemberRole(existingRole, grant) {
 export function fillWelcomeEmail({ price, portalLink, founding = true }) {
   const priceLabel = price || (founding ? "US$24/month" : "US$39/month");
   const portal = portalLink || "https://probalabsports.com/members/billing";
-  const subject = "Welcome to ProbaLab Members";
+  const membersUrl = "https://probalabsports.com/members";
+  const resultsUrl = "https://probalabsports.com/results";
+  const subject = "You're in! Welcome to ProbaLab Members 🎉";
+  const headline = "You're now an official ProbaLab member 🎉";
   const opening = founding
-    ? `Thanks for joining ProbaLab Members as a founding member. Your founding price of ${priceLabel} (US$24/month or US$240/year) stays locked for as long as you remain subscribed.`
-    : `Thanks for joining ProbaLab Members. Your price is ${priceLabel}.`;
+    ? `You're one of the first 10 founding members, and your price of ${priceLabel} is locked for life. Your desks, tips and Discord are ready — here's how to get in.`
+    : `Your membership is live, and your price is ${priceLabel}. Your desks, tips and Discord are ready — here's how to get in.`;
   const discordStepText = `One last step: get your Discord access 🔓
 
 Join our Discord here: ${DISCORD_INVITE}
 
-Then send a message in #how-to (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.`;
-  const text = `${opening}
+Then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.`;
+  const text = `${headline}
+
+${opening}
 
 ${discordStepText}
 
@@ -284,12 +290,12 @@ Here's how to get started:
 1. Join the members Discord: ${DISCORD_INVITE}
    Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.
 
-2. Open the members desks: https://probalabsports.com/members
+2. Open the members desks: ${membersUrl}
    You will see John, ProbaLab, and Sniper. Sniper alerts are in #sniper-tips.
 
 3. The members newsletter goes out Tuesday and Friday, and is also posted in #premium-news.
 
-There are no guaranteed winners. Every pick, including losses, stays on the public record: https://probalabsports.com/results
+There are no guaranteed winners. Every pick, including losses, stays on the public record: ${resultsUrl}
 
 Manage or cancel any time: ${portal}
 
@@ -298,28 +304,114 @@ ProbaLab Sports
 
 18+. Gamble responsibly. If gambling is causing you harm, call Gambling Help on 1800 858 858 or visit gamblinghelponline.org.au.`;
 
-  const html = `<p>${escapeHtml(opening)}</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-collapse:collapse;">
+  const btn = (href, label) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0">
   <tr>
-    <td style="padding:16px 18px;border:1px solid #1a9bb8;border-left:4px solid #1a9bb8;background:#f3fbfd;">
-      <p style="margin:0 0 10px;font-weight:700;font-size:16px;color:#0b1220;">One last step: get your Discord access 🔓</p>
-      <p style="margin:0 0 10px;color:#0b1220;">Join our Discord here: <a href="${DISCORD_INVITE}" style="color:#0b6e84;">${DISCORD_INVITE}</a></p>
-      <p style="margin:0;color:#0b1220;">Then send a message in #how-to (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
+    <td align="center" bgcolor="#19e3ff" style="background-color:#19e3ff;border-radius:2px;">
+      <a href="${escapeAttr(href)}" style="display:inline-block;padding:12px 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:16px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;color:#07080f;">${escapeHtml(label)}</a>
     </td>
   </tr>
-</table>
-<p>Here's how to get started:</p>
-<ol>
-<li>Join the members Discord: <a href="${DISCORD_INVITE}">${DISCORD_INVITE}</a><br>
-Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.</li>
-<li>Open the members desks: <a href="https://probalabsports.com/members">https://probalabsports.com/members</a><br>
-You will see John, ProbaLab, and Sniper. Sniper alerts are in #sniper-tips.</li>
-<li>The members newsletter goes out Tuesday and Friday, and is also posted in #premium-news.</li>
-</ol>
-<p>There are no guaranteed winners. Every pick, including losses, stays on the public record: <a href="https://probalabsports.com/results">https://probalabsports.com/results</a></p>
-<p>Manage or cancel any time: <a href="${escapeAttr(portal)}">${escapeHtml(portal)}</a></p>
-<p>John<br>ProbaLab Sports</p>
-<p>18+. Gamble responsibly. If gambling is causing you harm, call Gambling Help on 1800 858 858 or visit <a href="https://www.gamblinghelponline.org.au">gamblinghelponline.org.au</a>.</p>`;
+</table>`;
+
+  const html = `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>${escapeHtml(subject)}</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
+<style>
+:root { color-scheme: light dark; supported-color-schemes: light dark; }
+@media (prefers-color-scheme: dark) {
+  .email-bg, .email-card { background-color: #07080f !important; }
+  .email-header { background-color: #10131f !important; }
+  .email-ink { color: #e8ecf8 !important; }
+  .email-muted { color: #8b93b0 !important; }
+  .email-accent { color: #19e3ff !important; }
+  .email-discord { background-color: #161a2a !important; }
+  .email-bar { background-color: #19e3ff !important; }
+  .email-btn { background-color: #19e3ff !important; color: #07080f !important; }
+}
+@media (prefers-color-scheme: light) {
+  .email-bg, .email-card { background-color: #07080f !important; }
+  .email-header { background-color: #10131f !important; }
+  .email-ink { color: #e8ecf8 !important; }
+  .email-muted { color: #8b93b0 !important; }
+  .email-accent { color: #19e3ff !important; }
+  .email-discord { background-color: #161a2a !important; }
+  .email-bar { background-color: #19e3ff !important; }
+  .email-btn { background-color: #19e3ff !important; color: #07080f !important; }
+}
+</style>
+</head>
+<body class="email-bg" bgcolor="#07080f" style="margin:0;padding:0;background-color:#07080f;color:#e8ecf8;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your ProbaLab Members access is ready.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="email-bg" bgcolor="#07080f" style="margin:0;padding:0;background-color:#07080f;width:100%;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="email-card" bgcolor="#07080f" style="width:100%;max-width:600px;background-color:#07080f;">
+          <tr>
+            <td class="email-header" bgcolor="#10131f" style="background-color:#10131f;padding:20px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td valign="middle" style="padding-right:12px;">
+                    <a href="https://probalabsports.com" style="text-decoration:none;">
+                      <img src="${LOGO_URL}" width="48" height="48" alt="ProbaLab" style="display:block;border:0;width:48px;height:48px;">
+                    </a>
+                  </td>
+                  <td valign="middle" class="email-ink" style="font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:24px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#e8ecf8;">
+                    <a href="https://probalabsports.com" style="text-decoration:none;color:#e8ecf8;">Proba<span class="email-accent" style="color:#19e3ff;">Lab</span></a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px 28px 8px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
+              <p class="email-ink" style="margin:0 0 16px;font-size:24px;line-height:1.3;font-weight:700;color:#e8ecf8;">${escapeHtml(headline)}</p>
+              <p class="email-ink" style="margin:0 0 20px;color:#e8ecf8;">${escapeHtml(opening)}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td class="email-bar" width="4" bgcolor="#19e3ff" style="background-color:#19e3ff;width:4px;font-size:0;line-height:0;">&nbsp;</td>
+                  <td class="email-discord" bgcolor="#161a2a" style="background-color:#161a2a;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
+                    <p class="email-ink" style="margin:0 0 10px;font-weight:700;font-size:16px;color:#e8ecf8;">One last step: get your Discord access 🔓</p>
+                    <p class="email-ink" style="margin:0 0 14px;color:#e8ecf8;">Then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
+                    ${btn(DISCORD_INVITE, "Join Discord")}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
+              <p class="email-ink" style="margin:0 0 12px;font-weight:700;color:#e8ecf8;">Here's how to get started:</p>
+              <p class="email-ink" style="margin:0 0 6px;color:#e8ecf8;">1. Join the members Discord. Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.</p>
+              <p class="email-ink" style="margin:0 0 16px;color:#e8ecf8;">2. Open the members desks. You will see John, ProbaLab, and Sniper. Sniper alerts are in #sniper-tips.</p>
+              ${btn(membersUrl, "Open members desks")}
+              <p class="email-ink" style="margin:16px 0 0;color:#e8ecf8;">3. The members newsletter goes out Tuesday and Friday, and is also posted in #premium-news.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 28px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
+              <p class="email-ink" style="margin:0 0 12px;color:#e8ecf8;">There are no guaranteed winners. Every pick, including losses, stays on the public record: <a class="email-accent" href="${resultsUrl}" style="color:#19e3ff;">${resultsUrl}</a></p>
+              <p class="email-ink" style="margin:0 0 16px;color:#e8ecf8;">Manage or cancel any time: <a class="email-accent" href="${escapeAttr(portal)}" style="color:#19e3ff;">${escapeHtml(portal)}</a></p>
+              <p class="email-ink" style="margin:0 0 16px;color:#e8ecf8;">John<br>ProbaLab Sports</p>
+              <p class="email-muted" style="margin:0;font-size:13px;line-height:1.5;color:#8b93b0;">18+. Gamble responsibly. If gambling is causing you harm, call Gambling Help on 1800 858 858 or visit <a class="email-accent" href="https://www.gamblinghelponline.org.au" style="color:#19e3ff;">gamblinghelponline.org.au</a>.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
   return { subject, text, html };
 }
 
