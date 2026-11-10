@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-10T10:53:40Z",
+  "generated_utc": "2026-11-10T11:54:54Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -213,8 +213,8 @@
       "away_name": "Colorado Avalanche",
       "home_name": "Toronto Maple Leafs",
       "start_utc": "2026-11-11T00:10:00Z",
-      "market_home": 0.4196,
-      "market_away": 0.5804
+      "market_home": 0.409,
+      "market_away": 0.591
     },
     {
       "sport": "nhl",
@@ -224,8 +224,8 @@
       "away_name": "Minnesota Wild",
       "home_name": "Montr\u00e9al Canadiens",
       "start_utc": "2026-11-11T00:10:00Z",
-      "market_home": 0.4686,
-      "market_away": 0.5314
+      "market_home": 0.468,
+      "market_away": 0.532
     },
     {
       "sport": "nhl",
@@ -235,8 +235,8 @@
       "away_name": "New Jersey Devils",
       "home_name": "Winnipeg Jets",
       "start_utc": "2026-11-11T00:10:00Z",
-      "market_home": 0.4257,
-      "market_away": 0.5743
+      "market_home": 0.4125,
+      "market_away": 0.5875
     },
     {
       "sport": "nhl",
@@ -246,8 +246,8 @@
       "away_name": "Washington Capitals",
       "home_name": "Ottawa Senators",
       "start_utc": "2026-11-11T00:10:00Z",
-      "market_home": 0.5368,
-      "market_away": 0.4632
+      "market_home": 0.5256,
+      "market_away": 0.4744
     },
     {
       "sport": "nhl",
@@ -257,8 +257,8 @@
       "away_name": "Florida Panthers",
       "home_name": "Columbus Blue Jackets",
       "start_utc": "2026-11-11T00:40:00Z",
-      "market_home": 0.4821,
-      "market_away": 0.5179
+      "market_home": 0.4756,
+      "market_away": 0.5244
     },
     {
       "sport": "nhl",
@@ -268,8 +268,8 @@
       "away_name": "Detroit Red Wings",
       "home_name": "St Louis Blues",
       "start_utc": "2026-11-11T01:10:00Z",
-      "market_home": 0.5632,
-      "market_away": 0.4368
+      "market_home": 0.5595,
+      "market_away": 0.4405
     },
     {
       "sport": "nhl",
@@ -279,8 +279,8 @@
       "away_name": "Nashville Predators",
       "home_name": "Los Angeles Kings",
       "start_utc": "2026-11-11T03:10:00Z",
-      "market_home": 0.5524,
-      "market_away": 0.4476
+      "market_home": 0.5584,
+      "market_away": 0.4416
     }
   ]
 }
