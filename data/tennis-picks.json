@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-11T21:35:24Z",
+  "generated_at": "2026-11-11T22:30:36Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -891,7 +891,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-11T20:10:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Elina Svitolina",
       "player_b": "Karolina Muchova",
       "a_pct": 48.4,
@@ -899,10 +899,10 @@
       "pick": "b",
       "pick_pct": 51.6,
       "light": "RED",
-      "winner": null,
-      "score": "3-6 4-2",
+      "winner": "a",
+      "score": "3-6 6-2 6-2",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "187378",
@@ -913,9 +913,9 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-11T21:45:00Z",
+      "start_utc": "2026-11-11T22:25:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "due",
       "player_a": "Aryna Sabalenka",
       "player_b": "Mirra Andreeva",
       "a_pct": 63.8,
@@ -1086,10 +1086,10 @@
       "status": "pre",
       "player_a": "Mirra Andreeva",
       "player_b": "Karolina Muchova",
-      "a_pct": 49.8,
-      "b_pct": 50.2,
-      "pick": "b",
-      "pick_pct": 50.2,
+      "a_pct": 51.1,
+      "b_pct": 48.9,
+      "pick": "a",
+      "pick_pct": 51.1,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -1110,10 +1110,10 @@
       "status": "pre",
       "player_a": "Aryna Sabalenka",
       "player_b": "Elina Svitolina",
-      "a_pct": 65.1,
-      "b_pct": 34.9,
+      "a_pct": 64.1,
+      "b_pct": 35.9,
       "pick": "a",
-      "pick_pct": 65.1,
+      "pick_pct": 64.1,
       "light": "ORANGE",
       "winner": null,
       "score": null,
@@ -1124,7 +1124,7 @@
   "record": {
     "ALL": {
       "won": 21,
-      "lost": 10
+      "lost": 11
     },
     "GREEN": {
       "won": 8,
@@ -1136,7 +1136,7 @@
     },
     "RED": {
       "won": 6,
-      "lost": 4
+      "lost": 5
     }
   }
 }
