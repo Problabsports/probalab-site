@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-11T18:56:11Z",
+  "generated_at": "2026-11-11T19:58:40Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -843,7 +843,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-11T17:05:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Aleksandr Shevchenko",
       "player_b": "Casper Ruud",
       "a_pct": 25.9,
@@ -851,10 +851,10 @@
       "pick": "b",
       "pick_pct": 74.1,
       "light": "GREEN",
-      "winner": null,
-      "score": "6-7 5-4",
+      "winner": "a",
+      "score": "6-7 6-4 6-3",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186544",
@@ -865,9 +865,9 @@
       "best_of": 3,
       "round": "Round 2",
       "court": "Center Court",
-      "start_utc": "2026-11-11T19:00:00Z",
+      "start_utc": "2026-11-11T19:45:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Miomir Kecmanovic",
       "player_b": "Holger Rune",
       "a_pct": 44,
@@ -876,7 +876,7 @@
       "pick_pct": 56,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "1-0",
       "retired": false,
       "result": null
     },
@@ -947,6 +947,30 @@
       "pick": "a",
       "pick_pct": 63.8,
       "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186548",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Quarterfinal",
+      "court": "Center Court",
+      "start_utc": "2026-11-12T14:00:00Z",
+      "time_tbc": false,
+      "status": "pre",
+      "player_a": "Thiago Agustin Tirante",
+      "player_b": "Aleksandr Shevchenko",
+      "a_pct": 56.3,
+      "b_pct": 43.7,
+      "pick": "a",
+      "pick_pct": 56.3,
+      "light": "RED",
       "winner": null,
       "score": null,
       "retired": false,
@@ -1025,30 +1049,6 @@
       "result": null
     },
     {
-      "id": "187384",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "",
-      "start_utc": "2026-11-13T05:00:00Z",
-      "time_tbc": true,
-      "status": "pre",
-      "player_a": "Mirra Andreeva",
-      "player_b": "Karolina Muchova",
-      "a_pct": 49.8,
-      "b_pct": 50.2,
-      "pick": "b",
-      "pick_pct": 50.2,
-      "light": "RED",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "187379",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -1071,16 +1071,40 @@
       "score": null,
       "retired": false,
       "result": null
+    },
+    {
+      "id": "187384",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Group Stage",
+      "court": "",
+      "start_utc": "2026-11-13T05:00:00Z",
+      "time_tbc": true,
+      "status": "pre",
+      "player_a": "Mirra Andreeva",
+      "player_b": "Karolina Muchova",
+      "a_pct": 49.8,
+      "b_pct": 50.2,
+      "pick": "b",
+      "pick_pct": 50.2,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
     }
   ],
   "record": {
     "ALL": {
       "won": 20,
-      "lost": 9
+      "lost": 10
     },
     "GREEN": {
       "won": 8,
-      "lost": 1
+      "lost": 2
     },
     "ORANGE": {
       "won": 7,
