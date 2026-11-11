@@ -1078,6 +1078,34 @@
       "right": "The model gave the Warriors an 80% chance at home, mainly because of their higher team-strength rating (98.6 to 84.1), and they won by 51. Will Richard (Warriors) and Moses Moody (Warriors) sat out, as the preview expected.",
       "missed": "No obvious miss in the reasons. A 51-point margin doesn't tell us the model saw every detail, only that the pick held.",
       "why": "The result fits what the model leaned on. One win doesn't prove it right: at 80%, about 20 in 100 games like this go the other way, and every result stays on our record."
+    },
+    "401909962": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Suns beat the Clippers 133–110 at home. Jordan Goodwin led them with 18 points, making 6 of 7 threes, and Devin Booker added 17. For the Clippers, Rui Hachimura had 13 points and 5 rebounds.",
+      "right": "The model gave the Suns a 53% chance at home, mainly because of their higher team-strength rating (88.7 to 85.1), and they won by 23. Brandon Ingram, Jordan Miller and Bradley Beal for the Clippers, and Mark Williams for the Suns, all missed the game, as the preview expected.",
+      "missed": "Recent form favoured the Clippers (the Suns had been losing by 6.8 points a game, the Clippers losing by 2.0), and that didn't carry over. Rui Hachimura's 13 points for the Clippers weren't enough to change the result.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 53% this was close to a coin flip, so it could easily have gone the other way, and every result stays on our record."
+    },
+    "401909963": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Heat beat the Jazz 115–109 on the road. Giannis Antetokounmpo led them with 30 points and 11 rebounds, and Davion Mitchell added 19. For the Jazz, Darryn Peterson had 25 points.",
+      "right": "The model gave the Heat a 73% chance on the road, mainly because of their higher team-strength rating (96.9 to 73.9), and they won by 6. Recent form pointed the same way: the Heat had been losing by 2.2 points a game, the Jazz losing by 11.2. Keyonte George, Lauri Markkanen, Jaren Jackson Jr. and Jusuf Nurkic for the Jazz all missed the game, as the preview expected.",
+      "missed": "Not much went against the model in this one. The Jazz won the rebounding battle 49–40 and still lost.",
+      "why": "The result fits what the model leaned on, the team-strength rating. One win doesn't prove the model right: at 73%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909964": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Magic beat the Kings 107–100 on the road. Franz Wagner led them with 33 points, 7 rebounds and 7 assists, and Anthony Black added 26. For the Kings, Zach LaVine had 31 points, making 6 of 9 threes.",
+      "right": "The model gave the Magic a 58% chance on the road, mainly because of rest and form, even though the Kings rated clearly stronger (85.1 to 81.7), and they won by 7. Recent form pointed the same way: the Magic had been losing by 6.2 points a game, the Kings losing by 11.4. Paolo Banchero, Jalen Suggs and Tristan da Silva for the Magic, and Maxime Raynaud for the Kings, all missed the game, as the preview expected.",
+      "missed": "Our rating had the Kings clearly stronger on paper, and on the night that didn't decide it. The Kings made more threes (16 to 10) and still lost.",
+      "why": "The result fits what the model leaned on, rest and form. One win doesn't prove the model right: at 58%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401909965": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Trail Blazers beat the Thunder 123–103 at home. Damian Lillard led them with 25 points, and Deni Avdija added 24. For the Thunder, Shai Gilgeous-Alexander had 26 points and 8 rebounds.",
+      "right": "Jalen Williams, Chet Holmgren, Cason Wallace and Jaylin Williams for the Thunder, and Ja Morant and Shaedon Sharpe for the Trail Blazers, all missed the game, as the preview expected. Our team-strength rating also had the Trail Blazers as the stronger side (93.1 to 90.3).",
+      "missed": "The model made the Thunder a slight favourite at 59%, and that was wrong: the Trail Blazers won by 20. The Trail Blazers made 19 of 50 from three; the Thunder made 8 of 22.",
+      "why": "The Trail Blazers already rated slightly stronger on paper, so the pick leaned on rest and form, which is a thin margin. Even at 59%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
     }
   }
 }

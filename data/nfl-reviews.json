@@ -294,6 +294,104 @@
       "right": "The model gave the Jaguars a 70% chance on the road, mainly because of their higher team rating (1641 to 1491), and they won by 23. Both starting quarterbacks were the ones the preview expected: Trevor Lawrence for the Jaguars and Joe Fagnano for the Ravens.",
       "missed": "Not much went against the model in this one. The Ravens never got close enough to make it a contest.",
       "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 70%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873038": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Bengals beat the Falcons 34–17 at a neutral venue. Joe Burrow completed 24 of 29 passes for 271 yards with 3 touchdowns, and Ja'Marr Chase caught 10 passes for 155 yards and 1 touchdown. For the Falcons, Michael Penix Jr. completed 20 of 31 passes for 162 yards with 1 touchdown and 1 interception.",
+      "right": "The model gave the Bengals a 70% chance at a neutral venue, mainly because of their higher team rating (1580 to 1464), and they won by 17. Both starting quarterbacks were the ones the preview expected: Joe Burrow for the Bengals and Michael Penix Jr. for the Falcons.",
+      "missed": "Not much went against the model in this one. The Falcons never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 70%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873045": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Chiefs beat the Jets 35–12 at home. Patrick Mahomes completed 23 of 31 passes for 242 yards with 2 touchdowns, and Kenneth Walker III ran for 102 yards on 18 carries and scored once. For the Jets, Geno Smith completed 18 of 32 passes for 165 yards.",
+      "right": "The model gave the Chiefs a 79% chance at home, mainly because of their higher team rating (1553 to 1334), plus home field, and they won by 23. Both starting quarterbacks were the ones the preview expected: Geno Smith for the Jets and Patrick Mahomes for the Chiefs.",
+      "missed": "Not much went against the model in this one. The Jets never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 79%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873044": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Giants beat the Eagles 19–11 on the road. J.J. McCarthy completed 12 of 19 passes for 127 yards. For the Eagles, Joe Milton completed 18 of 34 passes for 169 yards.",
+      "right": "The model gave the Giants a 61% chance on the road, mainly because of their higher team rating (1469 to 1392), and they won by 8. J.J. McCarthy started for the Giants, as the preview expected.",
+      "missed": "The preview assumed Tanner McKee would start for the Eagles, but Joe Milton started instead. The Eagles kept it to a one-score game, so it was never comfortable.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 61%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873039": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Saints beat the Browns 23–22 at home. Tyler Shough completed 21 of 35 passes for 265 yards with 1 touchdown, and Audric Estime ran for 72 yards on 15 carries and scored once. For the Browns, Shedeur Sanders completed 19 of 31 passes for 297 yards with 2 touchdowns.",
+      "right": "The model gave the Saints a 68% chance at home, mainly because of home field, even though the Browns had the higher team rating (1449 to 1411), and they won by 1. Tyler Shough started for the Saints, as the preview expected.",
+      "missed": "The preview assumed Deshaun Watson would start for the Browns, but Shedeur Sanders started instead. The pick came through, but only just: a 1-point game is closer than a 68% chance suggests.",
+      "why": "The result fits what the model leaned on, home field. One win doesn't prove the model right: at 68%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873040": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Cowboys beat the Colts 27–23 on the road. Dak Prescott completed 21 of 34 passes for 335 yards with 2 touchdowns, and Javonte Williams ran for 101 yards on 20 carries and scored once. For the Colts, Daniel Jones completed 20 of 34 passes for 180 yards with 1 touchdown and 1 interception.",
+      "right": "Both starting quarterbacks were the ones the preview expected: Dak Prescott for the Cowboys and Daniel Jones for the Colts. The model called this close to a coin flip, and it was a one-score game: 4 points at the end. Our team rating did have the Cowboys as the stronger side (1440 to 1390), and they won.",
+      "missed": "The model leaned to the Colts at 52%, close to a coin flip, and it got this one wrong: the Cowboys won by 4. The Cowboys out-gained the Colts 508 yards to 271.",
+      "why": "The Cowboys already had the higher rating, so the pick leaned on home field, which is a thin margin. At 52% it was close to a coin flip, so a result like this happens almost half the time. It stays on our record like every other result."
+    },
+    "401873041": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Broncos beat the Panthers 26–21 on the road. Bo Nix completed 25 of 37 passes for 237 yards with 2 touchdowns and 1 interception. For the Panthers, Bryce Young completed 28 of 39 passes for 276 yards with 3 touchdowns and 1 interception.",
+      "right": "The model gave the Broncos a 66% chance on the road, mainly because of their higher team rating (1652 to 1431), and they won by 5. Both starting quarterbacks were the ones the preview expected: Bo Nix for the Broncos and Bryce Young for the Panthers.",
+      "missed": "Not much went against the model in this one. The Panthers kept it to a one-score game, so it was never comfortable.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 66%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873042": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Lions beat the Dolphins 19–9 on the road. Jared Goff completed 17 of 25 passes for 170 yards with 1 interception, and Jahmyr Gibbs ran for 74 yards on 20 carries and scored once. For the Dolphins, Malik Willis completed 13 of 25 passes for 128 yards with 1 interception.",
+      "right": "The model gave the Lions a 68% chance on the road, mainly because of their higher team rating (1585 to 1364), and they won by 10. Both starting quarterbacks were the ones the preview expected: Jared Goff for the Lions and Malik Willis for the Dolphins.",
+      "missed": "Not much went against the model in this one. The Dolphins never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 68%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873043": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Rams beat the Commanders 20–13 on the road. Matthew Stafford completed 26 of 43 passes for 228 yards with 1 touchdown and 1 interception, and Puka Nacua caught 14 passes for 150 yards and 1 touchdown. For the Commanders, Jayden Daniels completed 24 of 35 passes for 274 yards with 1 touchdown.",
+      "right": "The model gave the Rams a 61% chance on the road, mainly because of their higher team rating (1592 to 1435), and they won by 7. Both starting quarterbacks were the ones the preview expected: Matthew Stafford for the Rams and Jayden Daniels for the Commanders.",
+      "missed": "Not much went against the model in this one. The Commanders kept it to a one-score game, so it was never comfortable.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 61%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873046": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Texans beat the Chargers 44–22 on the road. C.J. Stroud completed 21 of 35 passes for 384 yards with 5 touchdowns and 1 interception, and Woody Marks ran for 70 yards on 18 carries. For the Chargers, Justin Herbert completed 13 of 23 passes for 193 yards with 1 touchdown and 1 interception.",
+      "right": "The model gave the Texans a 62% chance on the road, mainly because of their higher team rating (1511 to 1378), and they won by 22. Both starting quarterbacks were the ones the preview expected: C.J. Stroud for the Texans and Justin Herbert for the Chargers.",
+      "missed": "Not much went against the model in this one. The Chargers never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 62%, about 4 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873049": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Packers beat the Patriots 45–27 on the road. Jordan Love completed 23 of 29 passes for 372 yards with 3 touchdowns, and Christian Watson caught 7 passes for 171 yards and 1 touchdown. For the Patriots, Drake Maye completed 21 of 38 passes for 299 yards with 3 touchdowns and 3 interceptions.",
+      "right": "Both starting quarterbacks were the ones the preview expected: Jordan Love for the Packers and Drake Maye for the Patriots. Beyond that, not much went the model's way on the day.",
+      "missed": "The model made the Patriots a slight favourite at 64%, and that was wrong: the Packers won by 18. The Packers out-gained the Patriots 478 yards to 387. Our team rating had the Patriots ahead (1618 to 1542), and that didn't hold up.",
+      "why": "The pick rested mostly on our team rating, which is built from past results and can't see how a single game will go. Even at 64%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401873047": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The 49ers beat the Raiders 38–17 at home. Brock Purdy completed 17 of 25 passes for 232 yards with 2 touchdowns and 1 interception, and Kaelon Black ran for 70 yards on 11 carries. For the Raiders, Kirk Cousins completed 22 of 32 passes for 216 yards with 1 touchdown and 3 interceptions.",
+      "right": "The model gave the 49ers an 82% chance at home, mainly because of their higher team rating (1637 to 1419), plus home field, and they won by 21. Both starting quarterbacks were the ones the preview expected: Kirk Cousins for the Raiders and Brock Purdy for the 49ers.",
+      "missed": "Not much went against the model in this one. The Raiders never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 82%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873048": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Seahawks beat the Cardinals 17–3 at home. Drew Lock completed 19 of 28 passes for 175 yards with 1 touchdown, and Zach Charbonnet ran for 77 yards on 16 carries. For the Cardinals, Gardner Minshew II completed 21 of 30 passes for 166 yards.",
+      "right": "The model gave the Seahawks a 77% chance at home, mainly because of their higher team rating (1638 to 1394), plus home field, and they won by 14. Nothing in the result went against the main reason for the pick.",
+      "missed": "The preview assumed Gardner Minshew would start for the Cardinals, but Gardner Minshew II started instead. The preview assumed Sam Darnold would start for the Seahawks, but Drew Lock started instead. The Cardinals never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 77%, about 2 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873050": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Bears beat the Buccaneers 27–24 at home. Caleb Williams completed 22 of 37 passes for 279 yards with 2 touchdowns and 4 interceptions, and Luther Burden III caught 7 passes for 97 yards and 1 touchdown. For the Buccaneers, Baker Mayfield completed 18 of 32 passes for 243 yards with 2 interceptions.",
+      "right": "The model gave the Bears a 71% chance at home, mainly because of their higher team rating (1640 to 1506), plus home field, and they won by 3. Both starting quarterbacks were the ones the preview expected: Baker Mayfield for the Buccaneers and Caleb Williams for the Bears.",
+      "missed": "The pick came through, but only just: a 3-point game is closer than a 71% chance suggests. The Buccaneers kept it to a one-score game, so it was never comfortable.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 71%, about 3 in 10 games like this go the other way, and every result stays on our record."
+    },
+    "401873051": {
+      "updated_utc": "2026-11-11T11:25:00Z",
+      "happened": "The Bills beat the Vikings 23–6 on the road. Josh Allen completed 21 of 31 passes for 234 yards with 1 touchdown and 1 interception, and James Cook III ran for 107 yards on 31 carries and scored once. For the Vikings, Carson Wentz completed 8 of 25 passes for 81 yards with 2 interceptions.",
+      "right": "The model gave the Bills a 60% chance on the road, mainly because of their higher team rating (1682 to 1630), and they won by 17. Josh Allen started for the Bills, as the preview expected.",
+      "missed": "The preview assumed Kyler Murray would start for the Vikings, but Carson Wentz started instead. The Vikings never got close enough to make it a contest.",
+      "why": "The result fits what the model leaned on, the team rating. One win doesn't prove the model right: at 60%, about 4 in 10 games like this go the other way, and every result stays on our record."
     }
   }
 }
