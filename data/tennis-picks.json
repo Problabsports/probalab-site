@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-11T15:52:28Z",
+  "generated_at": "2026-11-11T16:55:56Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "ATP-13-2026",
-      "tour": "ATP",
-      "name": "Rolex Paris Masters",
-      "city": "Paris",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-09T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "WTA-889-2026",
       "tour": "WTA",
       "name": "Chennai Open",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-10T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "ATP-13-2026",
+      "tour": "ATP",
+      "name": "Rolex Paris Masters",
+      "city": "Paris",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-09T04:59:00Z",
       "live": false
     },
     {
@@ -795,7 +795,7 @@
       "court": "Court 1",
       "start_utc": "2026-11-11T15:05:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Borna Gojo",
       "player_b": "Ugo Humbert",
       "a_pct": 30.2,
@@ -803,10 +803,10 @@
       "pick": "b",
       "pick_pct": 69.8,
       "light": "ORANGE",
-      "winner": null,
-      "score": "2-6 1-1",
+      "winner": "b",
+      "score": "2-6 4-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186545",
@@ -828,7 +828,7 @@
       "pick_pct": 70.7,
       "light": "GREEN",
       "winner": null,
-      "score": "2-4",
+      "score": "7-5 5-3",
       "retired": false,
       "result": null
     },
@@ -953,6 +953,30 @@
       "result": null
     },
     {
+      "id": "186550",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Quarterfinal",
+      "court": "Center Court",
+      "start_utc": "2026-11-12T19:00:00Z",
+      "time_tbc": false,
+      "status": "pre",
+      "player_a": "Lorenzo Musetti",
+      "player_b": "Ugo Humbert",
+      "a_pct": 63.2,
+      "b_pct": 36.8,
+      "pick": "a",
+      "pick_pct": 63.2,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187371",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -1001,30 +1025,6 @@
       "result": null
     },
     {
-      "id": "187384",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "",
-      "start_utc": "2026-11-13T05:00:00Z",
-      "time_tbc": true,
-      "status": "pre",
-      "player_a": "Mirra Andreeva",
-      "player_b": "Karolina Muchova",
-      "a_pct": 49.8,
-      "b_pct": 50.2,
-      "pick": "b",
-      "pick_pct": 50.2,
-      "light": "RED",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "187379",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -1047,11 +1047,35 @@
       "score": null,
       "retired": false,
       "result": null
+    },
+    {
+      "id": "187384",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Group Stage",
+      "court": "",
+      "start_utc": "2026-11-13T05:00:00Z",
+      "time_tbc": true,
+      "status": "pre",
+      "player_a": "Mirra Andreeva",
+      "player_b": "Karolina Muchova",
+      "a_pct": 49.8,
+      "b_pct": 50.2,
+      "pick": "b",
+      "pick_pct": 50.2,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
     }
   ],
   "record": {
     "ALL": {
-      "won": 18,
+      "won": 19,
       "lost": 9
     },
     "GREEN": {
@@ -1059,7 +1083,7 @@
       "lost": 1
     },
     "ORANGE": {
-      "won": 6,
+      "won": 7,
       "lost": 4
     },
     "RED": {
