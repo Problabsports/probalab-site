@@ -5,8 +5,8 @@
   "generated_at": "2026-11-07T08:50:00+11:00",
   "timezone": "Australia/Sydney",
   "focus": "NBA moneylines",
-  "pitch": "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
-  "about": "This desk does not pick winners. It treats Pinnacle as the sharpest price, turns that into a fair chance with proportional de-vig — (1/price) ÷ (1/home + 1/away) — and alerts when the best Australian price times that chance is at least 1.03. NBA moneylines only, back bets only (no lays, no spreads). Books: Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet, and Betfair AU. Betfair is scored after 8% commission: 1 + (price − 1) × 0.92. Flat 1 unit at the alerted price. A favourite is a fair chance of 50% or more; the rest are underdogs.",
+  "pitch": "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price.",
+  "about": "This desk does not pick winners. It treats Pinnacle as the sharpest price, turns that into a fair chance with the power de-vig (which corrects the long-shot bias), and alerts when the best Australian price times that chance is at least 1.03. At most one side per game. NBA moneylines only, back bets only. Books: Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet and Betfair AU (Betfair scored after 8% commission). Flat 1 unit at the alerted price.",
   "open_bets": [],
   "results": [],
   "summary": {
@@ -73,21 +73,29 @@
     "name": "NBA Price Gap",
     "status": "live",
     "focus": "NBA moneylines",
-    "pitch": "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
-    "record_starts": "2026-11-07",
+    "pitch": "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price.",
+    "record_starts": "2026-11-08",
     "approved": "2026-11-07"
   },
   "method": {
     "markets": "NBA moneyline back bets only. No lays, no spreads, no totals.",
-    "fair_chance": "Pinnacle fair chance for the side backed = (1/price) / (1/home + 1/away), proportional de-vig of the two Pinnacle moneylines.",
-    "alert": "Alert when best Australian price × Pinnacle fair chance >= 1.03.",
+    "fair_chance": "Power de-vig of the two Pinnacle moneylines.",
+    "alert": "Alert when best Australian price × Pinnacle fair chance >= 1.03; at most one side per game.",
     "gap_pct": "Stored as a fraction: alerted price × pinnacle_fair − 1. 0.03 means +3%.",
-    "books": ["Sportsbet", "Ladbrokes", "Neds", "TAB", "PointsBet", "Unibet", "Betfair AU"],
+    "books": [
+      "Sportsbet",
+      "Ladbrokes",
+      "Neds",
+      "TAB",
+      "PointsBet",
+      "Unibet",
+      "Betfair AU"
+    ],
     "betfair_au": "Use the net price after 8% commission: 1 + (price - 1) * 0.92. Store that net price as price and price_taken.",
     "stake": "Flat 1 unit at the alerted price.",
     "roles": "favourite when pinnacle_fair >= 0.5, otherwise underdog. Tag them separately.",
     "vs_close": "Fraction (alerted price / Pinnacle close) − 1. Null until the close is known. Positive means the alerted price beat the close.",
-    "scanner": "Out of scope for this repo. A separate pipeline fills open_bets and results."
+    "scanner": "Cloud scanner (Supabase edge function nba-gap) since 11 Nov 2026; fills open_bets and results in tips_page_snapshot id nba-price-gap."
   },
   "row_schema": {
     "bet_id": "string, unique",
@@ -100,7 +108,7 @@
     "price_book": "same as book",
     "price": "decimal odds at alert; Betfair already net of 8% commission",
     "price_taken": "same as price",
-    "pinnacle_fair": "0-1 proportional de-vig chance",
+    "pinnacle_fair": "0-1 power de-vig chance",
     "gap_pct": "fraction: price * pinnacle_fair - 1",
     "vs_close": "fraction vs Pinnacle close, or null while open",
     "role": "favourite | underdog",
