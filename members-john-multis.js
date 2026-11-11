@@ -27,8 +27,8 @@
     if (!m) return null;
     return `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}`;
   }
-  function nextId(existing) {
-    const day = aedtLocalValue(new Date()).slice(0, 10);
+  function nextId(existing, when) {
+    const day = aedtLocalValue(when || new Date()).slice(0, 10);
     const base = `SB-MULTI-${day}-`;
     let n = 1;
     for (const row of existing || []) {
@@ -206,11 +206,12 @@
       };
       const { error } = await sb.from("john_multis").upsert(row, { onConflict: "id" });
       if (error) throw error;
+      // Alert before reset. New saves get a #john alert; edits are deduped or marked updated by the edge function.
       await alertDiscord(id);
-      msg.textContent = "Saved " + id + ". It will show on Tips after the next desk publish (or refresh once export runs). Discord #john alerted when configured.";
       await loadOpenMultis();
-      $("multiId").value = id;
-      $("multiDelete").classList.remove("hidden");
+      // Always return to a blank "new multi" so a second save cannot upsert over the one just written.
+      openForm(null);
+      msg.textContent = "Saved " + id + ". Form cleared — you can enter another multi. It will show on Tips after the next desk publish (or refresh once export runs). Discord #john alerted when configured.";
     } catch (err) {
       msg.textContent = "Could not save: " + (err && err.message ? err.message : err);
     }
@@ -227,6 +228,7 @@
     setLegCount(2);
   }
   window.JohnMultis = {
+    nextId,
     init(supabaseClient, sess, owner, todayRows) {
       sb = supabaseClient;
       session = sess;
