@@ -2848,5 +2848,35 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020344",
+    "date": "2026-11-19T00:30:00Z",
+    "home": "DET",
+    "away": "BOS",
+    "home_pct": 54.26,
+    "away_pct": 45.74,
+    "pick": "home",
+    "pick_pct": 54.26,
+    "created_at": "2026-11-11T00:53:04Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020345",
+    "date": "2026-11-19T00:30:00Z",
+    "home": "NJD",
+    "away": "MTL",
+    "home_pct": 60.03,
+    "away_pct": 39.97,
+    "pick": "home",
+    "pick_pct": 60.03,
+    "created_at": "2026-11-11T00:53:04Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
