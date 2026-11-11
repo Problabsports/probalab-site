@@ -922,5 +922,33 @@
   "away_score": 2,
   "result": "home",
   "correct": false
+ },
+ "2026020286": {
+  "graded": true,
+  "home_score": 3,
+  "away_score": 6,
+  "result": "away",
+  "correct": true
+ },
+ "2026020287": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 2,
+  "result": "away",
+  "correct": true
+ },
+ "2026020288": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 3,
+  "result": "away",
+  "correct": false
+ },
+ "2026020291": {
+  "graded": true,
+  "home_score": 4,
+  "away_score": 2,
+  "result": "home",
+  "correct": false
  }
 }
