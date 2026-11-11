@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-11T19:58:40Z",
+  "generated_at": "2026-11-11T21:35:24Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "ATP-13-2026",
-      "tour": "ATP",
-      "name": "Rolex Paris Masters",
-      "city": "Paris",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-09T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "WTA-889-2026",
       "tour": "WTA",
       "name": "Chennai Open",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-10T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "ATP-13-2026",
+      "tour": "ATP",
+      "name": "Rolex Paris Masters",
+      "city": "Paris",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-09T04:59:00Z",
       "live": false
     },
     {
@@ -867,7 +867,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-11T19:45:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Miomir Kecmanovic",
       "player_b": "Holger Rune",
       "a_pct": 44,
@@ -875,10 +875,10 @@
       "pick": "b",
       "pick_pct": 56,
       "light": "RED",
-      "winner": null,
-      "score": "1-0",
+      "winner": "b",
+      "score": "6-2 1-6 4-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187385",
@@ -889,9 +889,9 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-11T20:00:00Z",
+      "start_utc": "2026-11-11T20:10:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Elina Svitolina",
       "player_b": "Karolina Muchova",
       "a_pct": 48.4,
@@ -900,7 +900,7 @@
       "pick_pct": 51.6,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "3-6 4-2",
       "retired": false,
       "result": null
     },
@@ -913,7 +913,7 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-11T21:30:00Z",
+      "start_utc": "2026-11-11T21:45:00Z",
       "time_tbc": false,
       "status": "pre",
       "player_a": "Aryna Sabalenka",
@@ -971,6 +971,30 @@
       "pick": "a",
       "pick_pct": 56.3,
       "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186551",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Quarterfinal",
+      "court": "Center Court",
+      "start_utc": "2026-11-12T17:30:00Z",
+      "time_tbc": false,
+      "status": "pre",
+      "player_a": "Taylor Fritz",
+      "player_b": "Holger Rune",
+      "a_pct": 76,
+      "b_pct": 24,
+      "pick": "a",
+      "pick_pct": 76,
+      "light": "GREEN",
       "winner": null,
       "score": null,
       "retired": false,
@@ -1049,30 +1073,6 @@
       "result": null
     },
     {
-      "id": "187379",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "",
-      "start_utc": "2026-11-13T05:00:00Z",
-      "time_tbc": true,
-      "status": "pre",
-      "player_a": "Aryna Sabalenka",
-      "player_b": "Elina Svitolina",
-      "a_pct": 65.1,
-      "b_pct": 34.9,
-      "pick": "a",
-      "pick_pct": 65.1,
-      "light": "ORANGE",
-      "winner": null,
-      "score": null,
-      "retired": false,
-      "result": null
-    },
-    {
       "id": "187384",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -1095,11 +1095,35 @@
       "score": null,
       "retired": false,
       "result": null
+    },
+    {
+      "id": "187379",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Group Stage",
+      "court": "",
+      "start_utc": "2026-11-13T05:00:00Z",
+      "time_tbc": true,
+      "status": "pre",
+      "player_a": "Aryna Sabalenka",
+      "player_b": "Elina Svitolina",
+      "a_pct": 65.1,
+      "b_pct": 34.9,
+      "pick": "a",
+      "pick_pct": 65.1,
+      "light": "ORANGE",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
     }
   ],
   "record": {
     "ALL": {
-      "won": 20,
+      "won": 21,
       "lost": 10
     },
     "GREEN": {
@@ -1111,7 +1135,7 @@
       "lost": 4
     },
     "RED": {
-      "won": 5,
+      "won": 6,
       "lost": 4
     }
   }
