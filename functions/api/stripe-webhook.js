@@ -1,7 +1,7 @@
 // POST /api/stripe-webhook — grant or revoke members access from Stripe events.
 import {
   PRICE_BY_ID, isSubscriptionAccessActive, jsonResponse, normalizeEmail,
-  publicOrigin, sendWelcomeEmail, setMemberAccess, stripeRequest,
+  notifyOwnerOfSignup, publicOrigin, sendWelcomeEmail, setMemberAccess, stripeRequest,
   verifyStripeSignature,
 } from "../_shared/membership.js";
 
@@ -59,6 +59,19 @@ async function fulfillCheckout(env, session, hostname) {
   } catch (err) {
     console.log("welcome email failed", err && err.message);
   }
+  const createdSec = Number(session.created);
+  const signedUpAt = createdSec > 1e12
+    ? new Date(createdSec)
+    : (createdSec > 0 ? new Date(createdSec * 1000) : new Date());
+  // Fire-and-forget: failures are swallowed inside notifyOwnerOfSignup.
+  await notifyOwnerOfSignup(env, {
+    memberEmail: email,
+    price,
+    founding: !!founding,
+    signedUpAt,
+    idempotencyKey: `owner-signup-email/${session.id}`,
+    hostname,
+  });
   return { granted: grant, email };
 }
 

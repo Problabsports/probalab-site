@@ -594,3 +594,146 @@ export async function sendWelcomeEmail(env, { to, price, portalLink, founding, i
   }
   return { ok: true, id: data.id };
 }
+
+export const DEFAULT_OWNER_SIGNUP_EMAIL = "jwcobley@gmail.com";
+
+export function ownerSignupAddress(env) {
+  const fromEnv = normalizeEmail((env && env.OWNER_SIGNUP_EMAIL) || "");
+  return isValidEmail(fromEnv) ? fromEnv : DEFAULT_OWNER_SIGNUP_EMAIL;
+}
+
+export function shouldSendOwnerSignupEmail(hostname, env) {
+  if (env && String(env.OWNER_SIGNUP_EMAIL_MODE || "").toLowerCase() === "off") return false;
+  return isProductionHost(hostname);
+}
+
+export function formatAedtTime(date = new Date()) {
+  const d = date instanceof Date ? date : new Date(date);
+  if (!(d instanceof Date) || Number.isNaN(d.getTime())) return "";
+  const formatted = new Intl.DateTimeFormat("en-AU", {
+    timeZone: "Australia/Sydney",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  }).format(d);
+  return formatted.replace(/\u202f/g, " ").replace(/\u00a0/g, " ");
+}
+
+export function describeMemberPlan(price, founding = false) {
+  const tier = (price && price.tier) || (founding ? "founding" : "standard");
+  const interval = (price && price.interval) === "year" ? "yearly" : "monthly";
+  const label = (price && price.label) || (tier === "founding"
+    ? (interval === "yearly" ? "US$240/year" : "US$24/month")
+    : (interval === "yearly" ? "US$390/year" : "US$39/month"));
+  const tierName = tier === "founding" ? "Founding" : "Standard";
+  return `${tierName} ${interval} (${label})`;
+}
+
+export function fillOwnerSignupEmail({
+  memberEmail,
+  price,
+  founding = false,
+  signedUpAt,
+  foundingRemaining,
+  foundingCap = FOUNDING_CAP,
+  test = false,
+} = {}) {
+  const email = normalizeEmail(memberEmail) || "(email missing)";
+  const plan = describeMemberPlan(price, founding);
+  const when = formatAedtTime(signedUpAt || new Date()) || "time unavailable";
+  const cap = Number(foundingCap) || FOUNDING_CAP;
+  const spots = (foundingRemaining == null || foundingRemaining === "")
+    ? "could not be counted (cap is " + cap + ")"
+    : `${Number(foundingRemaining)} of ${cap}`;
+  const subjectCore = "Someone signed up as a ProbaLab member";
+  const subject = test ? `[TEST] ${subjectCore}` : subjectCore;
+  const text = [
+    "Someone signed up as a ProbaLab member.",
+    "",
+    `Email: ${email}`,
+    `Plan: ${plan}`,
+    `Time: ${when}`,
+    `Founding spots left: ${spots}`,
+    "",
+    "Give them the Discord Member role.",
+  ].join("\n");
+  const html = `<p>Someone signed up as a ProbaLab member.</p>
+<p>Email: ${escapeHtml(email)}<br>
+Plan: ${escapeHtml(plan)}<br>
+Time: ${escapeHtml(when)}<br>
+Founding spots left: ${escapeHtml(String(spots))}</p>
+<p>Give them the Discord Member role.</p>`;
+  return { subject, text, html };
+}
+
+export async function sendOwnerSignupEmail(env, {
+  memberEmail,
+  price,
+  founding,
+  signedUpAt,
+  foundingRemaining,
+  idempotencyKey,
+  hostname,
+  test = false,
+} = {}) {
+  if (!test && !shouldSendOwnerSignupEmail(hostname, env)) {
+    return { ok: true, skipped: "production-only" };
+  }
+  const to = ownerSignupAddress(env);
+  if (!isValidEmail(to)) return { ok: true, skipped: "no-owner-address" };
+  const apiKey = String((env && env.RESEND_API_KEY) || "");
+  if (!apiKey) throw new Error("missing RESEND_API_KEY");
+  let remaining = foundingRemaining;
+  if (remaining == null) {
+    try {
+      const offer = await currentOffer(env);
+      remaining = offer.foundingRemaining;
+    } catch (_) {
+      remaining = null;
+    }
+  }
+  const mail = fillOwnerSignupEmail({
+    memberEmail,
+    price,
+    founding,
+    signedUpAt,
+    foundingRemaining: remaining,
+    test,
+  });
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+      ...(idempotencyKey ? { "Idempotency-Key": String(idempotencyKey).slice(0, 256) } : {}),
+    },
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: mail.subject,
+      text: mail.text,
+      html: mail.html,
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) {
+    const msg = (data.error && data.error.message) || data.message || `Resend ${res.status}`;
+    throw new Error(msg);
+  }
+  return { ok: true, id: data.id };
+}
+
+// Never throws: a failure must not break member access or the welcome email.
+export async function notifyOwnerOfSignup(env, details) {
+  try {
+    return await sendOwnerSignupEmail(env, details);
+  } catch (err) {
+    console.log("owner signup email failed", err && err.message);
+    return { ok: false, error: (err && err.message) || "send failed" };
+  }
+}
