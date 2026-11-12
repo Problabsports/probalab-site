@@ -1106,6 +1106,20 @@
       "right": "Jalen Williams, Chet Holmgren, Cason Wallace and Jaylin Williams for the Thunder, and Ja Morant and Shaedon Sharpe for the Trail Blazers, all missed the game, as the preview expected. Our team-strength rating also had the Trail Blazers as the stronger side (93.1 to 90.3).",
       "missed": "The model made the Thunder a slight favourite at 59%, and that was wrong: the Trail Blazers won by 20. The Trail Blazers made 19 of 50 from three; the Thunder made 8 of 22.",
       "why": "The Trail Blazers already rated slightly stronger on paper, so the pick leaned on rest and form, which is a thin margin. Even at 59%, about 4 in 10 games like this go the other way, and this was one of them. It stays on our record like every other result."
+    },
+    "401909960": {
+      "updated_utc": "2026-11-12T06:30:00Z",
+      "happened": "The Knicks beat the Bucks 117–85 at home. They won the rebounds 59 to 32, and Karl-Anthony Towns had 21 points and 16 rebounds, Jalen Brunson 23 and OG Anunoby 19 with 5 of 8 from three. The Bucks shot 38% from the floor to the Knicks' 45%, and Jaime Jaquez Jr. led them with 16.",
+      "right": "The model gave the Knicks a 90% chance, mostly because it rated them clearly stronger (91.1 to 80.3) and the Bucks had been losing by almost 13 points a game. That is how it played out. Josh Hart was out for New York and Tyler Herro for Milwaukee, as the preview expected.",
+      "missed": "Nothing big here. The model had no way to see how lopsided the rebounding would be, and a 32-point margin is far bigger than a 90% pick implies.",
+      "why": "This was a game the model was confident about and it went the expected way. A 90% chance still loses about 1 game in 10, so one result like this doesn't prove much on its own."
+    },
+    "401909961": {
+      "updated_utc": "2026-11-12T06:30:00Z",
+      "happened": "The Celtics beat the 76ers 123–101 in Philadelphia. Paul George scored 36 with 6 threes, and Boston made 22 of 49 from three against 11 of 37 for the 76ers. Tyrese Maxey led Philadelphia with 24 points, and Joel Embiid scored 16.",
+      "right": "We picked Boston, but only at 51%, so this was close to a coin flip. The model leaned on form: the Celtics had been winning by about 10 points a game and the 76ers by under 1. Adem Bona, Dominick Barlow and Ariel Hukporti were out for Philadelphia, as expected.",
+      "missed": "Our team-strength rating actually had Philadelphia slightly ahead (96.2 to 92.0), and Boston won by 22. The strength rating pointed the wrong way here, and the model had no way to see the three-point gap coming.",
+      "why": "At 51% the model was barely leaning, and getting this one right says little about its accuracy. The result was driven by hot shooting, which is hard to predict from pre-game data."
     }
   }
 }
