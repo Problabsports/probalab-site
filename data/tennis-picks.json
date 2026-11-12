@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-12T21:47:18Z",
+  "generated_at": "2026-11-12T22:46:08Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1011,7 +1011,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-12T19:25:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Lorenzo Musetti",
       "player_b": "Ugo Humbert",
       "a_pct": 63.2,
@@ -1019,10 +1019,10 @@
       "pick": "a",
       "pick_pct": 63.2,
       "light": "ORANGE",
-      "winner": null,
-      "score": "7-6 3-6 2-1",
+      "winner": "a",
+      "score": "7-6 3-6 6-4",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187371",
@@ -1035,7 +1035,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-12T20:15:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Marta Kostyuk",
       "player_b": "Coco Gauff",
       "a_pct": 33.5,
@@ -1043,10 +1043,10 @@
       "pick": "b",
       "pick_pct": 66.5,
       "light": "ORANGE",
-      "winner": null,
-      "score": "4-6 5-1",
+      "winner": "b",
+      "score": "4-6 5-7",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187376",
@@ -1057,9 +1057,9 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-12T21:35:00Z",
+      "start_utc": "2026-11-12T22:20:00Z",
       "time_tbc": false,
-      "status": "due",
+      "status": "in",
       "player_a": "Jessica Pegula",
       "player_b": "Linda Noskova",
       "a_pct": 57.7,
@@ -1068,7 +1068,7 @@
       "pick_pct": 57.7,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "1-1",
       "retired": false,
       "result": null
     },
@@ -1090,6 +1090,30 @@
       "b_pct": 49.3,
       "pick": "a",
       "pick_pct": 50.7,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
+      "id": "186547",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Semifinal",
+      "court": "Center Court",
+      "start_utc": "2026-11-13T16:00:00Z",
+      "time_tbc": false,
+      "status": "pre",
+      "player_a": "Taylor Fritz",
+      "player_b": "Lorenzo Musetti",
+      "a_pct": 57,
+      "b_pct": 43,
+      "pick": "a",
+      "pick_pct": 57,
       "light": "RED",
       "winner": null,
       "score": null,
@@ -1147,7 +1171,7 @@
   ],
   "record": {
     "ALL": {
-      "won": 22,
+      "won": 24,
       "lost": 13
     },
     "GREEN": {
@@ -1155,7 +1179,7 @@
       "lost": 2
     },
     "ORANGE": {
-      "won": 7,
+      "won": 9,
       "lost": 6
     },
     "RED": {
