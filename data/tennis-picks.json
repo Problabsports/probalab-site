@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-12T14:54:49Z",
+  "generated_at": "2026-11-12T15:59:51Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -972,7 +972,7 @@
       "pick_pct": 56.3,
       "light": "RED",
       "winner": null,
-      "score": "3-3",
+      "score": "7-6 3-3",
       "retired": false,
       "result": null
     },
