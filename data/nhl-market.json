@@ -214,5 +214,53 @@
       "posted_price": 3,
       "vs_close": 0.2921
     }
+  },
+  "2026020295": {
+    "away": {
+      "close_price": 2.76,
+      "posted_price": 3.65,
+      "vs_close": 0.3223
+    },
+    "home": {
+      "close_price": 1.568,
+      "posted_price": 1.82,
+      "vs_close": 0.1607
+    }
+  },
+  "2026020296": {
+    "away": {
+      "close_price": 2.209,
+      "posted_price": 2.65,
+      "vs_close": 0.1997
+    },
+    "home": {
+      "close_price": 1.827,
+      "posted_price": 2.25,
+      "vs_close": 0.2314
+    }
+  },
+  "2026020297": {
+    "away": {
+      "close_price": 2.322,
+      "posted_price": 2.9,
+      "vs_close": 0.249
+    },
+    "home": {
+      "close_price": 1.757,
+      "posted_price": 2.1,
+      "vs_close": 0.1955
+    }
+  },
+  "2026020298": {
+    "away": {
+      "close_price": 1.726,
+      "posted_price": 2.15,
+      "vs_close": 0.2458
+    },
+    "home": {
+      "close_price": 2.378,
+      "posted_price": 2.88,
+      "vs_close": 0.2112
+    }
   }
 }
