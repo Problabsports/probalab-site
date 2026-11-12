@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-12T13:49:45Z",
+  "generated_at": "2026-11-12T14:54:49Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "ATP-13-2026",
-      "tour": "ATP",
-      "name": "Rolex Paris Masters",
-      "city": "Paris",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-09T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "WTA-889-2026",
       "tour": "WTA",
       "name": "Chennai Open",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-10T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "ATP-13-2026",
+      "tour": "ATP",
+      "name": "Rolex Paris Masters",
+      "city": "Paris",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-09T04:59:00Z",
       "live": false
     },
     {
@@ -939,7 +939,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-12T12:05:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Alex Michelsen",
       "player_b": "Alejandro Tabilo",
       "a_pct": 63.8,
@@ -947,10 +947,10 @@
       "pick": "a",
       "pick_pct": 63.8,
       "light": "ORANGE",
-      "winner": null,
-      "score": "5-7 4-5",
+      "winner": "b",
+      "score": "5-7 6-7",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186548",
@@ -961,9 +961,9 @@
       "best_of": 3,
       "round": "Quarterfinal",
       "court": "Center Court",
-      "start_utc": "2026-11-12T14:00:00Z",
+      "start_utc": "2026-11-12T14:20:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Thiago Agustin Tirante",
       "player_b": "Aleksandr Shevchenko",
       "a_pct": 56.3,
@@ -972,7 +972,7 @@
       "pick_pct": 56.3,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "3-3",
       "retired": false,
       "result": null
     },
@@ -1124,7 +1124,7 @@
   "record": {
     "ALL": {
       "won": 21,
-      "lost": 12
+      "lost": 13
     },
     "GREEN": {
       "won": 8,
@@ -1132,7 +1132,7 @@
     },
     "ORANGE": {
       "won": 7,
-      "lost": 5
+      "lost": 6
     },
     "RED": {
       "won": 6,
