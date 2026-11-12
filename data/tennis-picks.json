@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-12T19:54:51Z",
+  "generated_at": "2026-11-12T20:50:06Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1020,7 +1020,7 @@
       "pick_pct": 63.2,
       "light": "ORANGE",
       "winner": null,
-      "score": "2-2",
+      "score": "7-6 1-2",
       "retired": false,
       "result": null
     },
@@ -1033,9 +1033,9 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-12T20:00:00Z",
+      "start_utc": "2026-11-12T20:15:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Marta Kostyuk",
       "player_b": "Coco Gauff",
       "a_pct": 33.5,
@@ -1044,7 +1044,7 @@
       "pick_pct": 66.5,
       "light": "ORANGE",
       "winner": null,
-      "score": null,
+      "score": "2-5",
       "retired": false,
       "result": null
     },
