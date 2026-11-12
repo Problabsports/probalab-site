@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-12T17:01:58Z",
+  "generated_at": "2026-11-12T17:53:32Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -963,7 +963,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-12T14:20:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Thiago Agustin Tirante",
       "player_b": "Aleksandr Shevchenko",
       "a_pct": 56.3,
@@ -971,10 +971,10 @@
       "pick": "a",
       "pick_pct": 56.3,
       "light": "RED",
-      "winner": null,
-      "score": "7-6 6-7 3-1",
+      "winner": "a",
+      "score": "7-6 6-7 6-3",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "186551",
@@ -984,10 +984,10 @@
       "surface": "Hard",
       "best_of": 3,
       "round": "Quarterfinal",
-      "court": "Center Court",
+      "court": "",
       "start_utc": "2026-11-12T17:30:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "post",
       "player_a": "Taylor Fritz",
       "player_b": "Holger Rune",
       "a_pct": 76,
@@ -995,10 +995,10 @@
       "pick": "a",
       "pick_pct": 76,
       "light": "GREEN",
-      "winner": null,
+      "winner": "a",
       "score": null,
       "retired": false,
-      "result": null
+      "result": "void"
     },
     {
       "id": "186550",
@@ -1009,7 +1009,7 @@
       "best_of": 3,
       "round": "Quarterfinal",
       "court": "Center Court",
-      "start_utc": "2026-11-12T19:00:00Z",
+      "start_utc": "2026-11-12T18:30:00Z",
       "time_tbc": false,
       "status": "pre",
       "player_a": "Lorenzo Musetti",
@@ -1073,6 +1073,30 @@
       "result": null
     },
     {
+      "id": "186546",
+      "tour": "ATP",
+      "tournament_id": "ATP-148-2026",
+      "tournament": "Bybit Stockholm Open",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Semifinal",
+      "court": "Center Court",
+      "start_utc": "2026-11-13T13:00:00Z",
+      "time_tbc": false,
+      "status": "pre",
+      "player_a": "Alejandro Tabilo",
+      "player_b": "Thiago Agustin Tirante",
+      "a_pct": 50.7,
+      "b_pct": 49.3,
+      "pick": "a",
+      "pick_pct": 50.7,
+      "light": "RED",
+      "winner": null,
+      "score": null,
+      "retired": false,
+      "result": null
+    },
+    {
       "id": "187384",
       "tour": "WTA",
       "tournament_id": "WTA-382-2026",
@@ -1123,7 +1147,7 @@
   ],
   "record": {
     "ALL": {
-      "won": 21,
+      "won": 22,
       "lost": 13
     },
     "GREEN": {
@@ -1135,7 +1159,7 @@
       "lost": 6
     },
     "RED": {
-      "won": 6,
+      "won": 7,
       "lost": 5
     }
   }
