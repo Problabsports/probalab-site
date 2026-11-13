@@ -897,7 +897,8 @@
       renderAll();
       return;
     }
-    const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
+    // PREVIEW ONLY (preview/john-green-only): read the green-only John snapshot. Production stays on id=latest until John says make live.
+    const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "john-green-preview").maybeSingle();
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
     await loadInjuries();
@@ -930,11 +931,11 @@
               kickoff_utc: (m.legs || []).map((l) => l.start_utc).filter(Boolean).sort()[0] || null,
             };
           });
+          // PREVIEW: only overlay still-open form rows. Do not re-inject settled
+          // Sportsbet multis that the green-only snapshot left out (non-green legs).
           const byId = new Set(mapped.map((r) => r.bet_id));
           tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
             .concat(mapped.filter((r) => r.result === "open"));
-          tipsterData.results = (tipsterData.results || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
-            .concat(mapped.filter((r) => r.result !== "open"));
         }
       } catch (_) { /* overlay optional */ }
     }
