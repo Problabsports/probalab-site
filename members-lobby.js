@@ -44,7 +44,7 @@
     const badgeCls = opts.badgeClass || "ok";
     return '<a class="tipster-card live" href="' + esc(opts.href) + '">'
       + '<div class="tipster-card-top"><h2>' + nameBtn(tid, opts.name) + '</h2><span class="badge ' + esc(badgeCls) + '">' + esc(badge) + '</span></div>'
-      + '<p class="tipster-focus">' + esc(opts.focus) + '</p>'
+      + (opts.focus ? '<p class="tipster-focus">' + esc(opts.focus) + '</p>' : '')
       + '<p class="tipster-pitch">' + esc(opts.pitch) + '</p>'
       + '<dl class="stat-grid tipster-stats">'
       + '<div><dt>W–L</dt><dd>' + esc(wl) + '</dd></div>'
@@ -78,8 +78,8 @@
       + liveCard({
         id: "sniper",
         name: "Closing Line Sniper",
-        focus: "Selective Closing Line tips",
-        pitch: "Fewer tips, only when the market agrees — a slower, sharper Closing Line system aimed at CLV.",
+        focus: "",
+        pitch: "Fewer shots. When the market agrees, the Sniper takes aim with crosshair focus on strong closing-line value (CLV).",
         footnote: "Every tip that was sent counts, including ones John did not take (paper units).",
         href: "/members/tips/sniper",
         stats: sniper,
