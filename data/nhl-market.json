@@ -263,6 +263,102 @@
       "vs_close": 0.2112
     }
   },
+  "2026020299": {
+    "away": {
+      "close_price": 2.135,
+      "posted_price": 2.63,
+      "vs_close": 0.2316
+    },
+    "home": {
+      "close_price": 1.881,
+      "posted_price": 2.3,
+      "vs_close": 0.2229
+    }
+  },
+  "2026020300": {
+    "away": {
+      "close_price": 1.631,
+      "posted_price": 1.93,
+      "vs_close": 0.1833
+    },
+    "home": {
+      "close_price": 2.585,
+      "posted_price": 3.25,
+      "vs_close": 0.2574
+    }
+  },
+  "2026020301": {
+    "away": {
+      "close_price": 2.106,
+      "posted_price": 2.35,
+      "vs_close": 0.1158
+    },
+    "home": {
+      "close_price": 1.904,
+      "posted_price": 2.55,
+      "vs_close": 0.3393
+    }
+  },
+  "2026020302": {
+    "away": {
+      "close_price": 2.798,
+      "posted_price": 3.4,
+      "vs_close": 0.2151
+    },
+    "home": {
+      "close_price": 1.556,
+      "posted_price": 1.89,
+      "vs_close": 0.2145
+    }
+  },
+  "2026020303": {
+    "away": {
+      "close_price": 2.378,
+      "posted_price": 3.15,
+      "vs_close": 0.3248
+    },
+    "home": {
+      "close_price": 1.726,
+      "posted_price": 1.98,
+      "vs_close": 0.1473
+    }
+  },
+  "2026020304": {
+    "away": {
+      "close_price": 2.038,
+      "posted_price": 2.4,
+      "vs_close": 0.1778
+    },
+    "home": {
+      "close_price": 1.964,
+      "posted_price": 2.45,
+      "vs_close": 0.2477
+    }
+  },
+  "2026020305": {
+    "away": {
+      "close_price": 1.673,
+      "posted_price": 1.95,
+      "vs_close": 0.1656
+    },
+    "home": {
+      "close_price": 2.486,
+      "posted_price": 3.2,
+      "vs_close": 0.2872
+    }
+  },
+  "2026020306": {
+    "away": {
+      "close_price": 2.509,
+      "posted_price": 3.35,
+      "vs_close": 0.3353
+    },
+    "home": {
+      "close_price": 1.663,
+      "posted_price": 1.92,
+      "vs_close": 0.1547
+    }
+  },
   "2026020309": {
     "away": {
       "close_price": 1.37,
