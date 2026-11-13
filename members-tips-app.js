@@ -18,8 +18,13 @@
     return String(q || "john").toLowerCase();
   }
   const tipsterId = (function (t) { if (t === "nfl-totals") t = "nfl-weather"; return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap" || t === "nhl-value") ? t : "john"; })(resolveTipster());
-  const compareToPl = tipsterId === "john";
   const tipster = M.tipsterMeta(tipsterId);
+  // Record period (13 Nov 2026): John's Tips, ProbaLab and Sniper open on "Since 16 Nov"; "All-time" shows the full record.
+  // View-only: the stored snapshot is never filtered or changed.
+  const hasPeriod = M.hasPeriod(tipsterId);
+  let period = hasPeriod ? "fresh" : "all";
+  const inPeriod = (r) => !hasPeriod || M.inPeriod(r, period);
+  const freshLabel = "Since " + new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(M.FRESH_START + "T00:00:00Z"));
   let sb, data = null, tipsterData = null, tab = "today";
   const $ = (id) => document.getElementById(id);
   const fmtPct = (x) => (M.number(x) == null ? "—" : (Number(x) * 100).toFixed(1).replace(/\.0$/, "") + "%");
@@ -89,18 +94,20 @@
       +'<div><dt>Win %</dt><dd>'+fmtPct(st.win_pct)+'</dd></div><div><dt>Net units</dt><dd class="'+clsU(st.units)+'">'+fmtU(st.units)+'</dd></div>'
       +'<div><dt>ROI</dt><dd>'+fmtPct(st.roi)+'</dd></div></dl><p class="note">Units/ROI coverage: '+st.covered+'/'+st.bets+' settled.</p></div>';
   }
-  function chartHtml(john, pl, withPl) {
-    const a=M.series(john), b=withPl?M.series(pl):[], dates=[...new Set([...a,...b].map(p=>p.date))].sort();
+  function chartHtml(john) {
+    const a=M.series(john), dates=a.map(p=>p.date);
     if(!dates.length) return tipsterId === 'nfl-weather'
       ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1u) — it starts with the first graded tip.</p>'
       : tipsterId === 'nba-price-gap'
         ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
         : tipsterId === 'nhl-value'
           ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat paper 1 unit) and starts with the first graded tip.</p>'
-          : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
-    const W=800,H=380,L=58,R=withPl?118:78,T=22,B=48;
+          : (hasPeriod && period === 'fresh'
+            ? '<p class="muted">No settled bets since '+esc(freshLabel.replace(/^Since /,''))+' yet. The line starts with the first settled bet.</p>'
+            : '<p class="muted">No dated, unit-covered results for this selection yet.</p>');
+    const W=800,H=380,L=58,R=78,T=22,B=48;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
-    const vals=[0,...a.map(p=>p.units),...b.map(p=>p.units)];
+    const vals=[0,...a.map(p=>p.units)];
     const span=Math.max(1,Math.max(...vals)-Math.min(...vals));
     const step=[1,2,5,10,20,50].find(st=>span/st<=8)||100;
     const low=Math.floor(Math.min(...vals)/step)*step, high=Math.ceil(Math.max(...vals)/step)*step||step;
@@ -108,7 +115,7 @@
     const y=v=>T+(high-v)/Math.max(step,high-low)*(H-T-B);
     const dfmt=d=>new Intl.DateTimeFormat('en-AU',{day:'2-digit',month:'short',timeZone:'UTC'}).format(new Date(d+'T00:00:00Z'));
     const fu=v=>(v>0?'+':'')+(Math.round(v*100)/100)+'u';
-    const ptsOf=(series)=>{ const m={}; let v=0; series.forEach(q=>m[q.date]=q.units); return dates.map(d=>{ if(d in m) v=m[d]; return [x(d), y(v), v, d]; }); };
+    const pa=a.map(q=>[x(q.date), y(q.units), q.units, q.date]);
     const smooth=(pts)=>{ if(!pts.length) return ''; if(pts.length===1) return 'M '+pts[0][0]+' '+pts[0][1]; let d='M '+pts[0][0]+' '+pts[0][1]; for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2; const cp1x=p1[0]+(p2[0]-p0[0])/6, cp1y=p1[1]+(p2[1]-p0[1])/6, cp2x=p2[0]-(p3[0]-p1[0])/6, cp2y=p2[1]-(p3[1]-p1[1])/6; d+=' C '+cp1x+' '+cp1y+', '+cp2x+' '+cp2y+', '+p2[0]+' '+p2[1]; } return d; };
     const area=(pts,baseY)=>{ if(!pts.length) return ''; return smooth(pts)+' L '+pts[pts.length-1][0]+' '+baseY+' L '+pts[0][0]+' '+baseY+' Z'; };
     let g='';
@@ -120,22 +127,11 @@
     const n=dates.length, every=Math.max(1,Math.ceil(n/(window.innerWidth<600?4:8)));
     dates.forEach((d,i)=>{ if(i%every===0||i===n-1) g+='<text x="'+x(d)+'" y="'+(H-B+22)+'" text-anchor="middle">'+dfmt(d)+'</text>'; });
     g+='<text x="'+L+'" y="'+(H-6)+'" fill="rgba(138,150,171,.85)" font-size="11">Cumulative units</text>';
-    const pa=ptsOf(a), pb=withPl?ptsOf(b):[];
-    const primary='#2fd7a0', secondary='#63b3ff';
+    const primary='#2fd7a0';
+    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const endLab=(pts,c,lab)=>{ if(!pts.length) return ''; const q=pts[pts.length-1]; return '<circle cx="'+q[0]+'" cy="'+q[1]+'" r="5" fill="'+c+'" stroke="#07080f" stroke-width="2"/><text x="'+(q[0]+10)+'" y="'+(q[1]+4)+'" fill="'+c+'" style="fill:'+c+'" font-weight="700">'+lab+' '+fu(q[2])+'</text>'; };
-    let la=a.length?y(a[a.length-1].units):0, lb=b.length?y(b[b.length-1].units):0;
-    const at=(pts)=>{const m={};let v=0;pts.forEach(q=>m[q.date]=q.units);return dates.map(d=>(v=(d in m?m[d]:v)));};
-    const ca=at(a), cb=at(b);
-    const data=JSON.stringify(withPl
-      ? dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—',b.length?fu(cb[i]):'—'])
-      : dates.map((d,i)=>[x(d),dfmt(d),a.length?fu(ca[i]):'—']));
-    let lbB=withPl?endLab(pb,secondary,'PL'):'';
-    if(withPl&&a.length&&b.length&&Math.abs(la-lb)<16){ const sh=la<lb?16:-16; lbB=lbB.replace(/ y="([\d.]+)" fill/,(m0,v)=>' y="'+(Number(v)+sh)+'" fill'); }
-    const aria=withPl?'Cumulative net units: Tips and PL site picks':'Cumulative net units: Tips growth';
-    const lineLab = tipsterId === 'nfl-weather' ? 'NFL Totals' : tipsterId === 'nba-price-gap' ? (tipster.shortLabel || 'Price Gap') : (tipster.shortLabel || 'Tips');
-    const legend=withPl
-      ? '<p class="note"><span style="color:'+primary+'">● '+(tipster.shortLabel||'Tips')+(!a.length?' (no unit data)':'')+'</span> · <span style="color:'+secondary+'">● PL site picks'+(!b.length?' (no unit data)':'')+'</span></p>'
-      : '<p class="note"><span style="color:'+primary+'">● '+lineLab+(!a.length?' (no unit data)':'')+'</span></p>';
+    const data=JSON.stringify(pa.map(q=>[q[0],dfmt(q[3]),fu(q[2])]));
+    const legend='<p class="note"><span style="color:'+primary+'">● '+esc(lineLab)+'</span></p>';
     // Summary row: Total, Best month, ROI
     const st = M.stats(john);
     const byMonth = {};
@@ -150,12 +146,11 @@
     Object.entries(byMonth).forEach(([m,v]) => { if (v > bestV) { bestV = v; bestM = m; } });
     const bestLabel = bestM ? (bestM + ' (' + fu(bestV) + ')') : '—';
     const summary = '<div class="chart-summary"><span>Total <b class="'+(st.units>=0?'pos':'')+'">'+fmtU(st.units)+'</b></span><span>Best month <b>'+esc(bestLabel)+'</b></span><span>ROI <b>'+fmtPct(st.roi)+'</b></span><span>Hit <b>'+fmtPct(st.win_pct)+'</b></span></div>';
-    const defs = '<defs><linearGradient id="plAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+primary+'" stop-opacity="0.35"/><stop offset="100%" stop-color="'+primary+'" stop-opacity="0"/></linearGradient><linearGradient id="plAreaGrad2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+secondary+'" stop-opacity="0.22"/><stop offset="100%" stop-color="'+secondary+'" stop-opacity="0"/></linearGradient></defs>';
-    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+aria+'">'
+    const defs = '<defs><linearGradient id="plAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+primary+'" stop-opacity="0.35"/><stop offset="100%" stop-color="'+primary+'" stop-opacity="0"/></linearGradient></defs>';
+    return '<div class="chart-wrap" data-pts=\''+esc(data)+'\'><svg class="units-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative net units: '+esc(lineLab)+'">'
       +defs+g
-      +(withPl&&pb.length?'<path d="'+area(pb,y(0))+'" fill="url(#plAreaGrad2)"></path><path d="'+smooth(pb)+'" fill="none" stroke="'+secondary+'" stroke-width="2.5" stroke-linejoin="round"/>':'')
-      +(pa.length?'<path d="'+area(pa,y(0))+'" fill="url(#plAreaGrad)"></path><path d="'+smooth(pa)+'" fill="none" stroke="'+primary+'" stroke-width="3" stroke-linejoin="round"/>':'')
-      +endLab(pa,primary,lineLab)+lbB
+      +'<path d="'+area(pa,y(0))+'" fill="url(#plAreaGrad)"></path><path d="'+smooth(pa)+'" fill="none" stroke="'+primary+'" stroke-width="3" stroke-linejoin="round"/>'
+      +endLab(pa,primary,lineLab)
       +'<line class="hov" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" stroke="#c9d3e6" stroke-dasharray="3 3" visibility="hidden"/>'
       +'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="transparent" class="hit"/></svg>'
       +'<div class="chart-tip" hidden></div></div>'
@@ -170,24 +165,26 @@
       let best=pts[0]; pts.forEach(p=>{ if(Math.abs(p[0]-vx)<Math.abs(best[0]-vx)) best=p; });
       hov.setAttribute('x1',best[0]); hov.setAttribute('x2',best[0]); hov.setAttribute('visibility','visible');
       tip.hidden=false;
-      const seriesName = (tipsterId === "nba-price-gap" || tipsterId === "nhl-value") ? (tipster.shortLabel || "Tips") : "Tips";
-      tip.innerHTML=best.length>3
-        ? '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">Tips '+esc(best[2])+'</span><br><span style="color:#39d98a">PL '+esc(best[3])+'</span>'
-        : '<b>'+esc(best[1])+'</b><br><span style="color:#63b3ff">'+esc(seriesName)+' '+esc(best[2])+'</span>';
+      const seriesName = tipsterId === "nfl-weather" ? "NFL Totals" : (tipster.shortLabel || "Tips");
+      tip.innerHTML='<b>'+esc(best[1])+'</b><br><span style="color:#2fd7a0">'+esc(seriesName)+' '+esc(best[2])+'</span>';
       const left=best[0]/800*r.width; tip.style.left=Math.min(Math.max(0,left-60),r.width-130)+'px';
     };
     svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
+  function periodNote() {
+    if (!hasPeriod) return '';
+    return period === 'fresh'
+      ? '<p class="note">'+esc(freshLabel)+': settled bets with a game date from '+esc(freshLabel.replace(/^Since /,''))+' 2026 (Sydney time). Switch to All-time for the full record.</p>'
+      : '<p class="note">All-time: every settled bet on this desk.</p>';
+  }
   function renderSummary() {
     if (tipsterId === "nba-price-gap") { renderGapSummary(); return; }
     if (tipsterId === "nhl-value") { renderNhlSummary(); return; }
-    const withPl = tipsterId === 'nfl-weather' ? false : compareToPl;
     const mineRaw = (tipsterData && tipsterData.results) || [];
     const mine = tipsterId === 'nfl-weather'
       ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
-      : filtered(mineRaw, true);
-    const pl = withPl ? filtered(data.pl_results || [], true) : [];
+      : filtered(mineRaw, true).filter(inPeriod);
     const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const controls = tipsterId === 'nfl-weather'
       ? ''
@@ -195,40 +192,23 @@
       +sports.map(sp=>'<button type="button" data-summary-sport="'+sp+'" aria-pressed="'+summarySports.has(sp)+'">'+esc(sportLabel(sp))+'</button>').join('')+'</div>');
     const note = tipsterId === 'nfl-weather'
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
-      : (withPl
-      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
-      : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
-    const cards = withPl
-      ? '<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
-      : '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
-    let comparison='';
-    if(withPl){
-      const rows=M.colours.filter(c=>selectedColours.has(c)&&(c!=='UNRATED'||mine.concat(pl).some(r=>M.colour(r)==='UNRATED'))).map(c=>{
-        const a=M.stats(mine.filter(r=>M.colour(r)===c)), b=M.stats(pl.filter(r=>M.colour(r)===c));
-        const cells=st=>'<td>'+st.bets+'</td><td>'+fmtPct(st.win_pct)+'</td><td>'+fmtU(st.units)+'</td><td>'+fmtPct(st.roi)+'</td><td>'+st.covered+'/'+st.bets+'</td>';
-        return '<tr><th scope="row">'+chip(c)+'</th>'+cells(a)+cells(b)+'</tr>';
-      }).join('');
-      comparison='<section class="panel"><h3>Same-colour comparison</h3><div class="table-wrap"><table class="tips"><thead><tr><th rowspan="2">Colour</th><th colspan="5">'+esc(tipLabel)+'</th><th colspan="5">All PL site picks</th></tr><tr>'
-        +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
-        +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
-        +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
-        +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
-    } else if (tipsterId === 'nfl-weather') {
-      comparison='<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
-    } else {
-      comparison='<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
-    }
+      : tipsterId === 'john'
+        ? periodNote()
+        : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>'+periodNote();
+    const cards = '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
+    const comparison = tipsterId === 'nfl-weather'
+      ? '<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>'
+      : '<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     let multiLine='';
     if (tipsterId==='john') {
       const multiRows=(tipsterData && tipsterData.results || []).filter(isMulti).concat((tipsterData && tipsterData.open_bets || []).filter(isMulti));
-      const settled=multiRows.filter(r=>r.result==='W'||r.result==='L'||r.result==='void');
-      const st=M.stats(settled);
+      const settled=multiRows.filter(r=>(r.result==='W'||r.result==='L'||r.result==='void') && inPeriod(r));
       multiLine='<section class="panel"><h3>Multis</h3><p class="note">Separate Sportsbet multi line. Included in overall units above.</p>'
         +statsHtml('Multis settled', settled)+'</section>';
     }
     $("summary").innerHTML=controls+note+cards
       + multiLine
-      +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine,pl,withPl)+'</section>'
+      +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine)+'</section>'
       +comparison;
     wireChart();
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
@@ -236,6 +216,19 @@
       if(sp==='all') { const all=summarySports.size===sports.length; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }
       else summarySports.has(sp)?summarySports.delete(sp):summarySports.add(sp);
       renderSummary();
+    }));
+  }
+  function periodControls() {
+    const box = $("periodSwitch");
+    if (!box) return;
+    if (!hasPeriod) { box.innerHTML = ""; box.classList.add("hidden"); return; }
+    box.classList.remove("hidden");
+    box.innerHTML = '<span class="period-label">Record</span>'
+      + [["fresh", freshLabel], ["all", "All-time"]].map(([k, lab]) => '<button type="button" data-period="' + k + '" aria-pressed="' + (period === k) + '">' + esc(lab) + '</button>').join("");
+    box.querySelectorAll("[data-period]").forEach((b) => b.addEventListener("click", () => {
+      if (period === b.dataset.period) return;
+      period = b.dataset.period;
+      periodControls(); renderSummary(); renderResults();
     }));
   }
   function renderAttention() {
@@ -740,9 +733,9 @@
       $("results").innerHTML = renderTotalsRows(rows, "No results yet.");
       return;
     }
-    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").filter(inPeriod).sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     rows = rows.filter((r) => r.result === "W" || r.result === "L");
-    if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
+    if (!rows.length) { $("results").innerHTML = '<p class="muted">' + (hasPeriod && period === "fresh" ? "No settled bets since " + esc(freshLabel.replace(/^Since /, "")) + " yet. Switch to All-time for the full record." : "No results in this filter.") + '</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
@@ -789,8 +782,8 @@
         ? ("Updated " + gen + " · units only · NBA Price Gap")
         : tipsterId === "nhl-value"
           ? ("Updated " + gen + " · units only · NHL Value")
-          : ("Updated " + gen + " · units only · " + tipster.name + " vs PL board");
-    const pitch = $("deskPitch"); if (pitch) pitch.textContent = tipster.pitch + " · " + tipster.focus;
+          : ("Updated " + gen + " · units only · " + tipster.name);
+    const pitch = $("deskPitch"); if (pitch) pitch.textContent = [tipster.pitch, tipster.focus].filter(Boolean).join(" · ");
     if ((tipsterId === "nba-price-gap" || tipsterId === "nhl-value") && pitch) {
       const rulesId = tipsterId === "nhl-value" ? "nhlRules" : "gapRules";
       let rules = $(rulesId);
@@ -979,6 +972,7 @@
       });
     });
     colourControls();
+    periodControls();
     showTab("today");
 
     let sawSession = false;

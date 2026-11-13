@@ -79,6 +79,18 @@
     const stakes = covered.reduce((s,r) => s + number(r.units), 0);
     return {bets:done.length, wins, losses, win_pct:wins + losses ? wins/(wins+losses) : null, units, roi:stakes > 0 ? units/stakes : null, covered:covered.length};
   }
+  // Fresh start (13 Nov 2026): John's Tips, ProbaLab and Sniper open on "Since 16 Nov" (settled bets whose game date is on/after
+  // 16 Nov 2026, Sydney time); "All-time" shows everything. View-only: the stored snapshots are never filtered or changed.
+  const FRESH_START = '2026-11-16';
+  const PERIOD_DESKS = ['john', 'probalab', 'sniper'];
+  // Game (event) date in Sydney: kickoff / tip-off first, then the stored game date, then settlement or placement as a last resort.
+  const eventDate = (r) => day(r.kickoff_utc || r.tipoff_utc || r.start_utc) || r.game_date || day(r.settled_utc || r.settled_at || r.placed_utc) || '';
+  function inPeriod(r, period) {
+    if (period !== 'fresh') return true;
+    const d = eventDate(r);
+    return !!d && d >= FRESH_START;
+  }
+  const hasPeriod = (id) => PERIOD_DESKS.includes(String(id || '').toLowerCase());
   function series(rows) {
     const daily = new Map();
     rows.filter(settled).forEach(r => {const d=date(r), p=pnl(r); if(d && p != null) daily.set(d,(daily.get(d)||0)+p);});
@@ -88,12 +100,12 @@
   const TIPSTERS = {
     john: {
       id: 'john',
-      name: 'John',
+      name: "John's Tips",
       shortLabel: 'Tips',
-      focus: 'Every bet John placed (Closing Line is on Sniper)',
-      pitch: "John's own taken bets, including Sportsbet multis. Colour chips are filters only.",
-      blurb: "Every real bet John placed is listed and counted here, including Super, Orange, red, off-pick and unresolved runner ids, plus Sportsbet multis. Closing Line stays on the Sniper desk. Colour chips filter the view; they do not change the headline total. John's sport and NBA-cap plan is guidance only and does not drop bets.",
-      countNote: 'Every bet John placed is counted, including off-picks. Closing Line stays on Sniper. Colour chips are filters only.',
+      focus: '',
+      pitch: 'Sports betting with laser-focused, data-driven analysis.',
+      blurb: 'Sports betting with laser-focused, data-driven analysis. Units only.',
+      countNote: '',
       openNote: 'Tips already placed, awaiting settlement — not tips to make.',
     },
     sniper: {
@@ -187,7 +199,7 @@
   function tipsterMeta(id) {
     return TIPSTERS[canonicalDeskId(id)] || TIPSTERS.john;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, FRESH_START, PERIOD_DESKS, eventDate, inPeriod, hasPeriod, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);

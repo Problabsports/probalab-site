@@ -1,7 +1,7 @@
 // Shared HTML for a tipster's 4-tab tips desk. tipsterId: "john" | "sniper" | "probalab"
 export function tipsDeskBody(tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals", "nfl-totals": "NFL Totals", "nba-price-gap": "NBA Price Gap", "nhl-value": "NHL Value" };
+  const known = { john: "John's Tips", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals", "nfl-totals": "NFL Totals", "nba-price-gap": "NBA Price Gap", "nhl-value": "NHL Value" };
   const safe = known[id] ? id : "john";
   const title = known[safe];
   return `
@@ -60,6 +60,8 @@ export function tipsDeskBody(tipsterId = "john") {
         <h2>Needs attention</h2>
         <div id="attention"></div>
       </section>
+
+      <div id="periodSwitch" class="summary-sports period-switch hidden" role="group" aria-label="Record period"></div>
 
       <div class="tips-tabs" role="tablist">
         <button type="button" data-tab="today" class="on">Upcoming</button>
@@ -124,11 +126,11 @@ export function ownerDeskGateResponse(shell, html, tipsterId = "john") {
 
 export function tipsDeskResponse(shell, html, tipsterId = "john") {
   const id = String(tipsterId || "john").toLowerCase();
-  const known = { john: "John", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals", "nfl-totals": "NFL Totals", "nba-price-gap": "NBA Price Gap", "nhl-value": "NHL Value" };
+  const known = { john: "John's Tips", sniper: "Closing Line Sniper", probalab: "ProbaLab", "nfl-weather": "NFL Totals", "nfl-totals": "NFL Totals", "nba-price-gap": "NBA Price Gap", "nhl-value": "NHL Value" };
   const safe = known[id] ? id : "john";
   const title = known[safe];
   const page = shell({
-    title: `${title} tips | ProbaLab`,
+    title: `${/tips$/i.test(title) ? title : title + " tips"} | ProbaLab`,
     description: "Private tipster desk",
     path: `/members/tips/${safe}`,
     body: tipsDeskBody(safe),
