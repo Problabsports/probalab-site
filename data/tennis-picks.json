@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-13T19:55:21Z",
+  "generated_at": "2026-11-13T20:53:54Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1129,9 +1129,9 @@
       "best_of": 3,
       "round": "Group Stage",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-13T20:00:00Z",
+      "start_utc": "2026-11-13T20:10:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Mirra Andreeva",
       "player_b": "Diana Shnaider",
       "a_pct": 58.6,
@@ -1140,7 +1140,7 @@
       "pick_pct": 58.6,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "6-2 0-1",
       "retired": false,
       "result": null
     },
