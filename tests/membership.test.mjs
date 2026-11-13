@@ -61,17 +61,18 @@ assert(mail.html.includes("https://probalabsports.com/icon-192.png"), "logo url"
 assert(mail.html.includes(">Join Discord<"), "join discord button");
 assert(mail.html.includes(">Open members desks<"), "open desks button");
 assert(mail.text.includes("One last step: get your Discord access"), "discord access heading");
-assert(mail.text.includes("(or DM @teamjwc)"), "discord handle");
-assert(mail.text.includes("send a message in #questions (or DM @teamjwc)"), "questions channel");
-assert(mail.html.includes("send a message in #questions (or DM @teamjwc)"), "html questions channel");
-assert(mail.html.includes("Join our Discord, then send a message in #questions (or DM @teamjwc)"), "html discord box lead-in");
-assert(!mail.html.includes(">Then send a message in #questions"), "html box does not start with Then");
+assert(mail.text.includes("Then link your Discord account here: https://probalabsports.com/members/discord"), "link step points to /members/discord");
+assert(mail.html.includes('href="https://probalabsports.com/members/discord"') && mail.html.includes(">Link Discord<"), "html link discord button");
+assert(mail.html.includes("Join our Discord, then link your Discord account on the members site."), "html discord box lead-in");
+assert(mail.text.includes("Premium role straight away") && mail.html.includes("Premium role straight away"), "role is automatic");
+assert(!mail.text.includes("#questions") && !mail.html.includes("#questions"), "no manual #questions step");
+assert(!mail.text.includes("DM @teamjwc") && !mail.html.includes("DM @teamjwc"), "no manual DM step");
+assert(!/upgrade you to Member/i.test(mail.text + mail.html), "no manual Member upgrade");
 assert(mail.text.includes("Join our Discord here:"), "plain text keeps separate join line");
 
 assert(!mail.text.includes("send a message in #how-to"), "does not message in how-to");
 assert(mail.text.includes("Start in #how-to. The pinned posts cover"), "how-to remains reading channel");
 assert(mail.html.includes("Start in #how-to."), "html how-to remains reading channel");
-assert(mail.html.includes("(or DM @teamjwc)"), "html discord handle");
 assert(mail.html.includes("One last step: get your Discord access"), "html discord access heading");
 assert(!mail.text.includes("DM @John"), "does not use @John handle");
 assert(!mail.html.includes("DM @John"), "html does not use @John handle");
