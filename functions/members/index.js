@@ -75,7 +75,7 @@ export async function onRequestGet() {
         <p>Live desks cover the sports we publish publicly: NBA, NFL, NHL, Premier League, Championship and tennis. Each tipster lists the sports it tips. We do not tip sports that are not live on the site.</p>
       </details>
       <details class="faq-item"><summary>How are tips delivered?</summary>
-        <p>Tips appear on the members tipster desks on this site. Some desks also send Discord alerts when a tip qualifies. There is no Telegram channel.</p>
+        <p>Tips appear on the members tipster desks on this site. Some desks also send Discord alerts when a tip qualifies. <a href="/members/discord">Link your Discord</a> to get the Premium role and the members channels. There is no Telegram channel.</p>
       </details>
       <details class="faq-item"><summary>How many tips per day?</summary>
         <p>It varies. Tipsters only post when they see value on their own rules — some days several, some days none. There is no fixed daily quota.</p>

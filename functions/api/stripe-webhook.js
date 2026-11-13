@@ -4,6 +4,7 @@ import {
   notifyOwnerOfSignup, publicOrigin, sendWelcomeEmail, setMemberAccess, stripeRequest,
   verifyStripeSignature,
 } from "../_shared/membership.js";
+import { syncDiscordRoleForEmail } from "../_shared/discord-roles.js";
 
 async function customerEmail(env, object) {
   const direct = normalizeEmail(
@@ -42,6 +43,8 @@ async function fulfillCheckout(env, session, hostname) {
   const email = await customerEmail(env, session);
   if (!email) return { skipped: "no-email" };
   const grant = await setMemberAccess(env, { email, grant: true });
+  // Returning members who linked Discord before get the Premium role straight back. Never throws.
+  await syncDiscordRoleForEmail(env, email, true);
   const price = priceInfoFromSession(session);
   const founding = (session.metadata && session.metadata.tier === "founding")
     || (price && price.tier === "founding");
@@ -79,7 +82,10 @@ async function syncSubscription(env, subscription) {
   const email = await customerEmail(env, subscription);
   if (!email) return { skipped: "no-email" };
   const grant = isSubscriptionAccessActive(subscription.status);
-  return setMemberAccess(env, { email, grant });
+  const access = await setMemberAccess(env, { email, grant });
+  // Mirror site access onto the Discord Premium role. Owner/admin keep theirs (same as site access).
+  if (grant || access.skipped !== "protected") await syncDiscordRoleForEmail(env, email, grant);
+  return access;
 }
 
 export async function onRequestPost(ctx) {
