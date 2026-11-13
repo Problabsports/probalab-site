@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-13T14:53:22Z",
+  "generated_at": "2026-11-13T15:50:29Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "WTA-889-2026",
-      "tour": "WTA",
-      "name": "Chennai Open",
-      "city": "Chennai",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-10T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "ATP-13-2026",
       "tour": "ATP",
       "name": "Rolex Paris Masters",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-09T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "WTA-889-2026",
+      "tour": "WTA",
+      "name": "Chennai Open",
+      "city": "Chennai",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-10T04:59:00Z",
       "live": false
     },
     {
@@ -1083,7 +1083,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-13T13:10:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Alejandro Tabilo",
       "player_b": "Thiago Agustin Tirante",
       "a_pct": 50.7,
@@ -1091,10 +1091,10 @@
       "pick": "a",
       "pick_pct": 50.7,
       "light": "RED",
-      "winner": null,
-      "score": "5-7 6-5",
+      "winner": "b",
+      "score": "5-7 6-7",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "186547",
@@ -1196,7 +1196,7 @@
   "record": {
     "ALL": {
       "won": 25,
-      "lost": 13
+      "lost": 14
     },
     "GREEN": {
       "won": 8,
@@ -1208,7 +1208,7 @@
     },
     "RED": {
       "won": 8,
-      "lost": 5
+      "lost": 6
     }
   }
 }
