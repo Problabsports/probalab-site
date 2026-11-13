@@ -140,10 +140,10 @@
     const st = M.stats(john);
     const byMonth = {};
     john.filter(r => r.result==='W'||r.result==='L').forEach(r => {
-      const day = (r.settled_date || r.game_date || r.placed_date || '').slice(0,7);
+      const day = (M.date(r) || '').slice(0,7);
       if (!day || day.length < 7) return;
-      const u = Number(r.units_net != null ? r.units_net : (r.result==='W' ? (r.units||1) : r.result==='L' ? -(r.units||1) : 0));
-      if (!Number.isFinite(u)) return;
+      const u = M.pnl(r);
+      if (u == null || !Number.isFinite(u)) return;
       byMonth[day] = (byMonth[day]||0) + u;
     });
     let bestM = null, bestV = -Infinity;
@@ -897,6 +897,7 @@
       renderAll();
       return;
     }
+    // John's live desk is tips_page_snapshot id=latest (green-only record from the daily export).
     const { data: row, error } = await sb.from("tips_page_snapshot").select("payload, generated_at, updated_at").eq("id", "latest").maybeSingle();
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
@@ -930,11 +931,11 @@
               kickoff_utc: (m.legs || []).map((l) => l.start_utc).filter(Boolean).sort()[0] || null,
             };
           });
+          // Only overlay still-open form rows. Do not re-inject settled Sportsbet
+          // multis that the green-only snapshot left out (non-green legs).
           const byId = new Set(mapped.map((r) => r.bet_id));
           tipsterData.open_bets = (tipsterData.open_bets || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
             .concat(mapped.filter((r) => r.result === "open"));
-          tipsterData.results = (tipsterData.results || []).filter((r) => !(r.is_multi || r.tag === "MULTI") || !byId.has(r.bet_id))
-            .concat(mapped.filter((r) => r.result !== "open"));
         }
       } catch (_) { /* overlay optional */ }
     }
