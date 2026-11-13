@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-13T22:43:58Z",
+  "generated_at": "2026-11-13T23:41:35Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1155,7 +1155,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-13T21:30:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Aryna Sabalenka",
       "player_b": "Elina Svitolina",
       "a_pct": 62.8,
@@ -1163,10 +1163,10 @@
       "pick": "a",
       "pick_pct": 62.8,
       "light": "ORANGE",
-      "winner": null,
-      "score": "3-6 4-1",
+      "winner": "b",
+      "score": "3-6 6-3 1-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "187441",
@@ -1220,7 +1220,7 @@
   "record": {
     "ALL": {
       "won": 27,
-      "lost": 14
+      "lost": 15
     },
     "GREEN": {
       "won": 8,
@@ -1228,7 +1228,7 @@
     },
     "ORANGE": {
       "won": 9,
-      "lost": 6
+      "lost": 7
     },
     "RED": {
       "won": 10,
