@@ -4,7 +4,13 @@
   const colours = ['SUPER', 'GREEN', 'ORANGE', 'RED', 'UNRATED'];
   const colour = (r) => colours.includes(String(r.light).toUpperCase()) ? String(r.light).toUpperCase() : 'UNRATED';
   const settled = (r) => ['W', 'L', 'T', 'void'].includes(r.result);
-  const valid = (r) => !!String(r.game || '').trim() && !!String(r.selection || '').trim() && !/^\d+$/.test(String(r.selection).trim());
+  const valid = (r) => {
+    const game = String(r.game || '').trim();
+    const sel = String(r.selection || '').trim();
+    // Taken bets (with a bet_id) still count when the selection is a raw runner id or the game is TBC.
+    if (String(r.bet_id || '').trim() && (game || sel)) return true;
+    return !!game && !!sel && !/^\d+$/.test(sel);
+  };
   // John's desk: hide Closing Line (Sniper) bets. Sniper desk uses visibleFor('sniper', …).
   const visible = (r) => String(r.tag || '').toUpperCase() !== 'CL' && valid(r);
   function visibleFor(tipster, r) {
@@ -46,10 +52,10 @@
       id: 'john',
       name: 'John',
       shortLabel: 'Tips',
-      focus: 'Green tips, with the new sport and NBA cap from 13 Nov 2026 18:30 AEDT',
-      pitch: "John's taken green tips, plus Sportsbet multis built from those greens.",
-      blurb: "John's own taken green tips, plus Sportsbet multis whose every leg is a green John tip. Greens placed or settled before 13 Nov 2026, 6:30pm AEDT stay on the record regardless of sport or price. From that time onward, only NBA, NFL and NHL greens count, and NBA greens are capped at 1.49. Closing Line, Super, Orange and off-picks are never on this desk.",
-      countNote: 'All past greens stay. From 13 Nov 2026 6:30pm AEDT: NBA/NFL/NHL only, NBA capped at 1.49, plus all-green-leg Sportsbet multis.',
+      focus: 'Every bet John placed (Closing Line is on Sniper)',
+      pitch: "John's own taken bets, including Sportsbet multis. Colour chips are filters only.",
+      blurb: "Every real bet John placed is listed and counted here, including Super, Orange, red, off-pick and unresolved runner ids, plus Sportsbet multis. Closing Line stays on the Sniper desk. Colour chips filter the view; they do not change the headline total. John's sport and NBA-cap plan is guidance only and does not drop bets.",
+      countNote: 'Every bet John placed is counted, including off-picks. Closing Line stays on Sniper. Colour chips are filters only.',
       openNote: 'Tips already placed, awaiting settlement — not tips to make.',
     },
     sniper: {
