@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-13T17:51:11Z",
+  "generated_at": "2026-11-13T18:53:11Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1133,11 +1133,11 @@
       "time_tbc": false,
       "status": "pre",
       "player_a": "Mirra Andreeva",
-      "player_b": "Karolina Muchova",
-      "a_pct": 53.1,
-      "b_pct": 46.9,
+      "player_b": "Diana Shnaider",
+      "a_pct": 58.6,
+      "b_pct": 41.4,
       "pick": "a",
-      "pick_pct": 53.1,
+      "pick_pct": 58.6,
       "light": "RED",
       "winner": null,
       "score": null,
