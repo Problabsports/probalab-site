@@ -57,7 +57,7 @@ export async function onRequestGet() {
       <ul class="desk-list">
         <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John's Tips</b></button> — sports betting with laser-focused, data-driven analysis</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
-        <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — selective Closing Line tips</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — fewer shots. When the market agrees, the Sniper takes aim with crosshair focus on strong closing-line value (CLV).</li>
       </ul>
       <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
     </section>
