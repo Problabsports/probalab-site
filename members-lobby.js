@@ -69,8 +69,8 @@
       liveCard({
         id: "john",
         name: "John",
-        focus: "NBA · NFL · NHL · EPL · Championship · tennis",
-        pitch: "Every bet John placed, including Sportsbet multis. Colour chips are filters only.",
+        focus: "NBA · NFL · NHL (NBA greens capped at 1.49 from 13 Nov)",
+        pitch: "Every bet John placed, including Sportsbet multis. Earlier bets in other sports stay on the record.",
         footnote: "Card matches the desk headline — every bet except Closing Line.",
         href: "/members/tips/john",
         stats: john,
