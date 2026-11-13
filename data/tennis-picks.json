@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-13T04:58:29Z",
+  "generated_at": "2026-11-13T07:13:58Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -19,17 +19,6 @@
       "live": false
     },
     {
-      "id": "WTA-889-2026",
-      "tour": "WTA",
-      "name": "Chennai Open",
-      "city": "Chennai",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-10-31T04:00:00Z",
-      "end_utc": "2026-11-10T04:59:00Z",
-      "live": false
-    },
-    {
       "id": "ATP-13-2026",
       "tour": "ATP",
       "name": "Rolex Paris Masters",
@@ -38,6 +27,17 @@
       "best_of": 3,
       "start_utc": "2026-10-31T04:00:00Z",
       "end_utc": "2026-11-09T04:59:00Z",
+      "live": false
+    },
+    {
+      "id": "WTA-889-2026",
+      "tour": "WTA",
+      "name": "Chennai Open",
+      "city": "Chennai",
+      "surface": "Hard",
+      "best_of": 3,
+      "start_utc": "2026-10-31T04:00:00Z",
+      "end_utc": "2026-11-10T04:59:00Z",
       "live": false
     },
     {
