@@ -54,6 +54,7 @@ assert(mail.text.includes("Time: ") && mail.text.includes("12 Nov 2026") && mail
 assert(mail.text.includes("Founding spots left: 9 of 10"), "spots left of cap");
 assert(FOUNDING_CAP === 10 && mail.text.includes("of 10"), "cap is 10");
 assert(mail.text.includes("No Discord action needed") && mail.text.includes("Premium role automatically"), "discord role is automatic");
+assert(mail.text.includes("probalabsports.com/members/discord") && mail.html.includes("probalabsports.com/members/discord"), "points to /members/discord");
 assert(!mail.text.includes("Give them the Discord Member role"), "no manual role step");
 assert(!mail.text.includes("http") && !mail.text.toLowerCase().includes("telegram") && !mail.text.includes("webhook"), "plain, no extra channels");
 assert(mail.html.includes("new.member@example.com"), "html has email");

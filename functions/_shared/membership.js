@@ -1,6 +1,7 @@
 // ProbaLab Members paid checkout helpers.
 // Founding prices are offered only to the first FOUNDING_CAP successful founding subscriptions.
 // Do not log or return secret values.
+import { DISCORD_INVITE_URL } from "./discord.js";
 
 export const STRIPE_API_VERSION = "2026-09-30.endive";
 export const PRODUCT_ID = "prod_VbLDaEEprs0Cel";
@@ -8,7 +9,8 @@ export const FOUNDING_CAP = 10;
 export const OWNER_EMAILS = ["jwcobley@gmail.com"];
 export const WELCOME_TEST_EMAIL = "jwcobley@gmail.com";
 export const FROM_EMAIL = "ProbaLab Sports <hello@probalabsports.com>";
-export const DISCORD_INVITE = "https://discord.gg/KPZ2BdfHuU";
+// One invite everywhere: emails use the same link as the site (functions/_shared/discord.js).
+export const DISCORD_INVITE = DISCORD_INVITE_URL;
 export const DISCORD_LINK_URL = "https://probalabsports.com/members/discord";
 export const LOGO_URL = "https://probalabsports.com/icon-192.png";
 export const SUPABASE_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
@@ -665,14 +667,14 @@ export function fillOwnerSignupEmail({
     `Time: ${when}`,
     `Founding spots left: ${spots}`,
     "",
-    "No Discord action needed: they link their account on the members Discord page and get the Premium role automatically.",
+    "No Discord action needed: they link their account at probalabsports.com/members/discord and get the Premium role automatically.",
   ].join("\n");
   const html = `<p>Someone signed up as a ProbaLab member.</p>
 <p>Email: ${escapeHtml(email)}<br>
 Plan: ${escapeHtml(plan)}<br>
 Time: ${escapeHtml(when)}<br>
 Founding spots left: ${escapeHtml(String(spots))}</p>
-<p>No Discord action needed: they link their account on the members Discord page and get the Premium role automatically.</p>`;
+<p>No Discord action needed: they link their account at probalabsports.com/members/discord and get the Premium role automatically.</p>`;
   return { subject, text, html };
 }
 

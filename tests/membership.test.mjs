@@ -55,8 +55,9 @@ assert(!mail.text.includes("US$24/month or US$240/year"), "no unused plan in fou
 assert(mail.text.includes("first 10 founding members"), "founding first 10");
 assert(mail.text.includes("locked for life"), "locked for life");
 assert(mail.text.includes("https://example.com/members/billing"), "fills portal");
-assert(mail.text.includes("https://discord.gg/KPZ2BdfHuU"), "discord invite");
-assert(mail.html.includes("https://discord.gg/KPZ2BdfHuU"), "html discord invite");
+assert(mail.text.includes("https://discord.gg/B8Q2hH26hV"), "discord invite matches site");
+assert(mail.html.includes("https://discord.gg/B8Q2hH26hV"), "html discord invite matches site");
+assert(!mail.text.includes("KPZ2BdfHuU") && !mail.html.includes("KPZ2BdfHuU"), "old invite gone");
 assert(mail.html.includes("https://probalabsports.com/icon-192.png"), "logo url");
 assert(mail.html.includes(">Join Discord<"), "join discord button");
 assert(mail.html.includes(">Open members desks<"), "open desks button");
