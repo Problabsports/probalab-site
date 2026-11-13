@@ -19,21 +19,11 @@
   }
   const tipsterId = (function (t) { if (t === "nfl-totals") t = "nfl-weather"; return (t === "sniper" || t === "probalab" || t === "nfl-weather" || t === "nba-price-gap" || t === "nhl-value") ? t : "john"; })(resolveTipster());
   const tipster = M.tipsterMeta(tipsterId);
-  // Record period (13 Nov 2026): John's Tips, ProbaLab and Sniper open on "Since 16 Nov"; "All-time" shows the full record.
-  // View-only: the stored snapshot is never filtered or changed.
-  const hasPeriod = M.hasPeriod(tipsterId);
-  let period = hasPeriod ? "fresh" : "all";
-  const inPeriod = (r) => !hasPeriod || M.inPeriod(r, period);
-  const freshLabel = "Since " + new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(M.FRESH_START + "T00:00:00Z"));
   let sb, data = null, tipsterData = null, tab = "today";
   const $ = (id) => document.getElementById(id);
-  const fmtPct = (x) => (M.number(x) == null ? "—" : (Number(x) * 100).toFixed(1).replace(/\.0$/, "") + "%");
+  const fmtPct = M.fmtPct;
   const fmtOdds = (x) => (M.number(x) == null ? "—" : '<span class="odds" data-dec="' + Number(x) + '">' + Number(x).toFixed(2) + "</span>");
-  const fmtU = (x) => {
-    if (M.number(x) == null) return "—";
-    const n = Number(x);
-    return (n > 0 ? "+" : "") + n.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1") + "u";
-  };
+  const fmtU = M.fmtUnits;
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
   const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(l === "UNRATED" ? "Off-pick" : l) + "</span>" : "—");
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -84,8 +74,10 @@
     return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
   function filtered(rows, summary=false) {
+    // Summary (headline record, chart, CSV): one shared rule in the model, so the CSV TOTAL always equals the headline.
+    if (summary) return M.deskRows(tipsterId, rows, { colours: [...selectedColours], sports: [...summarySports], allSports: summarySports.size === sports.length, from: $("fFrom").value, to: $("fTo").value });
     return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || selectedColours.has(M.colour(r))) && inRange(r)
-      && (summary ? (summarySports.size === sports.length || summarySports.has(r.sport)) : !$("fSport").value || r.sport===$("fSport").value));
+      && (!$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
     const st=M.stats(rows);
@@ -102,9 +94,7 @@
         ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
         : tipsterId === 'nhl-value'
           ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat paper 1 unit) and starts with the first graded tip.</p>'
-          : (hasPeriod && period === 'fresh'
-            ? '<p class="muted">No settled bets since '+esc(freshLabel.replace(/^Since /,''))+' yet. The line starts with the first settled bet.</p>'
-            : '<p class="muted">No dated, unit-covered results for this selection yet.</p>');
+          : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=78,T=22,B=48;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
     const vals=[0,...a.map(p=>p.units)];
@@ -172,19 +162,14 @@
     svg.addEventListener('mousemove',move); svg.addEventListener('touchstart',move,{passive:true}); svg.addEventListener('touchmove',move,{passive:true});
     svg.addEventListener('mouseleave',()=>{tip.hidden=true;hov.setAttribute('visibility','hidden');});
   }
-  function periodNote() {
-    if (!hasPeriod) return '';
-    return period === 'fresh'
-      ? '<p class="note">'+esc(freshLabel)+': settled bets with a game date from '+esc(freshLabel.replace(/^Since /,''))+' 2026 (Sydney time). Switch to All-time for the full record.</p>'
-      : '<p class="note">All-time: every settled bet on this desk.</p>';
-  }
   function renderSummary() {
     if (tipsterId === "nba-price-gap") { renderGapSummary(); return; }
     if (tipsterId === "nhl-value") { renderNhlSummary(); return; }
     const mineRaw = (tipsterData && tipsterData.results) || [];
     const mine = tipsterId === 'nfl-weather'
       ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
-      : filtered(mineRaw, true).filter(inPeriod);
+      : filtered(mineRaw, true);
+    headlineRows = mine;
     const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const controls = tipsterId === 'nfl-weather'
       ? ''
@@ -193,16 +178,17 @@
     const note = tipsterId === 'nfl-weather'
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
       : tipsterId === 'john'
-        ? periodNote()
-        : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>'+periodNote();
-    const cards = '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>';
+        ? ''
+        : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>';
+    const cards = '<div class="cards">'+statsHtml(tipLabel+' settled',mine)+'</div>'
+      +'<p class="csv-row"><button type="button" id="csvDownload" class="btn-secondary">Download CSV</button> <span class="note">The rows behind this record, with the same sport, colour and date filters, plus a TOTAL row.</span></p>';
     const comparison = tipsterId === 'nfl-weather'
       ? '<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>'
       : '<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     let multiLine='';
     if (tipsterId==='john') {
       const multiRows=(tipsterData && tipsterData.results || []).filter(isMulti).concat((tipsterData && tipsterData.open_bets || []).filter(isMulti));
-      const settled=multiRows.filter(r=>(r.result==='W'||r.result==='L'||r.result==='void') && inPeriod(r));
+      const settled=multiRows.filter(r=>r.result==='W'||r.result==='L'||r.result==='void');
       multiLine='<section class="panel"><h3>Multis</h3><p class="note">Separate Sportsbet multi line. Included in overall units above.</p>'
         +statsHtml('Multis settled', settled)+'</section>';
     }
@@ -211,6 +197,7 @@
       +'<section class="panel"><h3>'+(tipsterId==='nfl-weather'?'Growth (this desk only)':'Cumulative units')+'</h3>'+chartHtml(mine)+'</section>'
       +comparison;
     wireChart();
+    const dl = $("csvDownload"); if (dl) dl.addEventListener("click", downloadCsv);
     document.querySelectorAll('[data-summary-sport]').forEach(b=>b.addEventListener('click',()=>{
       const sp=b.dataset.summarySport;
       if(sp==='all') { const all=summarySports.size===sports.length; summarySports.clear(); if(!all) sports.forEach(s=>summarySports.add(s)); }
@@ -218,18 +205,16 @@
       renderSummary();
     }));
   }
-  function periodControls() {
-    const box = $("periodSwitch");
-    if (!box) return;
-    if (!hasPeriod) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-    box.classList.remove("hidden");
-    box.innerHTML = '<span class="period-label">Record</span>'
-      + [["fresh", freshLabel], ["all", "All-time"]].map(([k, lab]) => '<button type="button" data-period="' + k + '" aria-pressed="' + (period === k) + '">' + esc(lab) + '</button>').join("");
-    box.querySelectorAll("[data-period]").forEach((b) => b.addEventListener("click", () => {
-      if (period === b.dataset.period) return;
-      period = b.dataset.period;
-      periodControls(); renderSummary(); renderResults();
-    }));
+  // CSV download: exactly the rows behind the headline record on screen (same snapshot, same sport / colour / date filters).
+  let headlineRows = [];
+  function downloadCsv() {
+    const ymd = M.day(new Date().toISOString());
+    const blob = new Blob([M.toCsv(headlineRows)], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = M.csvFilename(tipster.name, ymd);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
   function renderAttention() {
     if (tipsterId === 'sniper' || tipsterId === 'probalab' || tipsterId === 'nfl-weather' || tipsterId === 'nba-price-gap' || tipsterId === 'nhl-value') {
@@ -733,9 +718,9 @@
       $("results").innerHTML = renderTotalsRows(rows, "No results yet.");
       return;
     }
-    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").filter(inPeriod).sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
+    let rows = betFilter((tipsterData && tipsterData.results) || []).filter((r) => r.result === "W" || r.result === "L" || r.result === "T").sort((a, b) => String(b.placed_utc || "").localeCompare(String(a.placed_utc || "")));
     rows = rows.filter((r) => r.result === "W" || r.result === "L");
-    if (!rows.length) { $("results").innerHTML = '<p class="muted">' + (hasPeriod && period === "fresh" ? "No settled bets since " + esc(freshLabel.replace(/^Since /, "")) + " yet. Switch to All-time for the full record." : "No results in this filter.") + '</p>'; return; }
+    if (!rows.length) { $("results").innerHTML = '<p class="muted">No results in this filter.</p>'; return; }
     $("results").innerHTML = '<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div><div class="table-wrap"><table class="tips compact"><thead><tr>'
       + "<th>Game day</th><th>Game</th><th>Pick</th><th>Light</th><th>Odds</th><th>Res</th><th>Stake</th><th>P/L</th><th class=\"opt\">CLV</th><th class=\"opt\">Flags</th>"
       + "</tr></thead><tbody>"
@@ -972,7 +957,6 @@
       });
     });
     colourControls();
-    periodControls();
     showTab("today");
 
     let sawSession = false;

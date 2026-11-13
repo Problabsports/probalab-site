@@ -71,7 +71,7 @@
         name: "John's Tips",
         focus: "NBA · NFL · NHL (NBA greens capped at 1.49 from 13 Nov)",
         pitch: "Sports betting with laser-focused, data-driven analysis.",
-        footnote: "All-time record. The desk opens on the fresh start from 16 Nov.",
+        footnote: "Card matches the desk headline.",
         href: "/members/tips/john",
         stats: john,
       })
