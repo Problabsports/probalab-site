@@ -61,8 +61,6 @@ export function tipsDeskBody(tipsterId = "john") {
         <div id="attention"></div>
       </section>
 
-      <div id="periodSwitch" class="summary-sports period-switch hidden" role="group" aria-label="Record period"></div>
-
       <div class="tips-tabs" role="tablist">
         <button type="button" data-tab="today" class="on">Upcoming</button>
         <button type="button" data-tab="open">Tips</button>

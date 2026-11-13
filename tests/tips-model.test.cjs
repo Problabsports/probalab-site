@@ -18,7 +18,7 @@ console.log('Tips model: 15 assertions passed');
 assert.equal(M.visibleFor('john', {...base, tag:'CL'}), false);
 assert.equal(M.visibleFor('sniper', {...base, tag:'CL'}), true);
 assert.equal(M.tipsterMeta('sniper').name, 'Closing Line Sniper');
-assert.equal(M.tipsterMeta('john').name, 'John');
+assert.equal(M.tipsterMeta('john').name, "John's Tips");
 assert.equal(M.tipsterMeta('nhl-value').name, 'NHL Value');
 assert.equal(M.tipsterMeta('nhl-value').focus, 'NHL moneylines');
 assert.equal(M.visibleFor('nhl-value', {...base, sport:'NHL', tag:'CL'}), true);

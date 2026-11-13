@@ -79,18 +79,46 @@
     const stakes = covered.reduce((s,r) => s + number(r.units), 0);
     return {bets:done.length, wins, losses, win_pct:wins + losses ? wins/(wins+losses) : null, units, roi:stakes > 0 ? units/stakes : null, covered:covered.length};
   }
-  // Fresh start (13 Nov 2026): John's Tips, ProbaLab and Sniper open on "Since 16 Nov" (settled bets whose game date is on/after
-  // 16 Nov 2026, Sydney time); "All-time" shows everything. View-only: the stored snapshots are never filtered or changed.
-  const FRESH_START = '2026-11-16';
-  const PERIOD_DESKS = ['john', 'probalab', 'sniper'];
-  // Game (event) date in Sydney: kickoff / tip-off first, then the stored game date, then settlement or placement as a last resort.
-  const eventDate = (r) => day(r.kickoff_utc || r.tipoff_utc || r.start_utc) || r.game_date || day(r.settled_utc || r.settled_at || r.placed_utc) || '';
-  function inPeriod(r, period) {
-    if (period !== 'fresh') return true;
-    const d = eventDate(r);
-    return !!d && d >= FRESH_START;
+  // Rows behind a desk's headline record (Summary tab): the same visibility, colour, sport and date filters the page applies.
+  // The page and the CSV download both use this, so the CSV TOTAL always equals the headline.
+  // f = { colours: [...], sports: [...], allSports: bool, from: 'YYYY-MM-DD', to: 'YYYY-MM-DD' }
+  function deskRows(tipster, rows, f) {
+    const t = canonicalDeskId(tipster), cs = new Set((f && f.colours) || colours), sp = new Set((f && f.sports) || []);
+    const from = (f && f.from) || '', to = (f && f.to) || '', allSports = !!(f && f.allSports);
+    return (rows || []).filter((r) => {
+      if (!visibleFor(t, r)) return false;
+      if (t !== 'nfl-weather' && !cs.has(colour(r))) return false;
+      const d = date(r);
+      if ((from && !(d && d >= from)) || (to && !(d && d <= to))) return false;
+      return allSports || sp.has(r.sport);
+    });
   }
-  const hasPeriod = (id) => PERIOD_DESKS.includes(String(id || '').toLowerCase());
+  const fmtUnits = (x) => {
+    if (number(x) == null) return '—';
+    const n = Number(x);
+    return (n > 0 ? '+' : '') + n.toFixed(2).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1') + 'u';
+  };
+  const fmtPct = (x) => (number(x) == null ? '—' : (Number(x) * 100).toFixed(1).replace(/\.0$/, '') + '%');
+  // Headline record exactly as the page prints it.
+  function headline(rows) {
+    const st = stats(rows);
+    return { settled: String(st.bets), wl: st.wins + '–' + st.losses, units: fmtUnits(st.units), roi: fmtPct(st.roi) };
+  }
+  const csvCell = (v) => { const t = v == null ? '' : String(v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  // CSV of the given rows (oldest first) plus a final TOTAL row built from the same rows: settled, W-L, net units, ROI.
+  function toCsv(rows) {
+    const head = ['date', 'sport', 'game', 'pick', 'light', 'price', 'stake_units', 'result', 'pnl_units'];
+    const body = (rows || []).slice().sort((a, b) => String(date(a)).localeCompare(String(date(b))) || String(a.placed_utc || '').localeCompare(String(b.placed_utc || '')))
+      .map((r) => [date(r), r.sport, r.game, r.selection, colour(r) === 'UNRATED' ? 'Off-pick' : colour(r), r.price_taken, r.units, r.result || 'open', pnl(r)]);
+    const h = headline(rows);
+    const total = ['TOTAL', 'settled ' + h.settled, 'W-L ' + h.wl.replace('–', '-'), 'net units ' + h.units, 'ROI ' + h.roi, '', '', '', ''];
+    return [head, ...body, total].map((x) => x.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  }
+  // e.g. "John's Tips" + 2026-11-13 -> johns-tips_2026-11-13.csv
+  function csvFilename(name, ymd) {
+    const slug = String(name || 'desk').toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return slug + '_' + ymd + '.csv';
+  }
   function series(rows) {
     const daily = new Map();
     rows.filter(settled).forEach(r => {const d=date(r), p=pnl(r); if(d && p != null) daily.set(d,(daily.get(d)||0)+p);});
@@ -199,7 +227,7 @@
   function tipsterMeta(id) {
     return TIPSTERS[canonicalDeskId(id)] || TIPSTERS.john;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, FRESH_START, PERIOD_DESKS, eventDate, inPeriod, hasPeriod, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, deskRows, headline, toCsv, csvFilename, fmtUnits, fmtPct, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);
