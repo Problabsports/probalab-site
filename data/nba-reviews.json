@@ -1120,6 +1120,76 @@
       "right": "We picked Boston, but only at 51%, so this was close to a coin flip. The model leaned on form: the Celtics had been winning by about 10 points a game and the 76ers by under 1. Adem Bona, Dominick Barlow and Ariel Hukporti were out for Philadelphia, as expected.",
       "missed": "Our team-strength rating actually had Philadelphia slightly ahead (96.2 to 92.0), and Boston won by 22. The strength rating pointed the wrong way here, and the model had no way to see the three-point gap coming.",
       "why": "At 51% the model was barely leaning, and getting this one right says little about its accuracy. The result was driven by hot shooting, which is hard to predict from pre-game data."
+    },
+    "401909966": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Pacers beat the Wizards 114–101 at home. Pascal Siakam scored 28 and Ivica Zubac had 20 points and 12 rebounds. Indiana had 29 assists to Washington's 12 and made 21 of 24 free throws. Kyshawn George led Washington with 25, and Anthony Davis had 21 points and 13 rebounds.",
+      "right": "The model picked Indiana at 62%, mostly on recent form: the Pacers had been losing by about 5 points a game and the Wizards by almost 9. Tyrese Haliburton, Ben Sheppard and Johnny Furphy were out for Indiana, as the preview expected, and Indiana still won comfortably.",
+      "missed": "Our team-strength rating had Washington a touch ahead (91.1 to 90.4), so it didn't separate the teams. The model also had no way to see how big the gap in ball movement would be, 29 assists to 12.",
+      "why": "A 62% pick is a lean, not a sure thing. A 13-point win with that much of a gap in assists and free throws looks more like one team having a good night than something pre-game numbers could show."
+    },
+    "401909967": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Cavaliers beat the Knicks 115–107 in New York. James Harden scored 32 with 5 of 7 from three, and Donovan Mitchell added 23. Cleveland made 20 free throws to New York's 11. The Knicks had 33 assists to 23, with Jalen Brunson scoring 27 and Karl-Anthony Towns 21.",
+      "right": "The model gave New York a 66% chance, mostly because of form: the Knicks had been winning by about 11 points a game while Cleveland was roughly level. New York did move the ball well and shot almost the same as Cleveland, 41 of 83 from the floor to 40 of 85.",
+      "missed": "The model was wrong here. Our team-strength rating actually had Cleveland ahead (93.9 to 90.5), and the pick leaned on form instead. We also had no way to see a 32-point night from Harden or Cleveland's edge at the free-throw line.",
+      "why": "A 66% chance still loses about 1 game in 3. With the shooting this even, the game came down to free throws and one big scoring night, which pre-game numbers don't capture well."
+    },
+    "401909968": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Celtics beat the Raptors 98–93 in Toronto. Jayson Tatum scored 24 with 8 assists, and Derrick White added 19. Boston made 24 of 28 free throws to Toronto's 13 of 18, while the Raptors made 16 threes to Boston's 14. Ja'Kobe Walter led Toronto with 17.",
+      "right": "We picked Boston at 56%, so this was only a mild lean. Both team strength (87.4 to 83.4) and form (Boston winning by about 11 a game, Toronto by about 2) pointed the same way. Scottie Barnes and Kawhi Leonard were out for Toronto, as expected.",
+      "missed": "The win was narrow, and Boston shot only 30 of 73 from the floor. Paul George was listed as questionable in the preview and did not play, which the model could not know ahead of time.",
+      "why": "At 56% the model was barely leaning, so getting this one right says little about its accuracy. A five-point game could easily have gone the other way."
+    },
+    "401909969": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Spurs beat the Bulls 124–119 in Chicago. Victor Wembanyama scored 32 with 9 rebounds, and Dylan Harper had 18 points and 10 assists. San Antonio shot 49 of 98 from the floor. Chicago made 15 of 29 from three, with Jalen Smith scoring 23 on 5 of 5 from deep, and won the rebounds 40 to 33.",
+      "right": "The model gave San Antonio an 84% chance because it rated them clearly stronger (93.1 to 87.9) and the Spurs had been winning by about 11 points a game while the Bulls had been losing by about 13. Tobias Harris and Devin Vassell did not play for San Antonio, but the Spurs still won.",
+      "missed": "The result was closer than the pick implied. Chicago shot well from three (15 of 29) and won the rebounds, and the model had no way to see either.",
+      "why": "This went the expected way, but an 84% chance still loses about 1 game in 6, and a five-point margin shows how close that was. One result doesn't say much on its own."
+    },
+    "401909970": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Nuggets beat the Grizzlies 123–118 in Memphis. Jamal Murray scored 30 with 8 assists, and Nikola Jokić had 27 points, 11 rebounds and 8 assists. Denver shot 49 of 98 from the floor. Memphis made 17 threes, and Jaylen Wells and Ty Jerome each scored 22.",
+      "right": "We picked Denver at only 53%, so this was close to a coin flip. The model had Denver slightly stronger (96.1 to 95.0) and in slightly better form. Julian Strawther was out for Denver and Scotty Pippen Jr. and Quinten Post for Memphis, as expected.",
+      "missed": "The model could not really separate these teams, and the game stayed close to the end. Memphis shot better from three than Denver, but Denver's 49 made field goals made the difference.",
+      "why": "At 53% the pick says very little, and a five-point result in either direction would have looked equally reasonable. This one doesn't tell us much about the model."
+    },
+    "401909971": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Lakers beat the Bucks 123–112 in Milwaukee. Luka Dončić scored 32 and Sandro Mamukelashvili added 23. Los Angeles won the rebounds 48 to 40. Tyler Herro led Milwaukee with 27 and Jaime Jaquez Jr. scored 25, and the Bucks made 29 of 33 free throws.",
+      "right": "The model gave the Lakers an 86% chance because it rated them far stronger (102.1 to 82.4), and Milwaukee had been losing by about 14 points a game. Myles Turner was out for Milwaukee. Tyler Herro was listed as questionable and played, and Quentin Grimes sat out for Los Angeles, as listed.",
+      "missed": "Nothing big. Milwaukee got to the line more and lost by 11, and the model couldn't have known Herro would play and score 27.",
+      "why": "A confident pick that went the expected way. Even at 86%, about 1 game in 7 goes the other way, so one result like this doesn't prove much on its own."
+    },
+    "401909972": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Nets beat the Pelicans 145–111 in New Orleans. Brooklyn made 20 of 41 from three and 35 of 42 free throws, and won the rebounds 42 to 28. Michael Porter Jr. scored 22 and Julius Randle had 17 points and 5 assists. Zion Williamson led New Orleans with 29.",
+      "right": "The model's reasons looked sensible on paper: New Orleans was rated much stronger (92.3 to 81.7) and in less bad form (losing by about 6 a game against about 11 for Brooklyn). None of that showed up in the game.",
+      "missed": "The model was clearly wrong. It gave New Orleans a 75% chance, mostly because it rated them much stronger (92.3 to 81.7), and the result was a 34-point loss. Four New Orleans players were out or questionable in the preview (Trey Murphy III, Bennedict Mathurin, Trendon Watford and Yves Missi) and none played, so the strength rating may have overstated the team that actually took the floor.",
+      "why": "A 75% chance still loses about 1 game in 4, but a margin this large says the model missed something real. The absences are one likely reason, though we can't prove that from a single game."
+    },
+    "401909973": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Magic beat the Jazz 123–108 in Utah. Franz Wagner scored 38, Desmond Bane added 25 with 7 of 11 from three, and Anthony Black had 22 points and 8 assists. Orlando made 18 of 46 from three. Darryn Peterson led Utah with 22, and the Jazz made 28 of 34 free throws.",
+      "right": "We picked Orlando at 60%, based mainly on form: the Magic had been losing by about 5 a game and the Jazz by about 11. Orlando was without Paolo Banchero, Jalen Suggs, Jonathan Isaac and Noah Penda, and Utah without Lauri Markkanen, Jaren Jackson Jr. and Jusuf Nurkić.",
+      "missed": "Our team-strength rating had Utah slightly ahead (84.2 to 81.1), and Orlando won by 15 despite four players out. That's a bigger result than the model's modest lean suggested, and it did not see Wagner's 38 coming.",
+      "why": "A 60% pick is a lean, not a call. Both teams were short-handed, so the picture was noisy, and this result is better treated as one data point."
+    },
+    "401909974": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Rockets beat the Warriors 115–108 in Houston. Kevin Durant scored 20, and Alperen Şengün had 19 points, 13 rebounds and 9 assists. Golden State's Yaxel Lendeborg scored 25 with 10 rebounds and Brandin Podziemski added 22. The Warriors made 17 threes but shot 36 of 88 overall, to Houston's 44 of 87.",
+      "right": "We picked Houston at 63%, and the Rockets won. Honestly, neither of the model's main inputs explains the lean: form was level (both teams winning by about 6 a game) and our strength rating had Golden State ahead. Jimmy Butler, Moses Moody, Gary Payton II, Kristaps Porziņģis and Brandon Williams were out for Golden State, as the preview expected.",
+      "missed": "Our team-strength rating had Golden State ahead (98.0 to 94.3), and the Warriors won the rebounds 48 to 40 and made 17 threes. Houston won because it shot much better overall, 44 of 87 against 36 of 88, which the model could not see in advance.",
+      "why": "A 63% chance still loses about 3 games in 10, and the rating pointed the other way, so this is a reminder that the model's reasons don't always agree with each other."
+    },
+    "401909975": {
+      "updated_utc": "2026-11-13T06:30:00Z",
+      "happened": "The Trail Blazers beat the Thunder 118–108 at home. Deni Avdija scored 28 with 6 assists, and Jrue Holiday had 19 points with 5 of 8 from three. Portland made 19 of 49 from three, and Oklahoma City 11 of 36. Shai Gilgeous-Alexander led all scorers with 31, though he missed all 7 of his threes, and Isaiah Hartenstein had 20 points and 11 rebounds.",
+      "right": "We picked Portland at 52%, so this was a coin flip. The model had Portland stronger (90.4 to 85.4), though form leaned slightly to Oklahoma City (about 6 a game against about 4). Ja Morant, Shaedon Sharpe and Chris Youngblood were out for Portland, and Chet Holmgren, Jalen Williams and Cason Wallace for Oklahoma City.",
+      "missed": "Nothing strong either way. The model could not separate two short-handed teams, and Portland's three-point shooting decided it.",
+      "why": "At 52% the pick says almost nothing, and a hit here doesn't mean much. A hot night from three for Portland drove the 10-point margin."
     }
   }
 }
