@@ -1,6 +1,7 @@
 // ProbaLab Members paid checkout helpers.
 // Founding prices are offered only to the first FOUNDING_CAP successful founding subscriptions.
 // Do not log or return secret values.
+import { DISCORD_INVITE_URL } from "./discord.js";
 
 export const STRIPE_API_VERSION = "2026-09-30.endive";
 export const PRODUCT_ID = "prod_VbLDaEEprs0Cel";
@@ -8,7 +9,9 @@ export const FOUNDING_CAP = 10;
 export const OWNER_EMAILS = ["jwcobley@gmail.com"];
 export const WELCOME_TEST_EMAIL = "jwcobley@gmail.com";
 export const FROM_EMAIL = "ProbaLab Sports <hello@probalabsports.com>";
-export const DISCORD_INVITE = "https://discord.gg/KPZ2BdfHuU";
+// One invite everywhere: emails use the same link as the site (functions/_shared/discord.js).
+export const DISCORD_INVITE = DISCORD_INVITE_URL;
+export const DISCORD_LINK_URL = "https://probalabsports.com/members/discord";
 export const LOGO_URL = "https://probalabsports.com/icon-192.png";
 export const SUPABASE_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
 
@@ -278,7 +281,9 @@ export function fillWelcomeEmail({ price, portalLink, founding = true }) {
 
 Join our Discord here: ${DISCORD_INVITE}
 
-Then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.`;
+Then link your Discord account here: ${DISCORD_LINK_URL}
+
+Sign in with the email you used to join and press Link Discord. You get the Premium role straight away, and the tip channels unlock.`;
   const text = `${headline}
 
 ${opening}
@@ -287,7 +292,7 @@ ${discordStepText}
 
 Here's how to get started:
 
-1. Join the members Discord: ${DISCORD_INVITE}
+1. Join the members Discord and link your account: ${DISCORD_LINK_URL}
    Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.
 
 2. Open the members desks: ${membersUrl}
@@ -382,8 +387,10 @@ ProbaLab Sports
                   <td class="email-bar" width="4" bgcolor="#19e3ff" style="background-color:#19e3ff;width:4px;font-size:0;line-height:0;">&nbsp;</td>
                   <td class="email-discord" bgcolor="#161a2a" style="background-color:#161a2a;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
                     <p class="email-ink" style="margin:0 0 10px;font-weight:700;font-size:16px;color:#e8ecf8;">One last step: get your Discord access 🔓</p>
-                    <p class="email-ink" style="margin:0 0 14px;color:#e8ecf8;">Join our Discord, then send a message in #questions (or DM @teamjwc) with the email you used to join. We'll upgrade you to Member, usually within a few hours, and the tip channels will unlock.</p>
+                    <p class="email-ink" style="margin:0 0 14px;color:#e8ecf8;">Join our Discord, then link your Discord account on the members site. Sign in with the email you used to join and press Link Discord. You get the Premium role straight away, and the tip channels unlock.</p>
                     ${btn(DISCORD_INVITE, "Join Discord")}
+                    <div style="height:10px;line-height:10px;font-size:0;">&nbsp;</div>
+                    ${btn(DISCORD_LINK_URL, "Link Discord")}
                   </td>
                 </tr>
               </table>
@@ -392,7 +399,7 @@ ProbaLab Sports
           <tr>
             <td style="padding:0 28px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:#e8ecf8;">
               <p class="email-ink" style="margin:0 0 12px;font-weight:700;color:#e8ecf8;">Here's how to get started:</p>
-              <p class="email-ink" style="margin:0 0 6px;color:#e8ecf8;">1. Join the members Discord. Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.</p>
+              <p class="email-ink" style="margin:0 0 6px;color:#e8ecf8;">1. Join the members Discord and link your account. Start in #how-to. The pinned posts cover channels, alerts, lights, results, and billing.</p>
               <p class="email-ink" style="margin:0 0 16px;color:#e8ecf8;">2. Open the members desks. You will see John, ProbaLab, and Sniper. Sniper alerts are in #sniper-tips.</p>
               ${btn(membersUrl, "Open members desks")}
               <p class="email-ink" style="margin:16px 0 0;color:#e8ecf8;">3. The members newsletter goes out Tuesday and Friday, and is also posted in #premium-news.</p>
@@ -660,14 +667,14 @@ export function fillOwnerSignupEmail({
     `Time: ${when}`,
     `Founding spots left: ${spots}`,
     "",
-    "Give them the Discord Member role.",
+    "No Discord action needed: they link their account at probalabsports.com/members/discord and get the Premium role automatically.",
   ].join("\n");
   const html = `<p>Someone signed up as a ProbaLab member.</p>
 <p>Email: ${escapeHtml(email)}<br>
 Plan: ${escapeHtml(plan)}<br>
 Time: ${escapeHtml(when)}<br>
 Founding spots left: ${escapeHtml(String(spots))}</p>
-<p>Give them the Discord Member role.</p>`;
+<p>No Discord action needed: they link their account at probalabsports.com/members/discord and get the Premium role automatically.</p>`;
   return { subject, text, html };
 }
 
