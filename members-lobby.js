@@ -68,10 +68,10 @@
     $("tipsterCards").innerHTML =
       liveCard({
         id: "john",
-        name: "John",
+        name: "John's Tips",
         focus: "NBA · NFL · NHL (NBA greens capped at 1.49 from 13 Nov)",
-        pitch: "Every bet John placed, including Sportsbet multis. Earlier bets in other sports stay on the record.",
-        footnote: "Card matches the desk headline — every bet except Closing Line.",
+        pitch: "Sports betting with laser-focused, data-driven analysis.",
+        footnote: "All-time record. The desk opens on the fresh start from 16 Nov.",
         href: "/members/tips/john",
         stats: john,
       })

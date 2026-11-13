@@ -55,7 +55,7 @@ export async function onRequestGet() {
       <h2>Live tipster desks</h2>
       <p>Sign in to open a desk. Each tipster keeps its own record, separate from the public board.</p>
       <ul class="desk-list">
-        <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John</b></button> — NBA · NFL · NHL · EPL · Championship · Tennis</li>
+        <li><button type="button" class="tipster-name-btn" data-tipster-info="john" aria-expanded="false" aria-haspopup="dialog"><b>John's Tips</b></button> — sports betting with laser-focused, data-driven analysis</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — selective Closing Line tips</li>
       </ul>

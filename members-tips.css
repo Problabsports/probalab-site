@@ -194,6 +194,10 @@ a.tipster-card.live:hover {
   padding:6px 12px; border-radius:999px; cursor:pointer;
 }
 .summary-sports button[aria-pressed="true"] { color:#07080f; background:var(--green,#2fd7a0); border-color:var(--green,#2fd7a0); }
+/* Record period switch (John's Tips, ProbaLab, Sniper): "Since 16 Nov" / "All-time" */
+.period-switch { margin:4px 0 14px; }
+.period-switch .period-label { font:600 11px var(--f-mono,monospace); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-right:2px; }
+.period-switch.hidden { display:none; }
 
 /* Tipster name popover (comment-style) */
 .tipster-name-btn {
