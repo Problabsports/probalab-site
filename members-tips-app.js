@@ -78,8 +78,9 @@
     const d=M.date(r), from=$("fFrom").value, to=$("fTo").value;
     return (!from || (d && d>=from)) && (!to || (d && d<=to));
   }
-  function filtered(rows, summary=false) {
-    return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || selectedColours.has(M.colour(r))) && inRange(r)
+  function filtered(rows, summary=false, opts) {
+    const applyColour = !opts || opts.applyColour !== false;
+    return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || !applyColour || selectedColours.has(M.colour(r))) && inRange(r)
       && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
@@ -187,7 +188,13 @@
     const mine = tipsterId === 'nfl-weather'
       ? mineRaw.filter(r => M.visibleFor(tipsterId, r) && inRange(r) && String(r.sport || '').toUpperCase() === 'NFL')
       : filtered(mineRaw, true);
-    const pl = withPl ? filtered(data.pl_results || [], true) : [];
+    // PREVIEW (preview/john-pl-site-picks): PL site picks come from the ProbaLab
+    // desk snapshot (id=probalab), not John's pl_results. Sport and date filters
+    // still apply; colour chips do not trim the blue line or the PL card.
+    const plSource = (tipsterId === "john" && Array.isArray(data.pl_desk_results))
+      ? data.pl_desk_results
+      : (data.pl_results || []);
+    const pl = withPl ? filtered(plSource, true, { applyColour: tipsterId !== "john" }) : [];
     const tipLabel = tipsterId === 'nfl-weather' ? 'NFL Totals' : (tipster.shortLabel || 'Tips');
     const controls = tipsterId === 'nfl-weather'
       ? ''
@@ -196,7 +203,7 @@
     const note = tipsterId === 'nfl-weather'
       ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Summary shows this desk\'s 1u growth only — one line.</p>'
       : (withPl
-      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to both records and the chart. Colour and date filters above apply to both. The sport dropdown is for the other tabs.</p>'
+      ? '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons and date filters apply to both records and the chart. Colour chips apply to Tips only — they do not trim the PL site picks line.</p>'
       : '<p class="note"><b>'+esc(tipster.countNote)+'</b> Sport buttons apply to this tipster\'s record and the chart. Colour and date filters above apply too. The sport dropdown is for the other tabs.</p>');
     const cards = withPl
       ? '<div class="cards cols-2">'+statsHtml(tipLabel+' settled',mine)+statsHtml('PL site picks',pl)+'</div>'
@@ -212,7 +219,7 @@
         +'<th>Count</th><th>Win %</th><th>Units</th><th>ROI</th><th>Coverage</th>'.repeat(2)+'</tr></thead><tbody>'+rows+'</tbody></table></div>'
         +'<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). PL uses a hypothetical flat 1u stake at captured odds, before commission; missing prices are excluded from units/ROI, never treated as zero. Coverage shows results with known units. No fair-price odds are substituted.</p>'
         +'<p class="note">Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort). The two records may cover different games and date ranges; this is not a matched-bet backtest. Bets with no PL pick on that side or market are Off-pick, never guessed. Captured PL history only; no pre-capture backtest.</p>'
-        +(!Array.isArray(data.pl_results)?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
+        +((tipsterId==="john" ? !Array.isArray(data.pl_desk_results) : !Array.isArray(data.pl_results))?'<p class="msg">PL history has not been exported yet. Comparison unavailable until the next enriched snapshot.</p>':'')+'</section>';
     } else if (tipsterId === 'nfl-weather') {
       comparison='<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>';
     } else {
@@ -904,6 +911,11 @@
     await loadInjuries();
     data = row.payload;
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
+    if (tipsterId === "john") {
+      // PREVIEW ONLY: blue PL line and comparison cards use isolated snapshot id=probalab.
+      const plBlock = await loadIsolatedBlock("probalab");
+      data.pl_desk_results = (plBlock && plBlock.found && Array.isArray(plBlock.results)) ? plBlock.results : [];
+    }
     if (tipsterId === "sniper") {
       tipsterData = await loadSniperBlock();
     } else if (tipsterId === "probalab") {
