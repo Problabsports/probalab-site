@@ -904,6 +904,7 @@
     await loadInjuries();
     data = row.payload;
     if (row.generated_at && !data.generated_at) data.generated_at = row.generated_at;
+    if (M.bindJohnDocument) M.bindJohnDocument(data);
     if (tipsterId === "sniper") {
       tipsterData = await loadSniperBlock();
     } else if (tipsterId === "probalab") {
@@ -938,6 +939,12 @@
             .concat(mapped.filter((r) => r.result === "open"));
         }
       } catch (_) { /* overlay optional */ }
+      if (M.bindJohnDocument) M.bindJohnDocument({
+        pl_results: data.pl_results,
+        today: data.today,
+        results: tipsterData.results,
+        open_bets: tipsterData.open_bets,
+      });
     }
     renderAll();
   }

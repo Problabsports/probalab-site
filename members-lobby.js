@@ -146,6 +146,7 @@
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
     const payload = row.payload || {};
+    if (M.bindJohnDocument) M.bindJohnDocument(payload);
     if (row.generated_at && !payload.generated_at) payload.generated_at = row.generated_at;
     let sniperPayload = null;
     const { data: snRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "sniper").maybeSingle();
