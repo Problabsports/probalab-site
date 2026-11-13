@@ -80,7 +80,7 @@
   }
   function filtered(rows, summary=false) {
     return rows.filter(r => M.visibleFor(tipsterId, r) && (tipsterId === "nfl-weather" || selectedColours.has(M.colour(r))) && inRange(r)
-      && (summary ? summarySports.has(r.sport) : !$("fSport").value || r.sport===$("fSport").value));
+      && (summary ? (summarySports.size === sports.length || summarySports.has(r.sport)) : !$("fSport").value || r.sport===$("fSport").value));
   }
   function statsHtml(title, rows) {
     const st=M.stats(rows);

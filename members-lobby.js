@@ -15,7 +15,7 @@
   let sb, memberSession = null, memberRole = null, isOwner = false;
 
   function johnCardStats(payload) {
-    const rows = (payload.results || []).filter((r) => M.visible(r) && M.colour(r) === "GREEN" && (r.result === "W" || r.result === "L"));
+    const rows = (payload.results || []).filter((r) => M.visible(r) && (r.result === "W" || r.result === "L"));
     return M.stats(rows);
   }
 
@@ -69,9 +69,9 @@
       liveCard({
         id: "john",
         name: "John",
-        focus: "NBA · NFL · NHL · EPL · Championship",
-        pitch: "Tips selected from ProbaLab greens across five sports, using John's own strategy.",
-        footnote: "Card shows green tips only. Inside the desk you can still filter every colour.",
+        focus: "NBA · NFL · NHL · EPL · Championship · tennis",
+        pitch: "Every bet John placed, including Sportsbet multis. Colour chips are filters only.",
+        footnote: "Card matches the desk headline — every bet except Closing Line.",
         href: "/members/tips/john",
         stats: john,
       })
