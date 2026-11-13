@@ -2,8 +2,39 @@
 (function (root) {
   const number = (v) => v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v);
   const colours = ['SUPER', 'GREEN', 'ORANGE', 'RED', 'UNRATED'];
-  const colour = (r) => colours.includes(String(r.light).toUpperCase()) ? String(r.light).toUpperCase() : 'UNRATED';
+  const isMulti = (r) => !!(r && (r.is_multi || String(r.tag || '').toUpperCase() === 'MULTI' || String(r.market || '').toLowerCase() === 'multi'));
+  const legKey = (game, selection) => (String(game || '').trim().toUpperCase() + '\0' + String(selection || '').trim().toUpperCase());
+  let johnLegLights = Object.create(null);
+  function bindJohnDocument(doc) {
+    const lights = Object.create(null);
+    for (const src of ['pl_results', 'today', 'results', 'open_bets']) {
+      for (const r of (doc && doc[src]) || []) {
+        if (isMulti(r) || String(r.tag || '').toUpperCase() === 'CL') continue;
+        const k = legKey(r.game, r.selection);
+        const light = String(r.light_at_placement || r.light || '').toUpperCase();
+        if (k !== '\0' && light && colours.includes(light) && !lights[k]) lights[k] = light;
+      }
+    }
+    johnLegLights = lights;
+  }
+  function allGreenLegs(r) {
+    if (r && r.all_green_legs) return true;
+    const legs = (r && r.legs) || [];
+    return !!legs.length && legs.every((l) => johnLegLights[legKey(l.game, l.selection)] === 'GREEN');
+  }
+  const colour = (r) => {
+    const lit = String((r && r.light) || '').toUpperCase();
+    if (colours.includes(lit)) return lit;
+    if (isMulti(r) && allGreenLegs(r)) return 'GREEN';
+    return 'UNRATED';
+  };
   const settled = (r) => ['W', 'L', 'T', 'void'].includes(r.result);
+  const isSniperLay = (r) => {
+    if (!String((r && r.selection) || '').trim().toUpperCase().startsWith('LAY ')) return false;
+    const tag = String((r && r.tag) || '').toUpperCase();
+    const system = String((r && r.system) || '').toLowerCase();
+    return tag === 'CL' || system.includes('sniper') || system.includes('closing line');
+  };
   const valid = (r) => {
     const game = String(r.game || '').trim();
     const sel = String(r.selection || '').trim();
@@ -27,6 +58,13 @@
   function pnl(r) {
     // Historical zero placeholders must not masquerade as known returns.
     if (number(r.units) == null) return null;
+    // Sniper lays are paper 1u on the backer's stake: win +1u, not +(price-1).
+    if (isSniperLay(r) && settled(r)) {
+      if (r.result === 'void' || r.result === 'T') return 0;
+      if (r.result === 'W') return 1;
+      const odds = number(r.price_taken);
+      return r.result === 'L' && odds != null && odds > 1 ? -(odds - 1) : null;
+    }
     const actual = number(r.pnl_units);
     if (actual != null) return actual;
     if (r.result === 'L') return -number(r.units);
@@ -149,7 +187,7 @@
   function tipsterMeta(id) {
     return TIPSTERS[canonicalDeskId(id)] || TIPSTERS.john;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, tipsterMeta, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
+  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);

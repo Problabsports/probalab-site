@@ -69,8 +69,8 @@
       liveCard({
         id: "john",
         name: "John",
-        focus: "NBA · NFL · NHL · EPL · Championship · tennis",
-        pitch: "Every bet John placed, including Sportsbet multis. Colour chips are filters only.",
+        focus: "NBA · NFL · NHL (NBA greens capped at 1.49 from 13 Nov)",
+        pitch: "Every bet John placed, including Sportsbet multis. Earlier bets in other sports stay on the record.",
         footnote: "Card matches the desk headline — every bet except Closing Line.",
         href: "/members/tips/john",
         stats: john,
@@ -146,6 +146,7 @@
     if (error) throw error;
     if (!row) throw new Error("No tips snapshot yet");
     const payload = row.payload || {};
+    if (M.bindJohnDocument) M.bindJohnDocument(payload);
     if (row.generated_at && !payload.generated_at) payload.generated_at = row.generated_at;
     let sniperPayload = null;
     const { data: snRow } = await sb.from("tips_page_snapshot").select("payload").eq("id", "sniper").maybeSingle();
