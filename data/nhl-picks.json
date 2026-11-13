@@ -3073,5 +3073,20 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020359",
+    "date": "2026-11-21T18:00:00Z",
+    "home": "CAR",
+    "away": "EDM",
+    "home_pct": 69.65,
+    "away_pct": 30.35,
+    "pick": "home",
+    "pick_pct": 69.65,
+    "created_at": "2026-11-13T18:53:12Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
