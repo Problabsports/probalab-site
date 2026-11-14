@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T08:00:10Z",
+  "generated_at": "2026-11-14T08:51:17Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -64,30 +64,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "186643",
-      "tour": "WTA",
-      "tournament_id": "WTA-380-2026",
-      "tournament": "Prudential Hong Kong Tennis Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Semifinal",
-      "court": "Centre Court",
-      "start_utc": "2026-11-07T08:20:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Maria Sakkari",
-      "player_b": "Alexandra Eala",
-      "a_pct": 42.6,
-      "b_pct": 57.4,
-      "pick": "b",
-      "pick_pct": 57.4,
-      "light": "RED",
-      "winner": "b",
-      "score": "5-7 6-3 4-6",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "186594",
       "tour": "WTA",
