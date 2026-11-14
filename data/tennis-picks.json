@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T13:52:00Z",
+  "generated_at": "2026-11-14T14:43:09Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -64,30 +64,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "186593",
-      "tour": "WTA",
-      "tournament_id": "WTA-889-2026",
-      "tournament": "Chennai Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Semifinal",
-      "court": "Centre Court",
-      "start_utc": "2026-11-07T14:20:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Magda Linette",
-      "player_b": "Anastasia Zakharova",
-      "a_pct": 54.8,
-      "b_pct": 45.2,
-      "pick": "a",
-      "pick_pct": 54.8,
-      "light": "RED",
-      "winner": "a",
-      "score": "2-6 6-2 6-3",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "186505",
       "tour": "ATP",
@@ -1107,7 +1083,7 @@
       "court": "Center Court",
       "start_utc": "2026-11-14T12:10:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Taylor Fritz",
       "player_b": "Thiago Agustin Tirante",
       "a_pct": 72.6,
@@ -1115,10 +1091,10 @@
       "pick": "a",
       "pick_pct": 72.6,
       "light": "GREEN",
-      "winner": null,
-      "score": "6-2 4-6 3-2",
+      "winner": "a",
+      "score": "6-2 4-6 7-6",
       "retired": false,
-      "result": null
+      "result": "won"
     },
     {
       "id": "187441",
@@ -1171,11 +1147,11 @@
   ],
   "record": {
     "ALL": {
-      "won": 27,
+      "won": 28,
       "lost": 15
     },
     "GREEN": {
-      "won": 8,
+      "won": 9,
       "lost": 2
     },
     "ORANGE": {
