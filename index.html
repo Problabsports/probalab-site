@@ -1413,7 +1413,8 @@ function countUp(els, ms = 600) {
 // Run fn once el is on screen: now if it already is, otherwise when it scrolls in.
 function whenSeen(el, fn) {
   if (el.getBoundingClientRect().top < innerHeight || !("IntersectionObserver" in window)) return fn(true);
-  const io = new IntersectionObserver((ents) => { if (ents.some((e) => e.isIntersecting)) { io.disconnect(); fn(false); } }, { rootMargin: "0px 0px -6% 0px" });
+  // Root extends far upward so a block that a fast scroll jumps past still counts as seen (never left invisible).
+  const io = new IntersectionObserver((ents) => { if (ents.some((e) => e.isIntersecting)) { io.disconnect(); fn(false); } }, { rootMargin: "100000px 0px -6% 0px" });
   io.observe(el);
 }
 const litChips = (el) => el.querySelectorAll(".chip").forEach((c) => c.classList.add("lit"));
