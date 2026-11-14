@@ -1190,6 +1190,34 @@
       "right": "We picked Portland at 52%, so this was a coin flip. The model had Portland stronger (90.4 to 85.4), though form leaned slightly to Oklahoma City (about 6 a game against about 4). Ja Morant, Shaedon Sharpe and Chris Youngblood were out for Portland, and Chet Holmgren, Jalen Williams and Cason Wallace for Oklahoma City.",
       "missed": "Nothing strong either way. The model could not separate two short-handed teams, and Portland's three-point shooting decided it.",
       "why": "At 52% the pick says almost nothing, and a hit here doesn't mean much. A hot night from three for Portland drove the 10-point margin."
+    },
+    "401909976": {
+      "updated_utc": "2026-11-14T06:20:00Z",
+      "happened": "The 76ers beat the Raptors 123–112 at home. Tyrese Maxey scored 27 with 8 assists, and Joel Embiid added 20. RJ Barrett had 31 points and 14 rebounds for Toronto. Philadelphia made 46 of 88 shots against 40 of 84 for Toronto, and won the rebounds 41 to 36.",
+      "right": "We picked Philadelphia at 68%, and that held up. The model rated Philadelphia stronger (89.7 to 84.4) and the home side had an extra day of rest. Scottie Barnes and Kawhi Leonard were both out for Toronto, which fits the lean.",
+      "missed": "Not much. Philadelphia was without LeBron James, Adem Bona, Dominick Barlow and Ariel Hukporti, and the model still liked them, so the depth held. Immanuel Quickley added 26 points for Toronto.",
+      "why": "A 68% pick should come in about two times out of three, and this was one of those. The shooting gap in Philadelphia's favour was the clearest difference."
+    },
+    "401909977": {
+      "updated_utc": "2026-11-14T06:20:00Z",
+      "happened": "The Pistons beat the Wizards 144–140. Cade Cunningham scored 52 with 11 assists, and Trae Young answered with 37 points and 14 assists for Washington. Anthony Davis had 30 points and 15 rebounds, and Alex Sarr scored 30. Detroit made 49 of 99 shots, Washington 50 of 102, and Detroit made 33 of 39 free throws.",
+      "right": "We picked Detroit at 82% and they won. The model had Detroit ahead on recent form (about 6 a game against about −9) and on rest (three days against one). Jalen Duren and Isaiah Joe were out for Detroit, but Cunningham carried the load.",
+      "missed": "The size of the pick. The two teams rated almost the same on team strength (90.2 to 89.8), and Washington matched Detroit's shooting and won the rebounds 50 to 47. Four points is a thin margin for an 82% pick.",
+      "why": "The pick came through, but this was far closer than the number suggests. Washington was without Justin Champagnie, Jamir Watkins and Tristan Vukcevic and still scored 140, so a lot went right for Detroit, including 33 of 39 at the line."
+    },
+    "401909978": {
+      "updated_utc": "2026-11-14T06:20:00Z",
+      "happened": "The Timberwolves beat the Mavericks 133–94 at home. Minnesota made 52 of 90 shots, and Dallas made 35 of 94, including 13 of 48 from three. Minnesota won the rebounds 50 to 38. Bones Hyland scored 24 with 8 assists, LaMelo Ball had 22 and 9 assists, and Zaccharie Risacher led Dallas with 22.",
+      "right": "We picked Minnesota at 73%, and they won by 39. The model had Minnesota in better recent form (about 6 a game against about 1.5) and with more rest (four days against three). Anthony Edwards and Donte DiVincenzo were out for Minnesota, but the group still shot well.",
+      "missed": "The model's team-strength rating actually had Dallas slightly ahead (93 to 90.5), so that part of the picture pointed the other way. It also gave no sign of a margin this big.",
+      "why": "The pick was right, but the model didn't see this coming. Dallas was without Dereck Lively and Sergio de Larrea, and a cold shooting night plus a large rebounding gap turned a moderate lean into a blowout."
+    },
+    "401909979": {
+      "updated_utc": "2026-11-14T06:20:00Z",
+      "happened": "The Suns beat the Hornets 101–96 at home. Devin Booker scored 30 with 7 assists, and Coby White led Charlotte with 21. Phoenix made 38 of 92 shots and Charlotte 33 of 80. Charlotte won the rebounds 52 to 31 but still lost.",
+      "right": "We picked Phoenix at 67%, and they won. The model rated Phoenix stronger (89 to 78.6) and Charlotte was missing Kon Knueppel, Dennis Schröder and Brandon Miller. Booker's 30 points were the biggest single difference.",
+      "missed": "The margin. Phoenix was without Mark Williams, and Charlotte got 21 more rebounds than Phoenix, so it ended closer than the team-strength gap suggests.",
+      "why": "A 67% pick still gets tight games. Charlotte's rebounding kept it close, but Phoenix made more of its shots and free throws (12 of 15)."
     }
   }
 }
