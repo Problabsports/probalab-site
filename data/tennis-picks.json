@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T11:39:25Z",
+  "generated_at": "2026-11-14T12:48:45Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -64,30 +64,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "186594",
-      "tour": "WTA",
-      "tournament_id": "WTA-889-2026",
-      "tournament": "Chennai Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Semifinal",
-      "court": "Centre Court",
-      "start_utc": "2026-11-07T12:35:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Janice Tjen",
-      "player_b": "Robin Montgomery",
-      "a_pct": 62.7,
-      "b_pct": 37.3,
-      "pick": "a",
-      "pick_pct": 62.7,
-      "light": "ORANGE",
-      "winner": "a",
-      "score": "6-3 6-4",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "186504",
       "tour": "ATP",
@@ -1153,9 +1129,9 @@
       "best_of": 3,
       "round": "Final",
       "court": "Center Court",
-      "start_utc": "2026-11-14T12:00:00Z",
+      "start_utc": "2026-11-14T12:10:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Taylor Fritz",
       "player_b": "Thiago Agustin Tirante",
       "a_pct": 72.6,
@@ -1164,7 +1140,7 @@
       "pick_pct": 72.6,
       "light": "GREEN",
       "winner": null,
-      "score": null,
+      "score": "4-1",
       "retired": false,
       "result": null
     },
