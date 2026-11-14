@@ -605,6 +605,24 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .daynav button[disabled] { opacity: 0.3; cursor: default; }
 @media (prefers-reduced-motion: reduce) { .qbwarn.hot { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .ticker .track { animation: none; } .sport-tile, .hp-pick .meter i { transition: none; } }
+/* ---------- home motion: scoped to #view-home; JS only adds these classes when motion is allowed and not SOFT ---------- */
+#view-home .hp-pick .num, #view-home .green-chip b { font-variant-numeric: tabular-nums; }
+#view-home .cu { display: inline-block; text-align: right; }
+@media (prefers-reduced-motion: no-preference) {
+  #view-home .rv { opacity: 0; }
+  #view-home .rv.in { animation: hmRise 0.45s cubic-bezier(.2, .8, .2, 1) var(--rv-d, 0ms) both; }
+  #view-home .chip.lit { animation: hmFade 0.4s ease-out 0.2s backwards; }
+  #view-home .ticker.drawin, #view-home .yest-strip.drawin { animation: hmWipe 0.55s cubic-bezier(.2, .8, .2, 1) backwards; }
+  #view-home .yest-strip.drawin .yest-ticks li { animation: hmFade 0.3s ease-out calc(180ms + var(--i, 0) * 40ms) backwards; }
+  @keyframes hmRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes hmFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes hmWipe { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  #view-home a.hp-pick { transition: transform 0.2s, box-shadow 0.2s; }
+  #view-home a.hp-pick:hover { transform: translateY(-3px); box-shadow: 0 0 64px rgba(255, 47, 192, 0.32); }
+}
+@media (prefers-reduced-motion: reduce) { #view-home .sport-tile.live:hover { transform: none; } }
 .card .nm a.team-link { color: inherit; text-decoration: none; } .card .nm a.team-link:hover { text-decoration: underline; }
 
 /* Free Discord join CTAs — neon; gated by DISCORD_INVITE_URL (empty = hidden) */
@@ -1374,9 +1392,52 @@ function fmtGreenUpdated(iso) {
   } catch (e) { return null; }
 }
 
+// ---------- home motion (subtle; skipped under prefers-reduced-motion and SOFT re-renders) ----------
+let GREEN_COUNTED = false; // green record counts up once per page load
+const motionAllowed = () => !SOFT && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Count each [data-to] element from 0 to its final value. Resolves false if the element was replaced mid-count.
+function countUp(els, ms = 600) {
+  const items = [...els].map((e) => ({ e, s: e.dataset.to, to: +e.dataset.to, d: (e.dataset.to.split(".")[1] || "").length })).filter((x) => isFinite(x.to));
+  if (!items.length) return Promise.resolve(false);
+  return new Promise((res) => {
+    const t0 = performance.now();
+    const step = (t) => {
+      if (!items[0].e.isConnected) return res(false);
+      const k = Math.min(1, (t - t0) / ms), f = 1 - Math.pow(1 - k, 3);
+      for (const x of items) x.e.textContent = k < 1 ? (x.to * f).toFixed(x.d) : x.s;
+      if (k < 1) requestAnimationFrame(step); else res(true);
+    };
+    requestAnimationFrame(step);
+  });
+}
+// Run fn once el is on screen: now if it already is, otherwise when it scrolls in.
+function whenSeen(el, fn) {
+  if (el.getBoundingClientRect().top < innerHeight || !("IntersectionObserver" in window)) return fn(true);
+  // Root extends far upward so a block that a fast scroll jumps past still counts as seen (never left invisible).
+  const io = new IntersectionObserver((ents) => { if (ents.some((e) => e.isIntersecting)) { io.disconnect(); fn(false); } }, { rootMargin: "100000px 0px -6% 0px" });
+  io.observe(el);
+}
+const litChips = (el) => el.querySelectorAll(".chip").forEach((c) => c.classList.add("lit"));
+// Fade/slide blocks in once as they enter the viewport. Blocks already on screen are left painted as-is (no flash, no LCP delay).
+function homeReveal(root) {
+  if (!root || !motionAllowed()) return;
+  const groups = [root.querySelectorAll(".hp-pick"), root.querySelectorAll(".sportgrid .sport-tile"), root.querySelectorAll(".steps .panel")];
+  for (const g of groups) g.forEach((el, i) => {
+    if (el.getBoundingClientRect().top < innerHeight) return litChips(el);
+    el.classList.add("rv");
+    el.style.setProperty("--rv-d", (i % 5) * 60 + "ms");
+    const done = (ev) => { if (ev.target !== el) return; el.removeEventListener("animationend", done); el.classList.remove("rv", "in"); el.style.removeProperty("--rv-d"); };
+    el.addEventListener("animationend", done);
+    whenSeen(el, () => { el.classList.add("in"); litChips(el); });
+  });
+  const tk = root.querySelector(".ticker:not(.ticker-slot)");
+  if (tk) tk.classList.add("drawin");
+}
+
 async function loadYesterdayStrip() {
   const el = document.getElementById("yesterdayStrip");
   if (!el) return;
+  const motionOk = motionAllowed();
   try {
     const r = await fetch("/api/yesterday-greens", { cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
@@ -1384,18 +1445,19 @@ async function loadYesterdayStrip() {
     if (!d || d.hide || !d.greens || !d.greens.length) { el.hidden = true; el.innerHTML = ""; return; }
     const w = d.greens.filter((g) => g.won).length;
     const n = d.greens.length;
-    const ticks = d.greens.map((g) => {
+    const ticks = d.greens.map((g, i) => {
       const mark = g.won ? "✓" : "✗";
       const cls = g.won ? "win" : "loss";
       const pctN = g.chance != null ? Math.round(Number(g.chance) * 100) + "%" : "";
       const lab = g.light === "SUPER" ? "Super" : "Green";
-      return `<li class="${cls}" title="${esc(lab)} · ${esc(g.sport_name || g.sport)}"><span class="mark" aria-hidden="true">${mark}</span><span class="sp">${esc(String(g.sport || "").toUpperCase())}</span><span>${esc(g.pick)}</span>${pctN ? `<span>${pctN}</span>` : ""}</li>`;
+      return `<li class="${cls}" style="--i:${Math.min(i, 8)}" title="${esc(lab)} · ${esc(g.sport_name || g.sport)}"><span class="mark" aria-hidden="true">${mark}</span><span class="sp">${esc(String(g.sport || "").toUpperCase())}</span><span>${esc(g.pick)}</span>${pctN ? `<span>${pctN}</span>` : ""}</li>`;
     }).join("");
     const other = (d.other && d.other.n)
       ? `<p class="yest-other">Other lights that day: ${d.other.w}–${d.other.n - d.other.w} · <a class="more" href="/results?light=all">All results →</a></p>`
       : `<p class="yest-other"><a class="more" href="/results">Full results →</a></p>`;
     el.innerHTML = `<div class="yest-head"><h2 class="yest-title">Yesterday's greens</h2><span class="yest-day">${esc(d.label || d.day)}</span><span class="yest-score">${w}–${n - w}</span></div><ul class="yest-ticks">${ticks}</ul>${other}`;
     el.hidden = false;
+    if (motionOk && el.isConnected && !el.classList.contains("drawin")) whenSeen(el, () => el.classList.add("drawin"));
   } catch (e) {
     el.hidden = true;
     el.innerHTML = "";
@@ -1405,19 +1467,23 @@ async function loadYesterdayStrip() {
 async function loadHomeGreenRecord() {
   const el = document.getElementById("homeGreenRecord");
   if (!el) return;
+  const motionOk = motionAllowed(); // read SOFT now: it is reset before the fetch resolves
   try {
     const r = await fetch("/api/green-record", { cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
     const g = d.green || {};
     const when = fmtGreenUpdated(d.generated_at);
+    // Same text as before; numbers are wrapped so they can count up (final values are in the markup).
+    const cu = (v) => { const s = String(v); return /^\d+(\.\d+)?$/.test(s) ? `<span class="cu" data-to="${s}" style="min-width:${s.replace(/\D/g, "").length}ch">${s}</span>` : esc(s); };
     const main = (g.n != null && g.w != null)
-      ? `Green ${g.w}–${g.n - g.w} (${g.pct ?? "—"}%)`
+      ? `Green ${cu(g.w)}–${cu(g.n - g.w)} (${cu(g.pct ?? "—")}%)`
       : "Green record · see Results";
     const updated = when
       ? `<span class="green-updated"><span class="lu">Last updated</span><span class="when">${when}</span></span>`
       : "";
     el.innerHTML = `<a class="green-chip" href="/results"><span class="green-main"><b>${main}</b></span>${updated}</a>`;
+    if (motionOk && !GREEN_COUNTED) countUp(el.querySelectorAll(".cu[data-to]")).then((ok) => { if (ok) GREEN_COUNTED = true; });
   } catch (e) {
     el.innerHTML = `<a class="green-chip" href="/results">Green record · see Results</a>`;
   }
@@ -1507,13 +1573,14 @@ function renderHome() {
   mountDiscordCtas();
   // count-up on the big number
   const num = document.getElementById("hpNum");
-  if (num && !SOFT && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (num && motionAllowed()) whenSeen(num, () => { // phones: the card sits below the fold, so count when it arrives
     const to = +num.dataset.to, t0 = performance.now(), bar = document.getElementById("hpBar"), full = bar.style.width;
     bar.style.width = "0%"; requestAnimationFrame(() => (bar.style.width = full));
-    const step = (t) => { const k = Math.min(1, (t - t0) / 900), v = Math.round(50 + (to - 50) * (1 - Math.pow(1 - k, 3)));
+    const step = (t) => { const k = Math.min(1, Math.max(0, t - t0) / 600), v = Math.round(50 + (to - 50) * (1 - Math.pow(1 - k, 3)));
       num.innerHTML = `${v}<small>%</small>`; if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
-  }
+  });
+  homeReveal(el);
 }
 
 // ---------- featured pick (sidebar "Tip of the day" + header badge) ----------
