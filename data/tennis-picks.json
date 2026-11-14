@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T15:38:56Z",
+  "generated_at": "2026-11-14T17:13:47Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -64,30 +64,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "186505",
-      "tour": "ATP",
-      "tournament_id": "ATP-13-2026",
-      "tournament": "Rolex Paris Masters",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Semifinal",
-      "court": "Court Central",
-      "start_utc": "2026-11-07T16:25:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Casper Ruud",
-      "player_b": "Carlos Alcaraz",
-      "a_pct": 18.9,
-      "b_pct": 81.1,
-      "pick": "b",
-      "pick_pct": 81.1,
-      "light": "GREEN",
-      "winner": "b",
-      "score": "4-6 4-6",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "186642",
       "tour": "WTA",
