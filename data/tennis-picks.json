@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T21:13:09Z",
+  "generated_at": "2026-11-14T22:12:25Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1083,7 +1083,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-14T20:10:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Jessica Pegula",
       "player_b": "Mirra Andreeva",
       "a_pct": 54.6,
@@ -1091,10 +1091,10 @@
       "pick": "a",
       "pick_pct": 54.6,
       "light": "RED",
-      "winner": null,
-      "score": "3-6 1-0",
+      "winner": "b",
+      "score": "3-6 4-6",
       "retired": false,
-      "result": null
+      "result": "lost"
     },
     {
       "id": "187440",
@@ -1105,9 +1105,9 @@
       "best_of": 3,
       "round": "Semifinal",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-14T21:30:00Z",
+      "start_utc": "2026-11-14T22:00:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "in",
       "player_a": "Linda Noskova",
       "player_b": "Elina Svitolina",
       "a_pct": 47.1,
@@ -1116,7 +1116,7 @@
       "pick_pct": 52.9,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "0-0",
       "retired": false,
       "result": null
     }
@@ -1124,7 +1124,7 @@
   "record": {
     "ALL": {
       "won": 28,
-      "lost": 15
+      "lost": 16
     },
     "GREEN": {
       "won": 9,
@@ -1136,7 +1136,7 @@
     },
     "RED": {
       "won": 10,
-      "lost": 6
+      "lost": 7
     }
   }
 }
