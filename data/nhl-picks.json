@@ -3238,5 +3238,50 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "id": "2026020370",
+    "date": "2026-11-22T02:00:00Z",
+    "home": "UTA",
+    "away": "ANA",
+    "home_pct": 54.52,
+    "away_pct": 45.48,
+    "pick": "home",
+    "pick_pct": 54.52,
+    "created_at": "2026-11-14T03:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020371",
+    "date": "2026-11-22T03:00:00Z",
+    "home": "VAN",
+    "away": "MIN",
+    "home_pct": 24.41,
+    "away_pct": 75.59,
+    "pick": "away",
+    "pick_pct": 75.59,
+    "created_at": "2026-11-14T03:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
+  },
+  {
+    "id": "2026020372",
+    "date": "2026-11-22T03:00:00Z",
+    "home": "SJS",
+    "away": "SEA",
+    "home_pct": 50.35,
+    "away_pct": 49.65,
+    "pick": "home",
+    "pick_pct": 50.35,
+    "created_at": "2026-11-14T03:53:03Z",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
