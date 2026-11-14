@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T20:12:57Z",
+  "generated_at": "2026-11-14T21:13:09Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1083,7 +1083,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-14T20:10:00Z",
       "time_tbc": false,
-      "status": "due",
+      "status": "in",
       "player_a": "Jessica Pegula",
       "player_b": "Mirra Andreeva",
       "a_pct": 54.6,
@@ -1092,7 +1092,7 @@
       "pick_pct": 54.6,
       "light": "RED",
       "winner": null,
-      "score": null,
+      "score": "3-6 1-0",
       "retired": false,
       "result": null
     },
