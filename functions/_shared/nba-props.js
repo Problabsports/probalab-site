@@ -243,7 +243,13 @@ function lockedRow() {
 
 const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="num">Avg</th><th scope="col" class="num">Line</th><th scope="col" class="num">Our projection</th><th scope="col" class="call">Call</th>${SHOW_BOOK_COLUMN ? '<th scope="col" class="book">Book line · price</th>' : ""}<th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
 
-export const EMPTY_HTML = `<section class="panel pp-empty"><p>No player props on the board yet. Check back closer to tip-off.</p></section>`;
+// Members sign-in returns to this page after login (members-lobby.js honours a same-site ?next=).
+export const SIGNIN_URL = "/members?next=%2Fprops%2Fnba#memberSignIn";
+/** Two equal buttons: Join members (primary) and Members sign in (secondary). */
+export const memberButtons = (extra = "") =>
+  `<div class="pp-cta${extra ? " " + extra : ""}"><a class="btn pp-join" href="/join">Join members</a><a class="btn pp-signin" href="${SIGNIN_URL}">Members sign in</a></div>`;
+
+export const EMPTY_HTML =`<section class="panel pp-empty"><p>No player props on the board yet. Check back closer to tip-off.</p></section>`;
 
 /** One card per game for one stat. full=false keeps only the free picks. */
 export function renderCards(board, { full = false, stat = "points" } = {}) {
@@ -259,7 +265,7 @@ export function renderCards(board, { full = false, stat = "points" } = {}) {
     const hidden = all.length - rows.length;
     const locked = hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: hidden }, lockedRow).join("")}</tbody>` : "";
     const gate = hidden > 0
-      ? `<div class="pp-gate"><a class="btn pp-join" href="/join">Members see every player</a><p class="small">${hidden} more player${hidden === 1 ? "" : "s"} in this game. Already a member? <a href="/members">Sign in</a>, then come back to this page.</p></div>`
+      ? `<div class="pp-gate"><p class="small">${hidden} more player${hidden === 1 ? "" : "s"} in this game.</p>${memberButtons()}</div>`
       : "";
     return `<section class="panel pp-game" data-teams="${esc(teams.join("|"))}">
     <header class="pp-head"><h2>${esc(g.away || "")} @ ${esc(g.home || "")}</h2><p class="pp-when mono">${esc(startLabel(g.commence_utc || g.commence_syd))}</p></header>

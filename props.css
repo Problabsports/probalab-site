@@ -27,18 +27,27 @@
 .pp-table tbody th.pl { font-family: var(--f-body); }
 .pp-table .num { font-family: var(--f-mono); text-align: right; width: 1%; padding-left: 16px; }
 .pp-table .call { font-family: var(--f-mono); width: 1%; padding-left: 20px; }
-.pp-table .lt { width: 1%; text-align: right; padding-right: 0; }
+.pp-table .lt { width: 1%; text-align: right; padding-right: 2px; } /* 2px so the chip border never touches the scroll edge */
+.pp-table tbody th.pl { white-space: normal; }
 .pp-table .book { width: 1%; } /* reserved for the future Book line · price column */
 .pp-tm { color: var(--muted); font-weight: 400; font-size: 12px; font-family: var(--f-mono); margin-left: 4px; }
-.pp-injury { display: inline-flex; flex-wrap: nowrap; margin-left: 8px; vertical-align: middle; font-weight: 400; }
+/* Warning sits on its own line under the name, so long names + warnings never widen the table. */
+.pp-injury { display: flex; width: fit-content; flex-wrap: nowrap; margin: 4px 0 0; font-weight: 400; }
 .pp-injury .injury-watch-note { font-size: 12px; flex: 0 0 auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
 /* Free view: placeholder rows are blurred and carry no real data. */
 .pp-locked tr { filter: blur(5px); opacity: .55; user-select: none; pointer-events: none; }
 .pp-gate { margin: 14px 0 2px; padding: 14px; border: 1px dashed rgba(25,227,255,.5); background: rgba(25,227,255,.06); text-align: center; }
-.pp-gate .btn { margin-bottom: 6px; }
-.pp-gate p { margin: 6px 0 0; }
+.pp-gate p { margin: 0 0 10px; }
+/* Join members (primary) + Members sign in (secondary): same size, side by side, stack on small phones. */
+.pp-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.pp-cta-left { justify-content: flex-start; }
+.pp-cta .btn { flex: 0 1 220px; box-sizing: border-box; text-align: center; border: 1px solid var(--cyan); }
+.pp-cta .pp-signin { background: transparent; color: var(--cyan); box-shadow: none; }
+.pp-cta .pp-signin:hover { background: rgba(25,227,255,.12); color: var(--ink); }
+.pp-member-note { margin: 0 0 14px; }
+.pp-member-note .note { margin: 0 0 8px; }
 
 @media (max-width: 640px) {
   .pp-strip { font-size: 12px; }
@@ -65,6 +74,11 @@
   .pp-table .lt { padding-right: 0; }
   .pp-table .pl { min-width: 72px; }
   .pp-table thead th.num { letter-spacing: .02em; }
-  .pp-table .lt .chip { padding: 1px 3px; letter-spacing: 0; }
+  .pp-table .lt .chip { padding: 1px 3px; letter-spacing: 0; font-size: 9px; }
+  .pp-table thead th { font-size: 10px; letter-spacing: 0; }
+  .pp-table { font-size: 12.5px; }
+  /* members view: keep the warning badge narrower than the name column */
+  .pp-injury { padding: 2px 5px; border-radius: 6px; box-shadow: none; }
+  .pp-injury .injury-watch-label { font-size: 9px; letter-spacing: 0; gap: 2px; }
   .panel.pp-game { padding-left: 10px; padding-right: 10px; }
 }

@@ -197,6 +197,13 @@
     $("publicPane").classList.toggle("hidden", mode !== "public");
   }
 
+  // ?next=/props/nba: return to that page after a members sign-in. Same-site paths only
+  // (must start with one "/", letters/digits/-/_// only), so it can never send anyone off-site.
+  function nextPath() {
+    const n = new URLSearchParams(location.search).get("next") || "";
+    return /^\/(?![\/\\])[A-Za-z0-9\/_-]*$/.test(n) && n !== "/members" ? n : "";
+  }
+
   function wirePublic() {
     wireTipsterInfo(document);
     if (/[?&]denied=1/.test(location.search)) {
@@ -236,7 +243,7 @@
         }).then((res) => {
           if (res.error) { msg.textContent = res.error.message; return; }
           msg.textContent = "Signed in — opening tipsters…";
-          location.replace("/members");
+          location.replace(nextPath() || "/members");
         });
       });
     }
@@ -322,6 +329,8 @@
     }
     memberSession = session;
     if (isOwner && window.MembersOwner) await MembersOwner.claim(session);
+    const next = nextPath();
+    if (next) { location.replace(next); return; }
     $("who").textContent = "Signed in as " + session.user.email + (isOwner ? " · owner" : "");
     show("lobby");
     try {

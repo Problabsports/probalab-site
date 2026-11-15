@@ -57,10 +57,13 @@ for (const g of board.games) {
 }
 const lop = preparePlayers([["A1", "A", 30], ["A2", "A", 28], ["A3", "A", 26], ["B1", "B", 10]].map(([player, team, proj]) => ({ player, team, stats: { points: { season_avg: proj, line: proj + 0.5, proj, p_over: 0.48, p_under: 0.52 } } })));
 assert.deepEqual([...freePicks(lop, ["A", "B"])].map((p) => p.player).sort(), ["A1", "A2", "B1"]);
-assert.ok(free.includes("Members see every player") && free.includes('href="/join"'));
+assert.ok(free.includes('<a class="btn pp-join" href="/join">Join members</a>'), "primary Join members button");
+assert.ok(free.includes('<a class="btn pp-signin" href="/members?next=%2Fprops%2Fnba#memberSignIn">Members sign in</a>'), "secondary sign-in button returns to /props/nba");
+assert.ok(/more players? in this game\.<\/p><div class="pp-cta">/.test(free), "count line above the buttons");
+assert.ok(!/Sign in<\/a>, then come back/.test(free), "inline sign-in text link removed");
 const full = renderCards(board, { full: true });
 board.games.flatMap((g) => g.players).filter((p) => p.status !== "Out").forEach((x) => assert.ok(full.includes(x.player)));
-assert.ok(!full.includes("Members see every player"));
+assert.ok(!full.includes("Join members") && !full.includes("Members sign in"));
 
 // rows: Player | Avg | Line | Our projection | Call | light chip (the Today page component) at the row edge
 assert.match(full, /<th[^>]*>Player<\/th><th[^>]*>Avg<\/th><th[^>]*>Line<\/th><th[^>]*>Our projection<\/th><th[^>]*>Call<\/th>/);
@@ -235,7 +238,8 @@ for (const g of realPayload.games.slice(0, 2)) {
 assert.deepEqual(REAL_NAMES.filter((n) => rh.includes(n)).sort(), ["Realname Alpha", "Realname Bravo", "Realname Delta", "Realname India", "Realname Juliet", "Realname Kilo"], "no other names anywhere in the HTML");
 assert.ok(!/"stats"|p_over|season_avg|"payload"/.test(rh), "no inline board JSON");
 assert.ok(rh.includes("⚠️ Day-to-day") && rh.includes("⚠️ Questionable") && rh.includes("Minutes uncertain"));
-assert.ok(rh.includes("Members see every player") && rh.includes('href="/join"'));
+assert.ok(rh.includes('id="ppMemberNote"') && /id="ppMemberNote"[\s\S]*?Join members<\/a><a class="btn pp-signin"[^>]*>Members sign in<\/a>/.test(rh), "top line has both buttons");
+assert.ok(!/>Sign in<\/a>/.test(rh.split('id="ppMemberNote"')[1].split("Gamble responsibly")[0]), "no small Sign in text links on the board");
 const reb = rh.split('id="pp-panel-rebounds"')[1].split('id="pp-panel-assists"')[0];
 assert.ok(reb.includes("Realname Alpha") && reb.includes("Realname Delta"), "rebounds tab live from data");
 assert.ok(!reb.includes("Realname Bravo") && !reb.includes("Coming soon"), "player without a rebounds block hidden on that tab");
@@ -250,7 +254,19 @@ assert.equal(ok.headers.get("cache-control"), "private, no-store");
 const at = JSON.stringify(await ok.json());
 for (const n of ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "India", "Juliet", "Kilo", "Lima", "Mike"]) assert.ok(at.includes("Realname " + n), "member sees " + n);
 for (const n of ["Foxtrot", "Golf", "Hotel", "Oldgame"]) assert.ok(!at.includes("Realname " + n), "hidden: " + n);
-assert.ok(!at.includes("Members see every player"));
+assert.ok(!at.includes("Join members"));
+
+// /join: sign-in link near the top of the form, props in the members copy
+const { onRequestGet: joinPage } = await import("../functions/join.js");
+const jh = await (await joinPage({ request: new Request("https://x.test/join"), env: {} })).text();
+assert.ok(/<form id="joinForm"[\s\S]{0,200}Already a member\? <a href="\/members#memberSignIn">Sign in<\/a>/.test(jh), "join: sign-in link at the top of the form");
+assert.ok(jh.includes("Members get the John, ProbaLab and Sniper desks, every NBA player prop projection, live tip alerts in Discord, and the members newsletter."));
+
+// members-lobby next= guard: same-site paths only
+const lobbySrc = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8");
+const guard = new RegExp(lobbySrc.match(/return \/(\^.*?\$)\/\.test\(n\)/)[1]);
+for (const okp of ["/props/nba", "/today"]) assert.ok(guard.test(okp), "next ok: " + okp);
+for (const badp of ["//evil.test", "https://evil.test", "/\\evil.test", "javascript:alert(1)", "/a?b", ""]) assert.ok(!guard.test(badp), "next blocked: " + badp);
 assert.ok(!/"payload"|p_over|injured/.test(at), "API sends the rendered board, not the raw row");
 
 // banned strings never in the page or the API

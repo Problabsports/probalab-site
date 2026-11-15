@@ -72,13 +72,13 @@
     if (!session) return;
     var r = await fetch("/api/props-nba", { headers: { authorization: "Bearer " + session.access_token }, credentials: "same-origin" });
     if (!r.ok) {
-      if (r.status === 401 && note) note.innerHTML = 'You are signed in, but this account is not a paying member yet. <a href="/join">Join to see every player</a>.';
+      if (r.status === 401 && note) note.innerHTML = '<p class="note">You are signed in, but this account is not a paying member yet.</p><div class="pp-cta pp-cta-left"><a class="btn pp-join" href="/join">Join members</a></div>';
       return;
     }
     var j = await r.json();
     if (!j || !j.ok || !j.html) return;
     boardEl.innerHTML = j.html;
-    if (note) note.textContent = "Members view: every player on the board.";
+    if (note) note.innerHTML = '<p class="note">Members view: every player on the board.</p>';
     showTab(active);
   }
 

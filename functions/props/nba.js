@@ -3,7 +3,7 @@
 // (props-nba.js swaps it in after the members session check).
 // No prices, no tips, no units, no records.
 import { shell, html, esc, asHead } from "../_shared/site.js";
-import { loadBoard, renderPanels, renderTabs, boardStats, updatedLabel, teamsOf, FREE_PER_GAME } from "../_shared/nba-props.js";
+import { loadBoard, renderPanels, renderTabs, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons } from "../_shared/nba-props.js";
 
 export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
@@ -40,7 +40,7 @@ export async function onRequestGet(ctx) {
   ${renderTabs()}
   ${strip}
   ${filters}
-  ${st.games ? `<p id="ppMemberNote" class="note">Free view shows ${FREE_PER_GAME} top players in each game. <a href="/join">Members see every player</a> · <a href="/members">Sign in</a></p>` : ""}
+  ${st.games ? `<div id="ppMemberNote" class="pp-member-note"><p class="note">Free view shows ${FREE_PER_GAME} top players in each game. Members see every player.</p>${memberButtons("pp-cta-left")}</div>` : ""}
   <div id="propsBoard">${renderPanels(board, { full: false })}</div>
   <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Projections only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
