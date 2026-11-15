@@ -54,3 +54,12 @@
   .pp-table .lt .chip { font-size: 10px; padding: 1px 5px; letter-spacing: .04em; }
   .panel.pp-game { padding-left: 12px; padding-right: 12px; }
 }
+/* Narrow phones: real names and numbers are wider than the sample, so drop the Avg column
+   (2nd cell) to keep Line, projection, Call and the light on screen without side-scrolling. */
+@media (max-width: 440px) {
+  .pp-table { min-width: 0; }
+  .pp-table tr > :nth-child(2) { display: none; }
+  .pp-table .num { padding-left: 6px; }
+  .pp-table .call { padding-left: 8px; }
+  .pp-table .pl { min-width: 84px; }
+}
