@@ -115,6 +115,23 @@ export function offerFromUsedCount(used, cap = FOUNDING_CAP) {
   };
 }
 
+// Public price sentence built from PRICES / FOUNDING_CAP (never hard-code the numbers in page copy).
+// Closed wording matches /join.
+export function offerSentence(foundingOpen = true) {
+  const P = PRICES;
+  return foundingOpen
+    ? `Founding price for the first ${FOUNDING_CAP} members is ${P.pl_founding_monthly.label} or ${P.pl_founding_yearly.label}, locked for life while you stay subscribed. After that, new members pay ${P.pl_standard_monthly.label} or ${P.pl_standard_yearly.label}.`
+    : `The founding offer for the first ${FOUNDING_CAP} members is now closed. Standard pricing is ${P.pl_standard_monthly.label} or ${P.pl_standard_yearly.label}.`;
+}
+
+// Static pages render the founding sentence; OFFER_SWAP_JS swaps in the closed wording
+// when /api/membership-offer reports foundingOpen === false.
+export function offerLineHtml() {
+  const closed = offerSentence(false).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  return `<span data-offer-line data-offer-closed="${closed}">${offerSentence(true)}</span>`;
+}
+export const OFFER_SWAP_JS = `(function(){var els=document.querySelectorAll("[data-offer-line]");if(!els.length||!window.fetch)return;fetch("/api/membership-offer").then(function(r){return r.json();}).then(function(j){if(!j||!j.ok||j.foundingOpen!==false)return;els.forEach(function(el){el.textContent=el.getAttribute("data-offer-closed");});}).catch(function(){});})();`;
+
 export function priceForInterval(offer, interval) {
   const iv = interval === "year" || interval === "yearly" ? "year" : "month";
   return iv === "year" ? offer.yearly : offer.monthly;

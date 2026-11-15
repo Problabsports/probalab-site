@@ -602,7 +602,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
     ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
-    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Paper units below use the recorded posted price only — still not a staking plan.</p>
+    <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Units below are 1 unit per pick at the recorded posted price — a way to track the record, not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Results</span></nav>
