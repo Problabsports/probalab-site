@@ -622,5 +622,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401879237",
+    "round": 11,
+    "start_utc": "2026-11-23T20:00:00Z",
+    "home": "Brentford",
+    "away": "Everton",
+    "p_home": 0.416,
+    "p_draw": 0.269,
+    "p_away": 0.315,
+    "pick": "home",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
