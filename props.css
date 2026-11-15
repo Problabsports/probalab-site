@@ -16,14 +16,14 @@
 .pp-team { margin: 12px 0 0; }
 .pp-team h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
 .pp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.pp-table { width: 100%; min-width: 780px; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+.pp-table { width: 100%; min-width: 700px; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
 .pp-table th, .pp-table td { border-top: 1px solid var(--line); padding: 8px 8px; text-align: left; vertical-align: top; }
 .pp-table thead th { border-top: 0; font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .pp-table .num { font-family: var(--f-mono); text-align: right; white-space: nowrap; width: 78px; }
 .pp-table .pl { width: 22%; font-weight: 600; overflow-wrap: anywhere; }
 .pp-table tbody th.pl { font-family: var(--f-body); }
 .pp-table .ln { white-space: nowrap; padding-left: 10px; font-family: var(--f-mono); font-size: 12px; }
-.pp-line { color: var(--ink); font-weight: 600; margin-right: 4px; }
+.pp-line { display: block; color: var(--ink); font-weight: 600; margin: 0 0 3px; }
 .pp-side { color: var(--muted); padding: 2px 4px; }
 .pp-sep { color: var(--line-hi); margin: 0 3px; }
 .pp-table .ln .pp-chance { padding: 1px 5px; }
@@ -47,7 +47,7 @@
 .pp-gate p { margin: 6px 0 0; }
 
 @media (max-width: 640px) {
-  .pp-table { min-width: 740px; font-size: 13px; }
+  .pp-table { min-width: 640px; font-size: 13px; }
   .pp-table .pl { width: 150px; }
   .pp-strip { font-size: 12px; }
 }
