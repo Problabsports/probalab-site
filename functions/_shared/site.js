@@ -11,7 +11,7 @@ import {
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
-import { discordNavLink, xNavLink, socialFooterStack } from "./discord.js";
+import { discordNavLink, socialFooterStack, X_PROFILE_URL } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -209,7 +209,7 @@ export const TURNSTILE_WIDGET = `<div class="cf-turnstile" data-sitekey="${TURNS
 
 export const signupMain = (source) => `<form class="signup main" action="/api/subscribe" method="post" data-signup>
   <label for="su-email-${esc(source)}"><b>Get every prediction and result by email</b></label>
-  <p>Twice a week, Monday and Thursday: the model's GREEN calls, how the last batch went, wins and misses both. Free.</p>
+  <p>Every Tuesday and Friday: the model's GREEN calls, how the last batch went, wins and misses both. Free.</p>
   <div class="srow"><input id="su-email-${esc(source)}" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
   <button type="submit">Sign me up</button></div>
@@ -217,7 +217,7 @@ export const signupMain = (source) => `<form class="signup main" action="/api/su
   <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
 </form>`;
 export const AMAZON_DISCLOSURE = `As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.`;
-export const signupForm = (source) => `<form class="signup" action="/api/subscribe" method="post" data-signup>
+export const signupForm = (source) => `<form id="newsletter" class="signup" action="/api/subscribe" method="post" data-signup>
   <label for="su-email"><b>Get our predictions and results by email, twice a week</b></label>
   <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
   <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
@@ -250,17 +250,11 @@ export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach
 });`;
 
 // ------------------------------------------------------------------ page shell
-// Same labels and destinations on every page. Mobile: logo + Today + drawer (Esc closes).
-// Sports hubs live in one dropdown (desktop hover/click/keyboard; mobile sub-list).
+// Same labels and destinations on every page (index.html and the legal pages copy this markup).
+// Desktop: short primary tab row + Sports and More dropdowns. Below 880px: logo + Today + drawer (Esc closes).
 export const NAV_LINKS = [
   ["/today", "Today"],
-  ["/teams", "Teams"],
-  ["/injuries", "Injuries"],
-  ["/accuracy", "Accuracy"],
   ["/results", "Results"],
-  ["/lights", "Lights"],
-  ["/how-it-works", "How it works"],
-  ["/about", "About"],
   ["/members", "Members"],
 ];
 
@@ -273,8 +267,30 @@ export const NAV_SPORTS = [
   ["/tennis", "Tennis"],
 ];
 
+// Overflow tabs, kept in the More dropdown (and the drawer on phones).
+export const NAV_MORE = [
+  ["/teams", "Teams"],
+  ["/injuries", "Injuries"],
+  ["/accuracy", "Accuracy"],
+  ["/lights", "Lights"],
+  ["/how-it-works", "How it works"],
+  ["/about", "About"],
+];
+
 function navLinkOn(path, href) {
   return path === href || (href.length > 1 && (path === href || path.startsWith(href + "/")));
+}
+
+function navDropdown(id, label, items, path, extra = "") {
+  const on = items.some(([href]) => navLinkOn(path, href));
+  const links = items.map(([href, text]) => {
+    const cur = navLinkOn(path, href);
+    return `<a href="${href}" role="menuitem"${cur ? ' aria-current="page"' : ""}>${text}</a>`;
+  }).join("");
+  return `<div class="nav-dd" data-nav-dd>
+    <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="${id}" aria-haspopup="menu"${on ? ' data-active="true"' : ""}>${label}</button>
+    <div id="${id}" class="nav-dd-panel" role="menu" hidden>${links}${extra}</div>
+  </div>`;
 }
 
 export function renderHeader(path = "/") {
@@ -282,22 +298,12 @@ export function renderHeader(path = "/") {
     const on = navLinkOn(path, href);
     return `<a href="${href}"${on ? ' aria-current="page"' : ""}>${label}</a>`;
   });
-  const sportOn = NAV_SPORTS.some(([href]) => navLinkOn(path, href));
-  const sportItems = NAV_SPORTS.map(([href, label]) => {
-    const on = navLinkOn(path, href);
-    return `<a href="${href}" role="menuitem"${on ? ' aria-current="page"' : ""}>${label}</a>`;
-  }).join("");
-  // Insert Sports dropdown after How it works (before About)
-  const howIdx = links.findIndex((html) => html.includes('href="/how-it-works"'));
-  const sports = `<div class="nav-dd" data-nav-dd>
-    <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-sports-menu" aria-haspopup="menu"${sportOn ? ' data-active="true"' : ""}>Sports</button>
-    <div id="nav-sports-menu" class="nav-dd-panel" role="menu" hidden>${sportItems}</div>
-  </div>`;
-  const at = howIdx >= 0 ? howIdx + 1 : links.length - 2;
-  links.splice(at, 0, sports);
+  links.push(`<a href="#newsletter" data-nl>Newsletter</a>`);
+  links.push(navDropdown("nav-sports-menu", "Sports", NAV_SPORTS, path));
+  const x = `<a href="${X_PROFILE_URL}" role="menuitem" target="_blank" rel="noopener noreferrer">X · @probalabsports</a>`;
+  links.push(navDropdown("nav-more-menu", "More", NAV_MORE, path, x));
   const discord = discordNavLink();
   if (discord) links.push(discord);
-  links.push(xNavLink());
   return `<header class="top site-head"><div class="wrap">
   <a class="brand" href="/">Proba<b>Lab</b></a>
   <a class="nav-today" href="/today">Today</a>

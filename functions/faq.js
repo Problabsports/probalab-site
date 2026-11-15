@@ -1,5 +1,6 @@
 // /faq: short FAQ aligned with /lights. No betting advice.
 import { shell, html, ORIGIN } from "./_shared/site.js";
+import { offerLineHtml, OFFER_SWAP_JS } from "./_shared/membership.js";
 
 export function onRequestGet() {
   const title = "FAQ | ProbaLab";
@@ -37,11 +38,11 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>How do I get the newsletter?</h2>
-  <p>Use the signup form on the <a href="/#newsletter">home page</a>. Free emails go out twice a week with predictions and results.</p>
+  <p>Use the signup form on the <a href="/#newsletter">home page</a>. Free emails go out every Tuesday and Friday with predictions and results.</p>
 </section>
 <section class="panel prose">
   <h2>Who can join Members?</h2>
-  <p>Members is invite-only while tipsters prove their records. You can <a href="/members">sign in or join the waitlist</a>. Membership is opening soon — the waitlist does not charge you.</p>
+  <p>Anyone 18+ can join. Members get access to the live tipster desks, each with its own record, plus the members Discord channels. <a href="/join">Join here</a>, or <a href="/members">sign in</a> if you already have an account. ${offerLineHtml()} Cancel any time.</p>
 </section>
 <section class="panel prose">
   <h2>How are members tips delivered?</h2>
@@ -51,7 +52,8 @@ export function onRequestGet() {
   <h2>How are results verified?</h2>
   <p>Picks are timestamped before the start and frozen at tip-off. Wins and losses stay on <a href="/results">Results</a> and in the CSV.</p>
 </section>
-<p class="note">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>`;
+<p class="note">18+. <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
+<script>${OFFER_SWAP_JS}</script>`;
   return html(shell({
     title,
     description,

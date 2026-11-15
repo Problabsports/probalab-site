@@ -1,5 +1,6 @@
 // Members: sign in when logged out; tipster lobby when logged in. Waitlist is secondary.
 import { shell, html } from "../_shared/site.js";
+import { offerLineHtml, OFFER_SWAP_JS } from "../_shared/membership.js";
 
 export async function onRequestGet() {
   const body = `
@@ -13,7 +14,8 @@ export async function onRequestGet() {
 
   <div id="lobbyPane" class="hidden tips-app">
     <h1>Tipsters</h1>
-    <p>Public pages rate every game. Members follow tipsters who pick a smaller set with their own strategy and compare that record with the ProbaLab board. Everyone here is still building a track record.</p>
+    <p>Public pages rate every game. Members get access to tipsters who pick a tighter set, each with their own strategy, and a live record you can check against the ProbaLab board.</p>
+    <p class="note">Tips go out on the desks and in Discord before game time. Each card below shows the desk&#39;s live W–L and units from the latest snapshot — wins and losses both.</p>
     <div class="tips-toolbar">
       <span id="who" class="muted"></span>
       <a href="/members/billing">Manage billing</a>
@@ -31,7 +33,7 @@ export async function onRequestGet() {
 
   <div id="publicPane" class="hidden">
     <h1>Sign in to ProbaLab members</h1>
-    <p>Tipster desks are live. Sign in to open the lobby, or <a href="/join">join as a member</a>. Public pages still rate every game; members follow tipsters who pick a smaller set with their own strategy — still building their track records, units only.</p>
+    <p>Tipster desks are live. Sign in to open them, or <a href="/join">join as a member</a>. Public pages rate every game; members get access to tipsters who pick a tighter set with their own strategy.</p>
     <aside class="trust-strip compact" aria-label="How we keep the record honest">
         <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
         <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
@@ -59,7 +61,9 @@ export async function onRequestGet() {
         <li><button type="button" class="tipster-name-btn" data-tipster-info="probalab" aria-expanded="false" aria-haspopup="dialog"><b>ProbaLab</b></button> — site greens and supers across NBA, NFL, NHL and EPL</li>
         <li><button type="button" class="tipster-name-btn" data-tipster-info="sniper" aria-expanded="false" aria-haspopup="dialog"><b>Closing Line Sniper</b></button> — fewer shots. When the market agrees, the Sniper takes aim with crosshair focus on strong closing-line value (CLV).</li>
       </ul>
-      <p class="note">Tipsters are still proving themselves. No public staking claims on this page.</p>
+      <p>Tips go out on the desks and in Discord before game time. Each desk keeps its own live record — W–L and units, with CLV when we have a price, wins and losses both.</p>
+      <p>${offerLineHtml()} <a href="/join">Join now</a>.</p>
+      <p class="note">No guaranteed winners. 18+. Cancel any time. Losses stay on the record.</p>
     </section>
 
 
@@ -81,19 +85,19 @@ export async function onRequestGet() {
         <p>It varies. Tipsters only post when they see value on their own rules — some days several, some days none. There is no fixed daily quota.</p>
       </details>
       <details class="faq-item"><summary>What is a unit?</summary>
-        <p>A unit is a flat stake size used to keep records comparable. Most desks paper-trade at 1 unit per tip unless the tipster states otherwise. Units are for tracking, not a staking plan we tell you to follow.</p>
+        <p>A unit is a flat stake size used to keep records comparable. Most desks record 1 unit per tip unless the tipster says otherwise. Units are for tracking, not a staking plan.</p>
       </details>
       <details class="faq-item"><summary>How are results verified?</summary>
         <p>Picks are timestamped before the start and frozen when the game begins. Finished results stay on the public <a href="/results">Results</a> page and in the downloadable CSV — nothing is deleted after a loss.</p>
       </details>
       <details class="faq-item"><summary>Can I cancel? How do payments work?</summary>
-        <p>Yes. Join on the <a href="/join">join page</a>. Founding pricing is US$24/month or US$240/year for the first 10 members, locked for life while you stay subscribed. After that, new members pay US$39/month or US$390/year. Cancel any time from <a href="/members/billing">Manage billing</a>. Access continues until the end of the period you have paid for. See <a href="/refund">Refunds</a>.</p>
+        <p>Yes. Join on the <a href="/join">join page</a>. ${offerLineHtml()} Cancel any time from <a href="/members/billing">Manage billing</a>. Access continues until the end of the period you have paid for. See <a href="/refund">Refunds</a>.</p>
       </details>
     </section>
 
     <section class="panel" id="joinMembers">
       <h2>Not a member yet?</h2>
-      <p>You can join now. Founding pricing is US$24/month or US$240/year for the first 10 members, locked for life while you stay subscribed. After the first 10, the price is US$39/month or US$390/year.</p>
+      <p>You can join now. ${offerLineHtml()}</p>
       <p><a class="btn" href="/join">Join ProbaLab Members</a></p>
       <p class="note">18+ only. Cancel any time. <a href="/refund">Refunds</a> · <a href="/responsible-gambling">Gamble responsibly</a>.</p>
     </section>
@@ -120,7 +124,8 @@ export async function onRequestGet() {
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/members-tips-model.js"></script>
   <script src="/members-owner.js"></script>
-  <script src="/members-lobby.js"></script>`;
+  <script src="/members-lobby.js"></script>
+  <script>${OFFER_SWAP_JS}</script>`;
 
   const page = shell({
     title: "Members | ProbaLab",

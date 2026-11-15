@@ -644,6 +644,15 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .discord-cta-footer b { color: var(--ink); }
 .discord-cta-footer:hover b { color: #fff; }
 .home-green + .discord-cta-hero, .discord-cta-hero { margin: 2px 0 4px; }
+/* Members login / get access — same family as the Discord CTA, a touch stronger; sits under the green record */
+.members-cta-hero { display: inline-flex; align-items: center; gap: 10px; width: fit-content; max-width: 100%; margin: 2px 0 0; padding: 11px 16px; border-radius: 10px; text-decoration: none; color: var(--cyan); border: 1.5px solid var(--cyan); background: rgba(25, 227, 255, 0.16); box-shadow: 0 0 18px rgba(25, 227, 255, 0.3), 0 0 28px rgba(255, 47, 192, 0.12); font-family: var(--f-display); font-weight: 700; transition: color .15s, border-color .15s, background .15s, box-shadow .15s; box-sizing: border-box; }
+.members-cta-hero:hover, .members-cta-hero:focus-visible { color: #fff; border-color: var(--magenta); background: rgba(255, 47, 192, 0.16); box-shadow: 0 0 22px rgba(255, 47, 192, 0.35), 0 0 18px rgba(25, 227, 255, 0.25); outline: none; }
+.members-cta-hero .members-ico { flex: 0 0 auto; display: block; filter: drop-shadow(0 0 6px rgba(25, 227, 255, 0.55)); }
+.members-cta-text { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; line-height: 1.25; }
+.members-cta-hero b { color: var(--ink); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+.members-cta-hero small { color: var(--muted); font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; letter-spacing: 0.02em; }
+.members-cta-hero:hover b { color: #fff; }
+.members-cta-hero:hover small { color: #e8ecf8; }
 
 .x-cta { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--cyan); border: 1px solid rgba(25, 227, 255, 0.55); background: rgba(25, 227, 255, 0.1); box-shadow: 0 0 16px rgba(25, 227, 255, 0.22), 0 0 28px rgba(255, 47, 192, 0.12); font-family: var(--f-display); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; transition: color .15s, border-color .15s, background .15s, box-shadow .15s; }
 .x-cta:hover, .x-cta:focus-visible { color: #fff; border-color: var(--magenta); background: rgba(255, 47, 192, 0.16); box-shadow: 0 0 22px rgba(255, 47, 192, 0.35), 0 0 18px rgba(25, 227, 255, 0.25); outline: none; }
@@ -651,7 +660,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .x-cta-nav { padding: 6px 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; }
 .site-nav > a.x-cta-nav { color: var(--cyan); padding: 6px 10px; }
 .site-nav > a.x-cta-nav:hover { color: #fff; }
-@media (min-width: 1181px) {
+@media (min-width: 881px) {
   .site-nav > a.x-cta-nav .x-cta-nav-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
   .site-nav > a.x-cta-nav { padding: 6px 8px; }
 }
@@ -726,12 +735,9 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">Menu</button>
     <nav id="site-menu" class="site-nav" aria-label="Main">
       <a href="/today">Today</a>
-      <a href="/teams">Teams</a>
-      <a href="/injuries">Injuries</a>
-      <a href="/accuracy">Accuracy</a>
       <a href="/results">Results</a>
-      <a href="/lights">Lights</a>
-      <a href="/how-it-works">How it works</a>
+      <a href="/members">Members</a>
+      <a href="#newsletter" data-nl>Newsletter</a>
       <div class="nav-dd" data-nav-dd>
         <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-sports-menu" aria-haspopup="menu">Sports</button>
         <div id="nav-sports-menu" class="nav-dd-panel" role="menu" hidden>
@@ -743,10 +749,19 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
           <a href="/tennis" role="menuitem">Tennis</a>
         </div>
       </div>
-      <a href="/about">About</a>
-      <a href="/members">Members</a>
-      <span id="discordNavSlot"></span><span id="xNavSlot"></span>
-      <a href="#newsletter" data-nl>Newsletter</a>
+      <div class="nav-dd" data-nav-dd>
+        <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="nav-more-menu" aria-haspopup="menu">More</button>
+        <div id="nav-more-menu" class="nav-dd-panel" role="menu" hidden>
+          <a href="/teams" role="menuitem">Teams</a>
+          <a href="/injuries" role="menuitem">Injuries</a>
+          <a href="/accuracy" role="menuitem">Accuracy</a>
+          <a href="/lights" role="menuitem">Lights</a>
+          <a href="/how-it-works" role="menuitem">How it works</a>
+          <a href="/about" role="menuitem">About</a>
+          <a href="https://x.com/probalabsports" role="menuitem" target="_blank" rel="noopener noreferrer">X · @probalabsports</a>
+        </div>
+      </div>
+      <span id="discordNavSlot"></span>
     </nav>
   </div>
 </header>
@@ -805,6 +820,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
         <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green record · see Results</a></div>
+        <a class="members-cta-hero" href="/members"><svg class="members-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2"/></svg><span class="members-cta-text"><b>Members login / get access</b><small>Open the tipster desks</small></span></a>
         <div id="discordHeroSlot"></div>
         <div class="record-cta-wrap">
         <a class="record-cta" href="/results">
@@ -816,7 +832,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
         <div id="yesterdayStrip" class="yest-strip" hidden aria-live="polite"></div>
         <form id="homeNewsletter" class="signup home-signup" action="/api/subscribe" method="post" data-signup>
           <label for="home-su-email"><b>Free Tuesday &amp; Friday newsletter</b></label>
-          <p class="hs-lede">Predictions and results by email — same list as the footer signup. Confirm via email after you join.</p>
+          <p class="hs-lede">Predictions and results in your inbox every Tuesday and Friday.</p>
           <div class="srow"><input id="home-su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
           <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="home-hero">
           <button type="submit">Sign up</button></div>
@@ -1532,6 +1548,7 @@ function renderHome() {
         <h1>Who wins.<br><em>How likely.</em></h1>
         <p class="lede">Every game gets a win probability from our proprietary data model. Every pick is posted before game time, frozen when the game starts and kept on the record, win or lose.</p>
         <div id="homeGreenRecord" class="home-green" aria-live="polite"><a class="green-chip" href="/results">Green picks: loading…</a></div>
+        <a class="members-cta-hero" href="/members"><svg class="members-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2"/></svg><span class="members-cta-text"><b>Members login / get access</b><small>Open the tipster desks</small></span></a>
         <div id="discordHeroSlot"></div>
         <div class="record-cta-wrap">
         <a class="record-cta" href="/results">
@@ -1543,7 +1560,7 @@ function renderHome() {
         <div id="yesterdayStrip" class="yest-strip" hidden aria-live="polite"></div>
         <form id="homeNewsletter" class="signup home-signup" action="/api/subscribe" method="post" data-signup>
           <label for="home-su-email"><b>Free Tuesday &amp; Friday newsletter</b></label>
-          <p class="hs-lede">Predictions and results by email — same list as the footer signup. Confirm via email after you join.</p>
+          <p class="hs-lede">Predictions and results in your inbox every Tuesday and Friday.</p>
           <div class="srow"><input id="home-su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
           <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="home-hero">
           <button type="submit">Sign up</button></div>
@@ -2309,7 +2326,6 @@ loadHomeGreenRecord();
 loadYesterdayStrip();
 </script>
 <script src="/site-nav.js"></script>
-<script>document.addEventListener("click",function(e){var a=e.target.closest("[data-nl]");if(!a)return;var f=document.getElementById("newsletter");if(!f)return;e.preventDefault();var r=matchMedia("(prefers-reduced-motion: reduce)").matches;f.scrollIntoView({behavior:r?"auto":"smooth",block:"center"});var i=f.querySelector("input[type=email]");if(i)setTimeout(function(){i.focus({preventScroll:true})},r?0:600);});</script>
 <script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->
 <script>

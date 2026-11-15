@@ -64,12 +64,12 @@
     const gen = payload.generated_at
       ? new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" }).format(new Date(payload.generated_at))
       : "—";
-    $("lobbyMeta").textContent = "Updated " + gen + " · units only · still proving the record";
+    $("lobbyMeta").textContent = "Updated " + gen;
     $("tipsterCards").innerHTML =
       liveCard({
         id: "john",
         name: "John's Tips",
-        focus: "NBA · NFL · NHL (NBA greens capped at 1.49 from 13 Nov)",
+        focus: "NBA · NFL · NHL",
         pitch: "Sports betting with laser-focused, data-driven analysis.",
         footnote: "Card matches the desk headline.",
         href: "/members/tips/john",
@@ -80,7 +80,7 @@
         name: "Closing Line Sniper",
         focus: "",
         pitch: "Fewer shots. When the market agrees, the Sniper takes aim with crosshair focus on strong closing-line value (CLV).",
-        footnote: "Every tip that was sent counts, including ones John did not take (paper units).",
+        footnote: "Every tip that was sent counts, including ones John did not take.",
         href: "/members/tips/sniper",
         stats: sniper,
       })
@@ -89,7 +89,7 @@
         name: "ProbaLab",
         focus: "NBA · NFL · NHL · EPL",
         pitch: "Tips the site's green and super picks (about 65%+) across NBA, NFL, NHL and EPL.",
-        footnote: "Fresh record from 7 Nov 2026. Paper units at the site's fair price.",
+        footnote: "Every green and super site pick counts, at the site's fair price.",
         href: "/members/tips/probalab",
         stats: probalab,
       });
@@ -100,7 +100,7 @@
           name: "NFL Totals",
           focus: "NFL totals · overs and unders",
           pitch: "NFL game totals — overs and unders, mostly unders. Flat 1u.",
-          footnote: "Private — members cannot see this desk. Fresh record. Flat 1u.",
+          footnote: "Private — members cannot see this desk. Flat 1u.",
           href: "/members/tips/nfl-weather",
           stats: weather,
           badge: "Private",
@@ -111,7 +111,7 @@
           name: "NBA Price Gap",
           focus: "NBA moneylines",
           pitch: "Doesn't try to pick the winner. It treats Pinnacle as the best read on each team's chance, and flags when an Australian book is still offering a better price, usually on the underdog.",
-          footnote: "Private — members cannot see this desk. Flat 1 unit at the alerted price. Record starts 7 Nov 2026.",
+          footnote: "Private — members cannot see this desk. Flat 1 unit at the alerted price.",
           href: "/members/tips/nba-price-gap",
           stats: gap,
           badge: "Private",
@@ -122,7 +122,7 @@
           name: "NHL Value",
           focus: "NHL moneylines",
           pitch: "Doesn't just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book is still at or above that price. At most one side per game.",
-          footnote: "Private — members cannot see this desk. Flat paper 1 unit. Record starts 7 Nov 2026.",
+          footnote: "Private — members cannot see this desk. Flat 1 unit.",
           href: "/members/tips/nhl-value",
           stats: nhl,
           badge: "Private",

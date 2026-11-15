@@ -5,7 +5,8 @@ header.top.site-head .wrap,
   max-width: 1240px;
 }
 /* Unified site nav: one set of labels everywhere. Desktop is a single row;
-   below 1180px it collapses to logo + Today + a menu drawer (Esc closes).
+   below 880px it collapses to logo + Today + a menu drawer (Esc closes).
+   Primary tabs: Today, Results, Members, Newsletter, Sports, More, Discord.
    Sports hubs share one dropdown / mobile sub-list. */
 .site-head .wrap {
   display: flex;
@@ -132,7 +133,7 @@ header.top.site-head .wrap,
 .nav-backdrop.is-open { display: block; }
 body.nav-open { overflow: hidden; }
 
-@media (max-width: 1180px) {
+@media (max-width: 880px) {
   .nav-today,
   .nav-toggle { display: inline-flex; align-items: center; }
   .site-nav {
@@ -266,7 +267,7 @@ html.has-consent { padding-bottom: 96px; }
 .site-nav > a.x-cta-nav { color: var(--cyan); padding: 6px 10px; }
 .site-nav > a.x-cta-nav:hover { color: #fff; }
 /* Desktop: icon-only next to Discord to save nav space */
-@media (min-width: 1181px) {
+@media (min-width: 881px) {
   .site-nav > a.x-cta-nav .x-cta-nav-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
   .site-nav > a.x-cta-nav { padding: 6px 8px; }
 }

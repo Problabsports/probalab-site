@@ -45,7 +45,7 @@
   function betFlags(r) {
     const f = r.rule_flags || [];
     const no = f.some((x) => /BREAK|UNDER_MIN/.test(x)), yes = f.includes("NBA_RULE_V2");
-    const why = f.includes("UNDER_MIN") ? "Taken at " + Number(r.price_taken).toFixed(2) + ", below the minimum " + Number(r.min_price).toFixed(2) + (r.win_pct ? " (fair price for " + fmtPct(r.win_pct) + " win chance)" : "") : "NBA rule: Green only, minimum price up to 1.49";
+    const why = f.includes("UNDER_MIN") ? "Taken at " + Number(r.price_taken).toFixed(2) + ", below the minimum " + Number(r.min_price).toFixed(2) + (r.win_pct ? " (fair price for " + fmtPct(r.win_pct) + " win chance)" : "") : "Does not meet this desk's price rule";
     return (no ? '<span class="badge break" title="' + esc(why) + '">NO · ' + (f.includes("UNDER_MIN") ? "below min" : "rule") + '</span>' : yes ? '<span class="badge ok">QUALIFIES</span>' : "") + " " + (r.result === "open" || r.result == null ? warnTag(r) : "");
   }
   async function loadInjuries() {
@@ -93,7 +93,7 @@
       : tipsterId === 'nba-price-gap'
         ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
         : tipsterId === 'nhl-value'
-          ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat paper 1 unit) and starts with the first graded tip.</p>'
+          ? '<p class="muted">No settled tips yet. The growth line is this desk only (flat 1 unit) and starts with the first graded tip.</p>'
           : '<p class="muted">No dated, unit-covered results for this selection yet.</p>';
     const W=800,H=380,L=58,R=78,T=22,B=48;
     const start=Date.parse(dates[0]), end=Date.parse(dates[dates.length-1]);
@@ -184,7 +184,7 @@
       +'<p class="csv-row"><button type="button" id="csvDownload" class="btn-secondary">Download CSV</button> <span class="note">The rows behind this record, with the same sport, colour and date filters, plus a TOTAL row.</span></p>';
     const comparison = tipsterId === 'nfl-weather'
       ? '<p class="note">Win % excludes ties/voids. Flat 1u. One growth line for this desk only. Dates are Australia/Sydney.</p>'
-      : '<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; paper 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
+      : '<p class="note">Win % excludes ties/voids. Tipster units use recorded stakes and net P/L (including commission where recorded; 1u when a Sniper tip was not taken). Coverage shows results with known units. Dates are Australia/Sydney: settlement when available, otherwise game start (or placement as a last resort).</p>';
     let multiLine='';
     if (tipsterId==='john') {
       const multiRows=(tipsterData && tipsterData.results || []).filter(isMulti).concat((tipsterData && tipsterData.open_bets || []).filter(isMulti));
@@ -453,7 +453,7 @@
       schedule: schedule,
     };
   }
-  const NHL_ABOUT = "This desk does not just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book (Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet, or Betfair after 8% commission) is still at or above that price. At most one side per game (the bigger gap). NHL moneylines only. Flat paper 1 unit. Record starts 7 Nov 2026.";
+  const NHL_ABOUT = "This desk does not just pick the favourite. It takes ProbaLab NHL v3's win chance for each team, sets a minimum price of 1.06 ÷ chance, and flags when the best Australian book (Sportsbet, Ladbrokes, Neds, TAB, PointsBet, Unibet, or Betfair after 8% commission) is still at or above that price. At most one side per game (the bigger gap). NHL moneylines only. Flat 1 unit per tip.";
   const NHL_WINDOW_MS = 24 * 60 * 60 * 1000;
   function nhlChance(r) {
     const raw = M.number(r.model_chance != null ? r.model_chance : (r.probalab_chance != null ? r.probalab_chance : (r.win_pct != null ? r.win_pct : (r.chance != null ? r.chance : r.fair_chance))));
@@ -548,7 +548,7 @@
     $("summary").innerHTML = '<p class="note"><b>' + esc(tipster.countNote) + "</b> One growth line for this desk only.</p>"
       + '<div class="cards">' + statsHtml("NHL Value settled", mine) + "</div>"
       + '<section class="panel"><h3>Growth (this desk only)</h3>' + chartHtml(mine, [], false) + "</section>"
-      + "<p class=\"note\">Win % excludes ties and voids. Flat paper 1 unit. Dates are Australia/Sydney. This record stays separate from John, Closing Line Sniper, ProbaLab, NFL Totals, and NBA Price Gap. Units only — no bankroll.</p>";
+      + "<p class=\"note\">Win % excludes ties and voids. Flat 1 unit. Dates are Australia/Sydney. This record stays separate from John, Closing Line Sniper, ProbaLab, NFL Totals, and NBA Price Gap. Units only — no bankroll.</p>";
     wireChart();
   }
   function normalizeNhlBet(r) {
@@ -603,7 +603,7 @@
     $("today").innerHTML = order.map((sport) => {
       const body = by[sport].map((p) => {
         const q = qualifies(p);
-        const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break" title="Price outside the rule: Green only, minimum price up to 1.49">NO</span>' : "";
+        const qBadge = q === true ? '<span class="badge ok">QUALIFIES</span>' : q === false ? '<span class="badge break" title="Does not meet this desk&#39;s price rule">NO</span>' : "";
         const taken = p.taken ? '<span class="badge taken">TAKEN</span>' : "";
         return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
           + '<td class="game">' + esc(short(p.game)) + "</td>"
@@ -778,7 +778,11 @@
         rules.className = "note";
         pitch.insertAdjacentElement("afterend", rules);
       }
-      rules.textContent = (tipsterData && tipsterData.about) || (tipsterId === "nhl-value" ? NHL_ABOUT : GAP_ABOUT);
+      // Snapshot "about" text comes from the scanner; drop stale record-start / paper wording for display only.
+      const aboutText = String((tipsterData && tipsterData.about) || (tipsterId === "nhl-value" ? NHL_ABOUT : GAP_ABOUT))
+        .replace(/\bflat paper 1 unit\b/gi, "Flat 1 unit").replace(/\bpaper 1u\b/gi, "1u")
+        .replace(/\s*Record starts [^.]*\./gi, "").trim();
+      rules.textContent = aboutText;
     }
     const title = $("deskTitle"); if (title) title.textContent = tipster.name;
     const onote = $("openNote"); if (onote) onote.textContent = tipster.openNote;
