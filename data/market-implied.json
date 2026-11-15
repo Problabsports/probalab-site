@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-15T07:23:12Z",
+  "generated_utc": "2026-11-15T08:19:26Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -99,8 +99,8 @@
       "away": "KC",
       "home": "ATL",
       "start_utc": "2026-11-15T18:00:00Z",
-      "market_home": 0.3796,
-      "market_away": 0.6204
+      "market_home": 0.3863,
+      "market_away": 0.6137
     },
     {
       "sport": "nfl",
@@ -162,8 +162,8 @@
       "away": "SEA",
       "home": "LV",
       "start_utc": "2026-11-15T21:05:00Z",
-      "market_home": 0.2887,
-      "market_away": 0.7113
+      "market_home": 0.2803,
+      "market_away": 0.7197
     },
     {
       "sport": "nfl",
@@ -171,8 +171,8 @@
       "away": "LAR",
       "home": "ARI",
       "start_utc": "2026-11-15T21:05:00Z",
-      "market_home": 0.2143,
-      "market_away": 0.7857
+      "market_home": 0.2082,
+      "market_away": 0.7918
     },
     {
       "sport": "nfl",
@@ -216,146 +216,14 @@
     },
     {
       "sport": "nhl",
-      "game_id": "624643d0e1445dfdb95d86127440548a",
-      "away": "COL",
-      "home": "MTL",
-      "away_name": "Colorado Avalanche",
-      "home_name": "Montr\u00e9al Canadiens",
-      "start_utc": "2026-11-15T00:21:00Z",
-      "market_home": 0.2267,
-      "market_away": 0.7733
-    },
-    {
-      "sport": "nhl",
-      "game_id": "20f100d5b4c8ce5d8c868f34ea7bddbf",
-      "away": "MIN",
-      "home": "BOS",
-      "away_name": "Minnesota Wild",
-      "home_name": "Boston Bruins",
-      "start_utc": "2026-11-15T00:08:21Z",
-      "market_home": 0.2858,
-      "market_away": 0.7142
-    },
-    {
-      "sport": "nhl",
-      "game_id": "f3b622fed365136e09be1f7b53052543",
-      "away": "PHI",
-      "home": "CBJ",
-      "away_name": "Philadelphia Flyers",
-      "home_name": "Columbus Blue Jackets",
-      "start_utc": "2026-11-15T00:08:59Z",
-      "market_home": 0.5035,
-      "market_away": 0.4965
-    },
-    {
-      "sport": "nhl",
-      "game_id": "9df5283f800c7d4c2d0bd38b7c5f4846",
-      "away": "DET",
-      "home": "TBL",
-      "away_name": "Detroit Red Wings",
-      "home_name": "Tampa Bay Lightning",
-      "start_utc": "2026-11-15T00:09:27Z",
-      "market_home": 0.6093,
-      "market_away": 0.3907
-    },
-    {
-      "sport": "nhl",
-      "game_id": "7f07a205e325038963274f255cb856cc",
-      "away": "EDM",
-      "home": "TOR",
-      "away_name": "Edmonton Oilers",
-      "home_name": "Toronto Maple Leafs",
-      "start_utc": "2026-11-15T00:15:07Z",
-      "market_home": 0.4452,
-      "market_away": 0.5548
-    },
-    {
-      "sport": "nhl",
-      "game_id": "77dfcbc978ae3818dc04d2434342bc48",
-      "away": "FLA",
-      "home": "St Louis Blues",
-      "away_name": "Florida Panthers",
-      "home_name": "St Louis Blues",
-      "start_utc": "2026-11-15T00:12:05Z",
-      "market_home": 0.2119,
-      "market_away": 0.7881
-    },
-    {
-      "sport": "nhl",
-      "game_id": "fa960f164539f05a9e76c85f358b93a6",
-      "away": "NJD",
-      "home": "WSH",
-      "away_name": "New Jersey Devils",
-      "home_name": "Washington Capitals",
-      "start_utc": "2026-11-15T00:08:59Z",
-      "market_home": 0.625,
-      "market_away": 0.375
-    },
-    {
-      "sport": "nhl",
-      "game_id": "13ccf67b4b7c472d4e05fdda2b440b42",
-      "away": "OTT",
-      "home": "PIT",
-      "away_name": "Ottawa Senators",
-      "home_name": "Pittsburgh Penguins",
-      "start_utc": "2026-11-15T00:23:54Z",
-      "market_home": 0.6356,
-      "market_away": 0.3644
-    },
-    {
-      "sport": "nhl",
-      "game_id": "7f213f5d9c0852282bcf4d2c8c2bae9b",
-      "away": "BUF",
-      "home": "DAL",
-      "away_name": "Buffalo Sabres",
-      "home_name": "Dallas Stars",
-      "start_utc": "2026-11-15T01:10:00Z",
-      "market_home": 0.5513,
-      "market_away": 0.4487
-    },
-    {
-      "sport": "nhl",
-      "game_id": "e7f30a1c549ae1d91aac850b81bad637",
-      "away": "SJS",
-      "home": "UTA",
-      "away_name": "San Jose Sharks",
-      "home_name": "Utah Mammoth",
-      "start_utc": "2026-11-15T02:15:00Z",
-      "market_home": 0.625,
-      "market_away": 0.375
-    },
-    {
-      "sport": "nhl",
-      "game_id": "ce4dd515ea49344d4707778f27669fec",
-      "away": "NYI",
-      "home": "ANA",
-      "away_name": "New York Islanders",
-      "home_name": "Anaheim Ducks",
-      "start_utc": "2026-11-15T03:10:00Z",
-      "market_home": 0.5115,
-      "market_away": 0.4885
-    },
-    {
-      "sport": "nhl",
-      "game_id": "4d5a1a721175165a7fc09cc39fd19214",
-      "away": "CGY",
-      "home": "LAK",
-      "away_name": "Calgary Flames",
-      "home_name": "Los Angeles Kings",
-      "start_utc": "2026-11-15T03:10:00Z",
-      "market_home": 0.6054,
-      "market_away": 0.3946
-    },
-    {
-      "sport": "nhl",
       "game_id": "d2834086e817eeb75c1ea2cd312f62c5",
       "away": "EDM",
       "home": "PHI",
       "away_name": "Edmonton Oilers",
       "home_name": "Philadelphia Flyers",
       "start_utc": "2026-11-16T00:40:00Z",
-      "market_home": 0.4218,
-      "market_away": 0.5782
+      "market_home": 0.4265,
+      "market_away": 0.5735
     },
     {
       "sport": "nhl",
@@ -365,8 +233,8 @@
       "away_name": "Calgary Flames",
       "home_name": "Anaheim Ducks",
       "start_utc": "2026-11-16T01:10:00Z",
-      "market_home": 0.5822,
-      "market_away": 0.4178
+      "market_home": 0.5769,
+      "market_away": 0.4231
     },
     {
       "sport": "nhl",
@@ -376,8 +244,8 @@
       "away_name": "Florida Panthers",
       "home_name": "Dallas Stars",
       "start_utc": "2026-11-16T01:10:00Z",
-      "market_home": 0.5495,
-      "market_away": 0.4505
+      "market_home": 0.5448,
+      "market_away": 0.4552
     },
     {
       "sport": "nhl",
@@ -387,8 +255,8 @@
       "away_name": "Nashville Predators",
       "home_name": "San Jose Sharks",
       "start_utc": "2026-11-16T02:10:00Z",
-      "market_home": 0.3999,
-      "market_away": 0.6001
+      "market_home": 0.4,
+      "market_away": 0.6
     },
     {
       "sport": "nhl",
@@ -398,8 +266,8 @@
       "away_name": "Vancouver Canucks",
       "home_name": "Vegas Golden Knights",
       "start_utc": "2026-11-16T02:10:00Z",
-      "market_home": 0.769,
-      "market_away": 0.231
+      "market_home": 0.772,
+      "market_away": 0.228
     }
   ]
 }
