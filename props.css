@@ -59,7 +59,12 @@
 @media (max-width: 440px) {
   .pp-table { min-width: 0; }
   .pp-table tr > :nth-child(2) { display: none; }
-  .pp-table .num { padding-left: 6px; }
-  .pp-table .call { padding-left: 8px; }
-  .pp-table .pl { min-width: 84px; }
+  .pp-table th, .pp-table td { padding-left: 3px; padding-right: 3px; }
+  .pp-table .num { padding-left: 4px; }
+  .pp-table .call { padding-left: 6px; }
+  .pp-table .lt { padding-right: 0; }
+  .pp-table .pl { min-width: 72px; }
+  .pp-table thead th.num { letter-spacing: .02em; }
+  .pp-table .lt .chip { padding: 1px 3px; letter-spacing: 0; }
+  .panel.pp-game { padding-left: 10px; padding-right: 10px; }
 }
