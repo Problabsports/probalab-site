@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-15T17:39:39Z",
+  "generated_at": "2026-11-15T22:44:00Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -42,54 +42,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "187373",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-08T20:15:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Marta Kostyuk",
-      "player_b": "Linda Noskova",
-      "a_pct": 47.7,
-      "b_pct": 52.3,
-      "pick": "b",
-      "pick_pct": 52.3,
-      "light": "RED",
-      "winner": "b",
-      "score": "2-6 4-6",
-      "retired": false,
-      "result": "won"
-    },
-    {
-      "id": "187374",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-08T22:05:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Coco Gauff",
-      "player_b": "Jessica Pegula",
-      "a_pct": 51.9,
-      "b_pct": 48.1,
-      "pick": "a",
-      "pick_pct": 51.9,
-      "light": "RED",
-      "winner": "a",
-      "score": "6-4 6-7 6-2",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "186598",
       "tour": "WTA",
@@ -1011,9 +963,9 @@
       "best_of": 3,
       "round": "Final",
       "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-15T20:00:00Z",
+      "start_utc": "2026-11-15T20:10:00Z",
       "time_tbc": false,
-      "status": "pre",
+      "status": "post",
       "player_a": "Elina Svitolina",
       "player_b": "Mirra Andreeva",
       "a_pct": 47.1,
@@ -1021,15 +973,15 @@
       "pick": "b",
       "pick_pct": 52.9,
       "light": "RED",
-      "winner": null,
-      "score": null,
+      "winner": "b",
+      "score": "5-7 3-6",
       "retired": false,
-      "result": null
+      "result": "won"
     }
   ],
   "record": {
     "ALL": {
-      "won": 29,
+      "won": 30,
       "lost": 16
     },
     "GREEN": {
@@ -1041,7 +993,7 @@
       "lost": 7
     },
     "RED": {
-      "won": 11,
+      "won": 12,
       "lost": 7
     }
   }
