@@ -16,13 +16,14 @@
 .pp-team { margin: 12px 0 0; }
 .pp-team h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
 .pp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.pp-table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 14px; }
+.pp-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
 .pp-table th, .pp-table td { border-top: 1px solid var(--line); padding: 8px 8px; text-align: left; vertical-align: top; }
 .pp-table thead th { border-top: 0; font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-.pp-table .num { font-family: var(--f-mono); text-align: right; white-space: nowrap; width: 72px; }
-.pp-table .pl { min-width: 170px; font-weight: 600; }
+.pp-table .num { font-family: var(--f-mono); text-align: right; white-space: nowrap; width: 78px; }
+.pp-table .pl { width: 30%; font-weight: 600; overflow-wrap: anywhere; }
 .pp-table tbody th.pl { font-family: var(--f-body); }
-.pp-table .ln { white-space: nowrap; }
+.pp-table .ln { white-space: nowrap; padding-left: 12px; }
+.pp-table thead th.ln { padding-left: 12px; }
 .pp-table .book { width: 150px; } /* reserved for the future Book line · price column */
 .pp-name { display: block; }
 .pp-injury { margin-top: 4px; font-weight: 400; }
