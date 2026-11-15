@@ -94,6 +94,8 @@ header.top.site-head .wrap,
   outline: none;
 }
 .nav-dd-panel a[aria-current="page"] { color: var(--cyan); }
+.nav-dd-panel a.nav-sub { padding-left: 26px; font-size: .92em; }
+.nav-dd-panel a.nav-sub::before { content: "↳ "; opacity: .6; }
 
 .nav-today {
   font-family: var(--f-display);

@@ -260,6 +260,7 @@ export const NAV_LINKS = [
 
 export const NAV_SPORTS = [
   ["/nba", "NBA"],
+  ["/props/nba", "Player props", "nav-sub"],
   ["/nfl", "NFL"],
   ["/nhl", "NHL"],
   ["/epl", "EPL"],
@@ -283,9 +284,9 @@ function navLinkOn(path, href) {
 
 function navDropdown(id, label, items, path, extra = "") {
   const on = items.some(([href]) => navLinkOn(path, href));
-  const links = items.map(([href, text]) => {
+  const links = items.map(([href, text, cls]) => {
     const cur = navLinkOn(path, href);
-    return `<a href="${href}" role="menuitem"${cur ? ' aria-current="page"' : ""}>${text}</a>`;
+    return `<a href="${href}" role="menuitem"${cls ? ` class="${cls}"` : ""}${cur ? ' aria-current="page"' : ""}>${text}</a>`;
   }).join("");
   return `<div class="nav-dd" data-nav-dd>
     <button type="button" class="nav-dd-btn" aria-expanded="false" aria-controls="${id}" aria-haspopup="menu"${on ? ' data-active="true"' : ""}>${label}</button>
@@ -434,7 +435,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
   <h1>${esc(A)} vs ${esc(H)} prediction</h1>
   <p class="when">${g.sport === "nfl" ? "Kick-off" : "Start"} ${esc(timeET(g.start_utc))} ET · <time data-local datetime="${esc(g.start_utc)}">${esc(whenAU(g.start_utc))}</time></p>
   ${pickCard}
-  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a></p>
+  <p class="cta"><a class="btn" href="/#game-${esc(g.game_id)}">Full breakdown: team stats, players &amp; form →</a>${g.sport === "nba" && !post ? ` <a class="btn btn-ghost" href="/props/nba">Player props →</a>` : ""}</p>
   ${!post ? gameInjuriesHtml(g.sport, inj, g, A, H) + INJ_CSS : ""}
   ${resultHtml}
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}

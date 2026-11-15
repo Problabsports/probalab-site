@@ -1,0 +1,1335 @@
+{
+  "sample": true,
+  "_note": "SAMPLE DATA for the preview/nba-props branch. Fictional players and invented projections. Not model output. No bookmaker prices. The mini PC job will overwrite this file with the real board.",
+  "sport": "nba",
+  "market": "player_points",
+  "generated_at": "2026-11-15T09:00:00+11:00",
+  "games": [
+    {
+      "event_id": "sample-001",
+      "game": "Boston Celtics @ New York Knicks",
+      "home": "New York Knicks",
+      "away": "Boston Celtics",
+      "commence_syd": "2026-11-16T11:30:00+11:00",
+      "players": [
+        {
+          "player": "Marcus Vale",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 36,
+          "proj_pts": 27.4,
+          "sigma": 6.1,
+          "primary_line": {
+            "line": 27.5,
+            "p_over": 0.493,
+            "p_under": 0.507
+          },
+          "lines": [
+            {
+              "line": 23.5,
+              "p_over": 0.739,
+              "p_under": 0.261
+            },
+            {
+              "line": 24.5,
+              "p_over": 0.683,
+              "p_under": 0.317
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.622,
+              "p_under": 0.378
+            },
+            {
+              "line": 26.5,
+              "p_over": 0.559,
+              "p_under": 0.441
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.493,
+              "p_under": 0.507
+            },
+            {
+              "line": 28.5,
+              "p_over": 0.428,
+              "p_under": 0.572
+            },
+            {
+              "line": 29.5,
+              "p_over": 0.365,
+              "p_under": 0.635
+            },
+            {
+              "line": 30.5,
+              "p_over": 0.306,
+              "p_under": 0.694
+            }
+          ]
+        },
+        {
+          "player": "Devin Orr",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 34.5,
+          "proj_pts": 19.8,
+          "sigma": 5.2,
+          "primary_line": {
+            "line": 19.5,
+            "p_over": 0.523,
+            "p_under": 0.477
+          },
+          "lines": [
+            {
+              "line": 16.5,
+              "p_over": 0.737,
+              "p_under": 0.263
+            },
+            {
+              "line": 17.5,
+              "p_over": 0.671,
+              "p_under": 0.329
+            },
+            {
+              "line": 18.5,
+              "p_over": 0.599,
+              "p_under": 0.401
+            },
+            {
+              "line": 19.5,
+              "p_over": 0.523,
+              "p_under": 0.477
+            },
+            {
+              "line": 20.5,
+              "p_over": 0.446,
+              "p_under": 0.554
+            },
+            {
+              "line": 21.5,
+              "p_over": 0.372,
+              "p_under": 0.628
+            },
+            {
+              "line": 22.5,
+              "p_over": 0.302,
+              "p_under": 0.698
+            },
+            {
+              "line": 23.5,
+              "p_over": 0.238,
+              "p_under": 0.762
+            }
+          ]
+        },
+        {
+          "player": "Theo Brannigan",
+          "team": "Boston Celtics",
+          "status": "GTD",
+          "notes": "Left ankle soreness. Game-time decision.",
+          "proj_min": 30,
+          "proj_pts": 12.6,
+          "sigma": 4.4,
+          "primary_line": {
+            "line": 12.5,
+            "p_over": 0.509,
+            "p_under": 0.491
+          },
+          "lines": [
+            {
+              "line": 9.5,
+              "p_over": 0.759,
+              "p_under": 0.241
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.683,
+              "p_under": 0.317
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.599,
+              "p_under": 0.401
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.509,
+              "p_under": 0.491
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.419,
+              "p_under": 0.581
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.333,
+              "p_under": 0.667
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.255,
+              "p_under": 0.745
+            },
+            {
+              "line": 16.5,
+              "p_over": 0.188,
+              "p_under": 0.812
+            }
+          ]
+        },
+        {
+          "player": "Isaac Lund",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 24,
+          "proj_pts": 8.1,
+          "sigma": 3.6,
+          "primary_line": {
+            "line": 8.5,
+            "p_over": 0.456,
+            "p_under": 0.544
+          },
+          "lines": [
+            {
+              "line": 4.5,
+              "p_over": 0.841,
+              "p_under": 0.159
+            },
+            {
+              "line": 5.5,
+              "p_over": 0.765,
+              "p_under": 0.235
+            },
+            {
+              "line": 6.5,
+              "p_over": 0.672,
+              "p_under": 0.328
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.566,
+              "p_under": 0.434
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.456,
+              "p_under": 0.544
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.349,
+              "p_under": 0.651
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.252,
+              "p_under": 0.748
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.172,
+              "p_under": 0.828
+            }
+          ]
+        },
+        {
+          "player": "Jalen Reyes",
+          "team": "New York Knicks",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 37,
+          "proj_pts": 29.6,
+          "sigma": 6.4,
+          "primary_line": {
+            "line": 29.5,
+            "p_over": 0.506,
+            "p_under": 0.494
+          },
+          "lines": [
+            {
+              "line": 26.5,
+              "p_over": 0.686,
+              "p_under": 0.314
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.629,
+              "p_under": 0.371
+            },
+            {
+              "line": 28.5,
+              "p_over": 0.568,
+              "p_under": 0.432
+            },
+            {
+              "line": 29.5,
+              "p_over": 0.506,
+              "p_under": 0.494
+            },
+            {
+              "line": 30.5,
+              "p_over": 0.444,
+              "p_under": 0.556
+            },
+            {
+              "line": 31.5,
+              "p_over": 0.383,
+              "p_under": 0.617
+            },
+            {
+              "line": 32.5,
+              "p_over": 0.325,
+              "p_under": 0.675
+            },
+            {
+              "line": 33.5,
+              "p_over": 0.271,
+              "p_under": 0.729
+            }
+          ]
+        },
+        {
+          "player": "Corey Whitfield",
+          "team": "New York Knicks",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 33,
+          "proj_pts": 16.2,
+          "sigma": 4.9,
+          "primary_line": {
+            "line": 16.5,
+            "p_over": 0.476,
+            "p_under": 0.524
+          },
+          "lines": [
+            {
+              "line": 12.5,
+              "p_over": 0.775,
+              "p_under": 0.225
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.709,
+              "p_under": 0.291
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.636,
+              "p_under": 0.364
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.557,
+              "p_under": 0.443
+            },
+            {
+              "line": 16.5,
+              "p_over": 0.476,
+              "p_under": 0.524
+            },
+            {
+              "line": 17.5,
+              "p_over": 0.395,
+              "p_under": 0.605
+            },
+            {
+              "line": 18.5,
+              "p_over": 0.319,
+              "p_under": 0.681
+            },
+            {
+              "line": 19.5,
+              "p_over": 0.25,
+              "p_under": 0.75
+            }
+          ]
+        },
+        {
+          "player": "Anton Mercer",
+          "team": "New York Knicks",
+          "status": "Questionable",
+          "notes": "Hamstring tightness.",
+          "proj_min": 28.5,
+          "proj_pts": 11.4,
+          "sigma": 4.1,
+          "primary_line": {
+            "line": 11.5,
+            "p_over": 0.49,
+            "p_under": 0.51
+          },
+          "lines": [
+            {
+              "line": 7.5,
+              "p_over": 0.829,
+              "p_under": 0.171
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.76,
+              "p_under": 0.24
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.678,
+              "p_under": 0.322
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.587,
+              "p_under": 0.413
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.49,
+              "p_under": 0.51
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.394,
+              "p_under": 0.606
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.304,
+              "p_under": 0.696
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.225,
+              "p_under": 0.775
+            }
+          ]
+        },
+        {
+          "player": "Rashad Pell",
+          "team": "New York Knicks",
+          "status": "Out",
+          "notes": "Knee. Out for this game.",
+          "proj_min": null,
+          "proj_pts": null,
+          "sigma": null,
+          "primary_line": null,
+          "lines": []
+        }
+      ]
+    },
+    {
+      "event_id": "sample-002",
+      "game": "Denver Nuggets @ Minnesota Timberwolves",
+      "home": "Minnesota Timberwolves",
+      "away": "Denver Nuggets",
+      "commence_syd": "2026-11-16T12:00:00+11:00",
+      "players": [
+        {
+          "player": "Niko Varga",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 35.5,
+          "proj_pts": 25.1,
+          "sigma": 5.8,
+          "primary_line": {
+            "line": 25.5,
+            "p_over": 0.473,
+            "p_under": 0.527
+          },
+          "lines": [
+            {
+              "line": 21.5,
+              "p_over": 0.733,
+              "p_under": 0.267
+            },
+            {
+              "line": 22.5,
+              "p_over": 0.673,
+              "p_under": 0.327
+            },
+            {
+              "line": 23.5,
+              "p_over": 0.609,
+              "p_under": 0.391
+            },
+            {
+              "line": 24.5,
+              "p_over": 0.541,
+              "p_under": 0.459
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.473,
+              "p_under": 0.527
+            },
+            {
+              "line": 26.5,
+              "p_over": 0.405,
+              "p_under": 0.595
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.34,
+              "p_under": 0.66
+            },
+            {
+              "line": 28.5,
+              "p_over": 0.279,
+              "p_under": 0.721
+            }
+          ]
+        },
+        {
+          "player": "Tyrell Banks",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 33,
+          "proj_pts": 18.3,
+          "sigma": 5,
+          "primary_line": {
+            "line": 18.5,
+            "p_over": 0.484,
+            "p_under": 0.516
+          },
+          "lines": [
+            {
+              "line": 14.5,
+              "p_over": 0.776,
+              "p_under": 0.224
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.712,
+              "p_under": 0.288
+            },
+            {
+              "line": 16.5,
+              "p_over": 0.641,
+              "p_under": 0.359
+            },
+            {
+              "line": 17.5,
+              "p_over": 0.564,
+              "p_under": 0.436
+            },
+            {
+              "line": 18.5,
+              "p_over": 0.484,
+              "p_under": 0.516
+            },
+            {
+              "line": 19.5,
+              "p_over": 0.405,
+              "p_under": 0.595
+            },
+            {
+              "line": 20.5,
+              "p_over": 0.33,
+              "p_under": 0.67
+            },
+            {
+              "line": 21.5,
+              "p_over": 0.261,
+              "p_under": 0.739
+            }
+          ]
+        },
+        {
+          "player": "Owen Sato",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 29,
+          "proj_pts": 10.7,
+          "sigma": 3.9,
+          "primary_line": {
+            "line": 10.5,
+            "p_over": 0.52,
+            "p_under": 0.48
+          },
+          "lines": [
+            {
+              "line": 7.5,
+              "p_over": 0.794,
+              "p_under": 0.206
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.714,
+              "p_under": 0.286
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.621,
+              "p_under": 0.379
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.52,
+              "p_under": 0.48
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.419,
+              "p_under": 0.581
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.322,
+              "p_under": 0.678
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.236,
+              "p_under": 0.764
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.165,
+              "p_under": 0.835
+            }
+          ]
+        },
+        {
+          "player": "Graham Dunleavy",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 22,
+          "proj_pts": 7.2,
+          "sigma": 3.3,
+          "primary_line": {
+            "line": 7.5,
+            "p_over": 0.464,
+            "p_under": 0.536
+          },
+          "lines": [
+            {
+              "line": 3.5,
+              "p_over": 0.869,
+              "p_under": 0.131
+            },
+            {
+              "line": 4.5,
+              "p_over": 0.793,
+              "p_under": 0.207
+            },
+            {
+              "line": 5.5,
+              "p_over": 0.697,
+              "p_under": 0.303
+            },
+            {
+              "line": 6.5,
+              "p_over": 0.584,
+              "p_under": 0.416
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.464,
+              "p_under": 0.536
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.347,
+              "p_under": 0.653
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.243,
+              "p_under": 0.757
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.159,
+              "p_under": 0.841
+            }
+          ]
+        },
+        {
+          "player": "Andre Kessler",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 36.5,
+          "proj_pts": 26.8,
+          "sigma": 6,
+          "primary_line": {
+            "line": 26.5,
+            "p_over": 0.52,
+            "p_under": 0.48
+          },
+          "lines": [
+            {
+              "line": 23.5,
+              "p_over": 0.709,
+              "p_under": 0.291
+            },
+            {
+              "line": 24.5,
+              "p_over": 0.649,
+              "p_under": 0.351
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.586,
+              "p_under": 0.414
+            },
+            {
+              "line": 26.5,
+              "p_over": 0.52,
+              "p_under": 0.48
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.454,
+              "p_under": 0.546
+            },
+            {
+              "line": 28.5,
+              "p_over": 0.388,
+              "p_under": 0.612
+            },
+            {
+              "line": 29.5,
+              "p_over": 0.326,
+              "p_under": 0.674
+            },
+            {
+              "line": 30.5,
+              "p_over": 0.269,
+              "p_under": 0.731
+            }
+          ]
+        },
+        {
+          "player": "Malik Treadwell",
+          "team": "Minnesota Timberwolves",
+          "status": "GTD",
+          "notes": "Illness. Listed as a game-time decision.",
+          "proj_min": 31,
+          "proj_pts": 14.9,
+          "sigma": 4.7,
+          "primary_line": {
+            "line": 14.5,
+            "p_over": 0.534,
+            "p_under": 0.466
+          },
+          "lines": [
+            {
+              "line": 11.5,
+              "p_over": 0.765,
+              "p_under": 0.235
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.695,
+              "p_under": 0.305
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.617,
+              "p_under": 0.383
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.534,
+              "p_under": 0.466
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.449,
+              "p_under": 0.551
+            },
+            {
+              "line": 16.5,
+              "p_over": 0.367,
+              "p_under": 0.633
+            },
+            {
+              "line": 17.5,
+              "p_over": 0.29,
+              "p_under": 0.71
+            },
+            {
+              "line": 18.5,
+              "p_over": 0.222,
+              "p_under": 0.778
+            }
+          ]
+        },
+        {
+          "player": "Luca Ferris",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 30.5,
+          "proj_pts": 13.3,
+          "sigma": 4.3,
+          "primary_line": {
+            "line": 13.5,
+            "p_over": 0.481,
+            "p_under": 0.519
+          },
+          "lines": [
+            {
+              "line": 9.5,
+              "p_over": 0.812,
+              "p_under": 0.188
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.743,
+              "p_under": 0.257
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.662,
+              "p_under": 0.338
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.574,
+              "p_under": 0.426
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.481,
+              "p_under": 0.519
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.39,
+              "p_under": 0.61
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.304,
+              "p_under": 0.696
+            },
+            {
+              "line": 16.5,
+              "p_over": 0.228,
+              "p_under": 0.772
+            }
+          ]
+        },
+        {
+          "player": "Ben Oyelaran",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 25,
+          "proj_pts": 9.4,
+          "sigma": 3.7,
+          "primary_line": {
+            "line": 9.5,
+            "p_over": 0.489,
+            "p_under": 0.511
+          },
+          "lines": [
+            {
+              "line": 5.5,
+              "p_over": 0.854,
+              "p_under": 0.146
+            },
+            {
+              "line": 6.5,
+              "p_over": 0.783,
+              "p_under": 0.217
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.696,
+              "p_under": 0.304
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.596,
+              "p_under": 0.404
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.489,
+              "p_under": 0.511
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.383,
+              "p_under": 0.617
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.285,
+              "p_under": 0.715
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.201,
+              "p_under": 0.799
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "sample-003",
+      "game": "Phoenix Suns @ Los Angeles Lakers",
+      "home": "Los Angeles Lakers",
+      "away": "Phoenix Suns",
+      "commence_syd": "2026-11-16T14:30:00+11:00",
+      "players": [
+        {
+          "player": "Darius Quill",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 36,
+          "proj_pts": 24.2,
+          "sigma": 5.9,
+          "primary_line": {
+            "line": 24.5,
+            "p_over": 0.48,
+            "p_under": 0.52
+          },
+          "lines": [
+            {
+              "line": 20.5,
+              "p_over": 0.735,
+              "p_under": 0.265
+            },
+            {
+              "line": 21.5,
+              "p_over": 0.676,
+              "p_under": 0.324
+            },
+            {
+              "line": 22.5,
+              "p_over": 0.613,
+              "p_under": 0.387
+            },
+            {
+              "line": 23.5,
+              "p_over": 0.547,
+              "p_under": 0.453
+            },
+            {
+              "line": 24.5,
+              "p_over": 0.48,
+              "p_under": 0.52
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.413,
+              "p_under": 0.587
+            },
+            {
+              "line": 26.5,
+              "p_over": 0.348,
+              "p_under": 0.652
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.288,
+              "p_under": 0.712
+            }
+          ]
+        },
+        {
+          "player": "Evan Holloway",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 34,
+          "proj_pts": 21.7,
+          "sigma": 5.5,
+          "primary_line": {
+            "line": 21.5,
+            "p_over": 0.515,
+            "p_under": 0.485
+          },
+          "lines": [
+            {
+              "line": 18.5,
+              "p_over": 0.72,
+              "p_under": 0.28
+            },
+            {
+              "line": 19.5,
+              "p_over": 0.655,
+              "p_under": 0.345
+            },
+            {
+              "line": 20.5,
+              "p_over": 0.586,
+              "p_under": 0.414
+            },
+            {
+              "line": 21.5,
+              "p_over": 0.515,
+              "p_under": 0.485
+            },
+            {
+              "line": 22.5,
+              "p_over": 0.442,
+              "p_under": 0.558
+            },
+            {
+              "line": 23.5,
+              "p_over": 0.372,
+              "p_under": 0.628
+            },
+            {
+              "line": 24.5,
+              "p_over": 0.305,
+              "p_under": 0.695
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.245,
+              "p_under": 0.755
+            }
+          ]
+        },
+        {
+          "player": "Felix Amari",
+          "team": "Phoenix Suns",
+          "status": "Questionable",
+          "notes": "Wrist. Minutes may be limited.",
+          "proj_min": 27,
+          "proj_pts": 9.8,
+          "sigma": 3.8,
+          "primary_line": {
+            "line": 9.5,
+            "p_over": 0.531,
+            "p_under": 0.469
+          },
+          "lines": [
+            {
+              "line": 6.5,
+              "p_over": 0.807,
+              "p_under": 0.193
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.727,
+              "p_under": 0.273
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.634,
+              "p_under": 0.366
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.531,
+              "p_under": 0.469
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.427,
+              "p_under": 0.573
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.327,
+              "p_under": 0.673
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.239,
+              "p_under": 0.761
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.165,
+              "p_under": 0.835
+            }
+          ]
+        },
+        {
+          "player": "Simon Kraus",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 23.5,
+          "proj_pts": 7.6,
+          "sigma": 3.4,
+          "primary_line": {
+            "line": 7.5,
+            "p_over": 0.512,
+            "p_under": 0.488
+          },
+          "lines": [
+            {
+              "line": 4.5,
+              "p_over": 0.819,
+              "p_under": 0.181
+            },
+            {
+              "line": 5.5,
+              "p_over": 0.732,
+              "p_under": 0.268
+            },
+            {
+              "line": 6.5,
+              "p_over": 0.627,
+              "p_under": 0.373
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.512,
+              "p_under": 0.488
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.396,
+              "p_under": 0.604
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.288,
+              "p_under": 0.712
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.197,
+              "p_under": 0.803
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.126,
+              "p_under": 0.874
+            }
+          ]
+        },
+        {
+          "player": "Jordan Ashby",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 35,
+          "proj_pts": 28.3,
+          "sigma": 6.3,
+          "primary_line": {
+            "line": 28.5,
+            "p_over": 0.487,
+            "p_under": 0.513
+          },
+          "lines": [
+            {
+              "line": 24.5,
+              "p_over": 0.727,
+              "p_under": 0.273
+            },
+            {
+              "line": 25.5,
+              "p_over": 0.672,
+              "p_under": 0.328
+            },
+            {
+              "line": 26.5,
+              "p_over": 0.612,
+              "p_under": 0.388
+            },
+            {
+              "line": 27.5,
+              "p_over": 0.551,
+              "p_under": 0.449
+            },
+            {
+              "line": 28.5,
+              "p_over": 0.487,
+              "p_under": 0.513
+            },
+            {
+              "line": 29.5,
+              "p_over": 0.424,
+              "p_under": 0.576
+            },
+            {
+              "line": 30.5,
+              "p_over": 0.363,
+              "p_under": 0.637
+            },
+            {
+              "line": 31.5,
+              "p_over": 0.306,
+              "p_under": 0.694
+            }
+          ]
+        },
+        {
+          "player": "Kai Montrose",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 34,
+          "proj_pts": 20.4,
+          "sigma": 5.3,
+          "primary_line": {
+            "line": 20.5,
+            "p_over": 0.492,
+            "p_under": 0.508
+          },
+          "lines": [
+            {
+              "line": 16.5,
+              "p_over": 0.769,
+              "p_under": 0.231
+            },
+            {
+              "line": 17.5,
+              "p_over": 0.708,
+              "p_under": 0.292
+            },
+            {
+              "line": 18.5,
+              "p_over": 0.64,
+              "p_under": 0.36
+            },
+            {
+              "line": 19.5,
+              "p_over": 0.567,
+              "p_under": 0.433
+            },
+            {
+              "line": 20.5,
+              "p_over": 0.492,
+              "p_under": 0.508
+            },
+            {
+              "line": 21.5,
+              "p_over": 0.418,
+              "p_under": 0.582
+            },
+            {
+              "line": 22.5,
+              "p_over": 0.346,
+              "p_under": 0.654
+            },
+            {
+              "line": 23.5,
+              "p_over": 0.279,
+              "p_under": 0.721
+            }
+          ]
+        },
+        {
+          "player": "Reggie Talbot",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 29.5,
+          "proj_pts": 11.9,
+          "sigma": 4.2,
+          "primary_line": {
+            "line": 11.5,
+            "p_over": 0.538,
+            "p_under": 0.462
+          },
+          "lines": [
+            {
+              "line": 8.5,
+              "p_over": 0.791,
+              "p_under": 0.209
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.716,
+              "p_under": 0.284
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.631,
+              "p_under": 0.369
+            },
+            {
+              "line": 11.5,
+              "p_over": 0.538,
+              "p_under": 0.462
+            },
+            {
+              "line": 12.5,
+              "p_over": 0.443,
+              "p_under": 0.557
+            },
+            {
+              "line": 13.5,
+              "p_over": 0.352,
+              "p_under": 0.648
+            },
+            {
+              "line": 14.5,
+              "p_over": 0.268,
+              "p_under": 0.732
+            },
+            {
+              "line": 15.5,
+              "p_over": 0.196,
+              "p_under": 0.804
+            }
+          ]
+        },
+        {
+          "player": "Victor Hale",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "proj_min": 21,
+          "proj_pts": 6.8,
+          "sigma": 3.2,
+          "primary_line": {
+            "line": 6.5,
+            "p_over": 0.537,
+            "p_under": 0.463
+          },
+          "lines": [
+            {
+              "line": 3.5,
+              "p_over": 0.849,
+              "p_under": 0.151
+            },
+            {
+              "line": 4.5,
+              "p_over": 0.764,
+              "p_under": 0.236
+            },
+            {
+              "line": 5.5,
+              "p_over": 0.658,
+              "p_under": 0.342
+            },
+            {
+              "line": 6.5,
+              "p_over": 0.537,
+              "p_under": 0.463
+            },
+            {
+              "line": 7.5,
+              "p_over": 0.413,
+              "p_under": 0.587
+            },
+            {
+              "line": 8.5,
+              "p_over": 0.298,
+              "p_under": 0.702
+            },
+            {
+              "line": 9.5,
+              "p_over": 0.199,
+              "p_under": 0.801
+            },
+            {
+              "line": 10.5,
+              "p_over": 0.124,
+              "p_under": 0.876
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
