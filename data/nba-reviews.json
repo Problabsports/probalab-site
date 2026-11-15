@@ -1218,6 +1218,69 @@
       "right": "We picked Phoenix at 67%, and they won. The model rated Phoenix stronger (89 to 78.6) and Charlotte was missing Kon Knueppel, Dennis Schröder and Brandon Miller. Booker's 30 points were the biggest single difference.",
       "missed": "The margin. Phoenix was without Mark Williams, and Charlotte got 21 more rebounds than Phoenix, so it ended closer than the team-strength gap suggests.",
       "why": "A 67% pick still gets tight games. Charlotte's rebounding kept it close, but Phoenix made more of its shots and free throws (12 of 15)."
+    },
+    "401909296": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Pacers beat the Knicks 106–104 at home. New York made 16 of 46 threes to Indiana's 10 of 29, but Indiana made 18 of 25 free throws to New York's 10 of 13 and won the rebounds 50 to 43. Jalen Brunson scored 33 with 11 assists, and Karl-Anthony Towns had 23 points and 15 rebounds.",
+      "right": "We picked New York at 76%, and it was a two-point game. The model liked New York's recent form (about 8.7 a game against about minus 3.4) and the Knicks did shoot well from three. Indiana was without Tyrese Haliburton.",
+      "missed": "The pick was wrong. The model rated the teams almost level on strength (90.7 to 90.5) and leaned mostly on form, and Indiana's rebounding and free throws made up for the cold three-point line.",
+      "why": "A 76% chance still loses about one game in four, and this one came down to two points. Indiana's rebounding edge was the part the model had no sign of."
+    },
+    "401909297": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Magic beat the Bucks 107–99 at home. Orlando made 39 of 87 shots and made all 14 of its free throws, against Milwaukee's 32 of 82. Franz Wagner had 35 points, 9 rebounds and 12 assists, and Jaime Jaquez Jr. led Milwaukee with 22.",
+      "right": "We picked Orlando at 73%, and they won by eight. The model rated Orlando higher on team strength (86 to 83.5) and Milwaukee's recent form was the weaker of the two. Orlando did it without Paolo Banchero and Jonathan Isaac.",
+      "missed": "Milwaukee made 17 of 44 threes, so the visitors stayed in range for most of the game. The model also had Orlando's form as negative, just less so than Milwaukee's.",
+      "why": "The pick was right. Orlando shot well, hit every free throw, and Wagner had a big night even with two starters out."
+    },
+    "401909299": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Bulls beat the Hawks 125–117 at home. Chicago made 20 of 50 threes to Atlanta's 8 of 40, which was the biggest gap in the game. Norman Powell scored 33 for Chicago, and Jalen Johnson had 27 points, 11 rebounds and 10 assists for Atlanta.",
+      "right": "We picked Atlanta at 70%, and the model was wrong. It had Atlanta ahead on team strength (92.2 to 89) and in recent form (about 0 a game against about minus 12.5), and Atlanta did make more shots overall (47 of 107 against 45 of 91).",
+      "missed": "The model did not see Chicago's three-point night coming. Atlanta missed 32 of 40 from three, and Chicago also made 15 of 21 free throws.",
+      "why": "A 70% chance still loses about three games in ten. Atlanta had more total shots and a triple-double from Johnson, but the three-point gap decided it."
+    },
+    "401909300": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Grizzlies beat the Pelicans 142–111 away from home. Memphis made 44 of 91 shots and 18 of 45 threes, and New Orleans made 36 of 86 and 7 of 31 from three. Jerami Grant led Memphis with 22, and Saddiq Bey had 30 points and 10 rebounds for New Orleans.",
+      "right": "We picked Memphis at 57%, and they won by 31. The model had Memphis ahead on team strength (92.4 to 86.7) and in recent form (about minus 1.9 a game against about minus 8.7). New Orleans was without Trey Murphy III and Dejounte Murray, and Memphis without Zach Edey.",
+      "missed": "It was a moderate lean, and the model did not suggest a margin like this. Memphis also made 36 of 41 free throws.",
+      "why": "The pick was right, but the result was far bigger than the numbers suggested. Memphis shot well from three while New Orleans did not."
+    },
+    "401909298": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Heat beat the Cavaliers 133–121 at home. Giannis Antetokounmpo and Bam Adebayo each scored 37, and Davion Mitchell had 22 points and 17 assists. Miami made 29 of 37 free throws and won the rebounds 46 to 36.",
+      "right": "We picked Cleveland at 54%, and the model was wrong. It had Cleveland a little ahead on team strength (92.3 to 90.6) and form, and Cleveland did make 18 of 47 threes against Miami's 12 of 34.",
+      "missed": "Cleveland was without Evan Mobley, and the model's lean was a small one. The rebounding gap and free throws went to Miami.",
+      "why": "At 54% this was close to a coin flip, so a miss is not surprising. Miami's two big scoring nights and a rebounding edge were enough."
+    },
+    "401909301": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Rockets beat the Jazz 125–118 at home. Alperen Sengun scored 43 with 12 rebounds. Kevin Durant added 22. Utah's Darryn Peterson had 28 and Keyonte George 27. Houston made 27 of 34 free throws to Utah's 21 of 26 and won the rebounds 47 to 41.",
+      "right": "We picked Houston at 90%, and they won by seven. The model had Houston well ahead on team strength (94.4 to 84.2) and form (about 6.5 a game against about minus 11.5). Utah was without Lauri Markkanen and Jaren Jackson Jr.",
+      "missed": "Seven points was closer than a 90% chance suggests. Utah made 15 of 41 threes to Houston's 12 of 34 and stayed in it.",
+      "why": "The pick was right, though the margin was narrow for how strongly the model leaned. Sengun's big night was the difference."
+    },
+    "401909302": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Spurs beat the Warriors 123–85 at home. Golden State shot 31 of 93 from the field and was outrebounded 60 to 43. Stephon Castle scored 32 for San Antonio, and LJ Cryer led Golden State with 20.",
+      "right": "We picked San Antonio at 84%, and they won by 38. The model had San Antonio ahead on team strength (96.9 to 88.2) and form (about 11 a game against about 5.5). Golden State was missing Stephen Curry, Jimmy Butler and Kristaps Porzingis.",
+      "missed": "The model expected a clear Spurs win, not one this lopsided. Golden State's shooting and the rebounding gap came out far worse than the numbers pointed to.",
+      "why": "The pick was right. A depleted Golden State side had a poor shooting night, and San Antonio's rebounding made it a blowout."
+    },
+    "401909303": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Trail Blazers beat the Kings 120–107 away from home. Deni Avdija scored 34 and Damian Lillard 29. Portland made 29 of 31 free throws. De'Andre Hunter led Sacramento with 24, and Domantas Sabonis had 21 points and 12 rebounds.",
+      "right": "We picked Portland at 74%, and they won by 13. The model had Portland ahead on team strength (93.2 to 83.8) and in form (about 4.5 a game against about minus 11.2). Portland played without Ja Morant and Shaedon Sharpe, and Sacramento without Maxime Raynaud.",
+      "missed": "Portland shot well, 37 of 77 from the field, and made 17 of 42 threes. The model did not expect free throws to matter as much as they did.",
+      "why": "The pick was right. Portland's two high scorers and near-perfect free throw shooting carried it."
+    },
+    "401909304": {
+      "updated_utc": "2026-11-15T06:17:03Z",
+      "happened": "The Clippers beat the Thunder 113–112 at home. Shai Gilgeous-Alexander scored 40 for Oklahoma City, and Brook Lopez led the Clippers with 26. Oklahoma City made 13 of 19 free throws and the Clippers made 17 of 21. The Clippers made 16 of 41 threes to Oklahoma City's 11 of 35.",
+      "right": "We picked Oklahoma City at 60%, and the model was wrong by a single point. It had the teams close on strength (85.9 to 85.1) and leaned on Oklahoma City's recent form (about 4.8 a game against about minus 3.7). Oklahoma City was missing Chet Holmgren and Jalen Williams, and the Clippers were without Brandon Ingram and Bradley Beal.",
+      "missed": "The model gave Oklahoma City only a small edge. The Clippers' three-point shooting and free throws made up the one-point gap.",
+      "why": "A 60% chance still loses about four games in ten, and this one was decided by a single point despite a 40-point night from Gilgeous-Alexander."
     }
   }
 }
