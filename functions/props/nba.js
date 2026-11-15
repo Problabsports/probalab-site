@@ -7,7 +7,9 @@ import { loadBoard, renderPanels, renderTabs, boardStats, updatedLabel, teamsOf,
 
 export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
-  const st = board ? boardStats(board, "points") : { games: 0, players: 0, day: "" };
+  // board: the real Supabase board when fresh, else the sample fixture (sample:true). Only the
+  // free view is rendered into this public HTML; members fetch the full board from /api/props-nba.
+  const st = board ? boardStats(board) : { games: 0, players: 0, day: "" };
   const updated = board && board.generated_at ? updatedLabel(board.generated_at) : "";
   const sample = !!(board && board.sample);
   const teams = board ? teamsOf(board) : [];
@@ -38,9 +40,9 @@ export async function onRequestGet(ctx) {
   ${renderTabs()}
   ${strip}
   ${filters}
-  <p id="ppMemberNote" class="note">Free view shows ${FREE_PER_GAME} top players in each game. <a href="/join">Members see every player</a> · <a href="/members">Sign in</a></p>
+  ${st.games ? `<p id="ppMemberNote" class="note">Free view shows ${FREE_PER_GAME} top players in each game. <a href="/join">Members see every player</a> · <a href="/members">Sign in</a></p>` : ""}
   <div id="propsBoard">${renderPanels(board, { full: false })}</div>
-  <p class="note">⚠️ GTD, Questionable or Out: minutes are uncertain. Projections only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
+  <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Projections only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/props-nba.js"></script>`;

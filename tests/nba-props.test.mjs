@@ -1,7 +1,7 @@
 // NBA props page: per-stat data, single-line rows, light marker, free-view gating, copy rules.
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { statOf, preparePlayers, renderCards, renderPanels, lightOf, sortedGames, freePicks, hasStat, FREE_PER_GAME, STATS } from "../functions/_shared/nba-props.js";
+import { statOf, preparePlayers, renderCards, renderPanels, lightOf, sortedGames, freePicks, hasStat, FREE_PER_GAME, STATS, loadBoard, realBoardFrom, statusLabel, isHiddenStatus, updatedLabel, boardStats, _resetBoardCache } from "../functions/_shared/nba-props.js";
 import { chip } from "../functions/_shared/site.js";
 import { onRequestGet as page } from "../functions/props/nba.js";
 import { onRequestGet as api } from "../functions/api/props-nba.js";
@@ -89,12 +89,37 @@ for (const h of [free, full]) {
   assert.ok(!/\bmodel\b|nearest|method/i.test(h), "no method wording in the cards");
 }
 
-// routes with a fake ASSETS binding
-const ctx = (url, headers = {}, params = {}) => ({
+// routes with a fake ASSETS binding, a fixed clock and a stubbed fetch (no network).
+// Supabase snapshot: snap.row is the row returned, snap.fail makes the read error.
+const NOW = Date.parse("2026-11-15T12:00:00+11:00"); // before the sample games tip off
+const snap = { row: null, fail: false, reads: 0 };
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (input, init = {}) => {
+  const url = String(input instanceof Request ? input.url : input);
+  const auth = new Headers(init.headers || {}).get("authorization") || "";
+  const j = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+  if (url.includes("/rest/v1/tips_page_snapshot")) {
+    snap.reads++;
+    assert.ok(url.includes("id=eq.nba-props") && url.includes("select=payload,generated_at"));
+    assert.equal(auth, "Bearer test-service-key", "snapshot read uses the server key");
+    if (snap.fail) return j({ message: "boom" }, 500);
+    return j(snap.row ? [snap.row] : []);
+  }
+  if (url.includes("/auth/v1/user")) return auth === "Bearer member-token" ? j({ email: "member@example.test" }) : j({ msg: "bad jwt" }, 401);
+  if (url.includes("/rest/v1/member_allowlist")) return j(auth === "Bearer member-token" ? [{ role: "member" }] : []);
+  throw new Error("unexpected fetch in test: " + url);
+};
+const ctx = (url, headers = {}, params = {}, now = NOW) => ({
   request: new Request(url, { headers }),
   params,
-  env: { ASSETS: { fetch: async () => new Response(fs.readFileSync(new URL("../data/nba_points_props/board.json", import.meta.url)), { headers: { "content-type": "application/json" } }) } },
+  now,
+  env: {
+    SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
+    ASSETS: { fetch: async () => new Response(fs.readFileSync(new URL("../data/nba_points_props/board.json", import.meta.url)), { headers: { "content-type": "application/json" } }) },
+  },
 });
+const setSnap = (row, fail = false) => { snap.row = row; snap.fail = fail; _resetBoardCache(); };
+setSnap(null);
 const pr = await page(ctx("https://x.test/props/nba"));
 const ph = await pr.text();
 assert.equal(pr.status, 200);
@@ -108,4 +133,130 @@ assert.ok(!/\bmodel\b|nearest|projecting|minutes column|method|how we|bookie/i.t
 assert.ok(!/1\.49/.test(ph));
 assert.equal((await api(ctx("https://x.test/api/props-nba"))).status, 401, "API needs a member token");
 assert.equal((await rawData(ctx("https://x.test/data/nba_points_props/board.json", {}, { path: ["board.json"] }))).status, 404, "raw board hidden from the public");
+// ---------------------------------------------------------------- real board from Supabase
+const P = (player, team, status, stats) => ({ player, team, status, notes: "", stats });
+const blk = (proj, over = 0.62) => ({ season_avg: proj - 1, line: proj - 0.5, proj, sigma: 5, p_over: over, p_under: 1 - over });
+const GEN = "2026-11-15T07:31:00+11:00";
+const realPayload = {
+  sport: "nba", kind: "predictions", sample: false, tips: false, stats_available: ["points", "rebounds"],
+  generated_at: GEN, timezone: "Australia/Sydney", counts: {},
+  games: [
+    { event_id: "e1", game: "Away One @ Home One", home: "Home One", away: "Away One", commence_syd: "2026-11-15T11:00:00+11:00", commence_utc: "2026-11-15T00:00:00Z",
+      players: [
+        P("Realname Alpha", "Away One", "Active", { points: blk(30), rebounds: blk(9) }),
+        P("Realname Bravo", "Away One", "Day-To-Day", { points: blk(28) }),
+        P("Realname Charlie", "Away One", "", { points: blk(26) }),
+        P("Realname Delta", "Home One", "Questionable", { points: blk(12), rebounds: blk(4) }),
+        P("Realname Echo", "Home One", "Probable", { points: blk(10) }),
+        P("Realname Foxtrot", "Home One", "Out", {}),
+        P("Realname Golf", "Home One", "Doubtful", {}),
+        P("Realname Hotel", "Away One", "Suspension", {}),
+      ] },
+    { event_id: "e2", game: "Away Two @ Home Two", home: "Home Two", away: "Away Two", commence_syd: "2026-11-15T13:00:00+11:00", commence_utc: "2026-11-15T02:00:00Z",
+      players: [
+        P("Realname India", "Away Two", "Active", { points: blk(22) }),
+        P("Realname Juliet", "Away Two", "Active", { points: blk(21) }),
+        P("Realname Kilo", "Home Two", "Active", { points: blk(20) }),
+        P("Realname Lima", "Home Two", "Active", { points: blk(19) }),
+        P("Realname Mike", "Home Two", "Active", { points: blk(18) }),
+      ] },
+    // tipped off at 06:00 Sydney, 6h before NOW: hidden
+    { event_id: "e3", game: "Old Away @ Old Home", home: "Old Home", away: "Old Away", commence_syd: "2026-11-15T06:00:00+11:00", commence_utc: "2026-11-14T19:00:00Z",
+      players: [P("Realname Oldgame", "Old Away", "Active", { points: blk(25) })] },
+  ],
+  injured: [{ player: "Realname Foxtrot", team: "Home One", status: "Out" }],
+};
+const row = (payload, generated_at = payload.generated_at) => ({ payload, generated_at });
+const REAL_NAMES = realPayload.games.flatMap((g) => g.players.map((p) => p.player));
+
+// freshness / sample rules
+assert.ok(realBoardFrom(row(realPayload), NOW), "fresh real board is used");
+assert.equal(realBoardFrom(row(realPayload), Date.parse(GEN) + 36 * 3600e3), null, "36h old is stale");
+assert.equal(realBoardFrom(row({ ...realPayload, sample: true }), NOW), null, "sample:true is never real");
+assert.equal(realBoardFrom(row({ ...realPayload, games: [] }), NOW), null, "no games is not real");
+assert.equal(realBoardFrom(null, NOW), null);
+
+setSnap(row(realPayload));
+let b = await loadBoard(ctx("https://x.test/props/nba"));
+assert.equal(b.sample, false, "fresh real board used");
+assert.deepEqual(b.games.map((g) => g.event_id), ["e1", "e2"], "game 3h+ past tip-off hidden");
+const before = snap.reads;
+await loadBoard(ctx("https://x.test/props/nba"));
+assert.equal(snap.reads, before, "row cached for 60s");
+await loadBoard(ctx("https://x.test/props/nba", {}, {}, NOW + 61e3));
+assert.equal(snap.reads, before + 1, "re-read after 60s");
+
+setSnap(row({ ...realPayload, generated_at: "2026-11-13T20:00:00+11:00" }));
+b = await loadBoard(ctx("https://x.test/props/nba"));
+assert.equal(b.sample, true, "board older than 36h falls back to the sample");
+
+setSnap(null, true);
+const logs = []; const log0 = console.log; console.log = (...a) => logs.push(a.join(" "));
+b = await loadBoard(ctx("https://x.test/props/nba"));
+console.log = log0;
+assert.equal(b.sample, true, "Supabase error falls back to the sample");
+assert.ok(logs.length === 1 && !logs[0].includes("test-service-key"), "short log line, no key");
+
+setSnap(row({ ...realPayload, sample: true }));
+b = await loadBoard(ctx("https://x.test/props/nba"));
+assert.equal(b.sample, true);
+assert.ok(b.games.every((g) => String(g.event_id).startsWith("sample-")), "sample:true row ignored, fixture used");
+
+// every game past tip-off + 3h: empty panel, not the sample
+setSnap(row(realPayload));
+const late = Date.parse("2026-11-15T17:00:00+11:00");
+const lateHtml = await (await page(ctx("https://x.test/props/nba", {}, {}, late))).text();
+assert.ok(lateHtml.includes("No player props on the board yet. Check back closer to tip-off."));
+assert.ok(!lateHtml.includes("Sample data") && !/Realname|Marcus Vale/.test(lateHtml), "no sample, no players");
+
+// status mapping
+assert.equal(statusLabel({ status: "Active" }), "");
+assert.equal(statusLabel({ status: "" }), "");
+assert.equal(statusLabel({ status: "Day-To-Day" }), "Day-to-day");
+assert.equal(statusLabel({ status: "Questionable" }), "Questionable");
+assert.equal(statusLabel({ status: "Probable" }), "Probable");
+for (const st of ["Doubtful", "Out", "Suspension"]) { assert.ok(isHiddenStatus({ status: st })); assert.equal(statusLabel({ status: st }), ""); }
+assert.ok(!isHiddenStatus({ status: "Questionable" }));
+
+// real page: free view only
+setSnap(row(realPayload));
+const rp = await page(ctx("https://x.test/props/nba"));
+const rh = await rp.text();
+assert.equal(rp.status, 200);
+assert.ok(!rh.includes("Sample data"), "no sample badge on the real board");
+assert.ok(!rh.includes('content="noindex'), "real board is indexable");
+assert.ok(rh.includes("Updated 7:31 am AEDT"), "updated time in Sydney short zone");
+assert.ok(rh.includes("Sunday 15 November") && rh.includes(">2 games<") && rh.includes(">10 players<"), "strip counts from the real board");
+for (const g of realPayload.games.slice(0, 2)) {
+  const shown = g.players.filter((p) => rh.includes(p.player));
+  assert.equal(shown.length, 3, "exactly 3 real players per game in " + g.game);
+  assert.ok(shown.some((p) => p.team === g.home) && shown.some((p) => p.team === g.away), "one per team");
+}
+assert.deepEqual(REAL_NAMES.filter((n) => rh.includes(n)).sort(), ["Realname Alpha", "Realname Bravo", "Realname Delta", "Realname India", "Realname Juliet", "Realname Kilo"], "no other names anywhere in the HTML");
+assert.ok(!/"stats"|p_over|season_avg|"payload"/.test(rh), "no inline board JSON");
+assert.ok(rh.includes("⚠️ Day-to-day") && rh.includes("⚠️ Questionable") && rh.includes("Minutes uncertain"));
+assert.ok(rh.includes("Members see every player") && rh.includes('href="/join"'));
+const reb = rh.split('id="pp-panel-rebounds"')[1].split('id="pp-panel-assists"')[0];
+assert.ok(reb.includes("Realname Alpha") && reb.includes("Realname Delta"), "rebounds tab live from data");
+assert.ok(!reb.includes("Realname Bravo") && !reb.includes("Coming soon"), "player without a rebounds block hidden on that tab");
+assert.equal((rh.match(/Coming soon\./g) || []).length, 2, "assists and threes coming soon");
+
+// API: 401 without a session, full board with one
+assert.equal((await api(ctx("https://x.test/api/props-nba"))).status, 401);
+assert.equal((await api(ctx("https://x.test/api/props-nba", { authorization: "Bearer nope" }))).status, 401);
+const ok = await api(ctx("https://x.test/api/props-nba", { authorization: "Bearer member-token" }));
+assert.equal(ok.status, 200);
+assert.equal(ok.headers.get("cache-control"), "private, no-store");
+const at = JSON.stringify(await ok.json());
+for (const n of ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "India", "Juliet", "Kilo", "Lima", "Mike"]) assert.ok(at.includes("Realname " + n), "member sees " + n);
+for (const n of ["Foxtrot", "Golf", "Hotel", "Oldgame"]) assert.ok(!at.includes("Realname " + n), "hidden: " + n);
+assert.ok(!at.includes("Members see every player"));
+assert.ok(!/"payload"|p_over|injured/.test(at), "API sends the rendered board, not the raw row");
+
+// banned strings never in the page or the API
+for (const t of [rh, at, ph, lateHtml]) for (const w of ["service_role", "test-service-key", "1.49", "Best value", "paper units"]) assert.ok(!t.includes(w), "no " + w);
+assert.equal(updatedLabel("2026-07-01T07:30:00+10:00"), "7:30 am AEST");
+assert.equal(boardStats({ games: [] }).games, 0);
+
+globalThis.fetch = realFetch;
 console.log("nba-props: ok");
