@@ -32,7 +32,7 @@ const num = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null 
 const pct = (p) => `${Math.round(p * 100)}%`;
 export const lightOf = (p) => (p == null ? "" : p >= GREEN_MIN ? "GREEN" : p >= ORANGE_MIN ? "ORANGE" : "RED");
 
-/** The 2–3 half-point lines nearest the projection, each with its more likely side. */
+/** The 2–3 half-point lines nearest the projection, with both sides; p = the stronger side. */
 export function nearestLines(player, n = NEAREST_LINES) {
   const proj = num(player && player.proj_pts);
   const all = ((player && player.lines) || [])
@@ -46,8 +46,27 @@ export function nearestLines(player, n = NEAREST_LINES) {
     .map((l) => {
       const over = l.over != null ? l.over : 1 - l.under;
       const under = l.under != null ? l.under : 1 - l.over;
-      return over >= under ? { line: l.line, side: "Over", p: over } : { line: l.line, side: "Under", p: under };
+      return { line: l.line, over, under, side: over >= under ? "Over" : "Under", p: Math.max(over, under) };
     });
+}
+
+/**
+ * Free view: FREE_PER_GAME players per game ranked by projected points, with at least
+ * one from each team (each team's top scorer first, then the next highest scorers).
+ */
+export function freePicks(players, teams, n = FREE_PER_GAME) {
+  const ranked = (players || []).filter((p) => num(p.proj_pts) != null && p.shown && p.shown.length)
+    .slice().sort((a, b) => num(b.proj_pts) - num(a.proj_pts) || String(a.player).localeCompare(String(b.player)));
+  const pick = new Set();
+  for (const t of teams) {
+    const top = ranked.find((p) => p.team === t);
+    if (top && pick.size < n) pick.add(top);
+  }
+  for (const p of ranked) {
+    if (pick.size >= n) break;
+    pick.add(p);
+  }
+  return pick;
 }
 
 export function isUncertain(player) {
@@ -86,7 +105,11 @@ export function boardStats(board) {
 function cell(l) {
   if (!l) return `<td class="ln ln-empty">—</td>`;
   const light = lightOf(l.p);
-  return `<td class="ln"><span class="pp-chance ${light}" title="Model chance, not a bet">${esc(l.side)} ${l.line.toFixed(1)} <b>${pct(l.p)}</b></span></td>`;
+  const side = (label, p, strong) => strong
+    ? `<span class="pp-chance ${light}">${label} <b>${pct(p)}</b></span>`
+    : `<span class="pp-side">${label} ${pct(p)}</span>`;
+  const overStrong = l.side === "Over";
+  return `<td class="ln"><span class="pp-line">${l.line.toFixed(1)}</span> ${side("O", l.over, overStrong)}<span class="pp-sep">/</span>${side("U", l.under, !overStrong)}</td>`;
 }
 
 const UNCERTAIN_NOTE = "Minutes are uncertain";
@@ -111,12 +134,12 @@ function playerRow(p) {
 
 function lockedRow() {
   // Placeholder only: no real names or numbers are sent to non-members.
-  const cells = Array.from({ length: NEAREST_LINES }, () => `<td class="ln"><span class="pp-chance">Over 00.5 <b>00%</b></span></td>`).join("");
+  const cells = Array.from({ length: NEAREST_LINES }, () => `<td class="ln"><span class="pp-line">00.5</span> <span class="pp-chance">O <b>00%</b></span><span class="pp-sep">/</span><span class="pp-side">U 00%</span></td>`).join("");
   return `<tr class="pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="num">00.0</td><td class="num">00.0</td>${cells}</tr>`;
 }
 
 function teamTable(team, rows, lockedCount) {
-  const head = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="num" title="Projected minutes">Proj min</th><th scope="col" class="num" title="Projected points">Proj pts</th><th scope="col" class="ln" colspan="${NEAREST_LINES}">Nearest lines · model chance</th>${SHOW_BOOK_COLUMN ? '<th scope="col" class="book">Book line · price</th>' : ""}</tr></thead>`;
+  const head = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="num">Minutes</th><th scope="col" class="num">Points</th><th scope="col" class="ln" colspan="${NEAREST_LINES}">Key lines · over / under chance</th>${SHOW_BOOK_COLUMN ? '<th scope="col" class="book">Book line · price</th>' : ""}</tr></thead>`;
   const body = rows.map(playerRow).join("");
   const locked = lockedCount > 0
     ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: lockedCount }, lockedRow).join("")}</tbody>`
@@ -134,9 +157,9 @@ export function renderCards(board, { full = false } = {}) {
   if (!games.length) return `<section class="panel"><p>No player props on the board yet. Check back closer to tip-off.</p></section>`;
   return games.map((g) => {
     const all = preparePlayers(g.players);
-    const freeSet = new Set(all.slice(0, FREE_PER_GAME));
     const teams = [g.away, g.home].filter(Boolean);
     for (const p of all) if (p.team && !teams.includes(p.team)) teams.push(p.team);
+    const freeSet = full ? null : freePicks(all, teams);
     let hidden = 0;
     const tables = teams.map((team) => {
       const mine = all.filter((p) => p.team === team);

@@ -27,25 +27,26 @@ export async function onRequestGet(ctx) {
       </label>
       <button type="button" class="gf-btn GREEN" id="ppGreens" aria-pressed="false">Greens only</button>
     </div>
-    <p class="small filter-note">Sorted by highest chance first within each team. Chance colours: <span class="pp-chance GREEN">60%+</span> <span class="pp-chance ORANGE">55–59%</span> <span class="pp-chance RED">under 55%</span></p>
+    <p class="small filter-note">Strongest calls first. <span class="pp-chance GREEN">60%+</span> <span class="pp-chance ORANGE">55–59%</span> <span class="pp-chance RED">under 55%</span></p>
   </div>` : "";
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <span>Player props</span></nav>
-  <p class="eyebrow">// NBA player points · model projections · Australia/Sydney</p>
+  <p class="eyebrow">// NBA player points · Australia/Sydney</p>
   <h1>NBA player props: points projections</h1>
-  <p>For each player we project minutes and points, then show the model's chance for the two or three half-point lines nearest that projection — for example "Over 22.5 58%". These are <b>model projections, not bets</b>. No bookmaker prices are shown.</p>
+  <p>Every NBA game, every player: projected points and the chance of going over or under the key lines, with the strongest calls in green. Updated every morning before tip-off.</p>
+  <p class="note">Projections only, not betting advice.</p>
   ${strip}
   ${filters}
-  <p id="ppMemberNote" class="note">Free view shows the top ${FREE_PER_GAME} players in each game. <a href="/join">Members see every player</a> · <a href="/members">Sign in</a></p>
+  <p id="ppMemberNote" class="note">Free view shows ${FREE_PER_GAME} top scorers in each game. <a href="/join">Members see every player</a> · <a href="/members">Sign in</a></p>
   <div id="propsBoard">${board ? renderCards(board, { full: false }) : '<section class="panel"><p>No player props on the board yet. Check back closer to tip-off.</p></section>'}</div>
-  <p class="note">⚠️ GTD, Questionable or Out means minutes are uncertain, so the projection may be off. Probabilities come from ProbaLab's own model. They are for entertainment, not advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
+  <p class="note">⚠️ GTD, Questionable or Out: minutes are uncertain. Projections only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/props-nba.js"></script>`;
 
   return html(shell({
     title: "NBA Player Props: Points Projections | ProbaLab",
-    description: "ProbaLab's NBA player points projections: projected minutes and points, and the model's chance for the lines nearest each projection. Model projections, not bets.",
+    description: "Every NBA game, every player: projected points and the chance of going over or under the key lines, with the strongest calls in green. Projections only, not betting advice.",
     path: "/props/nba",
     body,
     noindex: sample,
