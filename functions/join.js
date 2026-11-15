@@ -30,11 +30,12 @@ export async function onRequestGet(ctx) {
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/members">Members</a> › <span>Join</span></nav>
   <p class="eyebrow">// join</p>
   <h1>${heading}</h1>
-  <p>Members get the John, ProbaLab and Sniper desks, live tip alerts in Discord, and the members newsletter. There are no guaranteed winners. Every pick, including losses, stays on the public <a href="/results">Results</a> record.</p>
+  <p>Members get the John, ProbaLab and Sniper desks, every NBA player prop projection, live tip alerts in Discord, and the members newsletter. There are no guaranteed winners. Every pick, including losses, stays on the public <a href="/results">Results</a> record.</p>
   <p class="note">${priceNote}${remainingLine ? " " + remainingLine : ""}</p>
 
   <form id="joinForm" class="join-form">
     <section class="panel">
+      <p class="join-signin">Already a member? <a href="/members#memberSignIn">Sign in</a></p>
       <label for="joinEmail"><b>Email</b></label>
       <p class="note">We'll send your welcome email and sign-in to this address.</p>
       <input id="joinEmail" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com" style="width:100%;max-width:420px;background:var(--bg);color:var(--ink);border:1px solid var(--line-hi);padding:10px 12px;font:15px var(--f-body);margin:0 0 16px">
@@ -76,6 +77,8 @@ export async function onRequestGet(ctx) {
     .join-plan:has(input:checked) { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
     .join-plan b { display:block; }
     .join-price { display:block; font-family:var(--f-display); font-weight:700; font-size:22px; margin:4px 0; }
+    .join-signin { margin:0 0 14px; font-size:14px; color:var(--muted); }
+    .join-signin a { font-weight:600; }
     .join-agree { display:flex; gap:10px; align-items:flex-start; max-width:520px; }
   </style>
   <script>

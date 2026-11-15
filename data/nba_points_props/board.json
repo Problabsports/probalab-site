@@ -1,0 +1,414 @@
+{
+  "sample": true,
+  "_note": "SAMPLE DATA for the preview/nba-props branch. Fictional players and invented numbers. Not real projections. No bookmaker prices. The mini PC job will overwrite this file with the real board.",
+  "sport": "nba",
+  "schema": "per-stat v2: players[].stats.{points,rebounds,assists,threes} = { season_avg, line, proj, sigma, p_over, p_under }",
+  "stats_available": [
+    "points"
+  ],
+  "generated_at": "2026-11-15T09:00:00+11:00",
+  "games": [
+    {
+      "event_id": "sample-001",
+      "game": "Boston Celtics @ New York Knicks",
+      "home": "New York Knicks",
+      "away": "Boston Celtics",
+      "commence_syd": "2026-11-16T11:30:00+11:00",
+      "players": [
+        {
+          "player": "Marcus Vale",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 25.1,
+              "line": 25.5,
+              "proj": 28.4,
+              "sigma": 6.1,
+              "p_over": 0.683,
+              "p_under": 0.317
+            }
+          }
+        },
+        {
+          "player": "Devin Orr",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 20.6,
+              "line": 20.5,
+              "proj": 18.1,
+              "sigma": 5.2,
+              "p_over": 0.322,
+              "p_under": 0.678
+            }
+          }
+        },
+        {
+          "player": "Theo Brannigan",
+          "team": "Boston Celtics",
+          "status": "GTD",
+          "notes": "Left ankle soreness. Game-time decision.",
+          "stats": {
+            "points": {
+              "season_avg": 13.4,
+              "line": 13.5,
+              "proj": 11.2,
+              "sigma": 4.4,
+              "p_over": 0.301,
+              "p_under": 0.699
+            }
+          }
+        },
+        {
+          "player": "Isaac Lund",
+          "team": "Boston Celtics",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 8.3,
+              "line": 8.5,
+              "proj": 8.9,
+              "sigma": 3.6,
+              "p_over": 0.544,
+              "p_under": 0.456
+            }
+          }
+        },
+        {
+          "player": "Jalen Reyes",
+          "team": "New York Knicks",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 28.2,
+              "line": 28.5,
+              "proj": 29.6,
+              "sigma": 6.4,
+              "p_over": 0.568,
+              "p_under": 0.432
+            }
+          }
+        },
+        {
+          "player": "Corey Whitfield",
+          "team": "New York Knicks",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 15,
+              "line": 15.5,
+              "proj": 17.9,
+              "sigma": 4.9,
+              "p_over": 0.688,
+              "p_under": 0.312
+            }
+          }
+        },
+        {
+          "player": "Anton Mercer",
+          "team": "New York Knicks",
+          "status": "Questionable",
+          "notes": "Hamstring tightness.",
+          "stats": {
+            "points": {
+              "season_avg": 12.7,
+              "line": 12.5,
+              "proj": 10.1,
+              "sigma": 4.1,
+              "p_over": 0.279,
+              "p_under": 0.721
+            }
+          }
+        },
+        {
+          "player": "Rashad Pell",
+          "team": "New York Knicks",
+          "status": "Out",
+          "notes": "Knee. Out for this game.",
+          "stats": {}
+        }
+      ]
+    },
+    {
+      "event_id": "sample-002",
+      "game": "Denver Nuggets @ Minnesota Timberwolves",
+      "home": "Minnesota Timberwolves",
+      "away": "Denver Nuggets",
+      "commence_syd": "2026-11-16T12:00:00+11:00",
+      "players": [
+        {
+          "player": "Niko Varga",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 26.4,
+              "line": 26.5,
+              "proj": 25.3,
+              "sigma": 5.8,
+              "p_over": 0.418,
+              "p_under": 0.582
+            }
+          }
+        },
+        {
+          "player": "Tyrell Banks",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 16.2,
+              "line": 16.5,
+              "proj": 19,
+              "sigma": 5,
+              "p_over": 0.691,
+              "p_under": 0.309
+            }
+          }
+        },
+        {
+          "player": "Owen Sato",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 11.3,
+              "line": 11.5,
+              "proj": 10.6,
+              "sigma": 3.9,
+              "p_over": 0.409,
+              "p_under": 0.591
+            }
+          }
+        },
+        {
+          "player": "Graham Dunleavy",
+          "team": "Denver Nuggets",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 7.9,
+              "line": 7.5,
+              "proj": 6.4,
+              "sigma": 3.3,
+              "p_over": 0.369,
+              "p_under": 0.631
+            }
+          }
+        },
+        {
+          "player": "Andre Kessler",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 24.8,
+              "line": 24.5,
+              "proj": 27.9,
+              "sigma": 6,
+              "p_over": 0.715,
+              "p_under": 0.285
+            }
+          }
+        },
+        {
+          "player": "Malik Treadwell",
+          "team": "Minnesota Timberwolves",
+          "status": "GTD",
+          "notes": "Illness. Listed as a game-time decision.",
+          "stats": {
+            "points": {
+              "season_avg": 15.6,
+              "line": 15.5,
+              "proj": 13,
+              "sigma": 4.7,
+              "p_over": 0.297,
+              "p_under": 0.703
+            }
+          }
+        },
+        {
+          "player": "Luca Ferris",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 12.2,
+              "line": 12.5,
+              "proj": 13.4,
+              "sigma": 4.3,
+              "p_over": 0.583,
+              "p_under": 0.417
+            }
+          }
+        },
+        {
+          "player": "Ben Oyelaran",
+          "team": "Minnesota Timberwolves",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 9.1,
+              "line": 9.5,
+              "proj": 9.3,
+              "sigma": 3.7,
+              "p_over": 0.478,
+              "p_under": 0.522
+            }
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "sample-003",
+      "game": "Phoenix Suns @ Los Angeles Lakers",
+      "home": "Los Angeles Lakers",
+      "away": "Phoenix Suns",
+      "commence_syd": "2026-11-16T14:30:00+11:00",
+      "players": [
+        {
+          "player": "Darius Quill",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 23,
+              "line": 23.5,
+              "proj": 24.6,
+              "sigma": 5.9,
+              "p_over": 0.574,
+              "p_under": 0.426
+            }
+          }
+        },
+        {
+          "player": "Evan Holloway",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 22.9,
+              "line": 22.5,
+              "proj": 20.2,
+              "sigma": 5.5,
+              "p_over": 0.338,
+              "p_under": 0.662
+            }
+          }
+        },
+        {
+          "player": "Felix Amari",
+          "team": "Phoenix Suns",
+          "status": "Questionable",
+          "notes": "Wrist. Minutes may be limited.",
+          "stats": {
+            "points": {
+              "season_avg": 10.8,
+              "line": 10.5,
+              "proj": 8.4,
+              "sigma": 3.8,
+              "p_over": 0.29,
+              "p_under": 0.71
+            }
+          }
+        },
+        {
+          "player": "Simon Kraus",
+          "team": "Phoenix Suns",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 7.2,
+              "line": 7.5,
+              "proj": 7.9,
+              "sigma": 3.4,
+              "p_over": 0.547,
+              "p_under": 0.453
+            }
+          }
+        },
+        {
+          "player": "Jordan Ashby",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 27.5,
+              "line": 27.5,
+              "proj": 28.1,
+              "sigma": 6.3,
+              "p_over": 0.538,
+              "p_under": 0.462
+            }
+          }
+        },
+        {
+          "player": "Kai Montrose",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 18.3,
+              "line": 18.5,
+              "proj": 21.6,
+              "sigma": 5.3,
+              "p_over": 0.721,
+              "p_under": 0.279
+            }
+          }
+        },
+        {
+          "player": "Reggie Talbot",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 12.9,
+              "line": 12.5,
+              "proj": 12,
+              "sigma": 4.2,
+              "p_over": 0.453,
+              "p_under": 0.547
+            }
+          }
+        },
+        {
+          "player": "Victor Hale",
+          "team": "Los Angeles Lakers",
+          "status": "Active",
+          "notes": "",
+          "stats": {
+            "points": {
+              "season_avg": 6.1,
+              "line": 6.5,
+              "proj": 7.4,
+              "sigma": 3.2,
+              "p_over": 0.611,
+              "p_under": 0.389
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

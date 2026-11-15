@@ -54,6 +54,15 @@
       + '<span class="tipster-cta">Open desk →</span></a>';
   }
 
+  // Player Props card: same card style as the desks, but no W–L or units (projections, not tips).
+  function propsCard() {
+    return '<a class="tipster-card live props-card" href="/props/nba">'
+      + '<div class="tipster-card-top"><h2>Player Props</h2><span class="badge taken">New</span></div>'
+      + '<p class="tipster-focus">NBA</p>'
+      + '<p class="tipster-pitch">Every NBA player: points, rebounds, assists and threes, with the line, our projection and the call. Updated every morning.</p>'
+      + '<span class="tipster-cta">Open props →</span></a>';
+  }
+
   function renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload, nhlPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
@@ -92,7 +101,8 @@
         footnote: "Every green and super site pick counts, at the site's fair price.",
         href: "/members/tips/probalab",
         stats: probalab,
-      });
+      })
+      + propsCard();
     if (isOwner) {
       $("tipsterCards").innerHTML +=
         liveCard({
@@ -197,6 +207,13 @@
     $("publicPane").classList.toggle("hidden", mode !== "public");
   }
 
+  // ?next=/props/nba: return to that page after a members sign-in. Same-site paths only
+  // (must start with one "/", letters/digits/-/_// only), so it can never send anyone off-site.
+  function nextPath() {
+    const n = new URLSearchParams(location.search).get("next") || "";
+    return /^\/(?![\/\\])[A-Za-z0-9\/_-]*$/.test(n) && n !== "/members" ? n : "";
+  }
+
   function wirePublic() {
     wireTipsterInfo(document);
     if (/[?&]denied=1/.test(location.search)) {
@@ -236,7 +253,7 @@
         }).then((res) => {
           if (res.error) { msg.textContent = res.error.message; return; }
           msg.textContent = "Signed in — opening tipsters…";
-          location.replace("/members");
+          location.replace(nextPath() || "/members");
         });
       });
     }
@@ -322,6 +339,8 @@
     }
     memberSession = session;
     if (isOwner && window.MembersOwner) await MembersOwner.claim(session);
+    const next = nextPath();
+    if (next) { location.replace(next); return; }
     $("who").textContent = "Signed in as " + session.user.email + (isOwner ? " · owner" : "");
     show("lobby");
     try {
