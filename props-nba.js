@@ -1,6 +1,6 @@
-/* NBA player props page: members session check (same as the members lobby: Supabase session
-   + member_allowlist row) swaps in the full board from /api/props-nba. Team and Greens-only
-   filters work on whatever board is on the page. */
+/* NBA player props page: stat tabs, Team / Greens-only filters, and the members session check
+   (same as the members lobby: Supabase session + member_allowlist row, checked server-side by
+   /api/props-nba), which swaps in the full board. */
 (function () {
   var SB_URL = "https://zwdpsereqicvzbtfrrnd.supabase.co";
   var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
@@ -8,29 +8,51 @@
   var teamSel = document.getElementById("ppTeam");
   var greensBtn = document.getElementById("ppGreens");
   var note = document.getElementById("ppMemberNote");
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".pp-tab"));
   if (!boardEl) return;
+  var active = "points";
+
+  function showTab(stat, focus) {
+    active = stat;
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("data-stat") === stat;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    boardEl.querySelectorAll(".pp-panel").forEach(function (p) {
+      p.hidden = p.id !== "pp-panel-" + stat;
+    });
+    applyFilters();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { showTab(t.getAttribute("data-stat")); });
+    t.addEventListener("keydown", function (e) {
+      var j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
+      if (j == null) return;
+      e.preventDefault();
+      showTab(tabs[(j + tabs.length) % tabs.length].getAttribute("data-stat"), true);
+    });
+  });
 
   function applyFilters() {
     var team = teamSel ? teamSel.value : "";
     var greens = greensBtn ? greensBtn.getAttribute("aria-pressed") === "true" : false;
+    var filtering = !!team || greens;
     boardEl.querySelectorAll(".pp-game").forEach(function (card) {
-      var anyTeam = false;
-      card.querySelectorAll(".pp-team").forEach(function (t) {
-        var teamOk = !team || t.getAttribute("data-team") === team;
-        var visibleRows = 0;
-        t.querySelectorAll(".pp-rows tr").forEach(function (tr) {
-          var show = !greens || tr.getAttribute("data-green") === "1";
-          tr.hidden = !show;
-          if (show) visibleRows++;
-        });
-        var locked = t.querySelector(".pp-locked");
-        if (locked) locked.hidden = greens;
-        var none = t.querySelector(".pp-none");
-        if (none) none.hidden = !(greens && visibleRows === 0);
-        t.hidden = !teamOk;
-        if (teamOk) anyTeam = true;
+      var teams = (card.getAttribute("data-teams") || "").split("|");
+      if (team && teams.indexOf(team) < 0) { card.hidden = true; return; }
+      card.hidden = false;
+      var shown = 0;
+      card.querySelectorAll(".pp-rows tr").forEach(function (tr) {
+        var ok = (!team || tr.getAttribute("data-team") === team) && (!greens || tr.getAttribute("data-green") === "1");
+        tr.hidden = !ok;
+        if (ok) shown++;
       });
-      card.hidden = !anyTeam;
+      var locked = card.querySelector(".pp-locked");
+      if (locked) locked.hidden = filtering;
+      var none = card.querySelector(".pp-none");
+      if (none) none.hidden = shown > 0;
     });
   }
 
@@ -57,9 +79,9 @@
     if (!j || !j.ok || !j.html) return;
     boardEl.innerHTML = j.html;
     if (note) note.textContent = "Members view: every player on the board.";
-    applyFilters();
+    showTab(active);
   }
 
-  applyFilters();
+  showTab(active);
   loadMemberBoard().catch(function () {});
 })();
