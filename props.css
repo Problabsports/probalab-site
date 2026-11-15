@@ -14,6 +14,22 @@
 .pp-team-filter select { background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi); padding: 7px 10px; font: 14px var(--f-body); max-width: 100%; }
 /* Light toggles are the Today page chips (.game-filters.lights .gf-btn, page.css), as on/off buttons. */
 .pp-filters .game-filters.lights { margin-top: 10px; }
+/* Props light toggles: same look as the row light chips (.chip): dark fill, thin coloured border,
+   coloured uppercase mono text, square corners. On = tinted fill + full-colour border; off = dimmed.
+   Height matches the Team dropdown (36px). Scoped to #ppLights so the Today page is untouched. */
+#ppLights .gf-btn {
+  --lt: var(--muted);
+  height: 36px; min-height: 0; padding: 0 14px; box-sizing: border-box;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, var(--lt) 40%, transparent); border-radius: 0;
+  background: var(--bg); color: color-mix(in srgb, var(--lt) 45%, transparent); box-shadow: none;
+}
+#ppLights .gf-btn.GREEN { --lt: var(--green); }
+#ppLights .gf-btn.ORANGE { --lt: var(--orange); }
+#ppLights .gf-btn.RED { --lt: var(--red); }
+#ppLights .gf-btn.on { color: var(--lt); border-color: var(--lt); background: color-mix(in srgb, var(--lt) 13%, var(--bg)); }
+#ppLights .gf-btn:hover { border-color: var(--lt); }
+#ppLights .gf-btn:focus-visible { outline: 1px solid var(--lt); outline-offset: 2px; }
 .filter-note .chip { margin: 0 2px; }
 
 .pp-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; margin: 0 0 8px; }
