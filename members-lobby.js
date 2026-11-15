@@ -54,6 +54,15 @@
       + '<span class="tipster-cta">Open desk →</span></a>';
   }
 
+  // Player Props card: same card style as the desks, but no W–L or units (projections, not tips).
+  function propsCard() {
+    return '<a class="tipster-card live props-card" href="/props/nba">'
+      + '<div class="tipster-card-top"><h2>Player Props</h2><span class="badge taken">New</span></div>'
+      + '<p class="tipster-focus">NBA</p>'
+      + '<p class="tipster-pitch">Every NBA player: points, rebounds, assists and threes, with the line, our projection and the call. Updated every morning.</p>'
+      + '<span class="tipster-cta">Open props →</span></a>';
+  }
+
   function renderLobby(payload, sniperPayload, plPayload, weatherPayload, gapPayload, nhlPayload) {
     const john = johnCardStats(payload);
     const sniper = sniperCardStats(payload, sniperPayload);
@@ -92,7 +101,8 @@
         footnote: "Every green and super site pick counts, at the site's fair price.",
         href: "/members/tips/probalab",
         stats: probalab,
-      });
+      })
+      + propsCard();
     if (isOwner) {
       $("tipsterCards").innerHTML +=
         liveCard({

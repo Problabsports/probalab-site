@@ -1,4 +1,4 @@
-/* NBA player props page: stat tabs, Team / Greens-only filters, and the members session check
+/* NBA player props page: stat tabs, Team filter and Green / Orange / Red light toggles (all on by default), and the members session check
    (same as the members lobby: Supabase session + member_allowlist row, checked server-side by
    /api/props-nba), which swaps in the full board. */
 (function () {
@@ -6,7 +6,7 @@
   var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3ZHBzZXJlcWljdnpidGZycm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNDM4MjYsImV4cCI6MjEwNzYxOTgyNn0.c19K-qMceIR0Jp2HpyO_FCL3rE2AWcP_YbGcYi-8iBg";
   var boardEl = document.getElementById("propsBoard");
   var teamSel = document.getElementById("ppTeam");
-  var greensBtn = document.getElementById("ppGreens");
+  var lightBtns = Array.prototype.slice.call(document.querySelectorAll("#ppLights .gf-btn"));
   var note = document.getElementById("ppMemberNote");
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".pp-tab"));
   if (!boardEl) return;
@@ -37,15 +37,17 @@
 
   function applyFilters() {
     var team = teamSel ? teamSel.value : "";
-    var greens = greensBtn ? greensBtn.getAttribute("aria-pressed") === "true" : false;
-    var filtering = !!team || greens;
+    var lightsOn = {};
+    lightBtns.forEach(function (b) { if (b.getAttribute("aria-pressed") === "true") lightsOn[b.getAttribute("data-light")] = true; });
+    var allLights = lightBtns.every(function (b) { return b.getAttribute("aria-pressed") === "true"; });
+    var filtering = !!team || !allLights;
     boardEl.querySelectorAll(".pp-game").forEach(function (card) {
       var teams = (card.getAttribute("data-teams") || "").split("|");
       if (team && teams.indexOf(team) < 0) { card.hidden = true; return; }
       card.hidden = false;
       var shown = 0;
       card.querySelectorAll(".pp-rows tr").forEach(function (tr) {
-        var ok = (!team || tr.getAttribute("data-team") === team) && (!greens || tr.getAttribute("data-green") === "1");
+        var ok = (!team || tr.getAttribute("data-team") === team) && (allLights || !!lightsOn[tr.getAttribute("data-light")]);
         tr.hidden = !ok;
         if (ok) shown++;
       });
@@ -57,11 +59,13 @@
   }
 
   if (teamSel) teamSel.addEventListener("change", applyFilters);
-  if (greensBtn) greensBtn.addEventListener("click", function () {
-    var on = greensBtn.getAttribute("aria-pressed") !== "true";
-    greensBtn.setAttribute("aria-pressed", on ? "true" : "false");
-    greensBtn.classList.toggle("on", on);
-    applyFilters();
+  lightBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var on = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.classList.toggle("on", on);
+      applyFilters();
+    });
   });
 
   async function loadMemberBoard() {

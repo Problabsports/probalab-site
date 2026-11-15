@@ -27,8 +27,9 @@ export async function onRequestGet(ctx) {
       <label class="pp-team-filter">Team
         <select id="ppTeam"><option value="">All teams</option>${teams.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("")}</select>
       </label>
-      <button type="button" class="gf-btn GREEN" id="ppGreens" aria-pressed="false">Greens only</button>
     </div>
+    <nav class="game-filters lights" id="ppLights" aria-label="Filter by light">${[["GREEN", "Green"], ["ORANGE", "Orange"], ["RED", "Red"]].map(([cls, label]) =>
+      `<button type="button" class="gf-btn ${cls} on" data-light="${cls}" aria-pressed="true">${label}</button>`).join("")}</nav>
     <p class="small filter-note">Strongest calls first. <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
   </div>` : "";
 

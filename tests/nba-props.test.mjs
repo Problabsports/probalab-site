@@ -75,7 +75,7 @@ for (const r of rows) {
   assert.ok(call, "call cell: " + r);
   const light = lightOf(Number(call[2]) / 100);
   assert.ok(r.trimEnd().endsWith(`<td class="lt">${chip(light)}</td>\n    </tr>`), "light chip is the last cell");
-  assert.equal(r.includes('data-green="1"'), light === "GREEN");
+  assert.ok(r.includes(`data-light="${light}"`), "row carries its light for the colour toggles");
 }
 
 // tabs: Points has data; the other stats say Coming soon
@@ -261,6 +261,24 @@ const { onRequestGet: joinPage } = await import("../functions/join.js");
 const jh = await (await joinPage({ request: new Request("https://x.test/join"), env: {} })).text();
 assert.ok(/<form id="joinForm"[\s\S]{0,200}Already a member\? <a href="\/members#memberSignIn">Sign in<\/a>/.test(jh), "join: sign-in link at the top of the form");
 assert.ok(jh.includes("Members get the John, ProbaLab and Sniper desks, every NBA player prop projection, live tip alerts in Discord, and the members newsletter."));
+
+// light toggles: the Today page chips (.game-filters.lights .gf-btn), all on by default, no "Greens only"
+const lightsNav = rh.match(/<nav class="game-filters lights" id="ppLights"[\s\S]*?<\/nav>/);
+assert.ok(lightsNav, "Today-style light chips on the page");
+for (const c of ["GREEN", "ORANGE", "RED"]) assert.ok(lightsNav[0].includes(`class="gf-btn ${c} on" data-light="${c}" aria-pressed="true"`), c + " toggle on by default");
+assert.ok(!/Greens only|ppGreens/.test(rh));
+const clientSrc = fs.readFileSync(new URL("../props-nba.js", import.meta.url), "utf8");
+assert.ok(/#ppLights \.gf-btn/.test(clientSrc) && /data-light/.test(clientSrc) && /locked\.hidden = filtering/.test(clientSrc), "client filters by light and keeps locked rows hidden while filtering");
+
+// members lobby: Player Props card after the three member desks, NEW badge, no W–L / units
+const propsFn = lobbySrcFor("propsCard");
+function lobbySrcFor(name) { const src = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8"); return src.slice(src.indexOf("function " + name), src.indexOf("\n  }\n", src.indexOf("function " + name))); }
+assert.ok(propsFn.includes('href="/props/nba"') && propsFn.includes('<span class="badge taken">New</span>') && propsFn.includes('<p class="tipster-focus">NBA</p>'));
+assert.ok(propsFn.includes("Every NBA player: points, rebounds, assists and threes, with the line, our projection and the call. Updated every morning."));
+assert.ok(propsFn.includes("Open props →") && !/W–L|units|stat-grid/i.test(propsFn), "no W-L or units on the props card");
+const lobbyAll = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8");
+const deskOrder = ['id: "john"', 'id: "sniper"', 'id: "probalab"', "+ propsCard()", 'name: "NFL Totals"'].map((k) => lobbyAll.indexOf(k));
+assert.ok(deskOrder.every((i) => i > 0) && deskOrder.every((v, i) => i === 0 || v > deskOrder[i - 1]), "desk order unchanged; props card after the three desks, before owner-only desks");
 
 // members-lobby next= guard: same-site paths only
 const lobbySrc = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8");

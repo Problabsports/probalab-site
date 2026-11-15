@@ -226,7 +226,7 @@ function playerRow(p) {
     ? ` <span class="injury-watch pp-injury" role="note" title="${esc(p.notes || "")}"><span class="injury-watch-label">⚠️ ${esc(status)}</span><span class="injury-watch-note">Minutes uncertain</span></span>`
     : "";
   const book = SHOW_BOOK_COLUMN ? `<td class="book"></td>` : "";
-  return `<tr data-team="${esc(p.team || "")}" data-best="${s.p.toFixed(3)}"${light === "GREEN" ? ' data-green="1"' : ""}>
+  return `<tr data-team="${esc(p.team || "")}" data-best="${s.p.toFixed(3)}" data-light="${light}">
       <th scope="row" class="pl"><span class="pp-name">${esc(p.player)}</span> <span class="pp-tm">${esc(nick(p.team))}</span>${warn}</th>
       <td class="num">${one(s.avg)}</td>
       <td class="num">${one(s.line)}</td>

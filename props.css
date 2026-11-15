@@ -12,8 +12,8 @@
 .pp-filters .game-filters { gap: 10px 14px; }
 .pp-team-filter { display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .pp-team-filter select { background: var(--bg); color: var(--ink); border: 1px solid var(--line-hi); padding: 7px 10px; font: 14px var(--f-body); max-width: 100%; }
-.pp-filters button.gf-btn { background: transparent; cursor: pointer; font: inherit; }
-.pp-filters .gf-btn.GREEN.on { background: var(--green); color: #07080f; }
+/* Light toggles are the Today page chips (.game-filters.lights .gf-btn, page.css), as on/off buttons. */
+.pp-filters .game-filters.lights { margin-top: 10px; }
 .filter-note .chip { margin: 0 2px; }
 
 .pp-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; margin: 0 0 8px; }
