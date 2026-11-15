@@ -38,6 +38,7 @@ export async function onRequestGet(ctx) {
   <h1>NBA player props</h1>
   <p>Every NBA game, every player: the line, our projection and the call, with the strongest calls in green. Updated every morning before tip-off.</p>
   <p class="note">Projections only, not betting advice.</p>
+  <p class="small pp-results-link"><a href="/props/results">See props results →</a></p>
   ${renderTabs()}
   ${strip}
   ${filters}
