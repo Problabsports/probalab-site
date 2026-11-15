@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-14T23:11:51Z",
+  "generated_at": "2026-11-15T00:08:46Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -1107,7 +1107,7 @@
       "court": "Indian Wells Tennis Garden",
       "start_utc": "2026-11-14T22:00:00Z",
       "time_tbc": false,
-      "status": "in",
+      "status": "post",
       "player_a": "Linda Noskova",
       "player_b": "Elina Svitolina",
       "a_pct": 47.1,
@@ -1115,15 +1115,39 @@
       "pick": "b",
       "pick_pct": 52.9,
       "light": "RED",
+      "winner": "b",
+      "score": "2-6 1-6",
+      "retired": false,
+      "result": "won"
+    },
+    {
+      "id": "187442",
+      "tour": "WTA",
+      "tournament_id": "WTA-382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "surface": "Hard",
+      "best_of": 3,
+      "round": "Final",
+      "court": "",
+      "start_utc": "2026-11-15T05:00:00Z",
+      "time_tbc": true,
+      "status": "pre",
+      "player_a": "Elina Svitolina",
+      "player_b": "Mirra Andreeva",
+      "a_pct": 47.1,
+      "b_pct": 52.9,
+      "pick": "b",
+      "pick_pct": 52.9,
+      "light": "RED",
       "winner": null,
-      "score": "2-6 0-5",
+      "score": null,
       "retired": false,
       "result": null
     }
   ],
   "record": {
     "ALL": {
-      "won": 28,
+      "won": 29,
       "lost": 16
     },
     "GREEN": {
@@ -1135,7 +1159,7 @@
       "lost": 7
     },
     "RED": {
-      "won": 10,
+      "won": 11,
       "lost": 7
     }
   }
