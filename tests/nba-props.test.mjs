@@ -269,7 +269,7 @@ assert.ok(!at.includes("Join members"));
 const { onRequestGet: joinPage } = await import("../functions/join.js");
 const jh = await (await joinPage({ request: new Request("https://x.test/join"), env: {} })).text();
 assert.ok(/<form id="joinForm"[\s\S]{0,200}Already a member\? <a href="\/members#memberSignIn">Sign in<\/a>/.test(jh), "join: sign-in link at the top of the form");
-assert.ok(jh.includes("Members get the John, ProbaLab and Sniper desks, every NBA player prop projection, live tip alerts in Discord, and the members newsletter."));
+assert.ok(jh.includes("Members get the John, ProbaLab and Sniper desks, every NBA player prop prediction, live tip alerts in Discord, and the members newsletter."));
 
 // light toggles: the Today page chips (.game-filters.lights .gf-btn), all on by default, no "Greens only"
 const lightsNav = rh.match(/<nav class="game-filters lights" id="ppLights"[\s\S]*?<\/nav>/);
