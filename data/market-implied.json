@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-16T10:53:12Z",
+  "generated_utc": "2026-11-16T11:52:24Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -108,69 +108,14 @@
     },
     {
       "sport": "nhl",
-      "game_id": "d2834086e817eeb75c1ea2cd312f62c5",
-      "away": "EDM",
-      "home": "PHI",
-      "away_name": "Edmonton Oilers",
-      "home_name": "Philadelphia Flyers",
-      "start_utc": "2026-11-16T00:40:00Z",
-      "market_home": 0.4444,
-      "market_away": 0.5556
-    },
-    {
-      "sport": "nhl",
-      "game_id": "539a387d9fd0da9af213bf8002fdb0d4",
-      "away": "CGY",
-      "home": "ANA",
-      "away_name": "Calgary Flames",
-      "home_name": "Anaheim Ducks",
-      "start_utc": "2026-11-16T01:10:00Z",
-      "market_home": 0.5739,
-      "market_away": 0.4261
-    },
-    {
-      "sport": "nhl",
-      "game_id": "edbb603c4a7ed77b892f7bba6dcef824",
-      "away": "FLA",
-      "home": "DAL",
-      "away_name": "Florida Panthers",
-      "home_name": "Dallas Stars",
-      "start_utc": "2026-11-16T01:10:00Z",
-      "market_home": 0.5344,
-      "market_away": 0.4656
-    },
-    {
-      "sport": "nhl",
-      "game_id": "e52a5926735bcff42d3d0ce052a21938",
-      "away": "NSH",
-      "home": "SJS",
-      "away_name": "Nashville Predators",
-      "home_name": "San Jose Sharks",
-      "start_utc": "2026-11-16T02:10:00Z",
-      "market_home": 0.3971,
-      "market_away": 0.6029
-    },
-    {
-      "sport": "nhl",
-      "game_id": "c4ac537963707b247ad9e4eab06c15de",
-      "away": "VAN",
-      "home": "VGK",
-      "away_name": "Vancouver Canucks",
-      "home_name": "Vegas Golden Knights",
-      "start_utc": "2026-11-16T02:10:00Z",
-      "market_home": 0.7876,
-      "market_away": 0.2124
-    },
-    {
-      "sport": "nhl",
       "game_id": "2ef747b5f529d07b71843f1b5240eb38",
       "away": "MTL",
       "home": "NYR",
       "away_name": "Montr\u00e9al Canadiens",
       "home_name": "New York Rangers",
       "start_utc": "2026-11-17T00:30:00Z",
-      "market_home": 0.4961,
-      "market_away": 0.5039
+      "market_home": 0.4884,
+      "market_away": 0.5116
     },
     {
       "sport": "nhl",
@@ -180,9 +125,9 @@
       "away_name": "Vancouver Canucks",
       "home_name": "Utah Mammoth",
       "start_utc": "2026-11-17T02:30:00Z",
-      "market_home": 0.6423,
-      "market_away": 0.3126,
-      "market_draw": 0.0451
+      "market_home": 0.7195,
+      "market_away": 0.2573,
+      "market_draw": 0.0232
     }
   ]
 }
