@@ -1,4 +1,4 @@
-// NBA player props board: projections only (no prices, no tips, no units, no records).
+// NBA player props board: predictions only (predicted side, chance and light; no prices, no tips, no units).
 // Data: the real board is the Supabase row public.tips_page_snapshot id="nba-props", uploaded by
 // the mini PC after each morning run. It is read here, on the server, with the service key; the
 // key and the raw row never reach the browser. If the row is missing, has no games, is marked
@@ -214,37 +214,83 @@ export function boardStats(board) {
   return { games: games.length, players, day: first ? dayLabel(first.commence_utc || first.commence_syd) : "" };
 }
 
-// ------------------------------------------------------------------ rendering
+/// ------------------------------------------------------------------ rendering
 /** Player page id: player_id when the snapshot has one, else a slug of the name. */
 export const playerId = (p) => slug((p && (p.player_id != null && p.player_id !== "" ? String(p.player_id) : p.player)) || "");
 export const playerPath = (p) => `/props/nba/player/${playerId(p)}`;
 const nick = (team) => String(team || "").trim().split(/\s+/).pop();
 const one = (x) => (x == null ? "—" : x.toFixed(1));
+export const MARKET_LABEL = Object.fromEntries(STATS);
+const LIGHT_RANK = { GREEN: 0, ORANGE: 1, RED: 2 };
+const STAT_RANK = Object.fromEntries(STATS.map(([id], i) => [id, i]));
+/** Key for one prediction: player id + market. */
+export const predKey = (p, stat) => `${playerId(p)}|${stat}`;
 
-function playerRow(p) {
-  const s = p.s;
-  const light = lightOf(s.p);
+/**
+ * Every prediction in one game: one row per player and market (hidden statuses and players
+ * without the market dropped). Green first, then highest chance, then name, then market order.
+ */
+export function gamePredictions(g, market = null) {
+  const out = [];
+  for (const [stat] of STATS) {
+    if (market && stat !== market) continue;
+    for (const p of preparePlayers(g.players, stat)) out.push({ ...p, stat, light: lightOf(p.s.p) });
+  }
+  return out.sort((a, b) => LIGHT_RANK[a.light] - LIGHT_RANK[b.light] || b.s.p - a.s.p || String(a.player).localeCompare(String(b.player)) || STAT_RANK[a.stat] - STAT_RANK[b.stat]);
+}
+
+/** Teams in a game: away, home, then any other team a listed player carries. */
+function gameTeams(g) {
+  const teams = [g.away, g.home].filter(Boolean);
+  for (const p of g.players || []) if (p.team && !isHiddenStatus(p) && !teams.includes(p.team)) teams.push(p.team);
+  return teams;
+}
+
+/** Free view keys (player|market) for one game: FREE_PER_GAME players per market, as before. */
+export function freeKeys(g) {
+  const keys = new Set();
+  const teams = gameTeams(g);
+  for (const [stat] of STATS) for (const p of freePicks(preparePlayers(g.players, stat), teams)) keys.add(predKey(p, stat));
+  return keys;
+}
+
+/** Free view keys across the whole board. */
+export function boardFreeKeys(board) {
+  const keys = new Set();
+  for (const g of sortedGames(board)) for (const k of freeKeys(g)) keys.add(k);
+  return keys;
+}
+
+const warnHtml = (p) => {
   const status = statusLabel(p);
-  const warn = status
+  return status
     ? ` <span class="injury-watch pp-injury" role="note" title="${esc(p.notes || "")}"><span class="injury-watch-label">⚠️ ${esc(status)}</span><span class="injury-watch-note">Minutes uncertain</span></span>`
     : "";
-  const book = SHOW_BOOK_COLUMN ? `<td class="book"></td>` : "";
-  return `<tr data-team="${esc(p.team || "")}" data-best="${s.p.toFixed(3)}" data-light="${light}">
-      <th scope="row" class="pl"><a class="pp-name" href="${esc(playerPath(p))}">${esc(p.player)}</a> <span class="pp-tm">${esc(nick(p.team))}</span>${warn}</th>
-      <td class="num">${one(s.avg)}</td>
+};
+
+/** One prediction row: Player | Market | Line | Prediction | Chance | light chip, coloured left border. */
+export function predictionRow(r, { link = true, name = true } = {}) {
+  const s = r.s;
+  const who = name
+    ? `<th scope="row" class="pl">${link ? `<a class="pp-name" href="${esc(playerPath(r))}">${esc(r.player)}</a>` : `<span class="pp-name">${esc(r.player)}</span>`} <span class="pp-tm">${esc(nick(r.team))}</span>${warnHtml(r)}</th>`
+    : "";
+  return `<tr class="pp-row lt-${r.light}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light}" data-p="${s.p.toFixed(3)}">
+      ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
       <td class="num">${one(s.line)}</td>
-      <td class="num">${one(s.proj)}</td>
-      <td class="call">${s.side} ${pct(s.p)}</td>${book}
-      <td class="lt">${chip(light)}</td>
+      <td class="call">${s.side}</td>
+      <td class="num pct">${pct(s.p)}</td>
+      <td class="lt">${chip(r.light)}</td>
     </tr>`;
 }
 
 function lockedRow() {
   // Placeholder only: no real names, numbers or statuses are sent to non-members.
-  return `<tr class="pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="num">00.0</td><td class="num">00.5</td><td class="num">00.0</td><td class="call">Over 00%</td><td class="lt"><span class="chip">●●●</span></td></tr>`;
+  return `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="call">Over</td><td class="num pct">00%</td><td class="lt"><span class="chip">●●●</span></td></tr>`;
 }
+const LOCKED_SHOWN = 3; // blurred placeholder rows per game; the count line says how many more
 
-const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="num">Avg</th><th scope="col" class="num">Line</th><th scope="col" class="num">Our projection</th><th scope="col" class="call">Call</th>${SHOW_BOOK_COLUMN ? '<th scope="col" class="book">Book line · price</th>' : ""}<th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
+export const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="mk">Market</th><th scope="col" class="num">Line</th><th scope="col" class="call">Prediction</th><th scope="col" class="num pct">Chance</th><th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
+const HEAD_NO_NAME = HEAD.replace('<th scope="col" class="pl">Player</th>', "");
 
 // Members sign-in returns to this page after login (members-lobby.js honours a same-site ?next=).
 export const SIGNIN_URL = "/members?next=%2Fprops%2Fnba#memberSignIn";
@@ -252,50 +298,54 @@ export const SIGNIN_URL = "/members?next=%2Fprops%2Fnba#memberSignIn";
 export const memberButtons = (extra = "") =>
   `<div class="pp-cta${extra ? " " + extra : ""}"><a class="btn pp-join" href="/join">Join members</a><a class="btn pp-signin" href="${SIGNIN_URL}">Members sign in</a></div>`;
 
-export const EMPTY_HTML =`<section class="panel pp-empty"><p>No player props on the board yet. Check back closer to tip-off.</p></section>`;
+export const EMPTY_HTML = `<section class="panel pp-empty"><p>No player props on the board yet. Check back closer to tip-off.</p></section>`;
 
-/** One card per game for one stat. full=false keeps only the free picks. */
-export function renderCards(board, { full = false, stat = "points" } = {}) {
+/**
+ * Predictions board grouped by game: one card per game, every player × market row, green first.
+ * full=false keeps only the free-view rows; the rest are counted and shown as blurred placeholders.
+ */
+export function renderCards(board, { full = false } = {}) {
   const games = sortedGames(board);
-  if (!games.length || !hasStat(board, stat)) return EMPTY_HTML;
+  if (!games.length || !STATS.some(([id]) => hasStat(board, id))) return EMPTY_HTML;
   return games.map((g) => {
-    const all = preparePlayers(g.players, stat);
+    const all = gamePredictions(g);
     if (!all.length) return "";
-    const teams = [g.away, g.home].filter(Boolean);
-    for (const p of all) if (p.team && !teams.includes(p.team)) teams.push(p.team);
-    const picks = full ? null : freePicks(all, teams);
-    const rows = full ? all : all.filter((p) => picks.has(p));
+    const teams = gameTeams(g);
+    const keys = full ? null : freeKeys(g);
+    const rows = full ? all : all.filter((r) => keys.has(predKey(r, r.stat)));
     const hidden = all.length - rows.length;
-    const locked = hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: hidden }, lockedRow).join("")}</tbody>` : "";
+    const locked = hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: Math.min(hidden, LOCKED_SHOWN) }, lockedRow).join("")}</tbody>` : "";
     const gate = hidden > 0
-      ? `<div class="pp-gate"><p class="small">${hidden} more player${hidden === 1 ? "" : "s"} in this game.</p>${memberButtons()}</div>`
+      ? `<div class="pp-gate"><p class="small">${hidden} more prediction${hidden === 1 ? "" : "s"} in this game.</p>${memberButtons()}</div>`
       : "";
-    return `<section class="panel pp-game" data-teams="${esc(teams.join("|"))}">
+    return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc(teams.join("|"))}">
     <header class="pp-head"><h2>${esc(g.away || "")} @ ${esc(g.home || "")}</h2><p class="pp-when mono">${esc(startLabel(g.commence_utc || g.commence_syd))}</p></header>
-    <div class="pp-scroll"><table class="pp-table">${HEAD}<tbody class="pp-rows">${rows.map(playerRow).join("")}</tbody>${locked}</table></div>
-    <p class="pp-none small" hidden>No players match these filters in this game.</p>
+    <div class="pp-scroll"><table class="pp-table">${HEAD}<tbody class="pp-rows">${rows.map((r) => predictionRow(r)).join("")}</tbody>${locked}</table></div>
+    <p class="pp-none small" hidden>No predictions match these filters in this game.</p>
     ${gate}
   </section>`;
   }).join("\n");
 }
 
-/** Tab panels for every stat. A stat with rows is live; a stat with none says "Coming soon". */
-export function renderPanels(board, { full = false } = {}) {
-  const empty = !board || !sortedGames(board).length;
-  return STATS.map(([id, label], i) => {
-    const body = empty
-      ? EMPTY_HTML
-      : hasStat(board, id)
-        ? renderCards(board, { full, stat: id })
-        : `<section class="panel pp-soon"><h2>${esc(label)}</h2><p>Coming soon.</p></section>`;
-    return `<div class="pp-panel" id="pp-panel-${id}" role="tabpanel" aria-labelledby="pp-tab-${id}"${i === 0 ? "" : " hidden"}>${body}</div>`;
-  }).join("\n");
+/** The predictions board (kept under this name for /api/props-nba). */
+export const renderPanels = (board, opts = {}) => (!board || !sortedGames(board).length ? EMPTY_HTML : renderCards(board, opts));
+
+/** A player's own predictions table (player pages): market rows, no name column. keys: allowed player|market keys, null = all. */
+export function playerPredictions(p, { keys = null } = {}) {
+  const rows = [];
+  let locked = 0;
+  for (const [stat] of STATS) {
+    const s = statOf(p, stat);
+    if (!s) continue;
+    if (keys && !keys.has(predKey(p, stat))) { locked++; continue; }
+    rows.push({ ...p, s, stat, light: lightOf(s.p) });
+  }
+  rows.sort((a, b) => LIGHT_RANK[a.light] - LIGHT_RANK[b.light] || b.s.p - a.s.p || STAT_RANK[a.stat] - STAT_RANK[b.stat]);
+  return { rows, locked, html: rows.length ? `<div class="pp-scroll"><table class="pp-table pp-player-table">${HEAD_NO_NAME}<tbody class="pp-rows">${rows.map((r) => predictionRow(r, { name: false })).join("")}</tbody></table></div>` : "" };
 }
 
-export function renderTabs() {
-  return `<div class="pp-tabs" role="tablist" aria-label="Stat">${STATS.map(([id, label], i) =>
-    `<button type="button" role="tab" class="pp-tab" id="pp-tab-${id}" aria-controls="pp-panel-${id}" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-stat="${id}">${esc(label)}</button>`).join("")}</div>`;
-}
+/** Markets with at least one prediction on the board, in tab order. */
+export const marketsOn = (board) => STATS.filter(([id]) => hasStat(board, id));
 
 export function teamsOf(board) {
   const set = new Set();

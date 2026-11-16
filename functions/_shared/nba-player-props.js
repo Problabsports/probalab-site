@@ -1,6 +1,6 @@
-// NBA props, data only: hit-rate heatmap (on /props/nba) and player pages (/props/nba/player/<id>).
+// NBA props: hit-rate heatmap (on /props/nba) and player pages (/props/nba/player/<id>).
 // Reads only the nba-props board already loaded by nba-props.js (Supabase tips_page_snapshot
-// id="nba-props", or the sample fixture). No odds calls, no projections, no calls, no prices.
+// id="nba-props", or the sample fixture). No odds calls, no projection numbers, no prices.
 //
 // Today's snapshot has, per player: player, team, status, notes and per-market season_avg + line.
 // Hit rates, last-10 form and the game-by-game chart need a per-player game log, which the
@@ -9,7 +9,7 @@
 //                           points: 31, rebounds: 5, assists: 6, threes: 3 }, ...]   (whole season)
 // players[].player_id, when present, is used for the page URL; otherwise a slug of the name.
 import { esc, slug, NBA_TEAMS } from "./site.js";
-import { STATS, sortedGames, isHiddenStatus, statusLabel, statOf, preparePlayers, freePicks, startLabel, playerId, playerPath } from "./nba-props.js";
+import { STATS, sortedGames, isHiddenStatus, statusLabel, statOf, startLabel, playerId, playerPath, boardFreeKeys, playerPredictions, memberButtons } from "./nba-props.js";
 export { playerId, playerPath };
 
 export const MARKETS = STATS; // [["points","Points"], ...]
@@ -48,18 +48,9 @@ export function findPlayer(board, id) {
   return boardPlayers(board).find((p) => p.id === want) || null;
 }
 
-/** Ids shown to everyone: the free-view players of every stat tab (same rule as the board). */
-export function publicIds(board) {
-  const ids = new Set();
-  for (const g of sortedGames(board)) {
-    const teams = [g.away, g.home].filter(Boolean);
-    for (const [stat] of MARKETS) {
-      const all = preparePlayers(g.players, stat);
-      for (const p of all) if (p.team && !teams.includes(p.team)) teams.push(p.team);
-      for (const p of freePicks(all, teams)) ids.add(playerId(p));
-    }
-  }
-  return ids;
+/** Ids shown to everyone: players with at least one free-view prediction (same rule as the board). */
+export function publicIds(board, keys = boardFreeKeys(board)) {
+  return new Set([...keys].map((k) => k.split("|")[0]));
 }
 
 // ------------------------------------------------------------------ game log and hit rates
@@ -145,19 +136,12 @@ export function renderHeatmap(board, { ids = null } = {}) {
 export function renderHeatmapSection(board, opts = {}) {
   const table = renderHeatmap(board, opts);
   if (!table) return "";
-  const games = sortedGames(board);
-  const teams = [...new Set(boardPlayers(board).map((p) => p.team).filter(Boolean))].sort();
-  const sel = (id, label, opts) => `<label class="pp-team-filter">${label}<select id="${id}">${opts}</select></label>`;
+  // Game / Team / Market come from the shared filter bar on /props/nba; only Sort lives here.
   const sortOpts = [["name", "Player A–Z"], ["team", "Team"], ...MARKETS.flatMap(([m, l]) => [[`${m}-5`, `${l} L5 high–low`], [`${m}-10`, `${l} L10 high–low`]])];
   return `<section class="panel hm" id="hitRates" aria-labelledby="hmTitle">
     <h2 id="hmTitle">Hit rates</h2>
     <p class="small">Share of each player's last 5 and last 10 games over today's line. Tap a name for the full game log.</p>
-    <div class="game-filter-bar hm-filters" role="region" aria-label="Hit rate filters"><div class="game-filters">
-      ${sel("hmGame", "Game", `<option value="">All games</option>${games.map((g) => `<option value="${esc(g.event_id || "")}">${esc(g.away || "")} @ ${esc(g.home || "")}</option>`).join("")}`)}
-      ${sel("hmTeam", "Team", `<option value="">All teams</option>${teams.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("")}`)}
-      ${sel("hmMarket", "Market", `<option value="">All markets</option>${MARKETS.map(([m, l]) => `<option value="${m}">${esc(l)}</option>`).join("")}`)}
-      ${sel("hmSort", "Sort", sortOpts.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join(""))}
-    </div></div>
+    <div class="hm-filters"><label class="pp-team-filter">Sort<select id="hmSort">${sortOpts.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("")}</select></label></div>
     <p class="hm-legend small mono" aria-hidden="true"><span class="hm-4">80%+</span><span class="hm-3">60–79%</span><span class="hm-2">40–59%</span><span class="hm-1">20–39%</span><span class="hm-0">under 20%</span><span class="hm-na">no data</span></p>
     <div class="hm-scroll" tabindex="0" role="region" aria-label="Hit rate table, scrolls sideways">${table}</div>
     <p class="hm-none small" hidden>No players match these filters.</p>
@@ -199,7 +183,7 @@ function barChart(p, market, log) {
 }
 
 /** Everything on a player's page under the header. Pieces without data are left out. */
-export function renderPlayerBody(p, { teamHref = null } = {}) {
+export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
   const g = p.game || {};
   const log = gameLog(p);
   const markets = MARKETS.filter(([m]) => lineOf(p, m) != null || seasonAvgOf(p, m) != null);
@@ -214,6 +198,14 @@ export function renderPlayerBody(p, { teamHref = null } = {}) {
     ${when ? `<li><span>Starts</span><b class="mono">${esc(when)}</b></li>` : ""}
     ${status ? `<li><span>Status</span><b><span class="injury-watch pp-injury" role="note"${p.notes ? ` title="${esc(p.notes)}"` : ""}><span class="injury-watch-label">⚠️ ${esc(status)}</span><span class="injury-watch-note">Minutes uncertain</span></span></b></li>` : ""}
   </ul></section>`;
+
+  // Today's predictions: side, chance and light per market, green first. keys = free-view
+  // player|market keys for the public page (other markets are counted and left to members).
+  const pred = playerPredictions(p, { keys });
+  const preds = pred.rows.length || pred.locked ? `<section class="panel pl-preds"><h2>Today's predictions</h2>
+    ${pred.html}
+    ${pred.locked ? `<div class="pp-gate"><p class="small">${pred.locked} more prediction${pred.locked === 1 ? "" : "s"} for this player.</p>${memberButtons()}</div>` : ""}
+  </section>` : "";
 
   const avgs = markets.length ? `<section class="panel"><h2>Season averages</h2>
     <div class="pl-tiles">${markets.map(([m, l]) => `<div class="pl-tile"><span class="k">${esc(l)}</span><b class="mono">${one(seasonAvgOf(p, m))}</b><span class="s mono">Today's line ${one(lineOf(p, m))}</span></div>`).join("")}</div>
@@ -246,5 +238,5 @@ export function renderPlayerBody(p, { teamHref = null } = {}) {
     <p class="small">Share of games over today's line.</p>
   </section>` : "";
 
-  return [today, avgs, form, chart, hits].filter(Boolean).join("\n");
+  return [today, preds, avgs, form, chart, hits].filter(Boolean).join("\n");
 }

@@ -59,29 +59,34 @@ const lop = preparePlayers([["A1", "A", 30], ["A2", "A", 28], ["A3", "A", 26], [
 assert.deepEqual([...freePicks(lop, ["A", "B"])].map((p) => p.player).sort(), ["A1", "A2", "B1"]);
 assert.ok(free.includes('<a class="btn pp-join" href="/join">Join members</a>'), "primary Join members button");
 assert.ok(free.includes('<a class="btn pp-signin" href="/members?next=%2Fprops%2Fnba#memberSignIn">Members sign in</a>'), "secondary sign-in button returns to /props/nba");
-assert.ok(/more players? in this game\.<\/p><div class="pp-cta">/.test(free), "count line above the buttons");
+assert.ok(/more predictions? in this game\.<\/p><div class="pp-cta">/.test(free), "count line above the buttons");
 assert.ok(!/Sign in<\/a>, then come back/.test(free), "inline sign-in text link removed");
 const full = renderCards(board, { full: true });
 board.games.flatMap((g) => g.players).filter((p) => p.status !== "Out").forEach((x) => assert.ok(full.includes(x.player)));
 assert.ok(!full.includes("Join members") && !full.includes("Members sign in"));
 
-// rows: Player | Avg | Line | Our projection | Call | light chip (the Today page component) at the row edge
-assert.match(full, /<th[^>]*>Player<\/th><th[^>]*>Avg<\/th><th[^>]*>Line<\/th><th[^>]*>Our projection<\/th><th[^>]*>Call<\/th>/);
-assert.ok(!/>Minutes<|Proj min|O \d+% \/|pp-line|pp-side/.test(full), "no minutes column, no O/U pair cells");
-const rows = full.match(/<tr data-team[\s\S]*?<\/tr>/g);
+// rows: Player | Market | Line | Prediction | Chance | light chip (the Today page component) at the row edge
+assert.match(full, /<th[^>]*>Player<\/th><th[^>]*>Market<\/th><th[^>]*>Line<\/th><th[^>]*>Prediction<\/th><th[^>]*>Chance<\/th>/);
+assert.ok(!/>Minutes<|Proj min|O \d+% \/|pp-line|pp-side|projection|>Avg</i.test(full), "no minutes, projection or average columns");
+const rows = full.match(/<tr class="pp-row lt-[\s\S]*?<\/tr>/g);
 assert.equal(rows.length, board.games.flatMap((g) => g.players).filter((p) => p.status !== "Out").length);
 for (const r of rows) {
-  const call = r.match(/<td class="call">(Over|Under) (\d+)%<\/td>/);
-  assert.ok(call, "call cell: " + r);
+  const call = r.match(/<td class="call">(Over|Under)<\/td>\s*<td class="num pct">(\d+)%<\/td>/);
+  assert.ok(call, "prediction + chance cells: " + r);
   const light = lightOf(Number(call[2]) / 100);
+  assert.ok(r.startsWith(`<tr class="pp-row lt-${light}"`), "row border follows the light");
+  assert.ok(r.includes('<td class="mk">Points</td>'), "market cell");
   assert.ok(r.trimEnd().endsWith(`<td class="lt">${chip(light)}</td>\n    </tr>`), "light chip is the last cell");
   assert.ok(r.includes(`data-light="${light}"`), "row carries its light for the colour toggles");
 }
 
-// tabs: Points has data; the other stats say Coming soon
+// order: green first, then chance high to low, within every game card
+for (const card of full.split('<section class="panel pp-game"').slice(1)) {
+  const ps = [...card.matchAll(/data-light="(\w+)" data-p="([\d.]+)"/g)].map((m) => [["GREEN", "ORANGE", "RED"].indexOf(m[1]), Number(m[2])]);
+  for (let i = 1; i < ps.length; i++) assert.ok(ps[i - 1][0] < ps[i][0] || (ps[i - 1][0] === ps[i][0] && ps[i - 1][1] >= ps[i][1]), "green first, then chance");
+}
 const panels = renderPanels(board, { full: false });
-for (const [id] of STATS) assert.ok(panels.includes(`id="pp-panel-${id}"`));
-assert.equal((panels.match(/Coming soon\./g) || []).length, 3);
+assert.ok(!panels.includes("Coming soon") && !panels.includes("pp-panel-"), "one board, no per-market tabs");
 
 // injury watch for GTD / Questionable
 assert.ok(full.includes("⚠️ GTD") && full.includes("⚠️ Questionable") && full.includes("Minutes uncertain"));
@@ -128,8 +133,9 @@ const ph = await pr.text();
 assert.equal(pr.status, 200);
 assert.ok(ph.includes("Sample data"));
 assert.ok(ph.includes('name="robots" content="noindex"'), "sample board is noindex");
-for (const [, label] of STATS) assert.ok(ph.includes(`data-stat="${label.toLowerCase()}">${label}</button>`), "tab " + label);
-assert.ok(ph.includes("Projections only, not betting advice."));
+for (const id of ["ppGame", "ppTeam", "ppMarket", "ppLights"]) assert.ok(ph.includes(`id="${id}"`), "filter " + id);
+assert.ok(ph.includes("Predictions only, not betting advice."));
+assert.ok(!ph.includes('id="pp-tab-hits"'), "no Hit rates tab without game logs");
 const visible = ph.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, " ");
 const pageCopy = visible.split("NBA player props")[2].split("Gamble responsibly")[0];
 assert.ok(!/\bmodel\b|nearest|projecting|minutes column|method|how we|bookie/i.test(pageCopy), "no method wording on the page");
@@ -240,10 +246,13 @@ assert.ok(!/"stats"|p_over|season_avg|"payload"/.test(rh), "no inline board JSON
 assert.ok(rh.includes("⚠️ Day-to-day") && rh.includes("⚠️ Questionable") && rh.includes("Minutes uncertain"));
 assert.ok(rh.includes('id="ppMemberNote"') && /id="ppMemberNote"[\s\S]*?Join members<\/a><a class="btn pp-signin"[^>]*>Members sign in<\/a>/.test(rh), "top line has both buttons");
 assert.ok(!/>Sign in<\/a>/.test(rh.split('id="ppMemberNote"')[1].split("Gamble responsibly")[0]), "no small Sign in text links on the board");
-const reb = rh.split('id="pp-panel-rebounds"')[1].split('id="pp-panel-assists"')[0];
-assert.ok(reb.includes("Realname Alpha") && reb.includes("Realname Delta"), "rebounds tab live from data");
-assert.ok(!reb.includes("Realname Bravo") && !reb.includes("Coming soon"), "player without a rebounds block hidden on that tab");
-assert.equal((rh.match(/Coming soon\./g) || []).length, 2, "assists and threes coming soon");
+const reb = (rh.match(/<tr class="pp-row[^"]*"[^>]*data-market="rebounds"[\s\S]*?<\/tr>/g) || []).join("");
+assert.ok(reb.includes("Realname Alpha") && reb.includes("Realname Delta"), "rebounds rows live from data");
+assert.ok(!reb.includes("Realname Bravo"), "player without a rebounds block has no rebounds row");
+const mk = rh.match(/<select id="ppMarket">[\s\S]*?<\/select>/)[0];
+assert.ok(mk.includes('value="points"') && mk.includes('value="rebounds"') && !mk.includes('value="assists"') && !mk.includes('value="threes"'), "market filter lists markets with data only");
+const gm = rh.match(/<select id="ppGame">[\s\S]*?<\/select>/)[0];
+assert.ok(gm.includes('value="e1"') && gm.includes('value="e2"') && !gm.includes('value="e3"'), "game filter lists today's games");
 
 // API: 401 without a session, full board with one
 assert.equal((await api(ctx("https://x.test/api/props-nba"))).status, 401);

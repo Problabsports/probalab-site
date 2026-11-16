@@ -64,7 +64,7 @@ assert.ok(!/Last \d+ games|Game by game|Hit rates|<svg/.test(bodyNoLog), "no for
 // logs: heatmap rows, cells, grey for missing data
 assert.equal(boardHasLogs(logBoard), true);
 const hm = renderHeatmapSection(logBoard);
-for (const id of ["hmGame", "hmTeam", "hmMarket", "hmSort"]) assert.ok(hm.includes(`id="${id}"`), "filter " + id);
+assert.ok(hm.includes('id="hmSort"') && !/id="hm(Game|Team|Market)"/.test(hm), "heatmap has Sort; game/team/market are the shared board filters");
 const rows = hm.match(/<tr data-game[\s\S]*?<\/tr>/g);
 assert.equal(rows.length, 6, "every listed player gets a row; Out players left off");
 assert.equal((rows[0].match(/<td class="hm-c/g) || []).length, 8, "4 markets × L5/L10");
@@ -88,11 +88,20 @@ assert.equal((body.match(/<figure class="bc" hidden/g) || []).length, 3, "first 
 assert.equal((body.match(/class="bc-(over|under)"/g) || []).length, 4 * 12 - 2, "bars per game per market (2 games without assists)");
 assert.ok(body.includes("Hit rates") && body.includes("100%<small>5/5</small>") && body.includes("42%<small>5/12</small>"));
 
+// today's predictions on the player page: side, chance, light; public pages only show free markets
+const predAll = renderPlayerBody(findPlayer(logBoard, "realname-alpha"));
+assert.ok(predAll.includes("Today's predictions") && (predAll.match(/<tr class="pp-row lt-/g) || []).length === 4, "four markets for members");
+assert.ok(/<td class="call">Over<\/td>\s*<td class="num pct">60%<\/td>\s*<td class="lt"><span class="chip GREEN">/.test(predAll), "side, chance and green light");
+const keysOne = new Set(["realname-alpha|points"]);
+const predPub = renderPlayerBody(findPlayer(logBoard, "realname-alpha"), { keys: keysOne });
+assert.equal((predPub.match(/<tr class="pp-row lt-/g) || []).length, 1, "public page: free markets only");
+assert.ok(predPub.includes("3 more predictions for this player.") && predPub.includes("Join members"));
+
 // copy rules on every new piece
-for (const h of [hm, body, bodyNoLog]) {
+for (const h of [hm, body, bodyNoLog, predAll]) {
   const text = h.replace(/<[^>]+>/g, " ");
-  assert.ok(!/\btips?\b|bet this|units?\b|\bedge\b|fair|\bmodel\b|method|projection|value|p_over|sigma/i.test(text), "banned copy: " + text.match(/\btips?\b|bet this|units?\b|\bedge\b|fair|\bmodel\b|method|projection|value|p_over|sigma/i));
-  assert.ok(!/\bproj\b/.test(h) && !/(^|\s)0\.6\b|60%(?!<small>)/.test(text), "no projection numbers or probabilities");
+  assert.ok(!/\btips?\b|bet this|units?\b|\bedge\b|fair|\bmodel\b|method|projection|value|p_over|sigma|\bROI\b/i.test(text), "banned copy: " + text.match(/\btips?\b|bet this|units?\b|\bedge\b|fair|\bmodel\b|method|projection|value|p_over|sigma|\bROI\b/i));
+  assert.ok(!/\bproj\b|sigma/.test(h) && !/(^|\s)0\.6\b/.test(text), "no projection numbers or raw probabilities");
 }
 
 // board names link to player pages
@@ -119,11 +128,11 @@ use(noLogBoard);
 let r = await page(ctx("https://x.test/props/nba"));
 let h = await r.text();
 assert.equal(r.status, 200);
-assert.ok(h.includes('<div id="propsHeatmap"></div>'), "heatmap hidden on the live shape (no game logs)");
+assert.ok(!h.includes('id="propsHeatmap"') && !h.includes('pp-tab-hits'), "heatmap tab hidden on the live shape (no game logs)");
 
 use(logBoard);
 h = await (await page(ctx("https://x.test/props/nba"))).text();
-assert.ok(h.includes('id="hitRates"'), "heatmap shown once logs exist");
+assert.ok(h.includes('id="hitRates"') && h.includes('id="pp-tab-hits"'), "Hit rates tab shown once logs exist");
 assert.equal((h.split('id="propsHeatmap"')[1].match(/<tr data-game/g) || []).length, 3, "public heatmap = free players only");
 assert.ok(!h.split('id="propsHeatmap"')[1].includes("Realname Foxtrot") || ids.has("realname-foxtrot"));
 const mem = await (await boardApi(ctx("https://x.test/api/props-nba", {}, { authorization: "Bearer member-token" }))).json();

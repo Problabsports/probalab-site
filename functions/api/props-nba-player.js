@@ -20,6 +20,6 @@ export async function onRequestGet(ctx) {
   if (!p) return json({ ok: false, error: "not on today's board" }, 404);
   const abbr = teamAbbr(p.team);
   const hero = `<div class="team-hero">${p.team ? teamLogoHtml("nba", { name: p.team, abbr }) : ""}<h1>${esc(p.player)}</h1></div>
-  <p>${p.team ? `<a href="${esc(teamPath("nba", p.team))}">${esc(p.team)}</a> · ` : ""}Season averages and today's lines.</p>`;
+  <p>${p.team ? `<a href="${esc(teamPath("nba", p.team))}">${esc(p.team)}</a> · ` : ""}Today's predictions, season averages and lines.</p>`;
   return json({ ok: true, name: p.player, hero, html: renderPlayerBody(p, { teamHref: p.team ? teamPath("nba", p.team) : null }) });
 }
