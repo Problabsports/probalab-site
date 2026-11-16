@@ -86,10 +86,18 @@
     var panel = dd.querySelector(".nav-dd-panel");
     if (!b || !panel) return;
 
+    var hoverOpenedAt = 0; // when hover last opened this menu
+    var closeTimer = null;
+    function cancelClose() { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
+
     b.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
+      cancelClose();
       var open = b.getAttribute("aria-expanded") === "true";
+      // The pointer reaching the button already opened it on hover; the click that follows
+      // must not toggle it straight back shut.
+      if (open && !isDrawer() && Date.now() - hoverOpenedAt < 600) return;
       if (!isDrawer()) closeAllDd(dd);
       setDd(dd, !open);
       if (!open) {
@@ -99,13 +107,17 @@
     });
 
     dd.addEventListener("mouseenter", function () {
+      cancelClose();
       if (isDrawer() || !(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches)) return;
+      if (b.getAttribute("aria-expanded") !== "true") hoverOpenedAt = Date.now();
       closeAllDd(dd);
       setDd(dd, true);
     });
     dd.addEventListener("mouseleave", function () {
       if (isDrawer()) return;
-      setDd(dd, false);
+      // Short grace period so a slightly diagonal move towards the panel does not close it.
+      cancelClose();
+      closeTimer = setTimeout(function () { closeTimer = null; setDd(dd, false); }, 200);
     });
 
     b.addEventListener("keydown", function (e) {
