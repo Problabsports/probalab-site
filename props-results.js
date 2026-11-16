@@ -1,109 +1,138 @@
-/* Player props results page (/props/results): sport toggles, Green / Orange / Red chips (Green on by
-   default), stat tabs, and the summary + per-stat hit rates recomputed from the rendered rows. */
-(function () {
-  var list = document.getElementById("prList");
-  if (!list) return;
-  var PAGE = 50;
-  var rows = Array.prototype.slice.call(list.querySelectorAll(".pr-row"));
-  var sportTabs = Array.prototype.slice.call(document.querySelectorAll(".pr-sports .pp-tab"));
-  var statTabs = Array.prototype.slice.call(document.querySelectorAll(".pr-stat-tabs .pp-tab"));
-  var lightBtns = Array.prototype.slice.call(document.querySelectorAll("#prLights .gf-btn"));
-  var cards = document.getElementById("prCards");
-  var byStat = document.getElementById("prByStat");
-  var none = document.getElementById("prNone");
-  var more = document.getElementById("prMore");
-  var state = {
-    sport: sportTabs.length ? sportTabs[0].getAttribute("data-sport") : "",
-    stat: "all",
-    limit: PAGE,
+/* Player props results page (/props/results). Loaded as a module. Reads the public settled rows
+   from #prData and redraws the headline record, chart, breakdowns and list with the same helpers
+   the server used (/props-results-core.js), so the first paint and every filter change match.
+   Filters: sport tabs; Green / Orange / Red (Green on by default); stat; Over/Under; date; game
+   (only when a sport's game labels vary). The headline record follows the sport only. */
+import {
+  filterRows, gameLabels, gameLabelsVary, datesOf, dateLabel, lightsLabel,
+  heroHtml, chartBlockHtml, breakdownHtml, headHtml, rowHtml, listSummary, sportEmptyText,
+} from "/props-results-core.js";
+
+const $ = (id) => document.getElementById(id);
+const dataEl = $("prData");
+if (dataEl) {
+  const DATA = JSON.parse(dataEl.textContent);
+  const PAGE = DATA.page || 50;
+  const all = (s) => DATA.sports[s] || [];
+  const label = (s) => DATA.labels[s] || String(s).toUpperCase();
+  const qa = (sel) => Array.prototype.slice.call(document.querySelectorAll(sel));
+
+  const sportTabs = qa(".pr-sports .pp-tab");
+  const statTabs = qa(".pr-stat-tabs .pp-tab");
+  const callTabs = qa(".pr-call-tabs .pp-tab");
+  const lightBtns = qa("#prLights .gf-btn");
+  const modeBtns = qa(".pr-mode .gf-btn");
+  const el = {
+    empty: $("prSportEmpty"), body: $("prSportBody"), list: $("picks"), hero: $("prHero"), chart: $("prChart"),
+    brk: $("prBreak"), date: $("prDate"), game: $("prGame"), gameWrap: $("prGameWrap"), count: $("prCount"),
+    head: $("prHead"), rows: $("prBody"), none: $("prNone"), more: $("prMore"),
   };
+  const selected = sportTabs.find((t) => t.getAttribute("aria-selected") === "true");
+  const phone = window.matchMedia ? window.matchMedia("(max-width: 640px)") : null;
+  const state = { sport: selected ? selected.getAttribute("data-sport") : "", stat: "all", call: "all", date: "all", game: "all", mode: "cum", limit: PAGE };
 
-  function lightsOn() {
-    var on = {};
-    lightBtns.forEach(function (b) { if (b.getAttribute("aria-pressed") === "true") on[b.getAttribute("data-light")] = true; });
-    return on;
+  const lightsOn = () => lightBtns.filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => b.getAttribute("data-light"));
+  const options = (allText, values, fmt) => [["all", allText]].concat(values.map((v) => [v, fmt(v)]))
+    .map(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; return o; });
+  const setOptions = (sel, opts) => { sel.textContent = ""; opts.forEach((o) => sel.appendChild(o)); sel.value = "all"; };
+  const selectTab = (tabs, attr, value) => tabs.forEach((t) => {
+    const on = t.getAttribute(attr) === value;
+    t.setAttribute("aria-selected", on ? "true" : "false");
+    t.tabIndex = on ? 0 : -1;
+  });
+
+  /** Sport changed: headline, empty card, date + game options. */
+  function loadSport() {
+    const rows = all(state.sport);
+    const has = rows.length > 0;
+    el.empty.hidden = has;
+    el.body.hidden = !has;
+    el.list.hidden = !has;
+    if (!has) { el.empty.querySelector("p").textContent = sportEmptyText(label(state.sport)); return; }
+    el.hero.innerHTML = heroHtml(rows, label(state.sport));
+    setOptions(el.date, options("All dates", datesOf(rows), dateLabel));
+    const vary = gameLabelsVary(rows);
+    el.gameWrap.hidden = !vary;
+    setOptions(el.game, options("All games", vary ? gameLabels(rows) : [], (g) => g));
   }
 
-  function tally(rs) {
-    var w = 0, l = 0, p = 0;
-    rs.forEach(function (r) { var x = r.getAttribute("data-result"); if (x === "W") w++; else if (x === "L") l++; else p++; });
-    return { pct: w + l ? Math.round((w / (w + l)) * 100) + "%" : "—", rec: w + "–" + l + (p ? "–" + p : "") };
-  }
-  function fill(el, t) {
-    el.querySelector('[data-v="pct"]').textContent = t.pct;
-    el.querySelector('[data-v="rec"]').textContent = t.rec;
-  }
-
+  /** Lights / stat / call / date / game / mode / page changed. */
   function apply() {
-    var on = lightsOn();
-    var inSport = rows.filter(function (r) { return r.getAttribute("data-sport") === state.sport; });
-    var inStat = inSport.filter(function (r) { return state.stat === "all" || r.getAttribute("data-stat") === state.stat; });
-
-    // Summary cards: every colour, for this sport and stat tab.
-    if (cards) cards.querySelectorAll("[data-card]").forEach(function (c) {
-      var l = c.getAttribute("data-card");
-      fill(c, tally(inStat.filter(function (r) { return r.getAttribute("data-light") === l; })));
-    });
-    // Per-stat row: the selected colours, for this sport.
-    var lit = inSport.filter(function (r) { return !!on[r.getAttribute("data-light")]; });
-    if (byStat) byStat.querySelectorAll("[data-stat-cell]").forEach(function (c) {
-      var s = c.getAttribute("data-stat-cell");
-      c.classList.toggle("on", state.stat === s);
-      fill(c, tally(lit.filter(function (r) { return r.getAttribute("data-stat") === s; })));
-    });
-
-    // List: this sport, this stat, the selected colours, newest first (server order).
-    var match = 0;
-    rows.forEach(function (r) {
-      var ok = r.getAttribute("data-sport") === state.sport &&
-        (state.stat === "all" || r.getAttribute("data-stat") === state.stat) &&
-        !!on[r.getAttribute("data-light")];
-      if (ok) match++;
-      r.hidden = !ok || match > state.limit;
-    });
-    if (none) none.hidden = match > 0;
-    if (more) more.hidden = match <= state.limit;
+    const rows = all(state.sport);
+    if (!rows.length) return;
+    const lights = lightsOn();
+    const lit = filterRows(rows, { lights });
+    el.chart.innerHTML = chartBlockHtml(lit, state.mode, lightsLabel(lights), { narrow: !!(phone && phone.matches) });
+    el.brk.innerHTML = breakdownHtml(lit, state);
+    const showGame = gameLabelsVary(rows);
+    const shown = filterRows(rows, { lights, stat: state.stat, call: state.call, date: state.date, game: showGame ? state.game : "all" });
+    el.count.innerHTML = listSummary(shown, rows.length);
+    el.head.innerHTML = headHtml(showGame);
+    el.rows.innerHTML = shown.slice(0, state.limit).map((r) => rowHtml(r, showGame)).join("");
+    el.none.hidden = shown.length > 0;
+    el.more.hidden = shown.length <= state.limit;
   }
 
-  function tabGroup(tabs, key) {
-    function select(i, focus) {
-      tabs.forEach(function (t, j) {
-        var sel = i === j;
-        t.setAttribute("aria-selected", sel ? "true" : "false");
-        t.tabIndex = sel ? 0 : -1;
-        if (sel && focus) t.focus();
-      });
-      state[key] = tabs[i].getAttribute("data-" + key);
-      if (key === "sport") {
-        state.stat = "all";
-        if (statTabs.length) statTabs.forEach(function (t, j) { t.setAttribute("aria-selected", j === 0 ? "true" : "false"); t.tabIndex = j === 0 ? 0 : -1; });
-      }
-      state.limit = PAGE;
-      apply();
-    }
-    tabs.forEach(function (t, i) {
-      t.addEventListener("click", function () { select(i); });
-      t.addEventListener("keydown", function (e) {
-        var j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
+  function setFilter(key, value) {
+    state[key] = value;
+    state.limit = PAGE;
+    if (key === "stat") selectTab(statTabs, "data-stat", value);
+    if (key === "call") selectTab(callTabs, "data-call", value);
+    apply();
+  }
+
+  function tabKeys(tabs, onPick) {
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => onPick(t));
+      t.addEventListener("keydown", (e) => {
+        const j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
         if (j == null) return;
         e.preventDefault();
-        select((j + tabs.length) % tabs.length, true);
+        const next = tabs[(j + tabs.length) % tabs.length];
+        onPick(next);
+        next.focus();
       });
     });
   }
-  tabGroup(sportTabs, "sport");
-  tabGroup(statTabs, "stat");
 
-  lightBtns.forEach(function (b) {
-    b.addEventListener("click", function () {
-      var on = b.getAttribute("aria-pressed") !== "true";
-      b.setAttribute("aria-pressed", on ? "true" : "false");
-      b.classList.toggle("on", on);
-      state.limit = PAGE;
-      apply();
-    });
+  tabKeys(sportTabs, (t) => {
+    state.sport = t.getAttribute("data-sport");
+    selectTab(sportTabs, "data-sport", state.sport);
+    state.stat = state.call = state.date = state.game = "all";
+    selectTab(statTabs, "data-stat", "all");
+    selectTab(callTabs, "data-call", "all");
+    state.limit = PAGE;
+    loadSport();
+    apply();
   });
-  if (more) more.addEventListener("click", function () { state.limit += PAGE; apply(); });
+  tabKeys(statTabs, (t) => setFilter("stat", t.getAttribute("data-stat")));
+  tabKeys(callTabs, (t) => setFilter("call", t.getAttribute("data-call")));
 
-  apply();
-})();
+  lightBtns.forEach((b) => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.classList.toggle("on", on);
+    state.limit = PAGE;
+    apply();
+  }));
+  modeBtns.forEach((b) => b.addEventListener("click", () => {
+    state.mode = b.getAttribute("data-mode");
+    modeBtns.forEach((x) => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on ? "true" : "false"); });
+    apply();
+  }));
+  // Breakdown tiles: tap to filter the list by that stat / call (tap again to clear), then show it.
+  el.brk.addEventListener("click", (e) => {
+    const tile = e.target.closest(".pr-bk");
+    if (!tile) return;
+    const key = tile.getAttribute("data-filter"), value = tile.getAttribute("data-value");
+    setFilter(key, state[key] === value ? "all" : value);
+  });
+  el.date.addEventListener("change", () => setFilter("date", el.date.value));
+  el.game.addEventListener("change", () => setFilter("game", el.game.value));
+  el.more.addEventListener("click", () => { state.limit += PAGE; apply(); });
+  // The server draws the wide chart; phones get the narrow one (and it follows rotation).
+  if (phone) {
+    if (phone.matches) apply();
+    if (phone.addEventListener) phone.addEventListener("change", apply);
+  }
+}
