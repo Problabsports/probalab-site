@@ -1281,6 +1281,41 @@
       "right": "We picked Oklahoma City at 60%, and the model was wrong by a single point. It had the teams close on strength (85.9 to 85.1) and leaned on Oklahoma City's recent form (about 4.8 a game against about minus 3.7). Oklahoma City was missing Chet Holmgren and Jalen Williams, and the Clippers were without Brandon Ingram and Bradley Beal.",
       "missed": "The model gave Oklahoma City only a small edge. The Clippers' three-point shooting and free throws made up the one-point gap.",
       "why": "A 60% chance still loses about four games in ten, and this one was decided by a single point despite a 40-point night from Gilgeous-Alexander."
+    },
+    "401909980": {
+      "updated_utc": "2026-11-16T06:30:00Z",
+      "happened": "The Nuggets beat the Pelicans 116–108 in New Orleans. Denver made 42 of 80 shots and 28 of 37 free throws, while New Orleans made 37 of 89 shots. Nikola Jokić had 26 points, 8 rebounds and 10 assists, Jamal Murray scored 23, and Zion Williamson led New Orleans with 24.",
+      "right": "We picked Denver at 77%, and they won. The model rated Denver much stronger (96.6 to 85.2) and in better recent form (about 2.7 a game against about −10.9). New Orleans was without Trey Murphy III, Dejounte Murray, Trendon Watford, Bennedict Mathurin and Bryce McGowens.",
+      "missed": "The margin. The model had a clear lean, but the game was close enough at 8 points. New Orleans made 13 of 33 threes to Denver's 4 of 16.",
+      "why": "The pick was right, but not by as much as the ratings suggested. Denver won at the free-throw line (28 of 37 to 21 of 33) rather than from deep. A 77% chance still allows a close game."
+    },
+    "401909981": {
+      "updated_utc": "2026-11-16T06:30:00Z",
+      "happened": "The Cavaliers beat the Mavericks 127–117 at home. Cleveland made 48 of 90 shots and won the rebounds 54 to 39. Tyrese Proctor had 24 points, 11 rebounds and 10 assists, and Kyrie Irving scored 34 for Dallas.",
+      "right": "Only part of the picture. The model saw that Cleveland was short-handed, and it was: Donovan Mitchell, Evan Mobley, James Harden and Sam Merrill were all out. Dallas was also without Dereck Lively II, Max Christie and Sergio de Larrea.",
+      "missed": "We picked Dallas at 56%, and they lost. The model rated Dallas well ahead on team strength (94.5 to 69.4), but that did not show up on the night: Cleveland shot better (48 of 90 to 39 of 93) and had 15 more rebounds.",
+      "why": "The model was wrong on this one. It was only a modest lean, and a team-strength gap on paper doesn't always survive a night when the other side shoots well and wins the boards."
+    },
+    "401909983": {
+      "updated_utc": "2026-11-16T06:30:00Z",
+      "happened": "The Grizzlies beat the Nets 129–110 at home. Memphis made 46 of 87 shots and had 34 assists to Brooklyn's 26. Cedric Coward had 23 points and 12 rebounds, and Julius Randle led Brooklyn with 22.",
+      "right": "We picked Memphis at 69%, and they won by 19. The model had Memphis in better recent form (about 1.3 a game against about −6.4). Memphis was missing Jerami Grant, Ty Jerome, Scotty Pippen Jr. and Quinten Post, but still shot well.",
+      "missed": "The team-strength rating was close (84.5 for Memphis against 81.4), so it gave no sign of a margin this large.",
+      "why": "The pick was right, and the result was bigger than the model expected. Memphis shot 46 of 87 against Brooklyn's 41 of 93. A 69% chance still loses about 3 in 10, so this was never certain."
+    },
+    "401909982": {
+      "updated_utc": "2026-11-16T06:30:00Z",
+      "happened": "The Heat beat the Pistons 137–117 at home. Miami made 44 of 87 shots and 33 of 40 free throws. Giannis Antetokounmpo had 34 points, 14 rebounds and 8 assists, Klay Thompson hit 6 of 11 threes for 26, and Cade Cunningham scored 33 for Detroit.",
+      "right": "Little. Detroit was missing Jalen Duren and Isaiah Joe, and Cunningham still scored 33, but it was not enough.",
+      "missed": "We picked Detroit at 63%, and they lost by 20. The model liked Detroit's recent form (about 6.4 a game against about −0.3), but its own team-strength rating actually had Miami slightly higher (96.8 to 92.4), so the two signals disagreed.",
+      "why": "The model was wrong here. Detroit made 39 of 97 shots, and Miami went to the line 40 times against Detroit's 32. A 63% chance still loses more than a third of the time."
+    },
+    "401909984": {
+      "updated_utc": "2026-11-16T06:30:00Z",
+      "happened": "The Bulls beat the Timberwolves 117–106 in Minneapolis. Chicago made 44 of 90 shots and 14 of 30 threes, while Minnesota made 9 of 38 from three. Norman Powell scored 24 for Chicago, and Ayo Dosunmu scored 24 for Minnesota. LaMelo Ball had 19 points but made 4 of 19 threes.",
+      "right": "Not much. Minnesota was without Anthony Edwards and Donte DiVincenzo, and Chicago was without Nic Claxton and Caleb Wilson, so both sides were short-handed.",
+      "missed": "We picked Minnesota at 89%, and they lost. The model had Minnesota far ahead on team strength (92.1 to 83.3) and form (about 8.9 a game against about −10.9). Instead Minnesota shot 9 of 38 from three, and Chicago shot better overall (44 of 90 to 38 of 91).",
+      "why": "The model was wrong on a high-confidence pick. A cold night from three for Minnesota and a hot one for Chicago were enough to flip it. Even an 89% chance loses about 1 in 9 times."
     }
   }
 }
