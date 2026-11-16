@@ -283,7 +283,7 @@ assert.ok(/#ppLights \.gf-btn/.test(clientSrc) && /data-light/.test(clientSrc) &
 const propsFn = lobbySrcFor("propsCard");
 function lobbySrcFor(name) { const src = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8"); return src.slice(src.indexOf("function " + name), src.indexOf("\n  }\n", src.indexOf("function " + name))); }
 assert.ok(propsFn.includes('href="/props/nba"') && propsFn.includes('<span class="badge taken">New</span>') && propsFn.includes('<p class="tipster-focus">NBA</p>'));
-assert.ok(propsFn.includes("Every NBA player: points, rebounds, assists and threes, with the line, our projection and the call. Updated every morning."));
+assert.ok(propsFn.includes("Every NBA player: points, rebounds, assists and threes, with the line, our predictions. Updated every morning."));
 assert.ok(propsFn.includes("Open props →") && !/W–L|units|stat-grid/i.test(propsFn), "no W-L or units on the props card");
 const lobbyAll = fs.readFileSync(new URL("../members-lobby.js", import.meta.url), "utf8");
 const deskOrder = ['id: "john"', 'id: "sniper"', 'id: "probalab"', "+ propsCard()", 'name: "NFL Totals"'].map((k) => lobbyAll.indexOf(k));

@@ -168,4 +168,32 @@ for (const id of ["nobody-here", "realname-golf"]) {
   assert.ok((await r.text()).includes("Not on today's board"));
 }
 
+// ---------------------------------------------------------------- live shape: player_id + 5-10 game logs with minutes
+const idBoard = structuredClone(noLogBoard);
+idBoard.games[0].players.forEach((p, i) => {
+  p.player_id = String(1628980 + i);
+  p.game_log = log12.slice(0, i % 2 ? 5 : 10).map((r) => ({ ...r, minutes: 34 }));
+});
+const alphaId = "1628980";
+assert.equal(findPlayer(idBoard, alphaId).player, "Realname Alpha", "page id is the player_id");
+assert.equal(findPlayer(idBoard, "realname-alpha"), null, "name slug is not a page id once player_id exists");
+assert.ok(renderCards(idBoard, { full: true }).includes(`href="/props/nba/player/${alphaId}"`), "board links use player_id");
+use(idBoard);
+h = await (await page(ctx("https://x.test/props/nba"))).text();
+assert.ok(h.includes(`href="/props/nba/player/${alphaId}"`) && h.includes('id="pp-tab-hits"'), "links use player_id; Hit rates tab shows with the live log shape");
+// old name URL: 301 to the id URL
+r = await playerPage(ctx("https://x.test/props/nba/player/realname-alpha", { id: "realname-alpha" }));
+assert.equal(r.status, 301, "name URL redirects");
+assert.equal(r.headers.get("location"), `https://x.test/props/nba/player/${alphaId}`);
+r = await playerPage(ctx(`https://x.test/props/nba/player/${alphaId}`, { id: alphaId }));
+assert.equal(r.status, 200);
+h = await r.text();
+assert.ok(h.includes("Last 10 games") && h.includes('<th scope="col" class="num">MIN</th>') && h.includes('<td class="num">34</td>'), "minutes column from the log");
+assert.ok(h.includes("Game by game") && h.includes("Hit rates"));
+assert.ok(!h.includes(">Season</th>"), "no Season column when the log is only the last 10 games");
+assert.ok(renderPlayerBody(findPlayer(logBoard, "realname-alpha")).includes(">Season</th>"), "Season shown when the log is longer than 10");
+// members API also takes the old name id
+const pjn = await (await playerApi(ctx("https://x.test/api/props-nba-player?id=realname-bravo", {}, { authorization: "Bearer member-token" }))).json();
+assert.ok(pjn.ok && pjn.name === "Realname Bravo");
+
 console.log("nba-player-props tests passed");

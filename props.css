@@ -101,7 +101,7 @@
   .pp-filters .game-filters.lights { display: flex; gap: 8px; width: 100%; }
   .pp-filters .game-filters.lights[hidden] { display: none; }
   .panel.pp-game { padding-left: 12px; padding-right: 12px; }
-  .pp-scroll { overflow: visible; }
+  .pp-game .pp-scroll, .pl-preds .pp-scroll { overflow: visible; }
   .pp-table, .pp-table tbody { display: block; min-width: 0; width: 100%; }
   .pp-table thead { display: none; }
   /* name + light chip on row 1, the 4 values across the full card width on row 2 */

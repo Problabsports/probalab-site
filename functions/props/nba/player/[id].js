@@ -6,7 +6,7 @@
 import { shell, html, esc, asHead } from "../../../_shared/site.js";
 import { teamPath, teamLogoHtml } from "../../../_shared/teams.js";
 import { loadBoard, memberButtons, statusLabel, boardFreeKeys } from "../../../_shared/nba-props.js";
-import { findPlayer, publicIds, renderPlayerBody, teamAbbr, playerPath } from "../../../_shared/nba-player-props.js";
+import { findPlayer, findPlayerByName, publicIds, renderPlayerBody, teamAbbr, playerPath } from "../../../_shared/nba-player-props.js";
 
 const CRUMBS = (name) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <a href="/props/nba">Player props</a> › <span>${esc(name)}</span></nav>`;
 const FOOT = `<p class="note">Predictions only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>`;
@@ -18,6 +18,12 @@ export async function onRequestGet(ctx) {
   const id = String((ctx.params && ctx.params.id) || "");
   const board = await loadBoard(ctx);
   const p = board ? findPlayer(board, id) : null;
+
+  // Old name URLs (/props/nba/player/<name-slug>) move to the player_id URL.
+  if (!p && board) {
+    const byName = findPlayerByName(board, id);
+    if (byName && byName.id !== id) return Response.redirect(new URL(playerPath(byName), ctx.request.url).toString(), 301);
+  }
 
   if (!p) {
     const body = `${CRUMBS("Player")}

@@ -2,7 +2,7 @@
 // Same members check as /api/props-nba: "Authorization: Bearer <Supabase access token>", else 401.
 import { verifyMember } from "../_shared/member-session.js";
 import { loadBoard } from "../_shared/nba-props.js";
-import { findPlayer, renderPlayerBody, teamAbbr } from "../_shared/nba-player-props.js";
+import { findPlayer, findPlayerByName, renderPlayerBody, teamAbbr } from "../_shared/nba-player-props.js";
 import { teamPath, teamLogoHtml } from "../_shared/teams.js";
 import { esc } from "../_shared/site.js";
 
@@ -16,7 +16,7 @@ export async function onRequestGet(ctx) {
   if (!member) return json({ ok: false, error: "members only" }, 401);
   const id = new URL(ctx.request.url).searchParams.get("id") || "";
   const board = await loadBoard(ctx);
-  const p = board ? findPlayer(board, id) : null;
+  const p = board ? findPlayer(board, id) || findPlayerByName(board, id) : null;
   if (!p) return json({ ok: false, error: "not on today's board" }, 404);
   const abbr = teamAbbr(p.team);
   const hero = `<div class="team-hero">${p.team ? teamLogoHtml("nba", { name: p.team, abbr }) : ""}<h1>${esc(p.player)}</h1></div>

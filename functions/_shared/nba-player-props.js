@@ -42,10 +42,18 @@ export function boardPlayers(board) {
   return out;
 }
 
+/** Player by page id (player_id when the snapshot has one, else the name slug). */
 export function findPlayer(board, id) {
   const want = slug(String(id || ""));
   if (!want) return null;
   return boardPlayers(board).find((p) => p.id === want) || null;
+}
+
+/** Player by name slug: old /props/nba/player/<name> URLs, redirected to the player_id URL. */
+export function findPlayerByName(board, nameSlug) {
+  const want = slug(String(nameSlug || ""));
+  if (!want) return null;
+  return boardPlayers(board).find((p) => slug(p.player) === want) || null;
 }
 
 /** Ids shown to everyone: players with at least one free-view prediction (same rule as the board). */
@@ -212,9 +220,10 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
   </section>` : "";
 
   const last10 = log.slice(0, 10);
+  const hasMin = last10.some((r) => num(r.minutes) != null);
   const form = last10.length ? `<section class="panel"><h2>Last ${last10.length} games</h2>
-    <div class="pp-scroll"><table class="pl-log"><thead><tr><th scope="col">Date</th><th scope="col">Opp</th>${MARKETS.map(([m]) => `<th scope="col" class="num">${SHORT[m]}</th>`).join("")}</tr></thead><tbody>
-    ${last10.map((r) => `<tr><td class="mono">${esc(r.date)}</td><td>${r.home === false ? "@" : "vs"} ${esc(r.opp || "")}</td>${MARKETS.map(([m]) => {
+    <div class="pp-scroll"><table class="pl-log"><thead><tr><th scope="col">Date</th><th scope="col">Opp</th>${hasMin ? '<th scope="col" class="num">MIN</th>' : ""}${MARKETS.map(([m]) => `<th scope="col" class="num">${SHORT[m]}</th>`).join("")}</tr></thead><tbody>
+    ${last10.map((r) => `<tr><td class="mono">${esc(r.date)}</td><td>${r.home === false ? "@" : "vs"} ${esc(r.opp || "")}</td>${hasMin ? `<td class="num">${num(r.minutes) == null ? "—" : Math.round(num(r.minutes))}</td>` : ""}${MARKETS.map(([m]) => {
       const v = num(r[m]); const line = lineOf(p, m);
       const cls = v == null || line == null ? "" : v > line ? " over" : " under";
       return `<td class="num${cls}">${v == null ? "—" : v}</td>`;
@@ -230,10 +239,11 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
     ${charts.map((c, i) => (i === 0 ? c : c.replace('<figure class="bc"', '<figure class="bc" hidden'))).join("")}
   </section>` : "";
 
+  const season = log.length > 10; // otherwise "season" would just repeat last 10
   const rates = log.length ? markets.map(([m, l]) => [l, hitRate(p, m, 5, log), hitRate(p, m, 10, log), hitRate(p, m, null, log), lineOf(p, m)]).filter((r) => r[1] || r[2] || r[3]) : [];
   const hits = rates.length ? `<section class="panel"><h2>Hit rates</h2>
-    <div class="pp-scroll"><table class="pl-hits"><thead><tr><th scope="col">Market</th><th scope="col" class="num">Line</th><th scope="col" class="num">Last 5</th><th scope="col" class="num">Last 10</th><th scope="col" class="num">Season</th></tr></thead><tbody>
-    ${rates.map(([l, h5, h10, hs, line]) => `<tr><th scope="row">${esc(l)}</th><td class="num mono">${one(line)}</td>${[h5, h10, hs].map((h) => `<td class="num hm-c hm-${heatBand(h)}">${pct(h)}<small>${frac(h)}</small></td>`).join("")}</tr>`).join("")}
+    <div class="pp-scroll"><table class="pl-hits"><thead><tr><th scope="col">Market</th><th scope="col" class="num">Line</th><th scope="col" class="num">Last 5</th><th scope="col" class="num">Last 10</th>${season ? '<th scope="col" class="num">Season</th>' : ""}</tr></thead><tbody>
+    ${rates.map(([l, h5, h10, hs, line]) => `<tr><th scope="row">${esc(l)}</th><td class="num mono">${one(line)}</td>${(season ? [h5, h10, hs] : [h5, h10]).map((h) => `<td class="num hm-c hm-${heatBand(h)}">${pct(h)}<small>${frac(h)}</small></td>`).join("")}</tr>`).join("")}
     </tbody></table></div>
     <p class="small">Share of games over today's line.</p>
   </section>` : "";

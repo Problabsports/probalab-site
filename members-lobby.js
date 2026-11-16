@@ -59,7 +59,7 @@
     return '<a class="tipster-card live props-card" href="/props/nba">'
       + '<div class="tipster-card-top"><h2>Player Props</h2><span class="badge taken">New</span></div>'
       + '<p class="tipster-focus">NBA</p>'
-      + '<p class="tipster-pitch">Every NBA player: points, rebounds, assists and threes, with the line, our projection and the call. Updated every morning.</p>'
+      + '<p class="tipster-pitch">Every NBA player: points, rebounds, assists and threes, with the line, our predictions. Updated every morning.</p>'
       + '<span class="tipster-cta">Open props →</span></a>';
   }
 
