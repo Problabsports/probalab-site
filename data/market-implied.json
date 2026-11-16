@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-16T06:11:42Z",
+  "generated_utc": "2026-11-16T07:45:19Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -90,8 +90,8 @@
       "away": "LAC",
       "home": "BAL",
       "start_utc": "2026-11-17T01:15:00Z",
-      "market_home": 0.6628,
-      "market_away": 0.3372
+      "market_home": 0.6636,
+      "market_away": 0.3364
     },
     {
       "sport": "epl",
