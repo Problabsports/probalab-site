@@ -2,6 +2,7 @@
 // Send the Supabase access token as "Authorization: Bearer <token>". Everyone else gets 401.
 import { verifyMember } from "../_shared/member-session.js";
 import { loadBoard, renderPanels } from "../_shared/nba-props.js";
+import { renderHeatmapSection } from "../_shared/nba-player-props.js";
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -13,5 +14,5 @@ export async function onRequestGet(ctx) {
   if (!member) return json({ ok: false, error: "members only" }, 401);
   const board = await loadBoard(ctx);
   if (!board) return json({ ok: false, error: "no board yet" }, 404);
-  return json({ ok: true, html: renderPanels(board, { full: true }) });
+  return json({ ok: true, html: renderPanels(board, { full: true }), heatmap: renderHeatmapSection(board) });
 }

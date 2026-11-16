@@ -4,6 +4,7 @@
 // No prices, no tips, no units, no records.
 import { shell, html, esc, asHead } from "../_shared/site.js";
 import { loadBoard, renderPanels, renderTabs, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons } from "../_shared/nba-props.js";
+import { renderHeatmapSection, publicIds } from "../_shared/nba-player-props.js";
 
 export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
@@ -44,6 +45,7 @@ export async function onRequestGet(ctx) {
   ${filters}
   ${st.games ? `<div id="ppMemberNote" class="pp-member-note"><p class="note">Free view shows ${FREE_PER_GAME} top players in each game. Members see every player.</p>${memberButtons("pp-cta-left")}</div>` : ""}
   <div id="propsBoard">${renderPanels(board, { full: false })}</div>
+  <div id="propsHeatmap">${board ? renderHeatmapSection(board, { ids: publicIds(board) }) : ""}</div>
   <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Projections only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

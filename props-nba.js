@@ -84,8 +84,50 @@
     boardEl.innerHTML = j.html;
     if (note) note.innerHTML = '<p class="note">Members view: every player on the board.</p>';
     showTab(active);
+    loadMemberHeatmap(j);
+  }
+
+  // Hit-rate heatmap (#propsHeatmap): Game / Team / Market filters and sorting. Rebuilt after the members swap.
+  function wireHeatmap() {
+    var root = document.getElementById("hitRates");
+    if (!root) return;
+    var tbody = root.querySelector(".hm-table tbody");
+    var gameSel = root.querySelector("#hmGame"), teamSel2 = root.querySelector("#hmTeam");
+    var mktSel = root.querySelector("#hmMarket"), sortSel = root.querySelector("#hmSort");
+    var none = root.querySelector(".hm-none");
+    function cellVal(tr, m, w) {
+      var c = tr.querySelector('td[data-m="' + m + '"][data-w="' + w + '"]');
+      var v = c ? c.getAttribute("data-v") : "";
+      return v === "" ? -1 : Number(v);
+    }
+    function apply() {
+      var g = gameSel.value, t = teamSel2.value, m = mktSel.value, shown = 0;
+      root.querySelectorAll("[data-m]").forEach(function (el) { el.hidden = !!m && el.getAttribute("data-m") !== m; });
+      var rows = Array.prototype.slice.call(tbody.rows);
+      rows.forEach(function (tr) {
+        var ok = (!g || tr.getAttribute("data-game") === g) && (!t || tr.getAttribute("data-team") === t);
+        tr.hidden = !ok;
+        if (ok) shown++;
+      });
+      var k = sortSel.value;
+      rows.sort(function (a, b) {
+        if (k === "name") return a.getAttribute("data-name").localeCompare(b.getAttribute("data-name"));
+        if (k === "team") return a.getAttribute("data-team").localeCompare(b.getAttribute("data-team")) || a.getAttribute("data-name").localeCompare(b.getAttribute("data-name"));
+        var mw = k.split("-");
+        return cellVal(b, mw[0], mw[1]) - cellVal(a, mw[0], mw[1]) || a.getAttribute("data-name").localeCompare(b.getAttribute("data-name"));
+      }).forEach(function (tr) { tbody.appendChild(tr); });
+      if (none) none.hidden = shown > 0;
+    }
+    [gameSel, teamSel2, mktSel, sortSel].forEach(function (el) { if (el) el.addEventListener("change", apply); });
+    apply();
+  }
+
+  async function loadMemberHeatmap(j) {
+    var hm = document.getElementById("propsHeatmap");
+    if (hm && j && typeof j.heatmap === "string") { hm.innerHTML = j.heatmap; wireHeatmap(); }
   }
 
   showTab(active);
+  wireHeatmap();
   loadMemberBoard().catch(function () {});
 })();

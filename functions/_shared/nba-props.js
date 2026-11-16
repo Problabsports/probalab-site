@@ -13,7 +13,7 @@
 //     stats: { points:   { season_avg, line, proj, sigma, p_over, p_under },
 //              rebounds: {...}, assists: {...}, threes: {...} } }
 // Older boards with proj_pts / primary_line still render for points (see statOf).
-import { esc, chip } from "./site.js";
+import { esc, chip, slug } from "./site.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -215,6 +215,9 @@ export function boardStats(board) {
 }
 
 // ------------------------------------------------------------------ rendering
+/** Player page id: player_id when the snapshot has one, else a slug of the name. */
+export const playerId = (p) => slug((p && (p.player_id != null && p.player_id !== "" ? String(p.player_id) : p.player)) || "");
+export const playerPath = (p) => `/props/nba/player/${playerId(p)}`;
 const nick = (team) => String(team || "").trim().split(/\s+/).pop();
 const one = (x) => (x == null ? "—" : x.toFixed(1));
 
@@ -227,7 +230,7 @@ function playerRow(p) {
     : "";
   const book = SHOW_BOOK_COLUMN ? `<td class="book"></td>` : "";
   return `<tr data-team="${esc(p.team || "")}" data-best="${s.p.toFixed(3)}" data-light="${light}">
-      <th scope="row" class="pl"><span class="pp-name">${esc(p.player)}</span> <span class="pp-tm">${esc(nick(p.team))}</span>${warn}</th>
+      <th scope="row" class="pl"><a class="pp-name" href="${esc(playerPath(p))}">${esc(p.player)}</a> <span class="pp-tm">${esc(nick(p.team))}</span>${warn}</th>
       <td class="num">${one(s.avg)}</td>
       <td class="num">${one(s.line)}</td>
       <td class="num">${one(s.proj)}</td>
