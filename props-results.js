@@ -4,7 +4,7 @@
    Filters: sport tabs; Green / Orange / Red (Green on by default); stat; Over/Under; date; game
    (only when a sport's game labels vary). The headline record follows the sport only. */
 import {
-  filterRows, gameLabels, gameLabelsVary, datesOf, dateLabel, lightsLabel,
+  filterRows, gameLabels, gameLabelsVary, hasSeasonAvg, datesOf, dateLabel, lightsLabel,
   heroHtml, chartBlockHtml, breakdownHtml, headHtml, rowHtml, listSummary, sportEmptyText,
 } from "/props-results-core.js";
 
@@ -65,10 +65,11 @@ if (dataEl) {
     el.chart.innerHTML = chartBlockHtml(lit, state.mode, lightsLabel(lights), { narrow: !!(phone && phone.matches) });
     el.brk.innerHTML = breakdownHtml(lit, state);
     const showGame = gameLabelsVary(rows);
+    const showAvg = hasSeasonAvg(rows);
     const shown = filterRows(rows, { lights, stat: state.stat, call: state.call, date: state.date, game: showGame ? state.game : "all" });
     el.count.innerHTML = listSummary(shown, rows.length);
-    el.head.innerHTML = headHtml(showGame);
-    el.rows.innerHTML = shown.slice(0, state.limit).map((r) => rowHtml(r, showGame)).join("");
+    el.head.innerHTML = headHtml(showGame, showAvg);
+    el.rows.innerHTML = shown.slice(0, state.limit).map((r) => rowHtml(r, showGame, showAvg)).join("");
     el.none.hidden = shown.length > 0;
     el.more.hidden = shown.length <= state.limit;
   }
