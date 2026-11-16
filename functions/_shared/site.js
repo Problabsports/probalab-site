@@ -255,6 +255,7 @@ export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach
 export const NAV_LINKS = [
   ["/today", "Today"],
   ["/results", "Results"],
+  ["/props/results", "Props Results"],
   ["/members", "Members"],
 ];
 
