@@ -125,6 +125,8 @@
 .pr-hero-green .record-hero.pr-big span { color: var(--green); opacity: .8; }
 .pr-hero-all .record-hero.pr-big { color: var(--ink); }
 .pr-hero-all .record-hero.pr-big span { color: var(--ink); opacity: .7; }
+/* "6 void" / "1 push" beside a record: counted, never part of it */
+.record-hero.pr-big .pr-aside { font: 500 13px var(--f-mono); font-style: normal; letter-spacing: .04em; color: var(--muted); margin-left: 10px; vertical-align: .9em; white-space: nowrap; }
 .pr-hero-sub { margin: 0; font-size: 14px; color: var(--muted); }
 
 .pr-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; }
@@ -133,7 +135,7 @@
 .pr-tile.RED { --lt: var(--red); }
 .pr-tile.OVER, .pr-tile.UNDER { --lt: var(--cyan); }
 .pr-tile .ut-k { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--lt); }
-.pr-tile.PUSH .ut-k { color: var(--muted); }
+.pr-tile.VOID .ut-k { color: var(--muted); }
 .pr-tile b { font: 700 22px/1.15 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
 .pr-tile-r { font-size: 12px; color: var(--muted); }
 
@@ -193,6 +195,9 @@ table.pr-table tr.RED { --lt: var(--red); }
 .pr-badge.W { color: var(--green); background: rgba(47,215,160,.12); }
 .pr-badge.L { color: var(--red); background: rgba(255,79,110,.13); }
 .pr-badge.P { color: var(--muted); }
+.pr-badge.V { width: auto; padding: 0 6px; font-size: 10.5px; letter-spacing: .06em; color: var(--muted); background: rgba(138,150,171,.1); border-color: rgba(138,150,171,.55); }
+.pr-table .pr-opp { display: block; font: 400 12px var(--f-body); color: var(--muted); margin-top: 1px; }
+.pr-table .pr-avg { color: var(--muted); }
 .pr-more-wrap { text-align: center; margin: 14px 0 0; }
 .pr-more-wrap .btn[hidden] { display: none; }
 #picks[hidden], #prSportBody[hidden] { display: none; }
@@ -214,7 +219,7 @@ table.pr-table tr.RED { --lt: var(--red); }
   .pr-bk { padding: 10px 11px; }
   .pr-bk-v { font-size: 24px; }
   .pr-wd { display: none; }
-  table.pr-table { min-width: 620px; font-size: 13px; }
+  table.pr-table { min-width: 700px; font-size: 13px; }
   table.pr-table th, table.pr-table td { padding: 8px 6px; }
   .panel.pr-list-panel, .panel.pr-break, .panel.pr-growth { padding-left: 12px; padding-right: 12px; }
 }

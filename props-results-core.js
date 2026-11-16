@@ -2,7 +2,10 @@
 // (functions/_shared/props-results.js renders the first view) and the browser (/props-results.js
 // re-renders on every filter change), so the numbers and charts are always drawn the same way.
 // Input rows are already normalised, settled-only, public fields:
-//   { sport, date, game, player, stat, line, call, p, light, actual, result }
+//   { sport, date, game, player, stat, line, call, p, light, actual, result,
+//     team?, opp?, home?, season_avg? }
+// result: W, L, P (push) or V (void: the player did not play). Only W and L count anywhere in a
+// record, hit rate, chart or breakdown; P and V are listed and counted beside the record.
 // No prices, units, ROI or profit exist here, and nothing private is ever passed in.
 
 export const STATS = [
@@ -23,15 +26,25 @@ export const CALLS = ["Over", "Under"];
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 // ------------------------------------------------------------------ tallies
-/** { w, l, p, n, pct }: pct = w / (w + l), pushes left out; null with no decided calls. */
+/**
+ * { w, l, n, pct, p, v }: only W and L count (n = w + l, pct = w / n, null with none);
+ * p (pushes) and v (voids) are counted separately and never enter a record or rate.
+ */
 export function tally(rows) {
-  let w = 0, l = 0, p = 0;
-  for (const r of rows) r.result === "W" ? w++ : r.result === "L" ? l++ : p++;
-  return { w, l, p, n: w + l + p, pct: w + l ? w / (w + l) : null };
+  let w = 0, l = 0, p = 0, v = 0;
+  for (const r of rows) {
+    if (r.result === "W") w++;
+    else if (r.result === "L") l++;
+    else if (r.result === "P") p++;
+    else if (r.result === "V") v++;
+  }
+  return { w, l, n: w + l, pct: w + l ? w / (w + l) : null, p, v };
 }
 export const pctText = (t) => (t.pct == null ? "—" : `${Math.round(t.pct * 100)}%`);
-/** 41–24, or 41–24–6 when there are pushes. */
-export const recText = (t) => `${t.w}–${t.l}${t.p ? `–${t.p}` : ""}`;
+/** Always W–L: pushes and voids are never part of a record. */
+export const recText = (t) => `${t.w}–${t.l}`;
+/** "2 void", "2 void · 1 push", or "" (a push is only mentioned when a real one exists). */
+export const asideText = (t) => [t.v ? `${t.v} void` : "", t.p ? `${t.p} push${t.p === 1 ? "" : "es"}` : ""].filter(Boolean).join(" · ");
 /** "41 of 65" (decided calls only). */
 export const ofText = (t) => `${t.w} of ${t.w + t.l}`;
 
@@ -63,21 +76,22 @@ export const datesOf = (rows) => [...new Set(rows.map((r) => r.date))].sort().re
 
 // ------------------------------------------------------------------ hit rate over time
 /**
- * One point per settled date, oldest first:
- * { date, w, l, p, pct (that day), cw, cl, cp, cum (hit rate up to and including that day) }.
- * Days with only pushes keep the previous cumulative rate and a null daily rate.
+ * One point per date with at least one W or L, oldest first:
+ * { date, w, l, pct (that day), cw, cl, cum (hit rate up to and including that day) }.
+ * Pushes and voids are left out entirely.
  */
 export function dailySeries(rows) {
   const byDay = new Map();
   for (const r of rows) {
-    const d = byDay.get(r.date) || { date: r.date, w: 0, l: 0, p: 0 };
-    r.result === "W" ? d.w++ : r.result === "L" ? d.l++ : d.p++;
+    if (r.result !== "W" && r.result !== "L") continue;
+    const d = byDay.get(r.date) || { date: r.date, w: 0, l: 0 };
+    r.result === "W" ? d.w++ : d.l++;
     byDay.set(r.date, d);
   }
-  let cw = 0, cl = 0, cp = 0;
+  let cw = 0, cl = 0;
   return [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date)).map((d) => {
-    cw += d.w; cl += d.l; cp += d.p;
-    return { ...d, pct: d.w + d.l ? d.w / (d.w + d.l) : null, cw, cl, cp, cum: cw + cl ? cw / (cw + cl) : null };
+    cw += d.w; cl += d.l;
+    return { ...d, pct: d.w / (d.w + d.l), cw, cl, cum: cw / (cw + cl) };
   });
 }
 
@@ -112,13 +126,15 @@ export function lightsLabel(lights) {
 }
 
 // ------------------------------------------------------------------ headline record (whole sport)
-const miniTile = (cls, label, t, extra = "") =>
-  `<div class="pr-tile ${cls}"><span class="ut-k">${label}</span><b>${pctText(t)}</b><span class="pr-tile-r mono">${recText(t)}${extra}</span></div>`;
+const miniTile = (cls, label, t) =>
+  `<div class="pr-tile ${cls}"><span class="ut-k">${label}</span><b>${pctText(t)}</b><span class="pr-tile-r mono">${recText(t)}</span></div>`;
+const aside = (t) => (asideText(t) ? ` <em class="pr-aside">${asideText(t)}</em>` : "");
 
 /**
  * Headline record for one sport. Always the full settled record: it never follows the light,
- * stat, Over/Under or date filters. Green first and in green; the all-settled hit rate beside it
- * at the same size; then smaller Orange, Red, Pushes, Over and Under.
+ * stat, Over/Under or date filters. Green first and in green (W–L, hit %, "N void" beside it);
+ * the all-settled hit rate beside it at the same size; then smaller Orange, Red, Over, Under and
+ * a Void tile. Voids and pushes never enter a record or rate.
  */
 export function heroHtml(sportRows, sportName) {
   const all = tally(sportRows);
@@ -131,12 +147,12 @@ export function heroHtml(sportRows, sportName) {
     <div class="pr-hero-main">
       <div class="pr-hero-block pr-hero-green" data-hero="green">
         <p class="pr-hero-k"><span class="chip GREEN">Green</span> Green calls</p>
-        <p class="record-hero green-hero pr-big"><b>${g.n ? recText(g) : "—"}</b> <span>${pctText(g)}</span></p>
-        <p class="pr-hero-sub">${g.w + g.l ? `${ofText(g)} green calls right` : "No settled green calls yet"}</p>
+        <p class="record-hero green-hero pr-big"><b>${g.n ? recText(g) : "—"}</b> <span>${pctText(g)}</span>${aside(g)}</p>
+        <p class="pr-hero-sub">${g.n ? `${ofText(g)} green calls right` : "No settled green calls yet"}</p>
       </div>
       <div class="pr-hero-block pr-hero-all" data-hero="all">
         <p class="pr-hero-k">All settled calls</p>
-        <p class="record-hero pr-big"><b>${ofText(all)}</b> <span>${pctText(all)}</span></p>
+        <p class="record-hero pr-big"><b>${ofText(all)}</b> <span>${pctText(all)}</span>${aside(all)}</p>
         <p class="pr-hero-sub mono">${recText(all)} · every light</p>
       </div>
     </div>
@@ -145,7 +161,7 @@ export function heroHtml(sportRows, sportName) {
       ${miniTile("RED", "Red", rd)}
       ${miniTile("OVER", "Over calls", ov)}
       ${miniTile("UNDER", "Under calls", un)}
-      <div class="pr-tile PUSH"><span class="ut-k">Pushes</span><b>${all.p}</b><span class="pr-tile-r">not in hit rates</span></div>
+      <div class="pr-tile VOID"><span class="ut-k">Void</span><b>${all.v}</b><span class="pr-tile-r">${all.p ? `${all.p} push${all.p === 1 ? "" : "es"} · ` : ""}not in records</span></div>
     </div>`;
 }
 
@@ -198,7 +214,7 @@ export function chartSvg(series, mode = "cum", lightsText = "Green", { narrow = 
     pts.forEach((d, i) => {
       const v = d.pct * 100, top = y(v), base = y(lo);
       const good = v >= 50;
-      marks += `<rect x="${r1(x(i) - bw / 2)}" y="${top}" width="${r1(bw)}" height="${r1(Math.max(1, base - top))}" fill="${good ? "#2fd7a0" : "#ff4f6e"}" fill-opacity="${good ? ".75" : ".6"}"><title>${esc(dateLabel(d.date))}: ${d.w}–${d.l}${d.p ? `–${d.p}` : ""} (${Math.round(v)}%)</title></rect>`;
+      marks += `<rect x="${r1(x(i) - bw / 2)}" y="${top}" width="${r1(bw)}" height="${r1(Math.max(1, base - top))}" fill="${good ? "#2fd7a0" : "#ff4f6e"}" fill-opacity="${good ? ".75" : ".6"}"><title>${esc(dateLabel(d.date))}: ${d.w}–${d.l} (${Math.round(v)}%)</title></rect>`;
       if (n <= 14) marks += `<text x="${x(i)}" y="${top - 6}" text-anchor="middle" style="fill:${good ? "#2fd7a0" : "#ff4f6e"}" font-weight="700">${Math.round(v)}%</text>`;
     });
   } else {
@@ -212,10 +228,10 @@ export function chartSvg(series, mode = "cum", lightsText = "Green", { narrow = 
       marks += `<line x1="${xy[0][0]}" x2="${xy[0][0]}" y1="${xy[0][1]}" y2="${y(lo)}" stroke="#2fd7a0" stroke-opacity=".35" stroke-width="2" stroke-dasharray="3 4"/>`;
     }
     const last = pts[n - 1], [ex, ey] = xy[n - 1];
-    marks += `<circle cx="${ex}" cy="${ey}" r="5" fill="#2fd7a0" stroke="#07080f" stroke-width="2"><title>${esc(dateLabel(last.date))}: ${last.cw}–${last.cl}${last.cp ? `–${last.cp}` : ""} so far</title></circle>`
+    marks += `<circle cx="${ex}" cy="${ey}" r="5" fill="#2fd7a0" stroke="#07080f" stroke-width="2"><title>${esc(dateLabel(last.date))}: ${last.cw}–${last.cl} so far</title></circle>`
       + `<text x="${n === 1 ? ex : ex - 8}" y="${ey - 12}" text-anchor="${n === 1 ? "middle" : "end"}" style="fill:#2fd7a0" font-weight="700">${Math.round(last.cum * 100)}%</text>`;
   }
-  const caption = `${daily ? "Daily" : "Cumulative"} hit rate · ${lightsText} · pushes not counted`;
+  const caption = `${daily ? "Daily" : "Cumulative"} hit rate · ${lightsText} · voids and pushes not counted`;
   return `<svg class="units-chart results-growth pr-chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(caption)}">
       <defs><linearGradient id="prAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2fd7a0" stop-opacity="0.35"/><stop offset="100%" stop-color="#2fd7a0" stop-opacity="0"/></linearGradient>
       <filter id="prGlow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
@@ -227,7 +243,7 @@ export function chartSvg(series, mode = "cum", lightsText = "Green", { narrow = 
 /** Chart panel body: summary tiles, then the chart (or an honest empty state). */
 export function chartBlockHtml(rows, mode, lightsText, opts = {}) {
   const t = tally(rows);
-  if (!t.n) return `<p class="pr-none">No settled ${esc(lightsText.toLowerCase())} calls for this sport yet.</p>`;
+  if (!t.n) return `<p class="pr-none">No settled ${esc(lightsText.toLowerCase())} calls with a result for this sport yet.</p>`;
   const series = dailySeries(rows);
   const best = series.length > 1 ? bestDay(series) : null;
   const one = series.length === 1 ? series[0] : null;
@@ -239,23 +255,21 @@ export function chartBlockHtml(rows, mode, lightsText, opts = {}) {
   const svg = chartSvg(series, mode, lightsText, opts);
   return `<div class="units-tiles pr-chart-tiles">
       <div><span class="ut-k">Hit rate</span><b>${pctText(t)}</b><span class="pr-tile-r mono">${ofText(t)} right</span></div>
-      <div><span class="ut-k">Settled calls</span><b>${t.n}</b><span class="pr-tile-r mono">${recText(t)}</span></div>
+      <div><span class="ut-k">Settled calls</span><b>${t.n}</b><span class="pr-tile-r mono">${recText(t)}${asideText(t) ? ` · ${asideText(t)}` : ""}</span></div>
       ${third}
     </div>
-    ${svg ? `<div class="chart-wrap">${svg}</div>` : `<p class="pr-none">Only pushes so far, so there is no hit rate to chart yet.</p>`}`;
+    ${svg ? `<div class="chart-wrap">${svg}</div>` : ""}`;
 }
 
 // ------------------------------------------------------------------ breakdowns
-/** Small W/L/P bar with a 50% marker. */
-export function wlpBar(t) {
+/** Small W/L bar with a 50% marker (pushes and voids are not part of it). */
+export function wlBar(t) {
   const W = 200, H = 10;
   if (!t.n) return `<svg class="pr-bar" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><rect width="${W}" height="${H}" fill="rgba(138,150,171,.12)"/></svg>`;
-  const ww = r1(t.w / t.n * W), lw = r1(t.l / t.n * W), pw = r1(W - ww - lw);
+  const ww = r1(t.w / t.n * W), lw = r1(W - ww);
   return `<svg class="pr-bar" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-      <rect width="${W}" height="${H}" fill="rgba(138,150,171,.12)"/>
       ${ww ? `<rect width="${ww}" height="${H}" fill="#2fd7a0"/>` : ""}
-      ${lw ? `<rect x="${ww}" width="${lw}" height="${H}" fill="#ff4f6e" fill-opacity=".8"/>` : ""}
-      ${pw > 0.05 ? `<rect x="${r1(ww + lw)}" width="${pw}" height="${H}" fill="rgba(138,150,171,.45)"/>` : ""}
+      ${lw > 0.05 ? `<rect x="${ww}" width="${lw}" height="${H}" fill="#ff4f6e" fill-opacity=".8"/>` : ""}
       <line x1="${W / 2}" x2="${W / 2}" y1="0" y2="${H}" stroke="#07080f" stroke-width="2"/>
     </svg>`;
 }
@@ -265,7 +279,7 @@ function bkTile(kind, id, label, t, on) {
       <span class="pr-bk-k">${esc(label)}</span>
       <span class="pr-bk-v">${pctText(t)}</span>
       <span class="pr-bk-r mono">${t.n ? recText(t) : "No settled calls"}</span>
-      ${wlpBar(t)}
+      ${wlBar(t)}
     </button>`;
 }
 
@@ -278,25 +292,32 @@ export function breakdownHtml(rows, { stat = "all", call = "all" } = {}) {
 }
 
 // ------------------------------------------------------------------ settled list
-const BADGE = { W: ["W", "Win"], L: ["L", "Loss"], P: ["P", "Push"] };
+const BADGE = { W: ["W", "Win"], L: ["L", "Loss"], P: ["P", "Push"], V: ["VOID", "Void: did not play"] };
 const numText = (x) => (x == null ? "—" : String(x));
 
-export function headHtml(showGame) {
-  return `<tr><th>Date</th>${showGame ? "<th>Game</th>" : ""}<th>Player</th><th>Stat</th><th class="n">Line</th><th>Our call</th><th class="n">Chance</th><th>Light</th><th class="n">Actual</th><th class="pr-res">Result</th></tr>`;
+/** Show the Season avg column when any settled row of the sport has one (decided per sport, so it does not flicker). */
+export const hasSeasonAvg = (sportRows) => sportRows.some((r) => r.season_avg != null);
+/** "vs Indiana Pacers" (home, or home unknown) / "@ Philadelphia 76ers" (away); "" without an opponent. */
+export const matchupText = (r) => (r.opp ? `${r.home === false ? "@" : "vs"} ${r.opp}` : "");
+
+export function headHtml(showGame, showAvg = false) {
+  return `<tr><th>Date</th>${showGame ? "<th>Game</th>" : ""}<th>Player</th><th>Stat</th><th class="n">Line</th>${showAvg ? '<th class="n">Season avg</th>' : ""}<th>Our call</th><th class="n">Chance</th><th>Light</th><th class="n">Actual</th><th class="pr-res">Result</th></tr>`;
 }
 
-export function rowHtml(r, showGame) {
+export function rowHtml(r, showGame, showAvg = false) {
   const [b, title] = BADGE[r.result];
+  const vs = matchupText(r);
   return `<tr class="pr-r ${r.light}" data-stat="${esc(r.stat)}">
       <td class="pr-date mono">${dateHtml(r.date)}</td>
       ${showGame ? `<td class="pr-game">${esc(r.game || "—")}</td>` : ""}
-      <td class="pr-player">${esc(r.player)}</td>
+      <td class="pr-player">${esc(r.player)}${vs ? `<span class="pr-opp">${esc(vs)}</span>` : ""}</td>
       <td class="pr-statn">${esc(STAT_LABEL[r.stat])}</td>
       <td class="n mono">${esc(numText(r.line))}</td>
+      ${showAvg ? `<td class="n mono pr-avg">${esc(numText(r.season_avg))}</td>` : ""}
       <td class="pr-call mono">${r.call}</td>
       <td class="n mono">${r.p == null ? "—" : `${Math.round(r.p * 100)}%`}</td>
       <td><span class="chip ${r.light}">${LIGHT_LABEL[r.light]}</span></td>
-      <td class="n mono pr-actual">${esc(numText(r.actual))}</td>
+      <td class="n mono pr-actual">${r.result === "V" ? "-" : esc(numText(r.actual))}</td>
       <td class="pr-res"><span class="pr-badge ${r.result}" title="${title}">${b}</span></td>
     </tr>`;
 }
@@ -304,7 +325,7 @@ export function rowHtml(r, showGame) {
 /** List summary line for the current filters. */
 export function listSummary(shown, totalInSport) {
   const t = tally(shown);
-  return `Showing <b>${t.n}</b> of ${totalInSport} settled call${totalInSport === 1 ? "" : "s"}${t.n ? ` · <b>${recText(t)}</b> (${pctText(t)})` : ""}`;
+  return `Showing <b>${shown.length}</b> of ${totalInSport} settled call${totalInSport === 1 ? "" : "s"}${t.n ? ` · <b>${recText(t)}</b> (${pctText(t)})` : ""}${asideText(t) ? ` · ${asideText(t)}` : ""}`;
 }
 
 export const sportEmptyText = (name) => `${name} props results will appear here once settled calls are up.`;

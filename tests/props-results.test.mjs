@@ -1,5 +1,6 @@
 // Props results page: settled rows only, tallies, filters, hit-rate series, headline record,
-// Game column rule, sport tabs, empty states, CSV, copy rules, privacy, nav links.
+// Game column rule, voids (V) and pushes kept out of every record, optional team / opp / home /
+// season_avg fields, sport tabs, empty states, CSV, copy rules, privacy, nav links.
 import assert from "node:assert/strict";
 import {
   resultsFrom, normaliseRow, tally, sportIds, tabSports, renderBody, dateLabel, publicRows, renderPropsCsv,
@@ -7,7 +8,7 @@ import {
 } from "../functions/_shared/props-results.js";
 import {
   filterRows, dailySeries, bestDay, gameLabelsVary, heroHtml, chartSvg, chartBlockHtml, breakdownHtml,
-  headHtml, rowHtml, listSummary, lightsLabel, recText, sportEmptyText,
+  headHtml, rowHtml, listSummary, lightsLabel, recText, asideText, sportEmptyText, hasSeasonAvg, matchupText, wlBar,
 } from "../props-results-core.js";
 import { onRequestGet as page } from "../functions/props/results.js";
 import { onRequestGet as csvRoute } from "../functions/props/results.csv.js";
@@ -52,8 +53,9 @@ assert.equal(nba[0].player, "Player B", "newest first");
 assert.ok(!nba.some((r) => /Open|Bad/.test(r.player)));
 
 // ------------------------------------------------------------------ tallies: pushes excluded from hit %
-assert.deepEqual(tally(nba), { w: 2, l: 1, p: 2, n: 5, pct: 2 / 3 });
-assert.equal(recText(tally(nba)), "2–1–2", "pushes shown in the record");
+assert.deepEqual(tally(nba), { w: 2, l: 1, n: 3, pct: 2 / 3, p: 2, v: 0 });
+assert.equal(recText(tally(nba)), "2–1", "pushes are never part of the record");
+assert.equal(asideText(tally(nba)), "2 pushes");
 assert.equal(recText({ w: 4, l: 4, p: 0 }), "4–4");
 assert.equal(tally([row({ result: "P" })]).pct, null);
 assert.equal(dateLabel("2026-11-14"), "Sat 14 Nov");
@@ -79,8 +81,8 @@ const series = dailySeries([R("2026-11-02", "W"), R("2026-11-01", "W"), R("2026-
 assert.deepEqual(series.map((d) => d.date), ["2026-11-01", "2026-11-02", "2026-11-03"], "oldest first");
 assert.deepEqual(series.map((d) => d.pct), [0.5, 1, 0], "daily rate, pushes left out");
 assert.deepEqual(series.map((d) => d.cum), [0.5, 0.75, 0.6], "cumulative rate");
-assert.deepEqual(series.map((d) => [d.cw, d.cl, d.cp]), [[1, 1, 0], [3, 1, 1], [3, 2, 2]]);
-assert.equal(dailySeries([R("2026-11-01", "P")])[0].cum, null, "push-only day has no rate");
+assert.deepEqual(series.map((d) => [d.cw, d.cl]), [[1, 1], [3, 1], [3, 2]]);
+assert.equal(dailySeries([R("2026-11-01", "P"), R("2026-11-02", "V")]).length, 0, "push / void-only days are not charted");
 assert.equal(bestDay(series).date, "2026-11-02");
 assert.equal(bestDay(dailySeries([R("2026-11-01", "W"), ...Array(3).fill(R("2026-11-02", "W")), R("2026-11-02", "L")])).date, "2026-11-02", "3+ decided calls preferred over a 1-call day");
 // chart: one point for one date (nothing invented), a line + area for several, bars for daily
@@ -109,10 +111,11 @@ const big = [...hero.matchAll(/<p class="record-hero([^"]*)"><b>([^<]+)<\/b> <sp
 assert.equal(big.length, 2, "two headline figures");
 assert.equal(big[0][1], " green-hero pr-big", "green first, in green");
 assert.equal(big[1][1], " pr-big", "all-settled figure at the same size class");
-assert.deepEqual([big[0][2], big[0][3]], ["1–1–1", "50%"], "green W-L-P and hit %");
+assert.deepEqual([big[0][2], big[0][3]], ["1–1", "50%"], "green W-L and hit %");
+assert.match(hero, /green-hero pr-big"><b>1–1<\/b> <span>50%<\/span> <em class="pr-aside">1 push<\/em>/, "a real push is named beside the record");
 assert.deepEqual([big[1][2], big[1][3]], ["2 of 3", "67%"], "all settled, pushes left out of the %");
 assert.ok(hero.indexOf('data-hero="green"') < hero.indexOf('data-hero="all"'));
-for (const k of ["Orange", "Red", "Pushes", "Over calls", "Under calls"]) assert.ok(hero.includes(`>${k}</span>`), k);
+for (const k of ["Orange", "Red", "Void", "Over calls", "Under calls"]) assert.ok(hero.includes(`>${k}</span>`), k);
 assert.ok(hero.indexOf('data-hero="all"') < hero.indexOf(">Orange<"), "smaller tiles after the headline");
 assert.ok(!hero.includes("Super") && !hero.includes("Best value"));
 
@@ -136,7 +139,7 @@ const cols = [...headHtml(false).matchAll(/<th[^>]*>([^<]*)<\/th>/g)].map((m) =>
 assert.deepEqual(cols, ["Date", "Player", "Stat", "Line", "Our call", "Chance", "Light", "Actual", "Result"]);
 const pushRow = rowHtml(nba.find((r) => r.player === "Player E"), false);
 assert.ok(pushRow.includes('class="n mono pr-actual">—<') && pushRow.includes('pr-badge P'));
-assert.match(listSummary(nba, 5), /Showing <b>5<\/b> of 5 settled calls · <b>2–1–2<\/b> \(67%\)/);
+assert.equal(listSummary(nba, 5), "Showing <b>5</b> of 5 settled calls · <b>2–1</b> (67%) · 2 pushes");
 assert.equal(sportEmptyText("NFL"), "NFL props results will appear here once settled calls are up.");
 
 // ------------------------------------------------------------------ body: one shared game label (today's live shape)
@@ -176,7 +179,7 @@ assert.match(body, /id="prMore" hidden/);
 // ------------------------------------------------------------------ public data only
 const json = JSON.parse(body.match(/<script type="application\/json" id="prData">([\s\S]*?)<\/script>/)[1]);
 const keys = new Set(Object.values(json.sports).flat().flatMap((r) => Object.keys(r)));
-assert.deepEqual([...keys].sort(), ["actual", "call", "date", "game", "light", "line", "p", "player", "result", "sport", "stat"]);
+assert.deepEqual([...keys].sort(), ["actual", "call", "date", "game", "home", "light", "line", "opp", "p", "player", "result", "season_avg", "sport", "stat", "team"]);
 assert.ok(!json.sports.nba.some((r) => /Open/.test(r.player)), "open calls never sent");
 const leak = renderBody(resultsFrom({ payload: { sports: { nba: { rows: [row({ proj: 31.4, sigma: 4.2, p_over: 0.7, minutes: 33, event_id: "e1", player: "</script><b>x" })] } } } }));
 assert.ok(!/31\.4|sigma|p_over|event_id/.test(leak), "private fields never reach the page");
@@ -184,10 +187,81 @@ assert.ok(!leak.includes("</script><b>x"), "JSON payload cannot break out of its
 
 // ------------------------------------------------------------------ CSV
 const csv = renderPropsCsv(res).trim().split("\n");
-assert.equal(csv[0], "sport,date,game,player,stat,line,call,chance,light,actual,result");
+assert.equal(csv[0], "sport,date,game,player,team,opp,home,stat,line,season_avg,call,chance,light,actual,result");
 assert.equal(csv.length, 1 + 5 + 1, "every settled call, every sport");
-assert.ok(csv.some((l) => l.startsWith("nba,2026-11-13,,Player E,threes,20.5,Under,0.62,GREEN,,P")));
+assert.ok(csv.includes("nba,2026-11-13,,Player E,,,,threes,20.5,,Under,0.62,GREEN,,P"), "missing optional fields stay blank");
 assert.equal(renderPropsCsv(null).trim(), csv[0]);
+
+// ------------------------------------------------------------------ voids (V): listed, never counted
+assert.equal(normaliseRow(row({ result: "V", actual: null }), "nba").result, "V", "void accepted with no actual");
+assert.equal(normaliseRow(row({ result: "v", actual: 7 }), "nba").actual, null, "a void never carries an actual");
+const vres = resultsFrom({ payload: { generated_at: "x", sports: { nba: { rows: [
+  ...Array.from({ length: 4 }, (_, i) => row({ player: `GW${i}`, result: "W" })),
+  ...Array.from({ length: 4 }, (_, i) => row({ player: `GL${i}`, result: "L", actual: 10 })),
+  row({ player: "GV1", result: "V", actual: null }), row({ player: "GV2", result: "V", actual: null, stat: "assists" }),
+  row({ player: "OW", light: "orange", pct: 0.57, result: "W" }), row({ player: "OV", light: "orange", pct: 0.57, result: "V", actual: null, call: "Under" }),
+] } } } });
+const vr = vres.sports.nba;
+assert.equal(vr.length, 12, "voids are listed");
+const vt = tally(vr);
+assert.deepEqual([vt.w, vt.l, vt.n, vt.v, vt.p], [5, 4, 9, 3, 0], "voids out of W/L and n");
+assert.equal(Math.round(vt.pct * 100), 56, "voids out of the hit rate");
+assert.equal(asideText(vt), "3 void", "no push wording without a real push");
+const vh = heroHtml(vr, "NBA");
+assert.match(vh, /green-hero pr-big"><b>4–4<\/b> <span>50%<\/span> <em class="pr-aside">2 void<\/em><\/p>/, "hero: green W-L, % and N void beside it");
+assert.match(vh, /pr-big"><b>5 of 9<\/b> <span>56%<\/span> <em class="pr-aside">3 void<\/em>/, "all settled excludes voids");
+assert.ok(!/push/i.test(vh.replace(/class="[^"]*"/g, "")), "no push mention when none exist");
+assert.match(vh, /<span class="ut-k">Void<\/span><b>3<\/b><span class="pr-tile-r">not in records<\/span>/);
+assert.ok(!/\d+–\d+–\d+/.test(vh), "never W-L-P in the hero");
+const vhp = heroHtml([...vr, { ...vr[0], player: "PP", result: "P", actual: 20.5 }], "NBA");
+assert.match(vhp, /<em class="pr-aside">2 void · 1 push<\/em>/, "a real push is named next to the voids");
+// chart + breakdowns + list ignore voids
+const greenV = filterRows(vr, { lights: ["GREEN"] });
+const greenNoV = greenV.filter((r) => r.result !== "V");
+assert.equal(chartSvg(dailySeries(greenV), "cum"), chartSvg(dailySeries(greenNoV), "cum"), "chart unchanged by voids");
+assert.equal(chartSvg(dailySeries(greenV), "day"), chartSvg(dailySeries(greenNoV), "day"));
+const cb = chartBlockHtml(greenV, "cum", "Green");
+assert.ok(cb.includes("<b>8</b>") && cb.includes("4–4 · 2 void") && !cb.includes("<b>10</b>"), "settled-calls tile counts W/L only");
+const vbk = breakdownHtml(greenV);
+assert.ok(vbk.includes('data-value="points" aria-pressed="false">\n      <span class="pr-bk-k">Points</span>\n      <span class="pr-bk-v">50%</span>\n      <span class="pr-bk-r mono">4–4</span>'), "stat tile: W-L only");
+assert.match(vbk, /data-value="assists"[^>]*>\s*<span class="pr-bk-k">Assists<\/span>\s*<span class="pr-bk-v">—<\/span>\s*<span class="pr-bk-r mono">No settled calls<\/span>/, "void-only stat: honest empty state");
+assert.equal((wlBar({ w: 1, l: 1, n: 2 }).match(/<rect/g) || []).length, 2, "bar: W and L only");
+assert.equal(listSummary(greenV, 12), "Showing <b>10</b> of 12 settled calls · <b>4–4</b> (50%) · 2 void");
+const vRow = rowHtml(vr.find((r) => r.player === "GV1"), false);
+assert.match(vRow, /<td class="n mono pr-actual">-<\/td>/, "void actual shows -");
+assert.match(vRow, /<span class="pr-badge V" title="Void: did not play">VOID<\/span>/, "grey VOID badge");
+const vBody = renderBody(vres);
+assert.ok(vBody.includes(">VOID</span>"), "void rows are listed on the page");
+assert.match(vBody, /id="prCount">Showing <b>10<\/b> of 12 settled calls · <b>4–4<\/b> \(50%\) · 2 void/);
+assert.ok(renderPropsCsv(vres).includes(",GV1,"), "voids in the CSV");
+assert.match(renderPropsCsv(vres), /,GV1,.*,GREEN,,V\n/, "void CSV row: blank actual, result V");
+
+// ------------------------------------------------------------------ optional public fields: team, opp, home, season_avg
+const f1 = normaliseRow(row({ team: " Los Angeles Lakers ", opp: "Phoenix Suns", home: false, season_avg: 24.6 }), "nba");
+assert.deepEqual([f1.team, f1.opp, f1.home, f1.season_avg], ["Los Angeles Lakers", "Phoenix Suns", false, 24.6]);
+const f2 = normaliseRow(row({ home: "true", season_avg: "7.5" }), "nba");
+assert.deepEqual([f2.home, f2.season_avg], [true, 7.5], "string forms accepted");
+const f3 = normaliseRow(row({}), "nba");
+assert.deepEqual([f3.team, f3.opp, f3.home, f3.season_avg], ["", "", null, null], "missing fields ignored");
+const f4 = normaliseRow(row({ home: "yes", season_avg: "n/a", opp: null }), "nba");
+assert.deepEqual([f4.home, f4.season_avg, f4.opp], [null, null, ""], "invalid values ignored");
+assert.equal(matchupText({ opp: "Phoenix Suns", home: false }), "@ Phoenix Suns");
+assert.equal(matchupText({ opp: "Phoenix Suns", home: true }), "vs Phoenix Suns");
+assert.equal(matchupText({ opp: "Phoenix Suns", home: null }), "vs Phoenix Suns");
+assert.equal(matchupText({ opp: "", home: true }), "");
+assert.match(rowHtml(f1, false), /<td class="pr-player">Player A<span class="pr-opp">@ Phoenix Suns<\/span><\/td>/);
+assert.match(rowHtml(f3, false), /<td class="pr-player">Player A<\/td>/, "no opp: name only");
+assert.equal(hasSeasonAvg([f3]), false);
+assert.equal(hasSeasonAvg([f3, f1]), true);
+assert.ok(headHtml(false, true).includes('<th class="n">Line</th><th class="n">Season avg</th><th>Our call</th>'));
+assert.ok(!headHtml(false, false).includes("Season avg"));
+assert.match(rowHtml(f1, false, true), /<td class="n mono pr-avg">24\.6<\/td>/);
+assert.match(rowHtml(f3, false, true), /<td class="n mono pr-avg">—<\/td>/, "missing avg in a sport that has some: —");
+const fres = resultsFrom({ payload: { sports: { nba: { rows: [row({ team: "Phoenix Suns", opp: "Los Angeles Lakers", home: true, season_avg: 26.1 }), row({ player: "Z" })] } } } });
+const fb = renderBody(fres);
+assert.ok(fb.includes("<th class=\"n\">Season avg</th>") && fb.includes("vs Los Angeles Lakers") && fb.includes(">26.1<"));
+assert.ok(!renderBody(res).includes("Season avg"), "no season avg anywhere: no column");
+assert.ok(renderPropsCsv(fres).includes(",Player A,Phoenix Suns,Los Angeles Lakers,true,points,20.5,26.1,Over,"));
 
 // ------------------------------------------------------------------ page via the routes: stubbed Supabase
 const realFetch = globalThis.fetch;

@@ -2,8 +2,10 @@
 // Data: Supabase row public.tips_page_snapshot id="props-results", read on the server with the
 // service key (same read + 60s per-isolate cache as /props/nba). Shape:
 //   { generated_at, sports: { nba: { rows: [ { date, game, player, stat, line, call, pct, light,
-//                                              actual, result } ] }, nfl: {...}, nhl: {...} } }
-// Only settled rows (result W / L / P) are ever rendered; open calls never are. The raw row and the
+//                                              actual, result, team?, opp?, home?, season_avg? } ] },
+//                             nfl: {...}, nhl: {...} } }
+// Only settled rows (result W / L / P / V) are ever rendered; open calls never are.
+// V = void (the player did not play, actual null). Only W and L count in any record or rate. The raw row and the
 // service key never reach the browser: the page embeds only the normalised public fields below.
 // No units, prices, ROI or profit. Today's board (snapshot "nba-props") is never read here.
 // Numbers, charts and table rows come from /props-results-core.js, shared with the browser.
@@ -11,7 +13,7 @@ import { esc } from "./site.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons } from "./nba-props.js";
 import {
-  STATS, STAT_LABEL, LIGHTS, CALLS, tally, dateLabel, datesOf, gameLabels, gameLabelsVary, filterRows,
+  STATS, STAT_LABEL, LIGHTS, CALLS, tally, dateLabel, datesOf, gameLabels, gameLabelsVary, hasSeasonAvg, filterRows,
   heroHtml, chartBlockHtml, breakdownHtml, headHtml, rowHtml, listSummary, sportEmptyText, lightsLabel,
 } from "../../props-results-core.js";
 
@@ -49,7 +51,7 @@ async function readSnapshotRow(env, now) {
 }
 
 const num = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null : Number(x));
-const RESULTS = new Set(["W", "L", "P"]);
+const RESULTS = new Set(["W", "L", "P", "V"]);
 
 /** 0.62 or 62 → 0.62; anything else → null. */
 function prob(x) {
@@ -67,17 +69,26 @@ function lightFor(r, p) {
   return shown >= 60 ? "GREEN" : shown >= 55 ? "ORANGE" : "RED";
 }
 
+/** true / false (also "true" / "false"), else null. */
+function bool(x) {
+  if (x === true || x === false) return x;
+  const s = String(x ?? "").trim().toLowerCase();
+  return s === "true" ? true : s === "false" ? false : null;
+}
+const text = (x) => (x == null ? "" : String(x).trim());
+
 /**
  * One row normalised, or null when it is not a settled call we can show.
- * Settled = result W, L or P. W and L need an actual; a push may come without one (no stat line
- * was recorded), and then shows "—".
+ * Settled = result W, L, P or V. W and L need an actual; a push may come without one; a void
+ * (did not play) never has one. Optional public fields team, opp, home (bool) and season_avg are
+ * kept when present and valid, and left empty / null otherwise.
  */
 export function normaliseRow(r, sport) {
   if (!r || typeof r !== "object") return null;
   const result = String(r.result || "").trim().toUpperCase();
   if (!RESULTS.has(result)) return null; // open or ungraded: never shown
-  const actual = num(r.actual);
-  if (actual == null && result !== "P") return null;
+  const actual = result === "V" ? null : num(r.actual);
+  if (actual == null && (result === "W" || result === "L")) return null;
   const stat = String(r.stat || "").trim().toLowerCase();
   if (!STAT_LABEL[stat]) return null;
   const date = String(r.date || "").trim().slice(0, 10);
@@ -87,7 +98,10 @@ export function normaliseRow(r, sport) {
   const p = prob(r.pct);
   const light = lightFor(r, p);
   if (!light) return null;
-  return { sport, date, game: String(r.game || "").trim(), player: String(r.player || ""), stat, line: num(r.line), call, p, light, actual, result };
+  return {
+    sport, date, game: text(r.game), player: String(r.player || ""), stat, line: num(r.line), call, p, light, actual, result,
+    team: text(r.team), opp: text(r.opp), home: bool(r.home), season_avg: num(r.season_avg),
+  };
 }
 
 /** { generated_at, sports: { id: rows[] } } with settled rows only, newest first; null when empty. */
@@ -133,7 +147,10 @@ export function publicRows(results) {
   for (const id of sportIds(results)) {
     const rows = results.sports[id];
     const keepGame = gameLabelsVary(rows);
-    out[id] = rows.map((r) => ({ sport: r.sport, date: r.date, game: keepGame ? r.game : "", player: r.player, stat: r.stat, line: r.line, call: r.call, p: r.p, light: r.light, actual: r.actual, result: r.result }));
+    out[id] = rows.map((r) => ({
+      sport: r.sport, date: r.date, game: keepGame ? r.game : "", player: r.player, stat: r.stat, line: r.line, call: r.call,
+      p: r.p, light: r.light, actual: r.actual, result: r.result, team: r.team, opp: r.opp, home: r.home, season_avg: r.season_avg,
+    }));
   }
   return out;
 }
@@ -145,12 +162,12 @@ const csvEsc = (v) => {
 };
 /** Every settled call, every sport and light, same public fields as the page. */
 export function renderPropsCsv(results) {
-  const lines = [["sport", "date", "game", "player", "stat", "line", "call", "chance", "light", "actual", "result"].join(",")];
+  const lines = [["sport", "date", "game", "player", "team", "opp", "home", "stat", "line", "season_avg", "call", "chance", "light", "actual", "result"].join(",")];
   if (results) {
     const rows = publicRows(results);
     for (const id of sportIds(results)) {
       for (const r of rows[id]) {
-        lines.push([r.sport, r.date, r.game, r.player, r.stat, r.line, r.call, r.p == null ? "" : r.p.toFixed(2), r.light, r.actual, r.result].map(csvEsc).join(","));
+        lines.push([r.sport, r.date, r.game, r.player, r.team, r.opp, r.home, r.stat, r.line, r.season_avg, r.call, r.p == null ? "" : r.p.toFixed(2), r.light, r.actual, r.result].map(csvEsc).join(","));
       }
     }
   }
@@ -172,6 +189,7 @@ export function renderBody(results) {
   const rows = results.sports[first];
   const lit = filterRows(rows, { lights: DEFAULT_LIGHTS });
   const showGame = gameLabelsVary(rows);
+  const showAvg = hasSeasonAvg(rows);
   const data = JSON.stringify({ sports: publicRows(results), labels: Object.fromEntries(tabs.map((id) => [id, sportLabel(id)])), page: PAGE_SIZE })
     .replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
 
@@ -224,8 +242,8 @@ export function renderBody(results) {
     </div>
     <p class="pr-count" id="prCount">${listSummary(lit, rows.length)}</p>
     <div class="tablewrap pr-tablewrap"><table class="record-picks pr-table">
-      <thead id="prHead">${headHtml(showGame)}</thead>
-      <tbody id="prBody">${lit.slice(0, PAGE_SIZE).map((r) => rowHtml(r, showGame)).join("")}</tbody>
+      <thead id="prHead">${headHtml(showGame, showAvg)}</thead>
+      <tbody id="prBody">${lit.slice(0, PAGE_SIZE).map((r) => rowHtml(r, showGame, showAvg)).join("")}</tbody>
     </table></div>
     <p class="pr-none small" id="prNone"${lit.length ? " hidden" : ""}>No settled calls match these filters yet.</p>
     <p class="pr-more-wrap"><button type="button" class="btn btn-ghost pr-more" id="prMore"${lit.length > PAGE_SIZE ? "" : " hidden"}>Show more</button></p>
