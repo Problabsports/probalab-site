@@ -37,5 +37,18 @@
       "vs_close": -0.0362
     },
     "pick": "a"
+  },
+  "187442": {
+    "a": {
+      "close_price": 3.586,
+      "posted_price": 3.35,
+      "vs_close": -0.0658
+    },
+    "b": {
+      "close_price": 1.387,
+      "posted_price": 1.37,
+      "vs_close": -0.0121
+    },
+    "pick": "b"
   }
 }
