@@ -6,7 +6,7 @@ import { DISCORD_INVITE_URL } from "./_shared/discord.js";
 
 export function onRequestGet() {
   const title = "FAQ | ProbaLab";
-  const description = "Short answers about ProbaLab lights, results, Super best-value picks, and how the public record works.";
+  const description = "Short answers about ProbaLab lights, results, Best value picks (NBA only), and how the public record works.";
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>FAQ</span></nav>
 <p class="eyebrow">// faq</p>
 <h1>Frequently asked questions</h1>
@@ -20,7 +20,7 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>What is ${labelLong("SUPER")}?</h2>
-  <p>Super is an NBA-only value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price under the rules on the lights page. Other sports do not use Super.</p>
+  <p>Best value is an NBA-only value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price under the rules on the lights page. Other sports do not use Best value.</p>
 </section>
 <section class="panel prose">
   <h2>Where is the track record?</h2>

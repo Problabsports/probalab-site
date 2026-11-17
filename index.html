@@ -882,7 +882,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <h2>The lights</h2>
       <p>The cut-offs depend on the sport. NBA, NFL and NHL use the two-way scale below. Football (where a draw is possible) and tennis use different cut-offs — <a href="/lights">how the lights work</a>.</p>
       <div class="lights">
-        <div><span><i class="chip SUPER">Super</i></span><p><span data-lt="label-long:SUPER">Super — best value</span>. NBA only. The bookmaker price beats our fair price. This is a value flag, not a higher-confidence green. <a href="/lights">How the lights work</a>.</p></div>
+        <div><span><i class="chip SUPER">Best value</i></span><p><span data-lt="label-long:SUPER">Best value</span>. NBA only. The bookmaker price beats our fair price. This is a value flag, not a higher-confidence green. <a href="/lights">How the lights work</a>.</p></div>
         <div><span><i class="chip GREEN">Green</i></span><p>On NBA, NFL and NHL: <span data-lt="range:nba:GREEN">65%+</span>. One of our top picks.</p></div>
         <div><span><i class="chip ORANGE">Orange</i></span><p>On NBA, NFL and NHL: a lean, <span data-lt="range:nba:ORANGE">55–64%</span>.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>On NBA, NFL and NHL: <span data-lt="range:nba:RED">under 55%</span>. Close to a coin flip.</p></div>
@@ -1107,7 +1107,7 @@ function predLightBar(showSuper) {
   return `<div class="game-filter-bar"><nav class="game-filters lights" aria-label="Filter by light">${btns.map(([id,lab,cls]) => {
     const on = PRED_LIGHT === id;
     return `<button type="button" class="gf-btn${cls?` ${cls}`:""}${on?" on":""}" data-pred-light="${id}"${on?' aria-current="true"':""}>${lab}</button>`;
-  }).join("")}</nav>${PRED_LIGHT==="green"?`<p class="filter-note">Showing Green + Best value. Choose All lights to see every colour.</p>`:PRED_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`;
+  }).join("")}</nav>${PRED_LIGHT==="green"?`<p class="filter-note">Showing ${showSuper?"Green + Best value":"Green picks"}. Choose All lights to see every colour.</p>`:PRED_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`;
 }
 
 function calHtml() {
@@ -1464,7 +1464,7 @@ async function loadYesterdayStrip() {
       const mark = g.won ? "✓" : "✗";
       const cls = g.won ? "win" : "loss";
       const pctN = g.chance != null ? Math.round(Number(g.chance) * 100) + "%" : "";
-      const lab = g.light === "SUPER" ? "Super" : "Green";
+      const lab = g.light === "SUPER" ? LNAME.SUPER : "Green";
       return `<li class="${cls}" style="--i:${Math.min(i, 8)}" title="${esc(lab)} · ${esc(g.sport_name || g.sport)}"><span class="mark" aria-hidden="true">${mark}</span><span class="sp">${esc(String(g.sport || "").toUpperCase())}</span><span>${esc(g.pick)}</span>${pctN ? `<span>${pctN}</span>` : ""}</li>`;
     }).join("");
     const other = (d.other && d.other.n)

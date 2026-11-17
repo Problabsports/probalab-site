@@ -175,19 +175,19 @@ assert.match(htmlGreen, /<h1>Results<\/h1>/);
 for (const [k, g] of Object.entries(G)) if (g.n) assert.ok(htmlGreen.includes(`${g.w} of ${g.n}`), `${k} green headline ${g.w} of ${g.n}`);
 assert.match(htmlGreen, /href="\/results\.csv"/);
 assert.match(htmlGreen, /Green \+ Best value/);
-assert.match(htmlGreen, /Super — best value/);
+assert.match(htmlGreen, /Best value \(NBA only/);
 assert.doesNotMatch(htmlGreen, /clears the green bar|above the green bar|higher-confidence green bar/);
 const lights = renderLightsPage();
-assert.match(lights, /Super — best value/);
+assert.match(lights, /Best value<\/span><\/span><p>Best value\. NBA only/);
 assert.match(lights, /bookmaker price beats our fair price/);
-assert.match(lights, /162 Super games/);
+assert.match(lights, /162 Best value games/);
 assert.match(lights, /63%/);
 assert.match(lights, /\+0\.7%/);
 assert.match(lights, /break-even/);
 assert.doesNotMatch(lights, /well above its usual level|clears the green bar/);
 const htmlNba = renderResultsPage(views, { sport: "nba", light: "green" });
 assert.match(htmlNba, /href="\/results\?sport=nba&amp;light=all"|href="\/results\?sport=nba&light=all"/);
-assert.ok(htmlNba.includes("Denver Nuggets")); // Super included in default green view
+assert.ok(htmlNba.includes("Denver Nuggets")); // Best value (SUPER) included in default green view
 assert.ok(!htmlNba.includes("Miami Heat") || htmlNba.indexOf("Miami Heat") < htmlNba.indexOf("<tbody>") === False);
 // The RED Miami pick should not appear as a list row in the default green view.
 assert.doesNotMatch(htmlNba.split("record-picks")[1] ?? "", />Miami Heat</);

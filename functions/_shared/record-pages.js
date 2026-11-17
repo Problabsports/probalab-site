@@ -2,6 +2,7 @@
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
 import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
+import { greenViewLabel } from "./game-filters.js";
 import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
 export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
@@ -17,7 +18,7 @@ export const LIGHT_COPY = Object.fromEntries(gameSports().map((s) => {
   const t = scaleText(s);
   return [s, {
     scale: sportCfg(s).scale, green: t.GREEN, orange: t.ORANGE, red: t.RED, super: bestValueSports().includes(s),
-    ...(s === "nba" ? { note: "Super is the NBA best-value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." } : {}),
+    ...(s === "nba" ? { note: "Best value is the NBA-only value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." } : {}),
     ...(s === "epl" ? { switchOn: EPL_LIGHTS_FROM } : {}),
   }];
 }));
@@ -387,7 +388,7 @@ function filterNav(filters) {
       return on ? `<span class="on">${esc(label)}</span>` : `<a href="${esc(href)}">${esc(label)}</a>`;
     }).join("");
   const lightLinks = [
-    ["green", "Green + Best value"],
+    ["green", greenViewLabel(filters.sport)],
     ["all", "All lights"],
     ["super", labelLong("SUPER")],
     ["orange", "Orange"],
@@ -401,7 +402,7 @@ function filterNav(filters) {
     <nav class="record-sports" aria-label="Filter by sport">${sportLinks}</nav>
     <nav class="record-sports light-filters" aria-label="Filter by light">${lightLinks}</nav>
   </div>
-  <p class="small">The default list is Green + Best value. Super is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
+  <p class="small">The default list is ${greenViewLabel(filters.sport) === "Green picks" ? "green picks" : "Green + Best value. Best value is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green"}. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
 }
 
 function sportGreenCard(v) {
@@ -585,7 +586,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   const topW = gAll.w + sAll.w, topN = gAll.n + sAll.n;
   const tShown = tally(shown);
   const listTitle = filters.light === "green"
-    ? "Green + Best value"
+    ? greenViewLabel(filters.sport)
     : filters.light === "all"
       ? "Every finished pick"
       : filters.light === "super"
@@ -593,7 +594,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
       : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
   const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
   const lightNote = filters.light === "green"
-    ? "Showing Green + Best value (green picks, plus NBA Super value picks). "
+    ? `Showing ${greenViewLabel(filters.sport)}. `
     : "";
 
   const overall = allRows.length ? `<section class="panel green-lead">
@@ -719,8 +720,8 @@ export function renderLightsPage() {
       <div><span>${chip("ORANGE")}</span><p>A lean, ${T("nba").ORANGE}.</p></div>
       <div><span>${chip("RED")}</span><p>${T("nba").RED[0].toUpperCase()}${T("nba").RED.slice(1)}. Close to a coin flip.</p></div>
     </div>
-    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least ${P(bestValueMinP())}% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same ${P(C("nfl").green_min)} / ${P(C("nfl").orange_min)} confidence scale and do not have a Super flag.</p>
-    <p>In a 2025–26 test of 162 Super games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Best value is different: an NBA pick only gets Best value when the model is at least ${P(bestValueMinP())}% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Best value except for those injuries. The NFL and NHL use the same ${P(C("nfl").green_min)} / ${P(C("nfl").orange_min)} confidence scale and do not have a Best value flag.</p>
+    <p>In a 2025–26 test of 162 Best value games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 
   <section class="panel"><h2>Premier League and Championship</h2>

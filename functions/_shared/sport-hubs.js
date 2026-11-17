@@ -175,9 +175,10 @@ export async function renderLeanHub(ctx, sport) {
     availableSports: new Set([sport]),
     showSport: false,
     showSuper: sport === "nba",
+    sport,
   });
   const dayBlocks = Object.keys(groups).map((d) => `<section class="panel"><h2>${esc(d)}</h2><ul class="games">${groups[d].map(row).join("")}</ul></section>`).join("");
-  const list = dayBlocks || (upcomingAll.length ? emptyFilterMessage(filters, { basePath: `/${sport}` }) : `<section class="panel"><h2>No upcoming picks yet</h2><p>Picks appear before ${sport === "epl" ? "kick-off" : sport === "tennis" ? "the first serve" : "puck drop"}.</p></section>`);
+  const list = dayBlocks || (upcomingAll.length ? emptyFilterMessage(filters, { basePath: `/${sport}`, sport }) : `<section class="panel"><h2>No upcoming picks yet</h2><p>Picks appear before ${sport === "epl" ? "kick-off" : sport === "tennis" ? "the first serve" : "puck drop"}.</p></section>`);
   const recordBits = settled.length
     ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.`
     : "Our record starts with the first results, and every pick stays on it, win or lose.";
