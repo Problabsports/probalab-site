@@ -1,7 +1,7 @@
 // Shared track-record pages for every sport ProbaLab covers.
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
-import { getFeed, gamesOf, shell, html, esc, chip, sportName, signupMain, ORIGIN } from "./site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
 
 export const EPL_LIGHTS_FROM = "2026-10-23T23:42:00Z";
 
@@ -613,7 +613,6 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   ${trustStrip()}
   ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
-  ${signupMain("results")}
   <section class="panel" id="picks">
     <div class="toolbar results-toolbar">
       <h2 class="grow">${esc(listTitle)} · ${esc(sportLabel)}</h2>

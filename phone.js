@@ -159,6 +159,7 @@
   function todayPage() {
     root.classList.add("pf-today");
     sportChips();
+    countLine();
     var all = rowsFromToday(document);
     $$("section.panel[id]").forEach(function (sec) {
       var ul = $("ul.today-games", sec);
@@ -606,6 +607,11 @@
       top.appendChild(hero.cloneNode(true));
       h1.parentNode.insertBefore(top, h1.nextSibling);
     }
+    if (lead && !$(".pf-rlinks", lead)) {
+      // the cut-off list lives in the Light key; keep the links as one short line here
+      $$("p", lead).forEach(function (q) { if (/fair to add the green totals/i.test(q.textContent)) q.classList.add("pf-replaced"); });
+      lead.insertAdjacentHTML("beforeend", '<p class="small pf-rlinks pf-only"><a href="/backtest">Backtest</a> · <a href="/how-it-works">How it works</a> · <a href="/lights">How the lights work</a></p>');
+    }
     if (lead && !$(".pf-lkey[data-pf-key='results']", main)) {
       lead.insertAdjacentHTML("afterend", P.stackedKeyHtml(P.gameKeyRows("all", { best: true }), { title: "Light key · every sport", kind: "results", link: "/lights" }));
     }
@@ -618,7 +624,7 @@
       else if (el.matches(".pf-rtop")) o = 3;
       else if (el.id === "growth") o = 4;
       else if (el.matches(".record-grid")) o = 5;
-      else if (el.matches("p:not(.note)") && !seenIntro) { o = 6; seenIntro = true; }
+      else if (el.matches("p:not(.note)") && !seenIntro) { o = 6; seenIntro = true; el.classList.add("pf-replaced"); } // intro: its links are in the Green results box
       else if (el.matches(".green-lead, .pf-lkey")) o = 7;
       else if (el.matches(".trust-strip")) o = 8;
       else if (el.id === "picks") o = 10;
@@ -711,6 +717,19 @@
           .catch(function () {});
       }
     });
+  }
+
+  // ------------------------------------------------------------------ Today: games in the window vs picks shown
+  function countLine() {
+    var intro = $$("main p").filter(function (q) { return /tip off in the next 24 hours/i.test(q.textContent); })[0];
+    if (!intro || $(".pf-count")) return;
+    var m = intro.textContent.match(/(\d+) games? tip off/);
+    var total = m ? Number(m[1]) : 0;
+    var shown = $$("section.panel[id] ul.today-games > li:not(.head)").length;
+    var q = new URLSearchParams(location.search);
+    var light = (q.get("light") || "green").toLowerCase(), sport = (q.get("sport") || "all").toLowerCase();
+    intro.insertAdjacentHTML("beforebegin", '<p class="pf-count pf-only">' + esc(P.todayCountLine(total, shown, light, sport)) + "</p>");
+    intro.classList.add("pf-replaced");
   }
 
   // ------------------------------------------------------------------ installable web app

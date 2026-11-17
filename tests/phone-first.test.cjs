@@ -211,4 +211,13 @@ assert.match(P.sydneyWhen("2026-11-19T05:00:00Z", true), /time TBC$/);
 assert.deepEqual(Object.keys(P.NEXT_SOURCE), ["nba", "nfl", "nhl", "epl", "championship", "tennis"]);
 for (const u of Object.values(P.NEXT_SOURCE)) assert.match(u, /^\/(api\/feed\?sport=|data\/[a-z]+-picks\.json$)/, "next-game dates come from the files /today already reads");
 
+// ---------------------------------------------------------------- round 4: Today count line
+assert.equal(P.todayCountLine(16, 3, "green", "all"), "16 games in the next 24 hours · 3 green picks shown. Choose All lights to see every game.");
+assert.equal(P.todayCountLine(16, 1, "green", "all"), "16 games in the next 24 hours · 1 green pick shown. Choose All lights to see every game.");
+assert.equal(P.todayCountLine(16, 16, "all", "all"), "16 games in the next 24 hours · all 16 shown.");
+assert.equal(P.todayCountLine(16, 5, "all", "nba"), "16 games in the next 24 hours · 5 NBA games shown.");
+assert.equal(P.todayCountLine(16, 0, "super", "all"), "16 games in the next 24 hours · 0 Best value picks shown. Choose All lights to see every game.");
+assert.equal(P.todayCountLine(0, 0, "green", "all"), "No games in the next 24 hours.");
+assert.equal(P.todayCountLine(1, 1, "all", "all"), "1 game in the next 24 hours · all 1 shown.");
+
 console.log("phone-first tests passed");

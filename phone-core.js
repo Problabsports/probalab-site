@@ -382,6 +382,19 @@
   }
   var NEXT_SOURCE = { nba: "/api/feed?sport=nba", nfl: "/api/feed?sport=nfl", nhl: "/data/nhl-picks.json", epl: "/data/epl-picks.json", championship: "/data/championship-picks.json", tennis: "/data/tennis-picks.json" };
 
+  // ---------------------------------------------------------------- Today: count line
+  var SHOWN_WORD = { green: "green", super: "Best value", orange: "orange", red: "red" };
+  /** "16 games in the next 24 hours · 3 green picks shown. Choose All lights to see every game." Numbers come from the page. */
+  function todayCountLine(total, shown, light, sport) {
+    var plural = function (n, w) { return n + " " + w + (n === 1 ? "" : "s"); };
+    var sp = sport && sport !== "all" ? (SPORT_NAME[sport] || sport) + " " : "";
+    if (!total) return "No games in the next 24 hours.";
+    var head = plural(total, "game") + " in the next 24 hours";
+    if (light === "all") return head + " · " + (sp ? shown + " " + sp + (shown === 1 ? "game" : "games") + " shown." : "all " + shown + " shown.");
+    var w = SHOWN_WORD[light] || light;
+    return head + " · " + shown + " " + sp + w + " pick" + (shown === 1 ? "" : "s") + " shown. Choose All lights to see every game.";
+  }
+
   // ---------------------------------------------------------------- bottom tab bar
   var TAB_BAR = [
     ["home", "/", "Home"],
@@ -419,6 +432,7 @@
     gaugeSvg: gaugeSvg, lightChip: lightChip, cardHtml: cardHtml, classifyPanel: classifyPanel,
     sortProps: sortProps, propsGameMatches: propsGameMatches, propRowHtml: propRowHtml, activeTab: activeTab,
     GAME_SCALE: GAME_SCALE, PROPS_SCALE: PROPS_SCALE, TODAY_SPORTS: TODAY_SPORTS, NEXT_SOURCE: NEXT_SOURCE,
+    todayCountLine: todayCountLine,
     gameKeyRows: gameKeyRows, propsKeyRows: propsKeyRows, stackedKeyHtml: stackedKeyHtml, matchesLight: matchesLight, todayHref: todayHref,
     sportCounts: sportCounts, sportChipsHtml: sportChipsHtml, noGamesText: noGamesText, nextStart: nextStart, sydneyWhen: sydneyWhen,
     teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,

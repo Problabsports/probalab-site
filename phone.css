@@ -435,4 +435,9 @@
   html.pf .pf-sc-msg[hidden] { display: none !important; }
   html.pf .pf-sc-msg span { color: var(--pf-muted); font-family: var(--f-mono, monospace); font-size: 12.5px; }
   html.pf .pf-sc-msg a { color: var(--pf-cyan); font-size: 13px; }
+
+  /* round 4: Today count line; Results intro and repeated cut-offs off on phones */
+  html.pf.pf-today main p.pf-replaced, html.pf.pf-results main.wrap > p.pf-replaced, html.pf.pf-results .green-lead p.pf-replaced { display: none !important; }
+  html.pf .pf-count { display: block !important; margin: 4px 0 12px; font-size: 15px; line-height: 1.45; color: var(--pf-ink); }
+  html.pf .pf-rlinks { display: block !important; margin-top: 8px; color: var(--pf-muted); }
 }
