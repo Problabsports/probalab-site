@@ -49,6 +49,7 @@ export async function onRequestGet(ctx) {
         sport_name: sportName(g.sport),
         pick: g.pick,
         light: g.light,
+        best_value: !!g.best_value,
         won: !!g.won,
         chance: g.pick_p,
         start_utc: g.start_utc,
@@ -76,8 +77,9 @@ export async function onRequestGet(ctx) {
   const greens = rows
     .filter((r) => r.light === "GREEN" || r.light === "SUPER")
     .sort((a, b) => {
-      const ra = a.light === "SUPER" ? 0 : 1;
-      const rb = b.light === "SUPER" ? 0 : 1;
+      // green first: green picks (some with a Best value tag), then Best value picks below the green range
+      const ra = a.light === "GREEN" ? 0 : 1;
+      const rb = b.light === "GREEN" ? 0 : 1;
       if (ra !== rb) return ra - rb;
       return (b.chance ?? 0) - (a.chance ?? 0);
     });

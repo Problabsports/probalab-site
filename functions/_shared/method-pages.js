@@ -39,7 +39,7 @@ export function renderHowItWorksPage() {
     <p>Each sport has its own model. None of them “knows” the result of the game they are pricing. Ratings and features are built from information that was already available before that game started.</p>
 
     <h3>NBA</h3>
-    <p>The model rates every player from recent box scores, weighted toward recent games. Before tip-off it reads the official injury report, works out the minutes each side is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent team strength, rest, back-to-backs, travel and a home-court edge that has declined over the years, to give each side a win probability. Best value, described below, is an NBA-only flag on top of that number.</p>
+    <p>The model rates every player from recent box scores, weighted toward recent games. Before tip-off it reads the official injury report, works out the minutes each side is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent team strength, rest, back-to-backs, travel and a home-court edge that has declined over the years, to give each side a win probability. Best value, described below, is an NBA-only flag on top of that number. Green comes first: a green pick that is also Best value stays green.</p>
 
     <h3>NFL</h3>
     <p>The model rates every team from results and winning margins, adds a measure of how efficiently they move the ball (expected points), then home field and rest, and checks who is expected to start at quarterback. A backup or an inexperienced starter counts against that team. Picks can go up as early as a week before kick-off and update as quarterback news comes in, then freeze at kick-off.</p>
@@ -61,12 +61,12 @@ export function renderHowItWorksPage() {
     <h2>How the lights work</h2>
     <p>Every pick gets a coloured light so you can see, at a glance, how strongly the model rates its own call. The cut-offs are not the same in every sport, and that is deliberate. We do not move them to chase a short run of results. The short page — <a href="/lights">How the lights work</a> — is the reference. In brief:</p>
     <div class="lights">
-      <div><span>${chip("SUPER")}</span><p>${labelLong("SUPER")}. NBA only. A value flag, not a higher-confidence green.</p></div>
-      <div><span>${chip("GREEN")}</span><p>${greenSummary()} (in football a draw is possible).</p></div>
+      <div><span>${chip("GREEN")}</span><p>${greenSummary()} (in football a draw is possible). An NBA green pick can also carry a small <span class="bv-tag">Best value</span> tag; it stays green.</p></div>
+      <div><span>${chip("SUPER")}</span><p>${labelLong("SUPER")}. NBA only, below the green range. A value flag, not a higher-confidence green.</p></div>
       <div><span>${chip("ORANGE")}</span><p>A lean: ${orangeSummary()}.</p></div>
       <div><span>${chip("RED")}</span><p>Below that. In a two-way sport this is close to a coin flip; in tennis a red light is a genuinely tight match.</p></div>
     </div>
-    <p>Best value is different. An NBA pick only gets Best value when the model is at least ${Math.round(bestValueMinP() * 100)}% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
+    <p>Best value is different. An NBA pick only gets Best value when the model is at least ${Math.round(bestValueMinP() * 100)}% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. Green comes first: if that pick is already in the green range it shows green with a Best value tag and counts in the green record, not the Best value record.</p>
     <p>If key players are listed as uncertain, a value pick is held back. It keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Best value except for those injuries. We do not promote a held pick to Best value, because the Best value test knew the real line-ups.</p>
   </section>
 

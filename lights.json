@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "about": "Single source of truth for ProbaLab lights: game cut-offs per sport, Best value (SUPER, NBA only), the props scale, colours, labels and Discord emoji. The site (functions and browser modules use lights.mjs, classic scripts lights.js, CSS the colour block: all generated from this file by tools/build_lights.mjs and drift-checked by tests) and the mini jobs (probalab_lights loader) read it. Edit here, then run: node tools/build_lights.mjs",
-  "order": ["SUPER", "GREEN", "ORANGE", "RED"],
+  "about": "Single source of truth for ProbaLab lights: game cut-offs per sport, Best value (internal key SUPER, NBA only; shown publicly only as Best value), the props scale, colours, labels and Discord emoji. The site (functions and browser modules use lights.mjs, classic scripts lights.js, CSS the colour block: all generated from this file by tools/build_lights.mjs and drift-checked by tests) and the mini jobs (probalab_lights loader) read it. Edit here, then run: node tools/build_lights.mjs",
+  "order": ["GREEN", "SUPER", "ORANGE", "RED"],
   "lights": {
     "SUPER": { "label": "Best value", "label_long": "Best value", "colour": "#b56cff", "soft": "rgba(181, 108, 255, 0.14)", "css_var": "super", "emoji": "🟣" },
     "GREEN": { "label": "Green", "label_long": "Green", "colour": "#2fd7a0", "soft": "rgba(47, 215, 160, 0.12)", "css_var": "green", "emoji": "🟢" },
@@ -20,8 +20,8 @@
     "light": "SUPER",
     "sports": ["nba"],
     "min_p": 0.60,
-    "text": "NBA value flag: the price beats our fair price",
-    "note": "Best value is a value flag, not a higher-confidence green. A feed SUPER below min_p, or a feed GREEN below the sport's green cut-off, is shown with the plain cut-off light (orange or red), never promoted."
+    "text": "NBA value flag below green: the price beats our fair price",
+    "note": "Green first. Best value is a value flag, not a higher-confidence green. A feed SUPER at or above the sport's green cut-off shows GREEN with a small Best value tag and counts once, in the green record. The Best value light and the Best value record are only Best value picks below the green cut-off (min_p up to it). A feed SUPER below min_p, or a feed GREEN below the sport's green cut-off, is shown with the plain cut-off light (orange or red), never promoted."
   },
   "display": {
     "chance": "floor",

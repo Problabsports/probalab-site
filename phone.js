@@ -143,6 +143,7 @@
           marketText: txt($(".mk", li)),
           valueText: txt($(".gap", li)),
           valued: li.classList.contains("has-value"),
+          bestValue: !!$(".bv-tag", li),
           injuryText: txt($(".injury-watch-note", li)),
         }));
         out[out.length - 1].el = li;
@@ -745,6 +746,7 @@
           matchText: txt(mc),
           pickText: txt($(".p", li)),
           chipClass: chip ? chip.className : "",
+          bestValue: !!$(".bv-tag", li),
           href: P.matchHref(sport, a ? a.getAttribute("href") : ""),
           injury: !!$(".injury-watch", li),
           injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", li)),
@@ -789,6 +791,7 @@
         matchText: names.join(" v "),
         pickText: ddAfterIn(card, "pick") + " " + ddAfterIn(card, "chance"),
         chipClass: chip ? chip.className : "",
+        bestValue: !!$(".card-top .bv-tag", card),
         href: "#game-" + card.getAttribute("data-game"),
         resultText: mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "",
       });

@@ -1,7 +1,7 @@
 // Shared track-record pages for every sport ProbaLab covers.
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
-import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, bvTag, sportName, ORIGIN } from "./site.js";
 import { greenViewLabel } from "./game-filters.js";
 import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
@@ -11,14 +11,14 @@ export const SPORT_ORDER = ["nba", "nfl", "nhl", "epl", "championship", "tennis"
 
 const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
 
-const CONF = { SUPER: "Very high", GREEN: "High", ORANGE: "Medium", RED: "Low" };
+const CONF = { GREEN: "High", SUPER: "Medium (Best value)", ORANGE: "Medium", RED: "Low" };
 
 // Display copy, built from lights.json (the live cut-offs every page uses).
 export const LIGHT_COPY = Object.fromEntries(gameSports().map((s) => {
   const t = scaleText(s);
   return [s, {
     scale: sportCfg(s).scale, green: t.GREEN, orange: t.ORANGE, red: t.RED, super: bestValueSports().includes(s),
-    ...(s === "nba" ? { note: "Best value is the NBA-only value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." } : {}),
+    ...(s === "nba" ? { note: "Best value is the NBA-only value flag: the bookmaker price beats our fair price. It is not a higher-confidence green. Green comes first: a green pick that is also Best value stays green, with a small Best value tag, and counts in the green record." } : {}),
     ...(s === "epl" ? { switchOn: EPL_LIGHTS_FROM } : {}),
   }];
 }));
@@ -79,6 +79,7 @@ export function rowsFromFeed(sport, data) {
       pick: g.pick_name ?? g.pick,
       pick_p: num(g.pick_p),
       light: g.light ?? null,
+      best_value: !!g.best_value,
       won: !!g.won,
       home_score: g.home_score ?? null,
       away_score: g.away_score ?? null,
@@ -211,7 +212,7 @@ export function tally(rows) {
   const exp = done.reduce((a, g) => a + (g.pick_p ?? 0), 0);
   const brier = n ? done.reduce((a, g) => a + ((g.pick_p ?? 0) - (g.won ? 1 : 0)) ** 2, 0) / n : null;
   const byLight = {};
-  for (const l of ["SUPER", "GREEN", "ORANGE", "RED", null]) {
+  for (const l of ["GREEN", "SUPER", "ORANGE", "RED", null]) {
     const xs = done.filter((g) => (g.light ?? null) === l);
     if (!xs.length && l === null) continue;
     byLight[l ?? "NONE"] = { n: xs.length, w: xs.filter((g) => g.won).length, exp: xs.reduce((a, g) => a + (g.pick_p ?? 0), 0) };
@@ -316,7 +317,7 @@ export function resultsHref({ sport = "all", light = "green" } = {}) {
 export function matchesLightFilter(row, light) {
   if (light === "all") return true;
   if (light === "green") return isGreenLight(row.light);
-  if (light === "super") return row.light === "SUPER";
+  if (light === "super") return row.light === "SUPER" || !!row.best_value; // every Best value tag, green ones included
   if (light === "orange") return row.light === "ORANGE";
   if (light === "red") return row.light === "RED";
   return true;
@@ -402,7 +403,7 @@ function filterNav(filters) {
     <nav class="record-sports" aria-label="Filter by sport">${sportLinks}</nav>
     <nav class="record-sports light-filters" aria-label="Filter by light">${lightLinks}</nav>
   </div>
-  <p class="small">The default list is ${greenViewLabel(filters.sport) === "Green picks" ? "green picks" : "Green + Best value. Best value is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green"}. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
+  <p class="small">The default list is ${greenViewLabel(filters.sport) === "Green picks" ? "green picks" : "Green + Best value: every green pick, plus NBA Best value picks below the green range. Best value is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green. A green pick that is also Best value stays green and counts once, in the green record"}. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
 }
 
 function sportGreenCard(v) {
@@ -415,7 +416,7 @@ function sportGreenCard(v) {
   const s = lightTally(v.rows, "SUPER");
   const href = resultsHref({ sport: v.sport, light: "green" });
   const superLine = s.n
-    ? `<p class="super-line">${chip("SUPER")} ${esc(labelLong("SUPER"))}: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price.</p>
+    ? `<p class="super-line">${chip("SUPER")} ${esc(labelLong("SUPER"))} below the green range: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price. Green picks that were also Best value are in the green record.</p>
        <p class="small">Green + Best value: ${esc(rateLine(g.w + s.w, g.n + s.n))}.</p>`
     : "";
   return `<article class="panel record-card green-card">
@@ -590,11 +591,16 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     : filters.light === "all"
       ? "Every finished pick"
       : filters.light === "super"
-        ? labelLong("SUPER")
+        ? `${labelLong("SUPER")} tag`
       : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
   const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
   const lightNote = filters.light === "green"
     ? `Showing ${greenViewLabel(filters.sport)}. `
+    : "";
+  // Best value filter: list every Best value tag, but its record counts only Best value picks below the green range.
+  const tRec = filters.light === "super" ? tally(shown.filter((r) => r.light === "SUPER")) : tShown;
+  const superNote = filters.light === "super"
+    ? `<p class="small muted bv-filter-note">Includes green picks tagged Best value. They count in the green record only; this record is Best value below the green range.</p>`
     : "";
 
   const overall = allRows.length ? `<section class="panel green-lead">
@@ -602,7 +608,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>If you are coming to us for predictions, the green results are the ones to focus on. Every pick still stays on the record, including orange and red.</p>
     <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
-    ${sAll.n ? `<p>${esc(labelLong("SUPER"))} (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
+    ${sAll.n ? `<p>${esc(labelLong("SUPER"))} below the green range (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>. A green pick that was also Best value counts once, as green.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — ${esc(greenSummary().replace(/; /g, ", "))} — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
     <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Units below are 1 unit per pick at the recorded posted price — a way to track the record, not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
@@ -621,7 +627,8 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
       <a class="csv-btn" href="/results.csv">Download CSV</a>
     </div>
     ${filterNav(filters)}
-    <p>${lightNote}Showing <b>${tShown.n}</b> of ${tAll.n} finished pick${tAll.n === 1 ? "" : "s"}${tShown.n ? ` · ${tShown.w} of ${tShown.n} right (${tShown.n ? pct(tShown.w / tShown.n) : "—"})` : ""}.</p>
+    <p>${lightNote}Showing <b>${tShown.n}</b> of ${tAll.n} finished pick${tAll.n === 1 ? "" : "s"}${tRec.n ? ` · ${tRec.w} of ${tRec.n} right (${pct(tRec.w / tRec.n)})${filters.light === "super" ? " below the green range" : ""}` : ""}.</p>
+    ${superNote}
     ${tShown.n ? `<div class="tablewrap"><table class="record-picks">
       <thead><tr><th>Kick-off</th><th>Posted</th><th>Sport</th><th>Match</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">vs close</th></tr></thead>
       <tbody>${tShown.done.map((g) => `<tr>
@@ -631,7 +638,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
         <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
         <td>${esc(g.pick)}</td>
         <td class="n">${chanceText(g.pick_p)}</td>
-        <td>${g.light ? chip(g.light) : "—"}</td>
+        <td>${g.light ? chip(g.light) + bvTag(g) : "—"}</td>
         <td>${resultCell(g)}</td>
         <td class="n">${closeCell(g)}</td>
       </tr>`).join("")}</tbody>
@@ -715,12 +722,12 @@ export function renderLightsPage() {
 
   <section class="panel"><h2>NBA, NFL and NHL</h2>
     <div class="lights">
-      <div><span>${chip("SUPER")}</span><p>${esc(labelLong("SUPER"))}. NBA only. This is a value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price.</p></div>
-      <div><span>${chip("GREEN")}</span><p>${T("nba").GREEN}. One of our top picks, on confidence alone.</p></div>
+      <div><span>${chip("GREEN")}</span><p>${T("nba").GREEN}. One of our top picks, on confidence alone. In the NBA a green pick can also carry a small <span class="bv-tag">Best value</span> tag when the bookmaker price beats our fair price; it stays green and counts in the green record.</p></div>
+      <div><span>${chip("SUPER")}</span><p>${esc(labelLong("SUPER"))}. NBA only, below the green range. This is a value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price.</p></div>
       <div><span>${chip("ORANGE")}</span><p>A lean, ${T("nba").ORANGE}.</p></div>
       <div><span>${chip("RED")}</span><p>${T("nba").RED[0].toUpperCase()}${T("nba").RED.slice(1)}. Close to a coin flip.</p></div>
     </div>
-    <p>Green, orange and red are about how likely the model thinks the pick is. Best value is different: an NBA pick only gets Best value when the model is at least ${P(bestValueMinP())}% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Best value except for those injuries. The NFL and NHL use the same ${P(C("nfl").green_min)} / ${P(C("nfl").orange_min)} confidence scale and do not have a Best value flag.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Best value is different: an NBA pick only gets Best value when the model is at least ${P(bestValueMinP())}% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. Green comes first: a Best value pick at ${T("nba").GREEN} shows green with a Best value tag, and the Best value light is only used from ${P(bestValueMinP())}% up to the green cut-off. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Best value except for those injuries. The NFL and NHL use the same ${P(C("nfl").green_min)} / ${P(C("nfl").orange_min)} confidence scale and do not have a Best value flag.</p>
     <p>In a 2025–26 test of 162 Best value games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 

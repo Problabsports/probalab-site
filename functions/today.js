@@ -3,7 +3,7 @@
  // and value % (model chance minus market chance). Best-value game per sport is highlighted.
  // NBA/NFL from the live feed; NHL/EPL from /data; market chances from /data/market-implied.json
  // (built on the box from existing comparison CSVs — no new Odds API credits).
-import { getFeed, gamesOf, shell, html, esc, chip, slug, asHead } from "./_shared/site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, bvTag, slug, asHead } from "./_shared/site.js";
 import { injuryBadge } from "./_shared/injury-warning.js";
 import { gameLight, shownLight, scaleText, labelLong, sportCfg, chanceText } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
@@ -86,7 +86,7 @@ const HEAD = (showMkt) => showMkt
   : `<li class="head"><span class="d">Time</span><span class="m">Match</span><span class="p">Pick · chance</span><span class="chip-slot"></span><span class="fp">Fair</span></li>`;
 const FMT_BAR = `<div class="oddsfmt-bar"><button type="button" class="oddsfmt" aria-label="Odds format">DEC ⇄</button></div>`;
 
-// Value badge: GREEN/SUPER and model−market ≥ +3.0 percentage points.
+// Value badge: a green or Best value pick and model−market ≥ +3.0 percentage points.
 const VALUE_MIN = 0.03;
 const MARKET_STALE_MS = 24 * 3600e3;
 const isTipLight = (l) => l === "GREEN" || l === "SUPER";
@@ -115,11 +115,11 @@ function todayRow(g, showMkt) {
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   const warn = g.injuryBadgeHtml || "";
-  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${valued ? ` title="Value: GREEN/SUPER and at least +3.0 vs the market"` : ""}>
+  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
-      <span class="p">${esc(g.pick)}</span><span class="chip-with-warn">${chip(g.light)}</span>
+      <span class="p">${esc(g.pick)}</span><span class="chip-with-warn">${chip(g.light)}${bvTag(g)}</span>
       <span class="fp" title="Fair price = 1 ÷ model win chance">${fairHtml(g.modelP)}</span>${mktCols}
     </a>
     ${warn}
@@ -145,7 +145,7 @@ function section(id, name, games, links, extra, showMkt = true) {
 }
 
 const HOW_TO = `<section class="panel howto compact" id="how-to-read">
-  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} ${labelLong("SUPER")} · ${chip("GREEN")} ${scaleText("nba").GREEN} · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
+  <p class="legend-line" aria-label="How to read this">${chip("GREEN")} ${scaleText("nba").GREEN} · ${chip("SUPER")} NBA, below the green range · <span class="bv-tag">Best value</span> tag on a green pick: the price also beats our fair price · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
 </section>`;
 
 export async function onRequestGet(ctx) {
@@ -184,6 +184,7 @@ export async function onRequestGet(ctx) {
         pick: g.pick ? `${g.pick_name} ${chanceText(modelP)}` : "soon",
         pickName: g.pick_name,
         light: g.light,
+        best_value: !!g.best_value,
         modelP,
         marketP,
         value: valueOf(modelP, marketP),
@@ -390,7 +391,7 @@ export async function onRequestGet(ctx) {
       continue;
     }
     if (filters.sport !== "all" && filters.sport !== s.id) continue;
-    let games = (s.games || []).filter((g) => matchesLightFilter(g.light, filters.light));
+    let games = (s.games || []).filter((g) => matchesLightFilter(g, filters.light));
     if (filters.light === "all") games = sortGreenFirst(games);
     shown += games.length;
     if (!games.length && filters.sport === "all" && filters.light !== "all") continue; // hide empty sports when colour-filtered

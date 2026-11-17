@@ -4,8 +4,8 @@
   --ink: #e8ecf8; --muted: #8b93b0; --line: #232a42; --line-hi: #343d5e;
   --cyan: #19e3ff; --magenta: #ff2fc0;
   /* lights:begin (Generated from lights.json by tools/build_lights.mjs. Do not edit: edit lights.json and run node tools/build_lights.mjs.) */
-  --super: #b56cff; --super-soft: rgba(181, 108, 255, 0.14);
   --green: #2fd7a0; --green-soft: rgba(47, 215, 160, 0.12);
+  --super: #b56cff; --super-soft: rgba(181, 108, 255, 0.14);
   --orange: #ffad33; --orange-soft: rgba(255, 173, 51, 0.12);
   --red: #ff4f6e; --red-soft: rgba(255, 79, 110, 0.13);
   /* lights:end */
@@ -67,6 +67,9 @@ h2 { font-family: var(--f-display); font-weight: 700; text-transform: uppercase;
 .chip.GREEN { color: var(--green); border-color: var(--green); background: var(--green-soft); }
 .chip.ORANGE { color: var(--orange); border-color: var(--orange); background: var(--orange-soft); }
 .chip.RED { color: var(--red); border-color: var(--red); background: var(--red-soft); }
+/* small Best value tag beside a green light: a green pick that also beats our fair price (counted as green only) */
+.bv-tag { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 999px; font-family: var(--f-mono); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; color: var(--super); background: var(--super-soft); border: 1px solid var(--super); }
+.chip-with-warn .bv-tag { margin-left: 0; }
 
 ul.games { list-style: none; margin: 0; padding: 0; }
 ul.games li { border-top: 1px solid var(--line); }

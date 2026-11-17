@@ -28,6 +28,7 @@ assert.doesNotMatch(bt, /fold(?:ed)? into the live green/i);
 assert.match(bt, /1,322/); // NBA 2025-26 games
 assert.match(bt, /536 of 697/);
 assert.match(bt, /162 Best value games/);
+assert.doesNotMatch(bt, /\bSuper\b(?! Bowl)/, "never say Super publicly");
 assert.match(bt, /592 of 919/);
 assert.match(bt, /2,414 of 4,192/);
 assert.match(bt, /609 of 867/);

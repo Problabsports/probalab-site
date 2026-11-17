@@ -12,5 +12,6 @@ for (const [name, html] of [["/lights", renderLightsPage()], ["/how-it-works", r
   assert.ok(/Best value is different/.test(body), `${name} has the Best value paragraph`);
   assert.ok(!/cap on how large|how large that gap|price cap|\bcapped\b|\(with a cap|a cap\b/i.test(body), `${name} mentions no cap`);
   assert.ok(!/\blimit\b/i.test(plain(body).match(/Best value is different[^<]*/)?.[0] ?? ""), `${name} mentions no limit in the Best value paragraph`);
+  assert.ok(!/\bSuper\b(?! Bowl)/.test(body), `${name} never says Super`);
 }
 console.log("best-value-wording tests passed");

@@ -32,18 +32,30 @@ export function makeLights(data) {
   }
 
   /** The light the site shows for a game: the feed's light, checked against the cut-offs.
-   *  Best value only in its sports and only at min_p or more; in a guarded sport (NBA) a feed GREEN under the
-   *  green cut-off is a held value pick and shows its plain cut-off light. Never promotes. */
+   *  Green first: a Best value pick in the sport's green range shows GREEN (it keeps a Best value tag, see
+   *  bestValueTag). The Best value light is only for Best value picks from min_p up to the green cut-off.
+   *  In a guarded sport (NBA) a feed GREEN under the green cut-off is a held value pick and shows its plain
+   *  cut-off light. Never promotes. */
   function shownLight(sport, feedLight, p) {
     var c = sportCfg(sport), l = norm(feedLight), n = num(p);
     if (!l) return gameLight(sport, n);
     if (!c || n == null) return l;
     if (l === "SUPER") {
       if (bv.sports.indexOf(String(sport).toLowerCase()) < 0) return gameLight(sport, n);
-      return shown(n) < pct(bv.min_p) ? gameLight(sport, n) : "SUPER";
+      var v = shown(n);
+      return v < pct(bv.min_p) || v >= pct(c.green_min) ? gameLight(sport, n) : "SUPER";
     }
     if (l === "GREEN" && c.guard && shown(n) < pct(c.green_min)) return gameLight(sport, n);
     return l;
+  }
+
+  /** True when a game carries the Best value tag: the feed flagged it Best value (SUPER), in a Best value sport,
+   *  at min_p or more (shown %). Covers both the purple Best value light (below the green range) and a green
+   *  pick that also beats our fair price (shown GREEN + a small Best value tag, counted only as green). */
+  function bestValueTag(sport, feedLight, p) {
+    var v = shown(p);
+    if (norm(feedLight) !== "SUPER" || v == null) return false;
+    return bv.sports.indexOf(String(sport || "").toLowerCase()) >= 0 && v >= pct(bv.min_p);
   }
 
   /** Props scale, on the shown (rounded-down) %: 59% is orange, 60% green. */
@@ -101,7 +113,7 @@ export function makeLights(data) {
 
   return {
     data: data, order: data.order.slice(), norm: norm, label: label, labelLong: labelLong, colour: colour, emoji: emoji,
-    sportCfg: sportCfg, gameSports: gameSports, gameLight: gameLight, shownLight: shownLight, propsLight: propsLight,
+    sportCfg: sportCfg, gameSports: gameSports, gameLight: gameLight, shownLight: shownLight, bestValueTag: bestValueTag, propsLight: propsLight,
     scaleText: scaleText, rangeText: rangeText, keyText: keyText, propsText: propsText,
     greenSummary: greenSummary, orangeSummary: orangeSummary, isTip: isTip, pctText: function (x) { return pct(x) + "%"; },
     shown: shown, chanceText: chanceText,

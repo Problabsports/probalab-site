@@ -5,6 +5,7 @@
     LIGHTS.tag("SUPER")                -> "🟣 Best value"
     LIGHTS.game_light("nhl", 0.62)     -> "ORANGE"
     LIGHTS.shown_light("nba", "GREEN", 0.63) -> "ORANGE"   (same rule as the site: held value keeps its cut-off light)
+    LIGHTS.shown_light("nba", "SUPER", 0.77) -> "GREEN"    (green first; LIGHTS.best_value_tag(...) -> True)
     fix_discord_text(text)             -> text with any old green+star Best value marker replaced by 🟣
 
 Mirrors lights-core.mjs on the site; the site's tests run parity.py against this module so they cannot drift.
@@ -120,10 +121,22 @@ class Lights:
         if k == "SUPER":
             if str(sport).lower() not in self.best_value["sports"]:
                 return self.game_light(sport, n)
-            return self.game_light(sport, n) if shown_pct(n) < _pct(self.best_value["min_p"]) else "SUPER"
+            v = shown_pct(n)
+            # green first: a Best value pick in the green range shows GREEN (+ Best value tag), counted as green only
+            if v < _pct(self.best_value["min_p"]) or v >= _pct(c["green_min"]):
+                return self.game_light(sport, n)
+            return "SUPER"
         if k == "GREEN" and c.get("guard") and shown_pct(n) < _pct(c["green_min"]):
             return self.game_light(sport, n)
         return k
+
+    def best_value_tag(self, sport, feed_light, p) -> bool:
+        """Same as bestValueTag in lights-core.mjs: feed SUPER, in a Best value sport, at min_p or more (shown %).
+        True for the Best value light and for a green pick that also beats our fair price."""
+        v = shown_pct(p)
+        if self.norm(feed_light) != "SUPER" or v is None:
+            return False
+        return str(sport or "").lower() in self.best_value["sports"] and v >= _pct(self.best_value["min_p"])
 
     def props_light(self, p):
         v = shown_pct(p)

@@ -10,7 +10,7 @@ import {
   renderFilterBar, emptyFilterMessage,
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
-import { labelLong, scaleText, shownLight, isTip as isTipLight, chanceText } from "./lights.js";
+import { labelLong, scaleText, shownLight, bestValueTag, isTip as isTipLight, chanceText } from "./lights.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
 import { discordJoin, discordNavLink, socialFooterStack, xFooterCta, X_PROFILE_URL } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
@@ -63,10 +63,13 @@ export function gamesOf(sport, feed) {
     fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
   if (sport === "nba") applyInjuryPreviewDemo(games, feed.__hostname);
-  // Light guard (lights.json): Best value only in its sports and at its minimum chance; in a guarded sport (NBA)
-  // a feed GREEN under the green cut-off is a held value pick and keeps its cut-off light. Never promotes.
+  // Light guard (lights.json): green first. A Best value pick in the green range shows GREEN and keeps a Best value
+  // tag (g.best_value), counted once in the green record; the Best value light is only for Best value picks below
+  // the green range. In a guarded sport (NBA) a feed GREEN under the green cut-off keeps its cut-off light.
   for (const g of games) {
+    g.best_value = false;
     if (g.pick_p == null || !g.light) continue;
+    g.best_value = bestValueTag(sport, g.light, g.pick_p);
     g.light = shownLight(sport, g.light, g.pick_p);
   }
   games.forEach((g) => (g.path = gamePath(g)));
@@ -355,6 +358,10 @@ export const html = (s, status = 200, maxAge = 120) => new Response(s, { status,
 
 // ------------------------------------------------------------------ game page
 export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc(labelLong(l))}</span>` : "");
+/** Small purple "Best value" tag beside a green light: the pick is green AND the price beats our fair price.
+ *  Not shown on the Best value light itself (its chip already says Best value). Counted as green only. */
+export const bvTag = (g) => (g && g.best_value && g.light !== "SUPER"
+  ? `<span class="bv-tag" title="Also Best value: the price beats our fair price. Counted in the green record.">Best value</span>` : "");
 export const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League", championship: "Championship", tennis: "Tennis" }[s] ?? String(s).toUpperCase());
 
 // the pre-game preview section: one code path for the game page (/nba/<game>) and the app's game view (via /api/preview)
@@ -391,7 +398,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
         <span class="at">@</span>
         <span class="team r ${g.pick === g.home ? "on" : ""}"><a class="team-link" href="/${g.sport}/team/${slug(H)}"><span class="ab">${esc(g.home)}</span>${esc(H)}</a><span class="pc">${chanceText(1 - pAway)}</span></span></div>
       <div class="bar" role="img" aria-label="${esc(A)} ${chanceText(pAway)}, ${esc(H)} ${chanceText(1 - pAway)}"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(pAway * 100).toFixed(1)}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${((1 - pAway) * 100).toFixed(1)}%"></i></div>
-      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${chanceText(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
+      <dl class="kv"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${chanceText(g.pick_p)}</dd></div><div><dt>Light</dt><dd>${chip(g.light)}${bvTag(g)}</dd></div><div><dt>Confidence</dt><dd>${esc(confLabel(g.light))}</dd></div></dl>
       ${injuryBadge(g)}
     </section>` : `<section class="panel"><p>Our prediction for this game is posted ${g.sport === "nfl" ? "up to 8 days before kick-off" : "about 48 hours before game time"}. Check back soon.</p></section>`;
   const body = `<a class="back" href="/#${g.sport}-predictions">← Back to ${S} predictions</a>
@@ -436,7 +443,7 @@ export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
   const warn = injuryBadge(g);
   return `<li class="${warn ? "has-injury-watch" : ""}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
-    <span class="p">${g.pick ? `${esc(g.pick)} ${chanceText(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
+    <span class="p">${g.pick ? `${esc(g.pick)} ${chanceText(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}${bvTag(g)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
 }
 
 // ------------------------------------------------------------------ sport hub
@@ -474,7 +481,8 @@ export function renderHub(sport, data) {
 
 
 // ------------------------------------------------------------------ seo-preview additions
-const CONF = { SUPER: "Very high", GREEN: "High", ORANGE: "Medium", RED: "Low" };
+// Green first: Best value as a light is only below the green range, so it is not a higher confidence than green.
+const CONF = { GREEN: "High", SUPER: "Medium (Best value)", ORANGE: "Medium", RED: "Low" };
 const confLabel = (l) => CONF[l] ?? "Not set";
 // last N finished games for a team before a given time, from the feed's own scores
 function lastGames(all, team, before, n = 5) {
@@ -505,7 +513,7 @@ export function renderToday(sport, data, reqUrl) {
     .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
   let up = light === "all"
     ? allUp
-    : allUp.filter((g) => g.pick && matchesLightFilter(g.light, light));
+    : allUp.filter((g) => g.pick && matchesLightFilter(g, light));
   if (light === "all") up = sortGreenFirst(up);
   const picked = up.filter((g) => g.pick);
   const groups = {}; up.forEach((g) => (groups[dayET(g.start_utc)] ??= []).push(g));
@@ -516,7 +524,7 @@ export function renderToday(sport, data, reqUrl) {
   const title = `${S} Predictions Today and This Week: Win Chances for ${allUp.length} Games | ProbaLab`;
   const description = `${S} win chances for ${allUp.length} games over the next 7 days${strongest ? `, led by ${strongest.pick_name} at ${chanceText(strongest.pick_p)}` : ""}. Updated with injury news before every game.`;
   const summary = allUp.filter((g) => g.pick).length ? `<p>Across the next seven days there are ${allUp.length} ${S} games on the schedule, and ${allUp.filter((g) => g.pick).length} already have a model prediction. ${strongest ? `The model's most confident call in this view is ${esc(strongest.pick_name)} (${chanceText(strongest.pick_p)}) in ${esc(strongest.away_name)} vs ${esc(strongest.home_name)} on ${esc(shortDay(strongest.start_utc))}.` : ""} ${closest && closest !== strongest ? `The tightest game in this view is ${esc(closest.away_name)} vs ${esc(closest.home_name)}, where ${esc(closest.pick_name)} are only ${chanceText(closest.pick_p)}.` : ""}</p>
-    <p>By confidence (all lights): ${byLight("SUPER")} very high, ${byLight("GREEN")} high, ${byLight("ORANGE")} medium and ${byLight("RED")} low. Games without a figure yet get one about 48 hours before the start.</p>`
+    <p>By light: ${byLight("GREEN")} green${sport === "nba" ? `, ${byLight("SUPER")} Best value` : ""}, ${byLight("ORANGE")} orange and ${byLight("RED")} red. Games without a figure yet get one about 48 hours before the start.</p>`
     : `<p>No ${S} predictions are posted for the next seven days yet.</p>`;
   const filterBar = renderFilterBar({ sport, light }, {
     basePath: `/${sport}/today`,
@@ -550,7 +558,7 @@ export function renderRecord(sport, data) {
   });
   const brier = n ? done.reduce((a, g) => a + (g.pick_p - (g.won ? 1 : 0)) ** 2, 0) / n : null;
   const expW = done.reduce((a, g) => a + g.pick_p, 0);
-  const lights = ["SUPER", "GREEN", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l); return [l, xs.length, xs.filter((g) => g.won).length]; });
+  const lights = ["GREEN", "SUPER", "ORANGE", "RED"].map((l) => { const xs = done.filter((g) => g.light === l); return [l, xs.length, xs.filter((g) => g.won).length]; });
   // SVG calibration chart: x = predicted chance, y = actual win rate, dot size = games
   const W = 560, Hh = 360, pad = 44, X = (p) => pad + ((p - 0.5) / 0.5) * (W - 2 * pad), Y = (p) => Hh - pad - p * (Hh - 2 * pad);
   const grid = [0, 0.25, 0.5, 0.75, 1].map((v) => `<line x1="${pad}" x2="${W - pad}" y1="${Y(v)}" y2="${Y(v)}" stroke="#232a42"/><text x="${pad - 8}" y="${Y(v) + 4}" text-anchor="end" fill="#8b93b0" font-size="11">${v * 100}%</text>`).join("")
