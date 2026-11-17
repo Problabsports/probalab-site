@@ -1,5 +1,6 @@
 // Sport + light filters for public Today / Predictions lists.
-// Defaults match /results: sport=all, light=green (Green + Best value, includes SUPER).
+// Defaults match /results: sport=all, light=green (green first: every green pick, plus Best value picks below the
+// green range). The Best value filter shows every game with the Best value tag, green ones included.
 import { labelLong } from "./lights.js";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League", championship: "Championship", tennis: "Tennis" }[s] ?? String(s).toUpperCase());
@@ -27,18 +28,25 @@ export function gameFilterHref(basePath, { sport = "all", light = "green" } = {}
   return s ? `${path}?${s}` : path;
 }
 
-export function matchesLightFilter(lightVal, light) {
+/** Best value tag: the purple Best value light, or a green pick that also beats our fair price (g.best_value). */
+export const hasBestValue = (g) => !!g && (g.light === "SUPER" || !!g.best_value);
+
+/** gameOrLight: a game ({light, best_value}) or a bare light name. */
+export function matchesLightFilter(gameOrLight, light) {
+  const g = gameOrLight && typeof gameOrLight === "object" ? gameOrLight : { light: gameOrLight };
+  const lightVal = g.light;
   if (light === "all") return true;
   if (light === "green") return isGreenLight(lightVal);
-  if (light === "super") return lightVal === "SUPER";
+  if (light === "super") return hasBestValue(g);
   if (light === "orange") return lightVal === "ORANGE";
   if (light === "red") return lightVal === "RED";
   return true;
 }
 
+// Green first: Green, then Best value (below the green range), Orange, Red.
 export function lightRank(l) {
-  if (l === "SUPER") return 0;
-  if (l === "GREEN") return 1;
+  if (l === "GREEN") return 0;
+  if (l === "SUPER") return 1;
   if (l === "ORANGE") return 2;
   if (l === "RED") return 3;
   return 4;
@@ -106,6 +114,8 @@ export function renderFilterBar(filters, { basePath = "/today", availableSports 
   }).join("")}</nav>`;
   const note = filters.light === "green"
     ? `<p class="small filter-note">${esc(greenFilterNote(sport || filters.sport))}</p>`
+    : filters.light === "super"
+    ? `<p class="small filter-note muted">Every NBA game tagged Best value, green ones included. Green ones count in the green record only.</p>`
     : filters.light === "all"
     ? `<p class="small filter-note">All lights, green first.</p>`
     : "";

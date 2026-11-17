@@ -494,6 +494,7 @@
   html.pf .pf-hr-p { font: 700 16px var(--f-mono, monospace); color: var(--pf-lc, var(--pf-ink)); line-height: 1; }
   html.pf .pf-hr-right .chip { padding: 1px 6px; font-size: 10px; background: transparent; box-shadow: none; text-shadow: none; }
   html.pf .pf-hr-right .chip::before { display: none; }
+  html.pf .pf-hr-bv { padding: 0 6px; border-radius: 999px; border: 1px solid var(--pf-super, #b56cff); color: var(--pf-super, #b56cff); font: 700 9.5px var(--f-mono, monospace); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
 
   /* bottom sheet: detail note */
   html.pf .pf-sheet-body { display: grid; gap: 10px; padding: 12px 4px 4px; }

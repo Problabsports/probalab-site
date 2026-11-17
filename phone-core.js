@@ -37,9 +37,9 @@
     return "";
   }
 
-  /** Green picks first: Best value and Green, then Orange, Red, then games with no light yet. */
+  /** Green first: Green, then Best value (below the green range), Orange, Red, then games with no light yet. */
   function lightRank(l) {
-    return l === "SUPER" ? 0 : l === "GREEN" ? 1 : l === "ORANGE" ? 2 : l === "RED" ? 3 : 4;
+    return l === "GREEN" ? 0 : l === "SUPER" ? 1 : l === "ORANGE" ? 2 : l === "RED" ? 3 : 4;
   }
   var isGreen = function (l) { return l === "SUPER" || l === "GREEN"; };
 
@@ -51,7 +51,7 @@
       .map(function (x) { return x.g; });
   }
 
-  /** Top green picks for the home screen: Best value first, then the highest chance, max n. */
+  /** Top green picks for the home screen: green first, then the highest chance, max n. */
   function topGreens(list, n) {
     return list
       .filter(function (g) { return isGreen(g.light) && g.p != null; })
@@ -118,6 +118,8 @@
       market: clean(o.marketText),
       value: clean(o.valueText),
       valued: !!o.valued,
+      // Best value tag: the Best value light, or a green pick that also beats our fair price (counted as green only)
+      bestValue: light === "SUPER" || !!o.bestValue,
       injury: clean(o.injuryText),
     };
   }
@@ -160,7 +162,7 @@
     var pickedA = g.side && g.side === g.a, pickedB = g.side && g.side === g.b;
     var top = '<span class="pf-sport">' + esc(SPORT_SHORT[g.sport] || g.sportName) + "</span>" +
       '<span class="pf-time">' + esc(g.when) + "</span>" +
-      (g.light === "SUPER" ? '<span class="pf-bv">Best value</span>' : "");
+      (g.light === "SUPER" || g.bestValue ? '<span class="pf-bv">Best value</span>' : "");
     var teams = '<span class="pf-teams">' + teamLine(g.a, pickedA) +
       (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + teamLine(g.b, pickedB) : "") +
       (g.sub ? '<span class="pf-sub">' + esc(g.sub) + "</span>" : "") + "</span>";
@@ -168,7 +170,7 @@
       ? '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>' + esc(g.side) + "</b></span>"
       : '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>Posted soon</b></span>';
     var aria = (g.b ? g.a + (g.sep === "@" ? " at " : " v ") + g.b : g.a) + ". " + (g.side ? "Our pick " + g.side + ", " + (g.p != null ? L.shown(g.p) + "% chance" : "") : "") +
-      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "");
+      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") + (g.bestValue && g.light !== "SUPER" ? ", also Best value" : "");
     return '<a class="pf-card' + lightCls + '" href="' + esc(g.phoneHref || g.href) + '" data-pf-key="' + esc(g.sport + ":" + (g.id || "")) + '" aria-label="' + esc(aria) + '">' +
       '<span class="pf-card-top">' + top + "</span>" +
       '<span class="pf-card-mid">' + teams + gaugeSvg(g.p, g.light, { size: opts.gauge || 76 }) + "</span>" +
@@ -192,6 +194,8 @@
       side: resolveSide(o.side != null ? clean(o.side) : pick.side, m.a, m.b),
       p: o.p != null ? o.p : pick.p,
       light: lightOf(o.chipClass),
+      // green first: a green pick that also beats our fair price keeps a small Best value tag (counted as green)
+      bestValue: lightOf(o.chipClass) === "SUPER" || !!o.bestValue,
       href: o.href || "#",
       injury: o.injury || note ? (note || "Key players are uncertain.") : "",
       result: res ? { won: /✓/.test(res), text: res.replace(/^[✓✕]\s*/, "") } : null,
@@ -242,7 +246,7 @@
     var matchTxt = g.b ? g.a + (g.sep === "@" ? " @ " : " v ") + g.b : g.a;
     var pctTxt = g.p != null && isFinite(g.p) ? L.shown(g.p) + "%" : "";
     var aria = matchTxt + ". " + (g.side ? "Our pick " + g.side + (pctTxt ? ", " + pctTxt + " chance" : "") : "Pick posted soon") +
-      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") +
+      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") + (g.bestValue && g.light !== "SUPER" ? ", also Best value" : "") +
       (g.result ? ", " + (g.result.won ? "won" : "lost") + (g.result.text ? " " + g.result.text : "") : "");
     var sub = '<span class="pf-hr-sub">' + (g.side ? "Our pick · <b>" + esc(g.side) + "</b>" : "Pick posted soon") +
       (g.result ? ' <span class="pf-hr-res ' + (g.result.won ? "pf-win" : "pf-loss") + '">' + (g.result.won ? "✓" : "✕") + (g.result.text ? " " + esc(g.result.text) : "") + "</span>" : "") + "</span>";
@@ -253,7 +257,8 @@
       '<span class="pf-hr-mid"><a class="pf-hr-link" href="' + esc(g.href) + '" aria-label="' + esc(aria) + '"><span class="pf-hr-match">' +
       team(g.a) + (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + team(g.b) : "") + "</span></a>" +
       sub + inj + "</span>" +
-      '<span class="pf-hr-right" aria-hidden="true">' + (pctTxt ? '<b class="pf-hr-p">' + pctTxt + "</b>" : "") + lightChip(g.light) + "</span></li>";
+      '<span class="pf-hr-right" aria-hidden="true">' + (pctTxt ? '<b class="pf-hr-p">' + pctTxt + "</b>" : "") + lightChip(g.light) +
+      (g.bestValue && g.light !== "SUPER" ? '<span class="pf-hr-bv">Best value</span>' : "") + "</span></li>";
   }
 
   /** The rows of one list, with a small date header per day. skipHeader: the list already sits under that day's heading. */
@@ -354,15 +359,16 @@
   var BEST_VALUE_TEXT = L.bestValueText();
   var INJURY_TEXT = "Key players uncertain";
 
-  /** Rows for one sport's game scale. opts.best adds Best value (NBA / all only); opts.injury / opts.note add a warning row. */
+  /** Rows for one sport's game scale, green first. opts.best adds Best value after Green (NBA / all only);
+   *  opts.injury / opts.note add a warning row. */
   function gameKeyRows(sport, opts) {
     opts = opts || {};
     var s = GAME_SCALE[sport] ? sport : "all";
     var sc = GAME_SCALE[s], rows = [];
-    if (opts.best && (s === "all" || L.bestValueSports().indexOf(s) >= 0)) rows.push({ light: "SUPER", label: LIGHT_LABEL.SUPER, range: BEST_VALUE_TEXT });
     rows.push(s === "all"
       ? { light: "GREEN", label: LIGHT_LABEL.GREEN, range: sc.GREEN, rangeHtml: GREEN_LINES.map(function (t) { return "<span class=\"pf-lk-line\">" + esc(t) + "</span>"; }).join("") }
       : { light: "GREEN", label: LIGHT_LABEL.GREEN, range: sc.GREEN });
+    if (opts.best && (s === "all" || L.bestValueSports().indexOf(s) >= 0)) rows.push({ light: "SUPER", label: LIGHT_LABEL.SUPER, range: BEST_VALUE_TEXT });
     rows.push({ light: "ORANGE", label: LIGHT_LABEL.ORANGE, range: sc.ORANGE });
     rows.push({ light: "RED", label: LIGHT_LABEL.RED, range: sc.RED });
     if (opts.injury) rows.push({ light: "WARN", label: "Injury watch", range: INJURY_TEXT });
@@ -390,11 +396,14 @@
 
   // ---------------------------------------------------------------- Today: sport chips with counts
   var TODAY_SPORTS = [["nba", "NBA"], ["nfl", "NFL"], ["nhl", "NHL"], ["epl", "Premier League"], ["championship", "Championship"], ["tennis", "Tennis"]];
-  /** Same rule as the server's light filter (functions/_shared/game-filters.js). */
+  /** Same rule as the server's light filter (functions/_shared/game-filters.js). l: a row ({light, bestValue}) or a
+   *  light name. The Best value filter takes every Best value tag, green ones included. */
   function matchesLight(l, f) {
+    var row = l && typeof l === "object" ? l : { light: l };
+    l = row.light;
     if (f === "all") return true;
     if (f === "green") return l === "GREEN" || l === "SUPER";
-    if (f === "super") return l === "SUPER";
+    if (f === "super") return l === "SUPER" || !!row.bestValue || !!row.best_value;
     if (f === "orange") return l === "ORANGE";
     if (f === "red") return l === "RED";
     return true;
@@ -414,7 +423,7 @@
       var c = out[g.sport];
       if (!c) return;
       c.total++; out.all.total++;
-      if (matchesLight(g.light, light)) { c.shown++; out.all.shown++; }
+      if (matchesLight(g, light)) { c.shown++; out.all.shown++; }
     });
     return out;
   }

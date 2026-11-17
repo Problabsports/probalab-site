@@ -17,12 +17,12 @@ for (const f of ["phone-core.js", "phone.js", "phone.css", "sw.js", "offline.htm
   assert.ok(!P.BANNED.test(src), `${f} has banned wording`);
 }
 
-// ---------------------------------------------------------------- green first
+// ---------------------------------------------------------------- green first (Best value light is below the green range)
 const g = (light, i, p = 0.6) => ({ light, i, p });
 const sorted = P.sortGreenFirst([g("RED", 0), g("GREEN", 1), g("ORANGE", 2), g("SUPER", 3), g("GREEN", 4), g("", 5)]);
-assert.deepEqual(sorted.map((x) => x.i), [3, 1, 4, 2, 0, 5]);
+assert.deepEqual(sorted.map((x) => x.i), [1, 4, 3, 2, 0, 5]);
 const top = P.topGreens([g("GREEN", 0, 0.7), g("RED", 1, 0.9), g("GREEN", 2, 0.8), g("SUPER", 3, 0.62), g("ORANGE", 4, 0.6)], 3);
-assert.deepEqual(top.map((x) => x.i), [3, 2, 0]);
+assert.deepEqual(top.map((x) => x.i), [2, 0, 3]);
 assert.equal(P.topGreens([g("ORANGE", 0)]).length, 0);
 
 // ---------------------------------------------------------------- parsing the /today board
@@ -61,7 +61,9 @@ assert.match(card, /pf-team pf-picked">Denver Nuggets/);
 assert.match(card, /aria-label="Chance 74%"/);
 assert.ok(!/fair|units?\b|edge/i.test(card.replace(/aria-label="[^"]*"/g, "")), "cards show no fair price, units or edge");
 for (const l of ["GREEN", "ORANGE", "RED"]) assert.match(P.cardHtml({ ...row, light: l }), new RegExp(`pf-card pf-l-${l}"`));
-assert.ok(!/pf-bv/.test(P.cardHtml({ ...row, light: "GREEN" })));
+assert.ok(!/pf-bv/.test(P.cardHtml({ ...row, light: "GREEN", bestValue: false })));
+// green first: a green pick that is also Best value keeps the green card and gets the small Best value pill
+assert.match(P.cardHtml({ ...row, light: "GREEN", bestValue: true }), /pf-card pf-l-GREEN".*<span class="pf-bv">Best value<\/span>/s);
 
 // ---------------------------------------------------------------- chance gauge
 const gauge = P.gaugeSvg(0.72, "GREEN", { size: 80 });
@@ -163,13 +165,13 @@ for (const f of ["index.html", "404.html", "contact.html", "privacy.html", "term
 
 // ---------------------------------------------------------------- round 3: stacked keys, props scale, Today sport chips
 const rowsOf = (sp, o) => P.gameKeyRows(sp, o).map((r) => `${r.label}:${r.range}`);
-assert.deepEqual(rowsOf("nba", { best: true }), ["Best value:NBA value flag: the price beats our fair price", "Green:65%+", "Orange:Lean · 55–64%", "Red:Coin flip · under 55%"]);
+assert.deepEqual(rowsOf("nba", { best: true }), ["Green:65%+", "Best value:NBA value flag below green: the price beats our fair price", "Orange:Lean · 55–64%", "Red:Coin flip · under 55%"]);
 assert.deepEqual(rowsOf("nfl", { best: true }).slice(0, 1), ["Green:65%+"], "Best value is NBA only");
 assert.deepEqual(rowsOf("nhl"), ["Green:65%+", "Orange:Lean · 55–64%", "Red:Coin flip · under 55%"]);
 assert.equal(rowsOf("epl")[0], "Green:55%+");
 assert.equal(rowsOf("championship")[0], "Green:55%+");
 assert.equal(rowsOf("tennis")[0], "Green:70%+");
-assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Best value", "Green", "Orange", "Red", "Injury watch"]);
+assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Green", "Best value", "Orange", "Red", "Injury watch"]);
 assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League, Championship.*70%\+ Tennis/);
 // props have their own scale, and it never appears in a game key
 assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55–59%", "Red:under 55%"]);

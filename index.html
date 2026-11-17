@@ -50,8 +50,8 @@
   --yellow: #f5e900;
   --win: #3dff8f; --win-soft: rgba(61, 255, 143, 0.12);
   /* lights:begin (Generated from lights.json by tools/build_lights.mjs. Do not edit: edit lights.json and run node tools/build_lights.mjs.) */
-  --super: #b56cff; --super-soft: rgba(181, 108, 255, 0.14);
   --green: #2fd7a0; --green-soft: rgba(47, 215, 160, 0.12);
+  --super: #b56cff; --super-soft: rgba(181, 108, 255, 0.14);
   --orange: #ffad33; --orange-soft: rgba(255, 173, 51, 0.12);
   --red: #ff4f6e; --red-soft: rgba(255, 79, 110, 0.13);
   /* lights:end */
@@ -122,6 +122,8 @@ html.not-home #view-home { display: none; }
 .chip.GREEN { background: var(--green-soft); color: var(--green); }
 .chip.ORANGE { background: var(--orange-soft); color: var(--orange); }
 .chip.RED { background: var(--red-soft); color: var(--red); }
+/* small Best value tag beside a green light (green pick that also beats our fair price) */
+.bv-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-family: var(--f-mono); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; color: var(--super); background: var(--super-soft); border: 1px solid var(--super); }
 
 .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 8px; }
@@ -882,8 +884,8 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
       <h2>The lights</h2>
       <p>The cut-offs depend on the sport. NBA, NFL and NHL use the two-way scale below. Football (where a draw is possible) and tennis use different cut-offs — <a href="/lights">how the lights work</a>.</p>
       <div class="lights">
-        <div><span><i class="chip SUPER">Best value</i></span><p><span data-lt="label-long:SUPER">Best value</span>. NBA only. The bookmaker price beats our fair price. This is a value flag, not a higher-confidence green. <a href="/lights">How the lights work</a>.</p></div>
-        <div><span><i class="chip GREEN">Green</i></span><p>On NBA, NFL and NHL: <span data-lt="range:nba:GREEN">65%+</span>. One of our top picks.</p></div>
+        <div><span><i class="chip GREEN">Green</i></span><p>On NBA, NFL and NHL: <span data-lt="range:nba:GREEN">65%+</span>. One of our top picks. An NBA green pick can also carry a small <span class="bv-tag">Best value</span> tag; it stays green.</p></div>
+        <div><span><i class="chip SUPER">Best value</i></span><p><span data-lt="label-long:SUPER">Best value</span>. NBA only, below the green range. The bookmaker price beats our fair price. This is a value flag, not a higher-confidence green. <a href="/lights">How the lights work</a>.</p></div>
         <div><span><i class="chip ORANGE">Orange</i></span><p>On NBA, NFL and NHL: a lean, <span data-lt="range:nba:ORANGE">55–64%</span>.</p></div>
         <div><span><i class="chip RED">Red</i></span><p>On NBA, NFL and NHL: <span data-lt="range:nba:RED">under 55%</span>. Close to a coin flip.</p></div>
       </div>
@@ -978,10 +980,14 @@ const EAST = new Set(["ATL","BOS","BKN","CHA","CHI","CLE","DET","IND","MIA","MIL
 const seasonLabel = (s) => `${s - 1}–${String(s).slice(2)}`;
 const SEASONS = { 2027: "2026–27", 2026: "2025–26" };
 
-// Lights from /lights.json (via /lights.js): held value → cut-off light, never SUPER.
+// Lights from /lights.json (via /lights.js): green first. A Best value pick in the green range shows GREEN with a
+// Best value tag (g.best_value); held value → cut-off light.
 const LT = window.PLLights;
 function normalizeNbaGameLight(g) {
-  if (!g || g.pick_p == null || !g.light) return g;
+  if (!g) return g;
+  g.best_value = false;
+  if (g.pick_p == null || !g.light) return g;
+  g.best_value = LT.bestValueTag("nba", g.light, g.pick_p);
   g.light = LT.shownLight("nba", g.light, g.pick_p);
   return g;
 }
@@ -997,7 +1003,7 @@ document.addEventListener("DOMContentLoaded", () => fillLightText());
 function sampleFeed() {
   let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   const codes = Object.keys(TEAMS); const games = []; let id = 1;
-  const lightOf = (p, sup) => sup ? "SUPER" : LT.gameLight("nba", p);
+  const lightOf = (p, sup) => LT.shownLight("nba", sup ? "SUPER" : null, p);
   const STAT = ["Out", "Doubtful", "Questionable"];
   const missing = (n) => Array.from({ length: n }, (_, i) => ({ player: "Sample player " + (i + 1), status: STAT[Math.floor(rnd() * 3)], min: +(14 + rnd() * 20).toFixed(1) }));
   function make(startMs, settled, season, withPick = true) {
@@ -1055,6 +1061,8 @@ const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 const LNAME = Object.fromEntries(LT.order.map((l) => [l, LT.labelLong(l)]));
 const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
 const chip = (l) => `<span class="chip ${l}">${LNAME[l] ?? l}</span>`;
+// small purple tag on a green pick that is also Best value (counted as green only)
+const bvTag = (g) => (g && g.best_value && g.light !== "SUPER" ? `<span class="bv-tag" title="Also Best value: the price beats our fair price. Counted in the green record.">Best value</span>` : "");
 const pHomeOf = (g) => (g.pick === g.home ? g.pick_p : 1 - g.pick_p);
 let CUR = 2027, DEF = 2027; // DEF = season shown by default (last season until this one has results)
 const SPD = () => (SP === "nfl" ? NFL : DATA);
@@ -1072,7 +1080,7 @@ function card(g) {
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm"><a class="team-link" href="/${g.sport === "NFL" ? "nfl" : "nba"}/team/${slugify(name)}">${esc(name)}</a></div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
   return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
-    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
+    <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${bvTag(g)}${injuryBtn(g) || noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
     <div class="bar" role="img" aria-label="${esc(g.away_name)} ${chance(1 - pHome)}, ${esc(g.home_name)} ${chance(pHome)}">
@@ -1087,15 +1095,17 @@ function card(g) {
 // ---------- calendar ----------
 let SEL = keyOf(Date.now()), CALM = null, CAL_OPEN = false;
 let PRED_LIGHT = (() => { const l = (new URLSearchParams(location.search).get("light") || "green").toLowerCase(); return ["green","all","super","orange","red"].includes(l) ? l : "green"; })();
-const matchesPredLight = (light, f) => {
+// g: a game (light + best_value) or a bare light. Best value filter = every Best value tag, green ones included.
+const matchesPredLight = (g, f) => {
+  const light = g && typeof g === "object" ? g.light : g;
   if (f === "all") return true;
   if (f === "green") return light === "GREEN" || light === "SUPER";
-  if (f === "super") return light === "SUPER";
+  if (f === "super") return light === "SUPER" || !!(g && g.best_value);
   if (f === "orange") return light === "ORANGE";
   if (f === "red") return light === "RED";
   return true;
 };
-const lightRank = (l) => (l === "SUPER" ? 0 : l === "GREEN" ? 1 : l === "ORANGE" ? 2 : l === "RED" ? 3 : 4);
+const lightRank = (l) => (l === "GREEN" ? 0 : l === "SUPER" ? 1 : l === "ORANGE" ? 2 : l === "RED" ? 3 : 4); // green first
 function setPredLight(l) {
   PRED_LIGHT = l;
   const u = new URL(location.href);
@@ -1107,7 +1117,7 @@ function predLightBar(showSuper) {
   return `<div class="game-filter-bar"><nav class="game-filters lights" aria-label="Filter by light">${btns.map(([id,lab,cls]) => {
     const on = PRED_LIGHT === id;
     return `<button type="button" class="gf-btn${cls?` ${cls}`:""}${on?" on":""}" data-pred-light="${id}"${on?' aria-current="true"':""}>${lab}</button>`;
-  }).join("")}</nav>${PRED_LIGHT==="green"?`<p class="filter-note">Showing ${showSuper?"Green + Best value":"Green picks"}. Choose All lights to see every colour.</p>`:PRED_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:""}</div>`;
+  }).join("")}</nav>${PRED_LIGHT==="green"?`<p class="filter-note">Showing ${showSuper?"Green + Best value":"Green picks"}. Choose All lights to see every colour.</p>`:PRED_LIGHT==="all"?`<p class="filter-note">All lights, green first.</p>`:PRED_LIGHT==="super"?`<p class="filter-note muted">Includes green picks tagged Best value. They count in the green record only.</p>`:""}</div>`;
 }
 
 function calHtml() {
@@ -1135,7 +1145,7 @@ function cardSoon(g) {
 }
 function renderPredictions() {
   const dayAll = curGames().filter((g) => keyOf(g.start_utc) === SEL).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  let list = dayAll.filter((g) => !g.pick || matchesPredLight(g.light, PRED_LIGHT));
+  let list = dayAll.filter((g) => !g.pick || matchesPredLight(g, PRED_LIGHT));
   if (PRED_LIGHT === "all") list = list.slice().sort((a, b) => lightRank(a.light) - lightRank(b.light) || a.start_utc.localeCompare(b.start_utc));
   const pl = list.filter((g) => g.pick);
   const done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip);
@@ -1153,7 +1163,7 @@ function renderPredictions() {
       ${done.length ? `<span>Picks <b>${w(done)}–${done.length - w(done)}</b></span><span>Top picks <b>${w(done.filter(isTip))}–${done.filter(isTip).length - w(done.filter(isTip))}</b></span>` : ""}
       <span>Times in ${esc(TZNAME)}</span></div>
     <div class="legend" aria-label="Light key">
-      <span><i class="chip SUPER">${esc(LNAME.SUPER)}</i></span><span><i class="chip GREEN">Green</i> ${esc(LT.rangeText("nba", "GREEN"))}</span>
+      <span><i class="chip GREEN">Green</i> ${esc(LT.rangeText("nba", "GREEN"))}</span><span><i class="chip SUPER">${esc(LNAME.SUPER)}</i> below green</span>
       <span><i class="chip ORANGE">Orange</i> lean</span><span><i class="chip RED">Red</i> coin flip</span>
       ${noteLegend(dayAll)}
     </div>
@@ -1179,13 +1189,13 @@ function renderRecord() {
       <p class="note"><a href="/results?sport=${SP}">Full results, every pick and CSV →</a> · <a href="/lights">How the lights work</a> · <a href="/backtest">Backtest</a></p></div>
     <div class="stats">${[
       ["All picks", rate(done), `${w(done)}–${done.length - w(done)} from ${done.length} games`],
-      ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + super"}`],
+      ["Top picks", rate(tips), `${w(tips)}–${tips.length - w(tips)} ${SP === "nfl" ? "green picks" : "green + Best value"}`],
       ...(vcs.length ? [["Beat the close", pct(vcs.filter((g) => g.vs_close > 0).length / vcs.length), `avg ${sgnPct(vcs.reduce((a, g) => a + g.vs_close, 0) / vcs.length)} vs close · ${vcs.length} picks`]] : []),
     ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("")}</div>
     <div class="conf">
       <div class="panel"><h2>By light</h2><div class="tablewrap"><table>
         <thead><tr><th>Light</th><th class="n">Picks</th><th class="n">Won</th><th class="n">Rate</th><th class="n">We said</th></tr></thead><tbody>
-        ${(SP === "nfl" ? ["GREEN", "ORANGE", "RED"] : ["SUPER", "GREEN", "ORANGE", "RED"]).map((l) => { const xs = done.filter((g) => g.light === l);
+        ${(SP === "nfl" ? ["GREEN", "ORANGE", "RED"] : ["GREEN", "SUPER", "ORANGE", "RED"]).map((l) => { const xs = done.filter((g) => g.light === l);
           return `<tr><td>${chip(l)}</td><td class="n">${xs.length}</td><td class="n">${w(xs)}</td><td class="n">${rate(xs)}</td><td class="n">${xs.length ? pct(xs.reduce((s, g) => s + g.pick_p, 0) / xs.length) : "–"}</td></tr>`; }).join("")}
       </tbody></table></div></div>
       <div class="panel"><h2>Are the percentages honest?</h2><p>Dots near the dashed line mean our 70% picks win about 70% of the time.</p>${calibSvg(done)}</div>
@@ -1464,7 +1474,7 @@ async function loadYesterdayStrip() {
       const mark = g.won ? "✓" : "✗";
       const cls = g.won ? "win" : "loss";
       const pctN = g.chance != null ? Math.round(Number(g.chance) * 100) + "%" : "";
-      const lab = g.light === "SUPER" ? LNAME.SUPER : "Green";
+      const lab = g.light === "SUPER" ? LNAME.SUPER : g.best_value ? "Green · Best value" : "Green";
       return `<li class="${cls}" style="--i:${Math.min(i, 8)}" title="${esc(lab)} · ${esc(g.sport_name || g.sport)}"><span class="mark" aria-hidden="true">${mark}</span><span class="sp">${esc(String(g.sport || "").toUpperCase())}</span><span>${esc(g.pick)}</span>${pctN ? `<span>${pctN}</span>` : ""}</li>`;
     }).join("");
     const other = (d.other && d.other.n)
@@ -1598,7 +1608,7 @@ function renderHome() {
 // ---------- featured pick (sidebar "Tip of the day" + header badge) ----------
 function featured(d = DATA) {
   const up = picksOf(d).filter((g) => g.status === "pre" && new Date(g.start_utc) > Date.now()).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  return up.filter((g) => g.light === "SUPER")[0] ?? up.filter(isTip).sort((a, b) => b.pick_p - a.pick_p)[0] ?? null;
+  return up.filter(isTip).sort((a, b) => lightRank(a.light) - lightRank(b.light) || b.pick_p - a.pick_p)[0] ?? null; // green first
 }
 function renderTopPick() {
   const el = document.getElementById("topPick"), f = featured(DATA) ?? featured(NFL);
@@ -1713,7 +1723,7 @@ function renderGame(id) {
     </tbody></table></div><p class="note">Season averages per game.</p></div>`;
   el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
+      <div class="card-top"><span class="time">${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${bvTag(g)}${injuryBtn(g) || noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
@@ -1884,7 +1894,7 @@ function showQb(id) {
 // predictions by week
 function renderNflPredictions() {
   const weeks = nflWeeks(NFL.season), weekAll = nflSeasonGames(NFL.season).filter((g) => g.week === NWEEK).sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  let list = weekAll.filter((g) => !g.pick || matchesPredLight(g.light, PRED_LIGHT === "super" ? "green" : PRED_LIGHT));
+  let list = weekAll.filter((g) => !g.pick || matchesPredLight(g, PRED_LIGHT === "super" ? "green" : PRED_LIGHT));
   if (PRED_LIGHT === "all") list = list.slice().sort((a, b) => lightRank(a.light) - lightRank(b.light) || a.start_utc.localeCompare(b.start_utc));
   const pl = list.filter((g) => g.pick), done = pl.filter((g) => g.status === "post" && g.won !== null), tips = pl.filter(isTip), w = (xs) => xs.filter((g) => g.won).length;
   const byDay = {}; list.forEach((g) => (byDay[keyOf(g.start_utc)] ??= []).push(g));
@@ -2012,7 +2022,7 @@ function renderNflGame(id) {
   const meet = nflFinals(g.season).filter((x) => x.game_id !== g.game_id && ((x.home === g.home && x.away === g.away) || (x.home === g.away && x.away === g.home)));
   el.innerHTML = `<a class="back" href="#nfl-predictions">← All games</a>${permalink(g)}
     <div class="panel match">
-      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
+      <div class="card-top"><span class="time">${wkLabel(g.week)} · ${fmtDay.format(new Date(g.start_utc))} · ${fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${bvTag(g)}${injuryBtn(g) || noteBtn(g)}
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>

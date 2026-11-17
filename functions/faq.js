@@ -20,7 +20,7 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>What is ${labelLong("SUPER")}?</h2>
-  <p>Best value is an NBA-only value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price under the rules on the lights page. Other sports do not use Best value.</p>
+  <p>Best value is an NBA-only value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price under the rules on the lights page. Green comes first: a green pick that is also Best value stays green, with a small Best value tag, and counts in the green record. Other sports do not use Best value.</p>
 </section>
 <section class="panel prose">
   <h2>Where is the track record?</h2>

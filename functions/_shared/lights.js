@@ -6,7 +6,7 @@ import L, { data as LIGHTS_JSON } from "../../lights.mjs";
 export { L };
 export const LIGHTS = LIGHTS_JSON;
 export const {
-  order, label, labelLong, colour, emoji, gameSports, sportCfg, gameLight, shownLight, propsLight,
+  order, label, labelLong, colour, emoji, gameSports, sportCfg, gameLight, shownLight, bestValueTag, propsLight,
   rangeText, scaleText, keyText, greenSummary, orangeSummary, bestValueSports, bestValueMinP, bestValueText,
   propsText, isTip, pctText, shown, chanceText,
 } = L;

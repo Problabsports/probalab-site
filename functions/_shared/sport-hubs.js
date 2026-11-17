@@ -159,7 +159,7 @@ export async function renderLeanHub(ctx, sport) {
   const upcomingAll = data.games
     .filter((g) => g.pick && g.status !== "post" && new Date(g.start_utc).getTime() > now - 4 * 3600e3)
     .sort((a, b) => String(a.start_utc).localeCompare(String(b.start_utc)));
-  let upcoming = upcomingAll.filter((g) => matchesLightFilter(g.light, filters.light));
+  let upcoming = upcomingAll.filter((g) => matchesLightFilter(g, filters.light));
   if (filters.light === "all") upcoming = sortGreenFirst(upcoming);
   const recent = data.games
     .filter((g) => g.pick && g.status === "post" && g.won != null)

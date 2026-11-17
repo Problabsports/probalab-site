@@ -39,7 +39,7 @@ assert.equal(S.greenSummary(), "65%+ in the NBA, NFL and NHL; 55%+ in the Premie
 const cases = [
   ["nba", 0.65, null, "GREEN"], ["nba", 0.6499, null, "ORANGE"], ["nba", 0.55, null, "ORANGE"], ["nba", 0.5499, null, "RED"],
   ["nba", 0.64, "GREEN", "ORANGE"], ["nba", 0.66, "GREEN", "GREEN"], ["nba", 0.59, "SUPER", "ORANGE"], ["nba", 0.61, "SUPER", "SUPER"],
-  ["nba", 0.61, "super-green", "SUPER"], ["nfl", 0.70, "SUPER", "GREEN"], ["nfl", 0.60, "GREEN", "GREEN"], ["nhl", 0.60, null, "ORANGE"],
+  ["nba", 0.61, "super-green", "SUPER"], ["nba", 0.6499, "SUPER", "SUPER"], ["nba", 0.65, "SUPER", "GREEN"], ["nba", 0.77, "SUPER", "GREEN"], ["nfl", 0.70, "SUPER", "GREEN"], ["nfl", 0.60, "GREEN", "GREEN"], ["nhl", 0.60, null, "ORANGE"],
   ["epl", 0.55, null, "GREEN"], ["epl", 0.45, null, "ORANGE"], ["epl", 0.44, null, "RED"], ["championship", 0.5, null, "ORANGE"],
   ["tennis", 0.70, null, "GREEN"], ["tennis", 0.69, null, "ORANGE"], ["tennis", 0.59, null, "RED"],
 ];
@@ -61,6 +61,16 @@ for (let i = 0; i <= 1000; i++) {
   assert.equal(l, v >= 65 ? "GREEN" : v >= 55 ? "ORANGE" : "RED", `shown ${v}% matches its light (${p})`);
 }
 assert.equal(S.shownLight("nba", "SUPER", 0.5999), "ORANGE", "Best value needs 60% shown");
+// green first: a Best value pick in the green range is GREEN with a Best value tag; the tag needs 60% shown, NBA only
+for (const L of [S, B, M]) {
+  assert.equal(L.bestValueTag("nba", "SUPER", 0.77), true);
+  assert.equal(L.bestValueTag("nba", "SUPER", 0.60), true);
+  assert.equal(L.bestValueTag("nba", "SUPER", 0.5999), false);
+  assert.equal(L.bestValueTag("nba", "GREEN", 0.77), false);
+  assert.equal(L.bestValueTag("nfl", "SUPER", 0.77), false);
+}
+assert.equal(CFG.order[0], "GREEN", "green first");
+assert.equal(CFG.lights.SUPER.label_long, "Best value", "never Super publicly");
 
 // ---------------------------------------------------------------- generated copies are current (lights.js, lights.mjs, CSS colours)
 for (const [f, body] of Object.entries(outputs())) assert.equal(read(f).replace(/\r\n/g, "\n"), body.replace(/\r\n/g, "\n"), `${f} out of date: run node tools/build_lights.mjs`);
@@ -113,7 +123,7 @@ const py = path.join(ROOT, "tools", "mini_lights", "probalab_lights", "__init__.
 if (fs.existsSync(py)) {
   const grid = [];
   for (const sp of Object.keys(CFG.games)) for (const feed of [null, "GREEN", "SUPER", "ORANGE"]) for (let p = 0.4; p < 0.8; p += 0.0125) grid.push([sp, feed, +p.toFixed(4)]);
-  const want = grid.map(([sp, feed, p]) => S.shownLight(sp, feed, p));
+  const want = grid.map(([sp, feed, p]) => [S.shownLight(sp, feed, p), S.bestValueTag(sp, feed, p)]);
   let out;
   try {
     out = execFileSync("python", ["-I", path.join(ROOT, "tools", "mini_lights", "parity.py"), path.join(ROOT, "lights.json")], { input: JSON.stringify(grid), encoding: "utf8" });

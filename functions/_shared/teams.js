@@ -4,7 +4,7 @@ export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
 import {
-  ORIGIN, NBA_TEAMS, slug, esc, pct, chip, shell, shortDay, signupMain, sportName, records,
+  ORIGIN, NBA_TEAMS, slug, esc, pct, chip, bvTag, shell, shortDay, signupMain, sportName, records,
 } from "./site.js";
 
 const NHL_TEAMS = {
@@ -551,7 +551,7 @@ export function renderTeamPage(sport, data, team) {
       <span class="d">${esc(shortDay(g.start_utc))}</span>
       <span class="m">${teamIsHome ? "vs" : "@"} ${esc(opp)}</span>
       <span class="p">${chance == null ? "soon" : `${chanceText(chance)}${pickedThem ? " · our pick" : ""}`}</span>
-      ${chip(g.light)}
+      ${chip(g.light)}${bvTag(g)}
       <span class="fp" title="Fair price = 1 ÷ win chance">${fairHtml(chance)}</span>
     </a></li>`;
   }).join("") : "";
