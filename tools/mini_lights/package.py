@@ -41,12 +41,16 @@ GREEN_FIRST = {
     "results_5pm": "* Discord (`send.py`, `john_discord.py`, `multi_discord.py`): a Best value line whose chance is 65%+ is posted as "
                    "`🟢 (Best value)`; 60–64% stays `🟣 Best value`; the word SUPER is never posted.\n"
                    "* `scripts\\tips_page\\export_tips.py`: ProbaLab site picks and open bets get a `best_value` flag, so the members "
-                   "desk shows *Green + Best value*. The light itself and the NBA rule flags are unchanged.\n"
+                   "desk shows *Green + Best value*. The light itself and the NBA rule flags are unchanged by this patch.\n"
+                   "* John's NBA rule (decided 18 Nov): once the feed sends GREEN for 65%+ Best value picks (ops apply.sql, run in "
+                   "Supabase), they count toward the rule as GREEN. Nothing to change on the mini for that.\n"
                    "* `check_discord_lights.py`: a 65%+ Best value game must be `🟢 (Best value)` in Discord; 🟣, or a plain 🟢, is a MISMATCH.",
     "john_desk": "* Discord (`send.py`, `john_discord.py`, `multi_discord.py` to #john): a Best value line whose chance is 65%+ is posted as "
                  "`🟢 (Best value)`; 60–64% stays `🟣 Best value`; the word SUPER is never posted.\n"
                  "* `scripts\\tips_page\\export_tips.py`: ProbaLab site picks and open bets get a `best_value` flag (members desk). "
-                 "The light itself and the NBA rule flags are unchanged.\n"
+                 "The light itself and the NBA rule flags are unchanged by this patch.\n"
+                 "* John's NBA rule (decided 18 Nov): once the feed sends GREEN for 65%+ Best value picks, they count toward the "
+                 "rule as GREEN. Nothing to change on the mini for that.\n"
                  "* `check_discord_lights.py`: a 65%+ Best value game must be `🟢 (Best value)`; 🟣, or a plain 🟢, is a MISMATCH.",
     "nhl_value": "* Loader refresh only (NHL has no Best value light): same lights.json as the site, and the word SUPER is never posted.",
     "tips_check": "* `run_scan.py` already uses the site's light (patched last time), so with the refreshed loader a 65%+ NBA Best value "

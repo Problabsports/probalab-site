@@ -27,12 +27,12 @@ fully reversible.
 
 The site already shows and counts these games this way, so its pages and records do not change.
 
-## Other readers of the feed light: check before applying
+## Other readers of the feed light
 These read `light` from the feed and will see GREEN instead of SUPER for 65%+ Best value games:
 * **John's NBA rule (results_5pm / john_desk `export_tips.py`, `ledger_lib/tipmatch.py`)**: `qualifies = light == "GREEN"
-  and price in range`. Today a 65%+ SUPER game never qualifies; after this it can. That changes John's rule
-  bookkeeping, so decide first whether that is wanted (if not, those two checks should use `light == "GREEN" and not
-  best_value`).
+  and price in range`. **Decided 18 Nov 2026: yes, 65%+ Best value games count toward John's NBA rule as GREEN.** No
+  `not best_value` exclusion is added anywhere. From the moment apply.sql runs, a 65%+ Best value pick can show
+  QUALIFIES; tips already stored as SUPER keep their stored light and rule flags (history is not rewritten).
 * **Ledger capture (`ledger_lib/probalab.py`)** stores the feed light for new rows: new 65%+ Best value tips are stored
   GREEN. The lights patch v2 makes the members-desk export carry `best_value`; the capture itself does not store it.
 * tips_check, sheets_8am, telegram_tips treat GREEN and SUPER both as tips: no change in what counts.

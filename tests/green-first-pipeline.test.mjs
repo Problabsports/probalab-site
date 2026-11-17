@@ -97,3 +97,11 @@ try {
   else throw e;
 }
 console.log("green-first pipeline tests passed");
+
+// ---------------------------------------------------------------- decision 18 Nov: 65%+ Best value counts toward John's NBA rule
+// (no "not best_value" exclusion anywhere: the export patch only adds the flag; the desk's rule reads the stored light)
+const patch = read("tools/mini_lights/apply_lights_patch.py");
+assert.doesNotMatch(patch, /not\s+(row\.get\("best_value"\)|best_value)|best_value\s*(is\s+not|!=|==)\s*True/, "no Best value exclusion from the NBA rule");
+assert.match(read("ops/20261118_green_first_feed/README.md"), /Decided 18 Nov 2026: yes, 65%\+ Best value games count toward John's NBA rule/);
+assert.equal(M.colour({ sport: "NBA", light: "GREEN", win_pct: 0.77, best_value: true }), "GREEN");
+console.log("NBA rule decision recorded");
