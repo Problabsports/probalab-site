@@ -1,2 +1,25 @@
-{"name":"ProbaLab","short_name":"ProbaLab","start_url":"/","display":"standalone","background_color":"#07080f","theme_color":"#07080f",
- "icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "id": "/",
+  "name": "ProbaLab",
+  "short_name": "ProbaLab",
+  "description": "Win chances for every NBA, NFL, NHL, Premier League, Championship and tennis game, with every result on the record.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080f",
+  "theme_color": "#07080f",
+  "categories": ["sports"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Today's games", "short_name": "Today", "url": "/today", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Results", "short_name": "Results", "url": "/results", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "NBA props", "short_name": "Props", "url": "/props/nba", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Members", "short_name": "Members", "url": "/members", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
