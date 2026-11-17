@@ -215,7 +215,7 @@ assert.ok(b.games.every((g) => String(g.event_id).startsWith("sample-")), "sampl
 setSnap(row(realPayload));
 const late = Date.parse("2026-11-15T17:00:00+11:00");
 const lateHtml = await (await page(ctx("https://x.test/props/nba", {}, {}, late))).text();
-assert.ok(lateHtml.includes("No player props on the board yet. Check back closer to tip-off."));
+assert.ok(lateHtml.includes("No NBA player props posted yet.") && lateHtml.includes("posted on the morning of game day"), "empty board message (next game time added when the feed has one)");
 assert.ok(!lateHtml.includes("Sample data") && !/Realname|Marcus Vale/.test(lateHtml), "no sample, no players");
 
 // status mapping
