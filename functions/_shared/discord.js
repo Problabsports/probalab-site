@@ -68,3 +68,18 @@ export function socialFooterStack() {
   const parts = [discordFooterCta(), xFooterCta()].filter(Boolean);
   return parts.length ? `<div class="social-cta-stack social-footer">${parts.join("")}</div>` : "";
 }
+
+// Discord join block: replaces the old email newsletter sign-up everywhere on the site.
+// The newsletter itself now goes out in Discord. Old /#newsletter links land on the footer block.
+export const DISCORD_JOIN_LINE = "Free picks, results and the weekly newsletter in our Discord.";
+
+/** "Join our Discord" block. `id` is set only on the one block per page that /#newsletter should land on. */
+export function discordJoin(source = "page", { id = "" } = {}) {
+  if (!discordInviteConfigured()) return "";
+  const src = String(source).replace(/[^a-z0-9:_-]/gi, "");
+  return `<div class="discord-join"${id ? ` id="${id}"` : ""} data-discord-join="${src}">
+  <a class="discord-join-btn" href="${hrefAttr()}" target="_blank" rel="noopener noreferrer">${DISCORD_ICON}<span>Join our Discord</span></a>
+  <p class="discord-join-line">${DISCORD_JOIN_LINE}</p>
+  <p class="discord-join-age">18+ only.</p>
+</div>`;
+}

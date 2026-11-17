@@ -571,3 +571,13 @@ table.cal th.n, table.cal td.n { text-align: right; font-variant-numeric: tabula
 .x-cta-footer:hover b { color: #fff; }
 .social-cta-stack { display: grid; gap: 8px; width: fit-content; max-width: 100%; }
 .social-footer { margin: 0 0 12px; }
+/* Join our Discord block (replaces the email newsletter sign-up). Phone first: full-width
+   48px button; from 768px it sits at its natural width. */
+.discord-join { margin: 0 0 18px; padding: 14px; border: 1px solid rgba(25, 227, 255, 0.4); border-radius: 12px; background: rgba(25, 227, 255, 0.06); max-width: 440px; color: var(--ink); }
+.discord-join-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 48px; padding: 12px 18px; box-sizing: border-box; border-radius: 10px; background: var(--cyan); color: #07080f; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; box-shadow: 0 0 18px rgba(25, 227, 255, 0.3); transition: background .15s, box-shadow .15s; -webkit-tap-highlight-color: transparent; }
+.discord-join-btn:hover, .discord-join-btn:focus-visible { background: #fff; color: #07080f; box-shadow: 0 0 22px rgba(255, 47, 192, 0.45), 0 0 14px rgba(25, 227, 255, 0.3); }
+.discord-join-btn:focus-visible { outline: 2px solid var(--magenta); outline-offset: 2px; }
+.discord-join-btn .discord-ico { flex: 0 0 auto; display: block; }
+.discord-join-line { margin: 10px 0 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
+.discord-join-age { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+@media (min-width: 768px) { .discord-join-btn { display: inline-flex; width: auto; } }

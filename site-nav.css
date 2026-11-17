@@ -6,7 +6,7 @@ header.top.site-head .wrap,
 }
 /* Unified site nav: one set of labels everywhere. Desktop is a single row;
    below 880px it collapses to logo + Today + a menu drawer (Esc closes).
-   Primary tabs: Today, Results, Members, Newsletter, Sports, More, Discord.
+   Primary tabs: Today, Results, Members, Sports, More, Discord.
    Sports hubs share one dropdown / mobile sub-list. */
 .site-head .wrap {
   display: flex;

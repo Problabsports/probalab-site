@@ -12,7 +12,7 @@ import {
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 import { labelLong, scaleText, shownLight, isTip as isTipLight, chanceText } from "./lights.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
-import { discordNavLink, socialFooterStack, X_PROFILE_URL } from "./discord.js";
+import { discordJoin, discordNavLink, socialFooterStack, xFooterCta, X_PROFILE_URL } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -202,51 +202,12 @@ function nflPreview(g, rec) {
   return out;
 }
 
-// Public Turnstile sitekey (secret stays in Pages env as TURNSTILE_SECRET).
-export const TURNSTILE_SITEKEY = "0x4AAAAAAF1-8hWamb8_PqUn";
-export const TURNSTILE_WIDGET = `<div class="cf-turnstile" data-sitekey="${TURNSTILE_SITEKEY}" data-action="subscribe" data-theme="dark"></div>`;
-
-export const signupMain = (source) => `<form class="signup main" action="/api/subscribe" method="post" data-signup>
-  <label for="su-email-${esc(source)}"><b>Get every prediction and result by email</b></label>
-  <p>Every Tuesday and Friday: the model's GREEN calls, how the last batch went, wins and misses both. Free.</p>
-  <div class="srow"><input id="su-email-${esc(source)}" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
-  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
-  <button type="submit">Sign me up</button></div>
-  ${TURNSTILE_WIDGET}
-  <p class="small">Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
-</form>`;
+// Email newsletter sign-up retired: every sign-up spot is now a "Join our Discord" block.
+// The beehiiv endpoint (functions/api/subscribe.js) is left in place but nothing posts to it.
+// signupMain / signupForm keep their names so existing callers swap over without changes.
+export const signupMain = (source) => discordJoin(source);
+export const signupForm = (source) => discordJoin(source, { id: "newsletter" });
 export const AMAZON_DISCLOSURE = `As an Amazon Associate I earn from qualifying purchases. Some links on ProbaLab are Amazon links marked "(paid link)". If you buy through one, we may earn a small commission at no extra cost to you. It never changes our predictions or which games we cover.`;
-export const signupForm = (source) => `<form id="newsletter" class="signup" action="/api/subscribe" method="post" data-signup>
-  <label for="su-email"><b>Get our predictions and results by email, twice a week</b></label>
-  <div class="srow"><input id="su-email" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
-  <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="hidden" name="source" value="${esc(source)}">
-  <button type="submit">Sign up</button></div>
-  ${TURNSTILE_WIDGET}
-  <p class="small">Predictions and results by email, twice a week. Unsubscribe any time. <a href="/privacy">Privacy</a></p><p class="msg" role="status"></p>
-</form>`;
-export const SIGNUP_JS = `document.querySelectorAll("form[data-signup]").forEach(function (f) {
-  f.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var m = f.querySelector(".msg"), b = f.querySelector("button");
-    var tokEl = f.querySelector("[name='cf-turnstile-response']");
-    var token = tokEl && tokEl.value ? tokEl.value : "";
-    b.disabled = true; m.textContent = "Signing you up…";
-    fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: f.email.value, website: f.website.value, source: f.source ? f.source.value : "", "cf-turnstile-response": token }) })
-      .then(function (r) { return r.json().then(function (j) { return { j: j }; }); })
-      .then(function (x) {
-        var j = x.j || {};
-        m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again.");
-        if (j.ok) f.email.value = "";
-      })
-      .catch(function () { m.textContent = "Something went wrong. Please try again."; })
-      .finally(function () {
-        b.disabled = false;
-        var w = f.querySelector(".cf-turnstile");
-        if (window.turnstile && w) { try { window.turnstile.reset(w); } catch (err) { try { window.turnstile.reset(); } catch (err2) {} } }
-      });
-  });
-});`;
 
 // ------------------------------------------------------------------ page shell
 // Same labels and destinations on every page (index.html and the legal pages copy this markup).
@@ -299,7 +260,6 @@ export function renderHeader(path = "/") {
     const on = navLinkOn(path, href);
     return `<a href="${href}"${on ? ' aria-current="page"' : ""}>${label}</a>`;
   });
-  links.push(`<a href="#newsletter" data-nl>Newsletter</a>`);
   links.push(navDropdown("nav-sports-menu", "Sports", NAV_SPORTS, path));
   const x = `<a href="${X_PROFILE_URL}" role="menuitem" target="_blank" rel="noopener noreferrer">X · @probalabsports</a>`;
   links.push(navDropdown("nav-more-menu", "More", NAV_MORE, path, x));
@@ -358,8 +318,6 @@ ${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" hr
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ProbaLab">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="preconnect" href="https://challenges.cloudflare.com">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>` : ""}
 </head>
 <body>
@@ -369,7 +327,7 @@ ${body}
 </main>
 <footer><div class="wrap">
   ${signup ? signupForm(path === "/" ? "home" : path.split("/")[1] || "page") : ""}
-  ${socialFooterStack()}
+  ${signup ? `<div class="social-cta-stack social-footer">${xFooterCta()}</div>` : socialFooterStack()}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small"><b>18+ only. Gamble responsibly.</b> <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
@@ -377,7 +335,6 @@ ${body}
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>
-${SIGNUP_JS}
 // show times in the reader's own time zone
 document.querySelectorAll("time[data-local]").forEach(function (t) {
   try { t.textContent = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(t.getAttribute("datetime"))); } catch (e) {}
