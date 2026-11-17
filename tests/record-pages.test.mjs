@@ -6,6 +6,49 @@ import { rowsFromFeed, rowsFromNhl, rowsFromSoccer, rowsFromTennis, tally, EPL_L
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const load = async (name) => JSON.parse(await readFile(join(root, "data", name), "utf8"));
+// The cut-offs record-pages.js applies on this branch (green / orange); EPL lights start at EPL_LIGHTS_FROM.
+const CFG = { games: { epl: { green_min: 0.55, orange_min: 0.45, lights_from: EPL_LIGHTS_FROM }, championship: { green_min: 0.55, orange_min: 0.45 }, tennis: { green_min: 0.7, orange_min: 0.6 } } };
+
+// Expected counts are read straight from the data files, independently of record-pages.js, so a data refresh never
+// breaks this test while a counting bug in record-pages.js still does.
+const list = (x) => (Array.isArray(x) ? x : x?.games ?? x?.matches ?? []);
+const pc = (v) => (v == null ? null : Number(v) > 1 ? Number(v) / 100 : Number(v));
+const count = (items, light) => {
+  const xs = light === undefined ? items : items.filter((x) => (x.light ?? null) === light);
+  return { n: xs.length, w: xs.filter((x) => x.won).length };
+};
+const marketCount = (market, items) => items.filter((x) => {
+  const m = market?.[x.id]?.[x.side];
+  return x.side != null && m && m.posted_price && m.close_price && m.vs_close != null;
+}).length;
+function cutLight(sport, p) {
+  const c = CFG.games[sport];
+  if (p == null) return null;
+  return p >= c.green_min ? "GREEN" : p >= c.orange_min ? "ORANGE" : "RED";
+}
+const expectNhl = (pretip) => Object.values(pretip?.games ?? {}).filter((s) => typeof s.won === "boolean").map((s) => ({ won: s.won, light: s.light ?? null }));
+function expectSoccer(sport, picks, grades) {
+  return list(picks).filter((g) => grades?.[String(g.game_id ?? g.id)]?.graded).map((g) => {
+    const id = String(g.game_id ?? g.id);
+    const lit = sport !== "epl" || (g.start_utc && g.start_utc >= CFG.games.epl.lights_from);
+    return { id, side: g.pick, won: !!grades[id].correct, light: lit ? cutLight(sport, pc(g["p_" + g.pick])) : null };
+  });
+}
+function expectTennis(picks) {
+  return list(picks).map((m) => ({ m, won: m.result === "won" ? true : m.result === "lost" ? false : m.right == null ? null : !!m.right }))
+    .filter((x) => x.won != null)
+    .map(({ m, won }) => ({ id: String(m.id ?? m.game_id), side: m.pick, won, light: m.light ?? null }));
+}
+function sameCounts(t, items, lights, what) {
+  const all = count(items);
+  assert.equal(t.n, all.n, `${what}: picks`);
+  assert.equal(t.w, all.w, `${what}: wins`);
+  for (const l of lights) {
+    const e = count(items, l), got = t.byLight[l ?? "NONE"] ?? { n: 0, w: 0 };
+    assert.equal(got.n, e.n, `${what} ${l ?? "no light"}: picks`);
+    assert.equal(got.w, e.w, `${what} ${l ?? "no light"}: wins`);
+  }
+}
 
 // NBA-style feed rows: only post + pick + won, lights preserved, no invented units.
 const feed = {
@@ -35,73 +78,54 @@ assert.match(csv, /^sport,game_id,/);
 assert.doesNotMatch(csv, /units/i);
 assert.match(csv, /Boston Celtics/);
 
+const nhlPretip = await load("nhl-pretip.json");
 const nhl = rowsFromNhl({
   picks: await load("nhl-picks.json"),
-  pretip: await load("nhl-pretip.json"),
+  pretip: nhlPretip,
   grades: await load("nhl-grades.json"),
   market: await load("nhl-market.json"),
 });
 const nhlT = tally(nhl);
-assert.equal(nhlT.n, 179);
+const nhlE = expectNhl(nhlPretip);
+assert.ok(nhlE.length > 0, "NHL data has finished picks");
+sameCounts(nhlT, nhlE, ["SUPER", "GREEN", "ORANGE", "RED"], "NHL");
 assert.equal(nhlT.w, nhl.filter((r) => r.won).length);
 assert.ok(nhl.every((r) => r.start_utc));
 assert.equal(nhl.filter((r) => r.posted_utc).length, nhlT.posted);
 // Market coverage is whatever is already on file (currently a handful of games).
 assert.ok(nhlT.close.n <= nhlT.n);
 
-const epl = rowsFromSoccer("epl", {
-  picks: await load("epl-picks.json"),
-  grades: await load("epl-grades.json"),
-  market: await load("epl-market.json"),
-});
+const [eplPicks, eplGrades, eplMarket] = [await load("epl-picks.json"), await load("epl-grades.json"), await load("epl-market.json")];
+const epl = rowsFromSoccer("epl", { picks: eplPicks, grades: eplGrades, market: eplMarket });
 const eplT = tally(epl);
-assert.equal(eplT.n, 30);
-assert.equal(eplT.w, 12);
-assert.equal(eplT.byLight.GREEN.n, 3);
-assert.equal(eplT.byLight.GREEN.w, 3);
-assert.equal(eplT.byLight.ORANGE.n, 12);
-assert.equal(eplT.byLight.ORANGE.w, 5);
-assert.equal(eplT.byLight.RED.n, 14);
-assert.equal(eplT.byLight.RED.w, 4);
-assert.equal(eplT.byLight.NONE.n, 1);
+const eplE = expectSoccer("epl", eplPicks, eplGrades);
+assert.ok(eplE.length > 0, "EPL data has finished picks");
+sameCounts(eplT, eplE, ["GREEN", "ORANGE", "RED", null], "EPL");
+assert.equal(eplT.close.n, marketCount(eplMarket, eplE), "EPL: picks with a closing price");
 assert.ok(epl.some((r) => r.start_utc < EPL_LIGHTS_FROM && r.light == null));
 assert.ok(epl.filter((r) => r.start_utc >= EPL_LIGHTS_FROM).every((r) => r.light));
 
-const champ = rowsFromSoccer("championship", {
-  picks: await load("championship-picks.json"),
-  grades: await load("championship-grades.json"),
-  market: await load("championship-market.json"),
-});
+const [chPicks, chGrades, chMarket] = [await load("championship-picks.json"), await load("championship-grades.json"), await load("championship-market.json")];
+const champ = rowsFromSoccer("championship", { picks: chPicks, grades: chGrades, market: chMarket });
 const champT = tally(champ);
-assert.equal(champT.n, 11);
-assert.equal(champT.w, 4);
+const champE = expectSoccer("championship", chPicks, chGrades);
+assert.ok(champE.length > 0, "Championship data has finished picks");
+sameCounts(champT, champE, ["GREEN", "ORANGE", "RED"], "Championship");
 assert.ok(champ.every((r) => r.light)); // Championship always lit
-assert.equal(champT.close.n, 0); // market file is empty
-assert.ok(champ.every((r) => r.posted_utc == null));
-assert.match(champ[0].posted_note, /not on file/i);
+assert.equal(champT.close.n, marketCount(chMarket, champE), "Championship: picks with a closing price");
+for (const r of champ) if (r.posted_utc == null) assert.match(r.posted_note, /not on file/i); // says so when no post time
 
-const tennis = rowsFromTennis({
-  picks: await load("tennis-picks.json"),
-  market: await load("tennis-market.json"),
-});
+const [tenPicks, tenMarket] = [await load("tennis-picks.json"), await load("tennis-market.json")];
+const tennis = rowsFromTennis({ picks: tenPicks, market: tenMarket });
 const tenT = tally(tennis);
-assert.equal(tenT.n, 16);
-assert.equal(tenT.w, 12);
-assert.equal(tenT.byLight.GREEN.n, 4);
-assert.equal(tenT.byLight.GREEN.w, 3);
-assert.equal(tenT.byLight.ORANGE.n, 5);
-assert.equal(tenT.byLight.ORANGE.w, 4);
-assert.equal(tenT.byLight.RED.n, 7);
-assert.equal(tenT.byLight.RED.w, 5);
-assert.equal(tenT.close.n, 1);
+const tenE = expectTennis(tenPicks);
+assert.ok(tenE.length > 0, "tennis data has finished matches");
+sameCounts(tenT, tenE, ["GREEN", "ORANGE", "RED"], "Tennis");
+assert.equal(tenT.close.n, marketCount(tenMarket, tenE), "Tennis: picks with a closing price");
 
-// Green headlines — computed, not guessed.
-assert.equal(nhlT.byLight.GREEN.n, 25);
-assert.equal(nhlT.byLight.GREEN.w, 20);
-assert.equal(champT.byLight.GREEN.n, 4);
-assert.equal(champT.byLight.GREEN.w, 1);
-assert.equal(tenT.byLight.GREEN.n, 4);
-assert.equal(tenT.byLight.GREEN.w, 3);
+// Green headlines as the page should print them, from the data files.
+const greenOf = (items) => count(items, "GREEN");
+const G = { nhl: greenOf(nhlE), epl: greenOf(eplE), champ: greenOf(champE), tennis: greenOf(tenE) };
 
 const views = [
   { sport: "nba", name: "NBA", season: "2026–27", rows: [
@@ -127,10 +151,10 @@ const allRows = views.flatMap((v) => v.rows);
 const greenDefault = filterResultRows(allRows, { sport: "all", light: "green" });
 assert.ok(greenDefault.every((r) => r.light === "GREEN" || r.light === "SUPER"));
 assert.ok(greenDefault.some((r) => r.light === "SUPER"));
-assert.equal(filterResultRows(allRows, { sport: "epl", light: "green" }).length, 3);
-assert.equal(filterResultRows(allRows, { sport: "championship", light: "green" }).length, 4);
-assert.equal(filterResultRows(allRows, { sport: "championship", light: "green" }).filter((r) => r.won).length, 1);
-assert.equal(filterResultRows(allRows, { sport: "tennis", light: "green" }).length, 4);
+assert.equal(filterResultRows(allRows, { sport: "epl", light: "green" }).length, G.epl.n);
+assert.equal(filterResultRows(allRows, { sport: "championship", light: "green" }).length, G.champ.n);
+assert.equal(filterResultRows(allRows, { sport: "championship", light: "green" }).filter((r) => r.won).length, G.champ.w);
+assert.equal(filterResultRows(allRows, { sport: "tennis", light: "green" }).length, G.tennis.n);
 
 const combinedCsv = renderResultsCsv(allRows);
 assert.match(combinedCsv, /^sport,game_id,/);
@@ -147,10 +171,7 @@ assert.equal(csvRows, allRows.length);
 
 const htmlGreen = renderResultsPage(views, { sport: "all", light: "green" });
 assert.match(htmlGreen, /<h1>Results<\/h1>/);
-assert.match(htmlGreen, /20 of 25/);
-assert.match(htmlGreen, /3 of 3/);
-assert.match(htmlGreen, /1 of 4/);
-assert.match(htmlGreen, /3 of 4/);
+for (const [k, g] of Object.entries(G)) if (g.n) assert.ok(htmlGreen.includes(`${g.w} of ${g.n}`), `${k} green headline ${g.w} of ${g.n}`);
 assert.match(htmlGreen, /href="\/results\.csv"/);
 assert.match(htmlGreen, /Green \+ Best value/);
 assert.match(htmlGreen, /Super — best value/);
