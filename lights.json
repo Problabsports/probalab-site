@@ -23,11 +23,14 @@
     "text": "NBA value flag: the price beats our fair price",
     "note": "Best value is a value flag, not a higher-confidence green. A feed SUPER below min_p, or a feed GREEN below the sport's green cut-off, is shown with the plain cut-off light (orange or red), never promoted."
   },
+  "display": {
+    "chance": "floor",
+    "note": "A chance is shown as a whole % rounded DOWN (54.9% shows 54%), and every light is decided from that shown number, so the number always matches its light: 54% is never orange on a 55% cut-off, 65% is always green."
+  },
   "props": {
     "green_min": 0.60,
     "orange_min": 0.55,
-    "rounded": true,
-    "note": "Props colour follows the rounded % shown, so 55% is never red and 60% is always green."
+    "note": "Props use the same shown (rounded-down) % as games: 59% is orange, 60% is green."
   },
   "discord": {
     "legacy_best_value": ["🟢⭐", "🟢 ⭐", "⭐🟢", "⭐ 🟢", "🟢🌟", "🟢 🌟", ":green_circle::star:", ":green_circle: :star:", ":star::green_circle:", ":star: :green_circle:"]

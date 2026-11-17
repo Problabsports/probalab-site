@@ -1,5 +1,5 @@
 import { stClass, teamInjuries, getInjuries, INJ_CSS } from "./injuries.js";
-import { gameLight, shownLight } from "./lights.js";
+import { gameLight, shownLight, chanceText } from "./lights.js";
 export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
@@ -485,10 +485,10 @@ function seasonResultsHtml(sport, data, team, formLimit = null) {
     const ot = sport === "nhl" && (g.result_type === "OT" || g.result_type === "SO") ? ` ${g.result_type}` : "";
     let pickBit = "";
     if (g.pick && g.won != null) {
-      const chance = g.pick_p != null ? pct(g.pick_p) : "—";
+      const chance = g.pick_p != null ? chanceText(g.pick_p) : "—";
       pickBit = `<span class="pl-pick">Our pick <b>${esc(g.pick_name || g.pick)}</b> ${chance} · <span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></span>`;
     } else if (g.pick) {
-      pickBit = `<span class="pl-pick">Our pick <b>${esc(g.pick_name || g.pick)}</b>${g.pick_p != null ? " " + pct(g.pick_p) : ""}</span>`;
+      pickBit = `<span class="pl-pick">Our pick <b>${esc(g.pick_name || g.pick)}</b>${g.pick_p != null ? " " + chanceText(g.pick_p) : ""}</span>`;
     }
     const inner = `<span class="d">${esc(shortDay(g.start_utc))}</span>
       <span class="m"><span class="wl ${res}">${res}</span> ${us}–${them}${ot} ${home ? "vs" : "@"} ${esc(opp)}</span>
@@ -550,7 +550,7 @@ export function renderTeamPage(sport, data, team) {
     return `<li><a href="${esc(href)}">
       <span class="d">${esc(shortDay(g.start_utc))}</span>
       <span class="m">${teamIsHome ? "vs" : "@"} ${esc(opp)}</span>
-      <span class="p">${chance == null ? "soon" : `${pct(chance)}${pickedThem ? " · our pick" : ""}`}</span>
+      <span class="p">${chance == null ? "soon" : `${chanceText(chance)}${pickedThem ? " · our pick" : ""}`}</span>
       ${chip(g.light)}
       <span class="fp" title="Fair price = 1 ÷ win chance">${fairHtml(chance)}</span>
     </a></li>`;

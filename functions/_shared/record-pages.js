@@ -2,7 +2,7 @@
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
 import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
-import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP } from "./lights.js";
+import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
 export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
 
@@ -629,7 +629,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
         <td><a href="${esc(resultsHref({ sport: g.sport, light: filters.light }))}">${esc(sportName(g.sport))}</a></td>
         <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
         <td>${esc(g.pick)}</td>
-        <td class="n">${pct(g.pick_p)}</td>
+        <td class="n">${chanceText(g.pick_p)}</td>
         <td>${g.light ? chip(g.light) : "—"}</td>
         <td>${resultCell(g)}</td>
         <td class="n">${closeCell(g)}</td>

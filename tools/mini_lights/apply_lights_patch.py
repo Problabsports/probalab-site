@@ -114,6 +114,9 @@ EDITS = {
             if not light:
                 thr = HC_THRESHOLDS.get(sport, 0.65)
                 light = "GREEN" if p >= thr else "ORANGE" if p >= 0.55 else "RED"'''),
+        ('''    pct = f"{float(row['pick_p'])*100:.0f}%" if float(row.get("pick_p") or 0) <= 1 else f"{float(row['pick_p']):.0f}%"''',
+         '''    _p = float(row.get("pick_p") or 0)
+    pct = _lights().chance_text(_p if _p <= 1 else _p / 100)  # rounded down, like its light (54.9% shows 54%)'''),
         ('''        f"🎯 High chance — {row['sport']} ({row['light']})",''',
          '''        f"🎯 High chance — {row['sport']} ({_lights().tag(row['light']) or row['light']})",'''),
     ]),

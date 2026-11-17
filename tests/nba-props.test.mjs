@@ -30,9 +30,9 @@ assert.equal(legacy.side, "Under"); assert.equal(legacy.line, 18.5);
 
 // light: green 60%+, orange 55–59%, red under 55% (by the % shown)
 assert.equal(lightOf(0.6), "GREEN");
-assert.equal(lightOf(0.596), "GREEN");
+assert.equal(lightOf(0.596), "ORANGE"); // shows 59%: rounded down, like its light
 assert.equal(lightOf(0.57), "ORANGE");
-assert.equal(lightOf(0.548), "ORANGE");
+assert.equal(lightOf(0.548), "RED"); // shows 54%
 assert.equal(lightOf(0.52), "RED");
 
 // sort: strongest call first within each game; Out players without data are not listed

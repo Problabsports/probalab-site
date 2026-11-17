@@ -46,9 +46,21 @@ const cases = [
 for (const [sp, p, feed, want] of cases) {
   for (const [name, L] of [["server", S], ["lights.js", B], ["lights.mjs", M]]) assert.equal(L.shownLight(sp, feed, p), want, `${name} ${sp} ${p} ${feed}`);
 }
-for (const [p, want] of [[0.595, "GREEN"], [0.6, "GREEN"], [0.594, "ORANGE"], [0.545, "ORANGE"], [0.544, "RED"]]) {
+for (const [p, want] of [[0.595, "ORANGE"], [0.6, "GREEN"], [0.5999, "ORANGE"], [0.55, "ORANGE"], [0.549, "RED"]]) {
   for (const L of [S, B, M]) assert.equal(L.propsLight(p), want, `props ${p}`);
 }
+// shown chances are rounded DOWN and the light is judged on the shown number, so they always match
+for (const [p, txt, nba] of [[0.549, "54%", "RED"], [0.55, "55%", "ORANGE"], [0.57, "57%", "ORANGE"], [0.6499, "64%", "ORANGE"], [0.65, "65%", "GREEN"], [0.999, "99%", "GREEN"]]) {
+  for (const L of [S, B, M]) {
+    assert.equal(L.chanceText(p), txt, `chance ${p}`);
+    assert.equal(L.gameLight("nba", p), nba, `light ${p}`);
+  }
+}
+for (let i = 0; i <= 1000; i++) {
+  const p = i / 1000, v = S.shown(p), l = S.gameLight("nba", p);
+  assert.equal(l, v >= 65 ? "GREEN" : v >= 55 ? "ORANGE" : "RED", `shown ${v}% matches its light (${p})`);
+}
+assert.equal(S.shownLight("nba", "SUPER", 0.5999), "ORANGE", "Best value needs 60% shown");
 
 // ---------------------------------------------------------------- generated copies are current (lights.js, lights.mjs, CSS colours)
 for (const [f, body] of Object.entries(outputs())) assert.equal(read(f).replace(/\r\n/g, "\n"), body.replace(/\r\n/g, "\n"), `${f} out of date: run node tools/build_lights.mjs`);

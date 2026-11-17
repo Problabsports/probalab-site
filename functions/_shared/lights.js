@@ -8,5 +8,5 @@ export const LIGHTS = LIGHTS_JSON;
 export const {
   order, label, labelLong, colour, emoji, gameSports, sportCfg, gameLight, shownLight, propsLight,
   rangeText, scaleText, keyText, greenSummary, orangeSummary, bestValueSports, bestValueMinP, bestValueText,
-  propsText, isTip, pctText,
+  propsText, isTip, pctText, shown, chanceText,
 } = L;

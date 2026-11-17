@@ -14,7 +14,7 @@
 //              rebounds: {...}, assists: {...}, threes: {...} } }
 // Older boards with proj_pts / primary_line still render for points (see statOf).
 import { esc, chip, slug } from "./site.js";
-import { LIGHTS as LIGHTS_CFG, propsLight } from "./lights.js";
+import { LIGHTS as LIGHTS_CFG, propsLight, chanceText } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -293,7 +293,7 @@ export function predictionRow(r, { link = true, name = true } = {}) {
       ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
       <td class="num">${one(s.line)}</td>
       <td class="call">${s.side}</td>
-      <td class="num pct">${pct(s.p)}</td>
+      <td class="num pct">${chanceText(s.p)}</td>
       <td class="lt">${chip(r.light)}</td>
     </tr>`;
 }

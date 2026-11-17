@@ -28,7 +28,10 @@ def test_rules_match_the_site():
     assert LIGHTS.shown_light("nba", "SUPER", 0.61) == "SUPER"
     assert LIGHTS.shown_light("nfl", "SUPER", 0.70) == "GREEN"       # Best value is NBA only
     assert LIGHTS.game_light("epl", 0.50) == "ORANGE" and LIGHTS.game_light("tennis", 0.69) == "ORANGE"
-    assert LIGHTS.props_light(0.595) == "GREEN" and LIGHTS.props_light(0.544) == "RED"
+    assert LIGHTS.props_light(0.595) == "ORANGE" and LIGHTS.props_light(0.6) == "GREEN" and LIGHTS.props_light(0.549) == "RED"
+    # shown chances round down and lights are judged on them: 54.9% shows 54% and is red
+    assert LIGHTS.chance_text(0.549) == "54%" and LIGHTS.game_light("nba", 0.549) == "RED"
+    assert LIGHTS.chance_text(0.57) == "57%" and LIGHTS.game_light("nba", 0.6499) == "ORANGE"
 
 
 def test_discord_text_uses_purple_for_best_value():

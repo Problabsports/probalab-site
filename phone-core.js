@@ -129,7 +129,7 @@
     var size = opts.size || 72;
     var ok = p != null && isFinite(p);
     var v = ok ? Math.max(0, Math.min(1, Number(p))) : 0;
-    var pctTxt = ok ? Math.round(v * 100) + "%" : "–";
+    var pctTxt = ok ? L.shown(v) + "%" : "–"; // rounded down, like its light
     var r = 40, cx = 50, cy = 50, len = Math.PI * r; // half circle, 0..1 left to right
     var arc = "M" + (cx - r) + " " + cy + " A" + r + " " + r + " 0 0 1 " + (cx + r) + " " + cy;
     var cls = "pf-gauge" + (light ? " pf-g-" + light : "") + (opts.big ? " pf-gauge-big" : "");
@@ -167,7 +167,7 @@
     var pick = g.side
       ? '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>' + esc(g.side) + "</b></span>"
       : '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>Posted soon</b></span>';
-    var aria = (g.b ? g.a + (g.sep === "@" ? " at " : " v ") + g.b : g.a) + ". " + (g.side ? "Our pick " + g.side + ", " + (g.p != null ? Math.round(g.p * 100) + "% chance" : "") : "") +
+    var aria = (g.b ? g.a + (g.sep === "@" ? " at " : " v ") + g.b : g.a) + ". " + (g.side ? "Our pick " + g.side + ", " + (g.p != null ? L.shown(g.p) + "% chance" : "") : "") +
       (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "");
     return '<a class="pf-card' + lightCls + '" href="' + esc(g.phoneHref || g.href) + '" data-pf-key="' + esc(g.sport + ":" + (g.id || "")) + '" aria-label="' + esc(aria) + '">' +
       '<span class="pf-card-top">' + top + "</span>" +

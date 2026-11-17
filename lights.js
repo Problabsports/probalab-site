@@ -14,6 +14,10 @@
     var ALIASES = { SUPER_GREEN: "SUPER", SUPERGREEN: "SUPER", BEST_VALUE: "SUPER", BESTVALUE: "SUPER" };
 
     function pct(x) { return Math.round(Number(x) * 100); }
+    /** The whole % a chance is shown as: rounded down (lights.json "display"), with a hair of slack for float noise
+     *  (0.57 * 100 = 56.99999999999999 must show 57). Lights are decided from this number, so they always match it. */
+    function shown(p) { var n = num(p); return n == null ? null : Math.floor(n * 100 + 1e-7); }
+    function chanceText(p) { var s = shown(p); return s == null ? "\u2014" : s + "%"; }
     function norm(l) {
       var k = String(l == null ? "" : l).trim().toUpperCase().replace(/[-\s]+/g, "_");
       k = ALIASES[k] || k;
@@ -27,11 +31,11 @@
     function sportCfg(sport) { return games[String(sport || "").toLowerCase()] || null; }
     function num(p) { var n = p == null || p === "" ? NaN : Number(p); return isFinite(n) ? n : null; }
 
-    /** Light from the chance alone, on the sport's cut-offs. null when the sport or chance is unknown. */
+    /** Light from the chance alone, on the sport's cut-offs, judged on the shown (rounded-down) %. null when unknown. */
     function gameLight(sport, p) {
-      var c = sportCfg(sport), n = num(p);
-      if (!c || n == null) return null;
-      return n >= c.green_min - 1e-9 ? "GREEN" : n >= c.orange_min - 1e-9 ? "ORANGE" : "RED";
+      var c = sportCfg(sport), v = shown(p);
+      if (!c || v == null) return null;
+      return v >= pct(c.green_min) ? "GREEN" : v >= pct(c.orange_min) ? "ORANGE" : "RED";
     }
 
     /** The light the site shows for a game: the feed's light, checked against the cut-offs.
@@ -43,17 +47,16 @@
       if (!c || n == null) return l;
       if (l === "SUPER") {
         if (bv.sports.indexOf(String(sport).toLowerCase()) < 0) return gameLight(sport, n);
-        return n < bv.min_p - 1e-9 ? gameLight(sport, n) : "SUPER";
+        return shown(n) < pct(bv.min_p) ? gameLight(sport, n) : "SUPER";
       }
-      if (l === "GREEN" && c.guard && n < c.green_min - 1e-9) return gameLight(sport, n);
+      if (l === "GREEN" && c.guard && shown(n) < pct(c.green_min)) return gameLight(sport, n);
       return l;
     }
 
-    /** Props scale; by default on the rounded % shown (55% is never red, 60% always green). */
+    /** Props scale, on the shown (rounded-down) %: 59% is orange, 60% green. */
     function propsLight(p) {
-      var n = num(p);
-      if (n == null) return null;
-      var v = props.rounded ? pct(n) : n * 100;
+      var v = shown(p);
+      if (v == null) return null;
       return v >= pct(props.green_min) ? "GREEN" : v >= pct(props.orange_min) ? "ORANGE" : "RED";
     }
 
@@ -108,10 +111,11 @@
       sportCfg: sportCfg, gameSports: gameSports, gameLight: gameLight, shownLight: shownLight, propsLight: propsLight,
       scaleText: scaleText, rangeText: rangeText, keyText: keyText, propsText: propsText,
       greenSummary: greenSummary, orangeSummary: orangeSummary, isTip: isTip, pctText: function (x) { return pct(x) + "%"; },
+      shown: shown, chanceText: chanceText,
       bestValueSports: function () { return bv.sports.slice(); }, bestValueMinP: function () { return bv.min_p; },
       bestValueText: function () { return bv.text; },
     };
   }
 
-  return makeLights({"version":1,"about":"Single source of truth for ProbaLab lights: game cut-offs per sport, Best value (SUPER, NBA only), the props scale, colours, labels and Discord emoji. The site (functions and browser modules use lights.mjs, classic scripts lights.js, CSS the colour block: all generated from this file by tools/build_lights.mjs and drift-checked by tests) and the mini jobs (probalab_lights loader) read it. Edit here, then run: node tools/build_lights.mjs","order":["SUPER","GREEN","ORANGE","RED"],"lights":{"SUPER":{"label":"Best value","label_long":"Super — best value","colour":"#b56cff","soft":"rgba(181, 108, 255, 0.14)","css_var":"super","emoji":"🟣"},"GREEN":{"label":"Green","label_long":"Green","colour":"#2fd7a0","soft":"rgba(47, 215, 160, 0.12)","css_var":"green","emoji":"🟢"},"ORANGE":{"label":"Orange","label_long":"Orange","colour":"#ffad33","soft":"rgba(255, 173, 51, 0.12)","css_var":"orange","emoji":"🟠"},"RED":{"label":"Red","label_long":"Red","colour":"#ff4f6e","soft":"rgba(255, 79, 110, 0.13)","css_var":"red","emoji":"🔴"}},"games":{"nba":{"name":"NBA","article":"the","guard":true,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"nfl":{"name":"NFL","article":"the","guard":false,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"nhl":{"name":"NHL","article":"the","guard":false,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"epl":{"name":"Premier League","article":"the","guard":false,"scale":"three-way","green_min":0.55,"orange_min":0.45,"orange_word":"Lean","red_word":"Open match","lights_from":"2026-10-23T23:42:00Z"},"championship":{"name":"Championship","article":"","guard":false,"scale":"three-way","green_min":0.55,"orange_min":0.45,"orange_word":"Lean","red_word":"Open match"},"tennis":{"name":"Tennis","prose":"tennis","article":"","guard":false,"scale":"two-way","green_min":0.7,"orange_min":0.6,"orange_word":"Lean","red_word":"Close match"}},"best_value":{"light":"SUPER","sports":["nba"],"min_p":0.6,"text":"NBA value flag: the price beats our fair price","note":"Best value is a value flag, not a higher-confidence green. A feed SUPER below min_p, or a feed GREEN below the sport's green cut-off, is shown with the plain cut-off light (orange or red), never promoted."},"props":{"green_min":0.6,"orange_min":0.55,"rounded":true,"note":"Props colour follows the rounded % shown, so 55% is never red and 60% is always green."},"discord":{"legacy_best_value":["🟢⭐","🟢 ⭐","⭐🟢","⭐ 🟢","🟢🌟","🟢 🌟",":green_circle::star:",":green_circle: :star:",":star::green_circle:",":star: :green_circle:"]}});
+  return makeLights({"version":1,"about":"Single source of truth for ProbaLab lights: game cut-offs per sport, Best value (SUPER, NBA only), the props scale, colours, labels and Discord emoji. The site (functions and browser modules use lights.mjs, classic scripts lights.js, CSS the colour block: all generated from this file by tools/build_lights.mjs and drift-checked by tests) and the mini jobs (probalab_lights loader) read it. Edit here, then run: node tools/build_lights.mjs","order":["SUPER","GREEN","ORANGE","RED"],"lights":{"SUPER":{"label":"Best value","label_long":"Super — best value","colour":"#b56cff","soft":"rgba(181, 108, 255, 0.14)","css_var":"super","emoji":"🟣"},"GREEN":{"label":"Green","label_long":"Green","colour":"#2fd7a0","soft":"rgba(47, 215, 160, 0.12)","css_var":"green","emoji":"🟢"},"ORANGE":{"label":"Orange","label_long":"Orange","colour":"#ffad33","soft":"rgba(255, 173, 51, 0.12)","css_var":"orange","emoji":"🟠"},"RED":{"label":"Red","label_long":"Red","colour":"#ff4f6e","soft":"rgba(255, 79, 110, 0.13)","css_var":"red","emoji":"🔴"}},"games":{"nba":{"name":"NBA","article":"the","guard":true,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"nfl":{"name":"NFL","article":"the","guard":false,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"nhl":{"name":"NHL","article":"the","guard":false,"scale":"two-way","green_min":0.65,"orange_min":0.55,"orange_word":"Lean","red_word":"Coin flip"},"epl":{"name":"Premier League","article":"the","guard":false,"scale":"three-way","green_min":0.55,"orange_min":0.45,"orange_word":"Lean","red_word":"Open match","lights_from":"2026-10-23T23:42:00Z"},"championship":{"name":"Championship","article":"","guard":false,"scale":"three-way","green_min":0.55,"orange_min":0.45,"orange_word":"Lean","red_word":"Open match"},"tennis":{"name":"Tennis","prose":"tennis","article":"","guard":false,"scale":"two-way","green_min":0.7,"orange_min":0.6,"orange_word":"Lean","red_word":"Close match"}},"best_value":{"light":"SUPER","sports":["nba"],"min_p":0.6,"text":"NBA value flag: the price beats our fair price","note":"Best value is a value flag, not a higher-confidence green. A feed SUPER below min_p, or a feed GREEN below the sport's green cut-off, is shown with the plain cut-off light (orange or red), never promoted."},"display":{"chance":"floor","note":"A chance is shown as a whole % rounded DOWN (54.9% shows 54%), and every light is decided from that shown number, so the number always matches its light: 54% is never orange on a 55% cut-off, 65% is always green."},"props":{"green_min":0.6,"orange_min":0.55,"note":"Props use the same shown (rounded-down) % as games: 59% is orange, 60% is green."},"discord":{"legacy_best_value":["🟢⭐","🟢 ⭐","⭐🟢","⭐ 🟢","🟢🌟","🟢 🌟",":green_circle::star:",":green_circle: :star:",":star::green_circle:",":star: :green_circle:"]}});
 });

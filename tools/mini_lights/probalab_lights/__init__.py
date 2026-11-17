@@ -31,6 +31,18 @@ def _pct(x) -> int:
     return int(math.floor(float(x) * 100 + 0.5))
 
 
+def shown_pct(p):
+    """The whole % a chance is shown as: rounded DOWN (lights.json "display"); lights are judged on it."""
+    import math
+    n = _num(p)
+    return None if n is None else int(math.floor(n * 100 + 1e-7))
+
+
+def chance_text(p):
+    s = shown_pct(p)
+    return "\u2014" if s is None else f"{s}%"
+
+
 def _num(p):
     try:
         n = float(p)
@@ -90,10 +102,14 @@ class Lights:
         return self.games.get(str(sport or "").lower())
 
     def game_light(self, sport, p):
-        c, n = self.sport_cfg(sport), _num(p)
-        if not c or n is None:
+        c, v = self.sport_cfg(sport), shown_pct(p)
+        if not c or v is None:
             return None
-        return "GREEN" if n >= c["green_min"] - 1e-9 else "ORANGE" if n >= c["orange_min"] - 1e-9 else "RED"
+        return "GREEN" if v >= _pct(c["green_min"]) else "ORANGE" if v >= _pct(c["orange_min"]) else "RED"
+
+    def chance_text(self, p):
+        """'54%' for 0.549: rounded down, the number its light is judged on."""
+        return chance_text(p)
 
     def shown_light(self, sport, feed_light, p):
         c, k, n = self.sport_cfg(sport), self.norm(feed_light), _num(p)
@@ -104,16 +120,15 @@ class Lights:
         if k == "SUPER":
             if str(sport).lower() not in self.best_value["sports"]:
                 return self.game_light(sport, n)
-            return self.game_light(sport, n) if n < self.best_value["min_p"] - 1e-9 else "SUPER"
-        if k == "GREEN" and c.get("guard") and n < c["green_min"] - 1e-9:
+            return self.game_light(sport, n) if shown_pct(n) < _pct(self.best_value["min_p"]) else "SUPER"
+        if k == "GREEN" and c.get("guard") and shown_pct(n) < _pct(c["green_min"]):
             return self.game_light(sport, n)
         return k
 
     def props_light(self, p):
-        n = _num(p)
-        if n is None:
+        v = shown_pct(p)
+        if v is None:
             return None
-        v = _pct(n) if self.props.get("rounded") else n * 100
         return "GREEN" if v >= _pct(self.props["green_min"]) else "ORANGE" if v >= _pct(self.props["orange_min"]) else "RED"
 
     def scale_text(self, sport):

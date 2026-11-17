@@ -7,6 +7,10 @@ export function makeLights(data) {
   var ALIASES = { SUPER_GREEN: "SUPER", SUPERGREEN: "SUPER", BEST_VALUE: "SUPER", BESTVALUE: "SUPER" };
 
   function pct(x) { return Math.round(Number(x) * 100); }
+  /** The whole % a chance is shown as: rounded down (lights.json "display"), with a hair of slack for float noise
+   *  (0.57 * 100 = 56.99999999999999 must show 57). Lights are decided from this number, so they always match it. */
+  function shown(p) { var n = num(p); return n == null ? null : Math.floor(n * 100 + 1e-7); }
+  function chanceText(p) { var s = shown(p); return s == null ? "\u2014" : s + "%"; }
   function norm(l) {
     var k = String(l == null ? "" : l).trim().toUpperCase().replace(/[-\s]+/g, "_");
     k = ALIASES[k] || k;
@@ -20,11 +24,11 @@ export function makeLights(data) {
   function sportCfg(sport) { return games[String(sport || "").toLowerCase()] || null; }
   function num(p) { var n = p == null || p === "" ? NaN : Number(p); return isFinite(n) ? n : null; }
 
-  /** Light from the chance alone, on the sport's cut-offs. null when the sport or chance is unknown. */
+  /** Light from the chance alone, on the sport's cut-offs, judged on the shown (rounded-down) %. null when unknown. */
   function gameLight(sport, p) {
-    var c = sportCfg(sport), n = num(p);
-    if (!c || n == null) return null;
-    return n >= c.green_min - 1e-9 ? "GREEN" : n >= c.orange_min - 1e-9 ? "ORANGE" : "RED";
+    var c = sportCfg(sport), v = shown(p);
+    if (!c || v == null) return null;
+    return v >= pct(c.green_min) ? "GREEN" : v >= pct(c.orange_min) ? "ORANGE" : "RED";
   }
 
   /** The light the site shows for a game: the feed's light, checked against the cut-offs.
@@ -36,17 +40,16 @@ export function makeLights(data) {
     if (!c || n == null) return l;
     if (l === "SUPER") {
       if (bv.sports.indexOf(String(sport).toLowerCase()) < 0) return gameLight(sport, n);
-      return n < bv.min_p - 1e-9 ? gameLight(sport, n) : "SUPER";
+      return shown(n) < pct(bv.min_p) ? gameLight(sport, n) : "SUPER";
     }
-    if (l === "GREEN" && c.guard && n < c.green_min - 1e-9) return gameLight(sport, n);
+    if (l === "GREEN" && c.guard && shown(n) < pct(c.green_min)) return gameLight(sport, n);
     return l;
   }
 
-  /** Props scale; by default on the rounded % shown (55% is never red, 60% always green). */
+  /** Props scale, on the shown (rounded-down) %: 59% is orange, 60% green. */
   function propsLight(p) {
-    var n = num(p);
-    if (n == null) return null;
-    var v = props.rounded ? pct(n) : n * 100;
+    var v = shown(p);
+    if (v == null) return null;
     return v >= pct(props.green_min) ? "GREEN" : v >= pct(props.orange_min) ? "ORANGE" : "RED";
   }
 
@@ -101,6 +104,7 @@ export function makeLights(data) {
     sportCfg: sportCfg, gameSports: gameSports, gameLight: gameLight, shownLight: shownLight, propsLight: propsLight,
     scaleText: scaleText, rangeText: rangeText, keyText: keyText, propsText: propsText,
     greenSummary: greenSummary, orangeSummary: orangeSummary, isTip: isTip, pctText: function (x) { return pct(x) + "%"; },
+    shown: shown, chanceText: chanceText,
     bestValueSports: function () { return bv.sports.slice(); }, bestValueMinP: function () { return bv.min_p; },
     bestValueText: function () { return bv.text; },
   };

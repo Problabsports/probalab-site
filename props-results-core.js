@@ -313,7 +313,7 @@ export function rowHtml(r, showGame, showAvg = false) {
       <td class="n mono">${esc(numText(r.line))}</td>
       ${showAvg ? `<td class="n mono pr-avg">${esc(numText(r.season_avg))}</td>` : ""}
       <td class="pr-call mono">${r.call}</td>
-      <td class="n mono">${r.p == null ? "—" : `${Math.round(r.p * 100)}%`}</td>
+      <td class="n mono">${r.p == null ? "—" : LT.chanceText(r.p)}</td>
       <td><span class="chip ${r.light}">${LIGHT_LABEL[r.light]}</span></td>
       <td class="n mono pr-actual">${r.result === "V" ? "-" : esc(numText(r.actual))}</td>
       <td class="pr-res"><span class="pr-badge ${r.result}" title="${title}">${b}</span></td>

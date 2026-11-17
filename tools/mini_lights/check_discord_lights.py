@@ -282,7 +282,7 @@ def main(argv=None) -> int:
                 continue
             flag = "OK      " if r["status"] == "OK" else "MISMATCH"
             print(f"{flag} {r['sport'].upper():<12} {r['game']:<48} Discord {L.tag(r['discord']):<16} site {L.tag(r['site']):<16}"
-                  f"{'' if r['site_p'] is None else ' (%d%%)' % round(r['site_p'] * 100)}")
+                  f"{'' if r['site_p'] is None else ' (' + L.chance_text(r['site_p']) + ')'}")
             if r["status"] != "OK":
                 print(f"         line: {r['line']}")
         print(f"{len(rows) - len(loose)} checked, {len(bad)} mismatch{'es' if len(bad) != 1 else ''}, {len(loose)} unmatched.")

@@ -5,7 +5,7 @@
  // (built on the box from existing comparison CSVs — no new Odds API credits).
 import { getFeed, gamesOf, shell, html, esc, chip, slug, asHead } from "./_shared/site.js";
 import { injuryBadge } from "./_shared/injury-warning.js";
-import { gameLight, shownLight, scaleText, labelLong, sportCfg } from "./_shared/lights.js";
+import { gameLight, shownLight, scaleText, labelLong, sportCfg, chanceText } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
@@ -181,7 +181,7 @@ export async function onRequestGet(ctx) {
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${g.away_name} @ ${g.home_name}`,
         matchHtml: `${teamA(sport, g.away_name)} @ ${teamA(sport, g.home_name)}`,
-        pick: g.pick ? `${g.pick_name} ${pct(modelP)}` : "soon",
+        pick: g.pick ? `${g.pick_name} ${chanceText(modelP)}` : "soon",
         pickName: g.pick_name,
         light: g.light,
         modelP,
@@ -235,7 +235,7 @@ export async function onRequestGet(ctx) {
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${g.away_name} @ ${g.home_name}`,
         matchHtml: `${teamA("nhl", g.away_name)} @ ${teamA("nhl", g.home_name)}`,
-        pick: `${g.pickName} ${pct(g.p)}`,
+        pick: `${g.pickName} ${chanceText(g.p)}`,
         pickName: g.pickName,
         light: g.light,
         modelP: g.p,
@@ -281,7 +281,7 @@ export async function onRequestGet(ctx) {
         when: tAEDT(g.start_utc) + " AEDT",
         match: `${g.home} v ${g.away}`,
         matchHtml: `${teamA("epl", g.home)} v ${teamA("epl", g.away)}`,
-        pick: `${g.pickName} ${pct(g.p)}`,
+        pick: `${g.pickName} ${chanceText(g.p)}`,
         pickName: g.pickName,
         light: g.light,
         modelP: g.p,
@@ -324,7 +324,7 @@ export async function onRequestGet(ctx) {
       when: tAEDT(g.start_utc) + " AEDT",
       match: `${g.home} v ${g.away}`,
       matchHtml: `${esc(g.home)} v ${esc(g.away)}`,
-      pick: `${g.pickName} ${pct(g.p)}`,
+      pick: `${g.pickName} ${chanceText(g.p)}`,
       pickName: g.pickName,
       light: g.light,
       modelP: g.p,
@@ -353,7 +353,7 @@ export async function onRequestGet(ctx) {
         when: tennisWhen(m),
         match: `${m.player_a} v ${m.player_b}`,
         matchHtml: `${esc(m.player_a)} v ${esc(m.player_b)}<br><small>${esc(m.tournament)} · ${esc(m.round)}</small>`,
-        pick: `${pickName} ${pct(p)}`,
+        pick: `${pickName} ${chanceText(p)}`,
         pickName,
         light: shownLight("tennis", m.light, p),
         modelP: p,

@@ -1068,6 +1068,8 @@ const TZNAME = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local t
 const keyOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
 const dateOfKey = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d, 12); };
 const pct = (x) => Math.round(x * 100) + "%";
+// Model chances: rounded DOWN (lights.json), so the number always matches its light (54.9% shows 54%, red).
+const chance = (x) => LT.chanceText(x);
 const money = (x) => "$" + Number(x).toFixed(2);
 const sgn = (x, dp = 1) => (x > 0 ? "+" : "") + Number(x).toFixed(dp);
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -1094,10 +1096,10 @@ function card(g) {
     <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${injuryBtn(g) || noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
-    <div class="bar" role="img" aria-label="${esc(g.away_name)} ${pct(1 - pHome)}, ${esc(g.home_name)} ${pct(pHome)}">
+    <div class="bar" role="img" aria-label="${esc(g.away_name)} ${chance(1 - pHome)}, ${esc(g.home_name)} ${chance(pHome)}">
       <i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
     <div class="card-top"><dl class="prices">
-      <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
+      <div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${chance(g.pick_p)}</dd></div>
       ${vsCloseDl(g)}
     </dl><span class="more">Details →</span></div>
   </article>`;
@@ -1215,7 +1217,7 @@ function renderRecord() {
       <div class="tablewrap"><table>
         <thead><tr><th>Date</th><th>Game</th><th>Pick</th><th class="n">Chance</th><th>Light</th><th>Result</th><th class="n">Score</th><th class="n">Price · vs close</th></tr></thead><tbody>
         ${rows.map((g) => `<tr data-game="${esc(g.game_id)}" style="cursor:pointer"><td>${fmtShort.format(new Date(g.start_utc))}</td><td>${g.away} @ ${g.home}</td><td>${esc(g.pick)}</td>
-          <td class="n">${pct(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
+          <td class="n">${chance(g.pick_p)}</td><td>${chip(g.light)}</td><td><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span></td>
           <td class="n">${g.away_score}–${g.home_score}</td><td class="n">${g.vs_close != null ? `$${g.posted_price.toFixed(2)} <b class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</b>` : "–"}</td></tr>`).join("")}
       </tbody></table></div>
       ${vcs.length ? `<p class="note"><b>Price</b> is the best Australian bookmaker price for our pick at our last price check before the start (by 7am Sydney time on game day, and at least an hour before the start). <b>vs close</b> compares it with the fair closing price: the sharpest bookmaker's last price before the start, with its margin removed. Above zero means the price you could get beat the market's final view, the best long-run sign of an edge. We show it on every pick, good or bad.</p>` : ""}
@@ -1399,7 +1401,7 @@ const NHL_P = Promise.all(["/data/nhl-picks.json", "/data/nhl-grades.json", "/da
 function nhlTile() {
   const h = NHLH, lbl = h?.day ? (h.day === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(h.day))) : "";
   return `<a class="sport-tile live" id="nhlTile" href="/nhl">${ICON.NHL}<span class="st">● Live</span><span class="nm">NHL</span><span class="lg">Ice hockey</span>
-        <span class="info">${h?.n ? `<span><b>${h.n}</b> games ${lbl}</span>` : ""}${h?.top ? `<span>Top pick <b>${esc(h.top.pick)} ${pct(h.top.p)}</b></span>` : ""}<span>Record <b>${h?.d ? `${h.w}–${h.l}` : h ? "starts soon" : "loading"}</b></span></span>
+        <span class="info">${h?.n ? `<span><b>${h.n}</b> games ${lbl}</span>` : ""}${h?.top ? `<span>Top pick <b>${esc(h.top.pick)} ${chance(h.top.p)}</b></span>` : ""}<span>Record <b>${h?.d ? `${h.w}–${h.l}` : h ? "starts soon" : "loading"}</b></span></span>
         <span class="go">Predictions →</span></a>`;
 }
 
@@ -1536,10 +1538,10 @@ function renderHome() {
   const dayGames = nextDay ? nextGames.filter((g) => keyOf(g.start_utc) === nextDay) : [];
   const done = pickedDone(), w = done.filter((g) => g.won).length;
   const dayLabel = nextDay ? (nextDay === keyOf(Date.now()) ? "today" : fmtShort.format(dateOfKey(nextDay))) : "";
-  const tick = upcoming.slice(0, 16).map((g) => `<a href="#game-${esc(g.game_id)}" class="${isTip(g) ? "tip" : ""}"><small>${g.sport} </small><b>${esc(g.pick)}</b> v ${esc(g.pick === g.home ? g.away : g.home)}<span class="pc">${pct(g.pick_p)}</span></a>`).join("");
+  const tick = upcoming.slice(0, 16).map((g) => `<a href="#game-${esc(g.game_id)}" class="${isTip(g) ? "tip" : ""}"><small>${g.sport} </small><b>${esc(g.pick)}</b> v ${esc(g.pick === g.home ? g.away : g.home)}<span class="pc">${chance(g.pick_p)}</span></a>`).join("");
   const pickCard = f ? `<a class="hp-pick" href="#game-${esc(f.game_id)}">
       <span class="lab">// ${f.sport} top pick · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}</span>
-      <span class="num" id="hpNum" data-to="${Math.round(f.pick_p * 100)}">${Math.round(f.pick_p * 100)}<small>%</small></span>
+      <span class="num" id="hpNum" data-to="${LT.shown(f.pick_p)}">${LT.shown(f.pick_p)}<small>%</small></span>
       <span class="who">${esc(f.pick_name)} to win</span>
       <span class="vs">${esc(f.away_name)} @ ${esc(f.home_name)}</span>
       <span class="meter"><i id="hpBar" style="width:${f.pick_p * 100}%"></i></span>
@@ -1547,11 +1549,11 @@ function renderHome() {
     </a>` : `<div class="hp-pick"><span class="lab">// Top pick</span><span class="who">Next picks land soon</span><span class="vs">Predictions are posted about 48 hours before game time.</span></div>`;
   const tile = ([code, lg]) => code === "NHL" ? nhlTile() : code === "NFL" && NFL
     ? `<a class="sport-tile live" href="#nfl-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
-        <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${pct(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts soon"}</b></span></span>
+        <span class="info"><span><b>${nflWeekGames.length}</b> games · ${wkLabel(NWEEK)}</span>${fn ? `<span>Top pick <b>${esc(fn.pick)} ${chance(fn.pick_p)}</b></span>` : ""}<span>Record <b>${nflDone.length ? `${nw}–${nflDone.length - nw}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
     : code === "NBA"
     ? `<a class="sport-tile live" href="#nba-predictions">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
-        <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(featured(DATA)?.pick ?? "")} ${featured(DATA) ? pct(featured(DATA).pick_p) : ""}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
+        <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(featured(DATA)?.pick ?? "")} ${featured(DATA) ? chance(featured(DATA).pick_p) : ""}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
     : code === "EPL"
     ? `<a class="sport-tile live" href="/epl">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
@@ -1627,8 +1629,8 @@ function renderTopPick() {
   const el = document.getElementById("topPick"), f = featured(DATA) ?? featured(NFL);
   el.hidden = !f; if (!f) return;
   el.href = "#game-" + f.game_id;
-  el.innerHTML = `<small>Top pick</small><b>${esc(f.pick)}</b>${pct(f.pick_p)}`;
-  el.title = `Top pick: ${f.pick_name} ${pct(f.pick_p)} to win, ${f.away} @ ${f.home} · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}`;
+  el.innerHTML = `<small>Top pick</small><b>${esc(f.pick)}</b>${chance(f.pick_p)}`;
+  el.title = `Top pick: ${f.pick_name} ${chance(f.pick_p)} to win, ${f.away} @ ${f.home} · ${fmtShort.format(new Date(f.start_utc))} ${fmtTime.format(new Date(f.start_utc))}`;
   el.setAttribute("aria-label", el.title);
 }
 
@@ -1640,7 +1642,7 @@ function renderSide(sub) {
   document.getElementById("side").innerHTML = `
     ${sub === "predictions" ? `<div class="mini" id="calSide">${calHtml()}</div>` : ""}
     ${feat ? `<div class="mini"><h3>Pick of the day</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
-      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
+      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${chance(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
       <div class="row">${chip(feat.light)}</div></div></div>` : ""}
     <div class="mini"><h3>Top picks record</h3>
@@ -1718,7 +1720,7 @@ function renderGame(id) {
   if (!g.pick) { el.innerHTML = `<a class="back" href="#nba-predictions">← All games</a>${cardSoon(g)}`; if (!SOFT) window.scrollTo(0, 0); return; }
   const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
   const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
-      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
+      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${chance(p)}</div></div>`;
   const factor = (label, a, h, fmt, higherBetter = true) => {
     if (a == null || h == null) return "";
     const span = Math.max(Math.abs(a), Math.abs(h), 1e-9), edgeH = higherBetter ? h > a : h < a;
@@ -1740,7 +1742,7 @@ function renderGame(id) {
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
-      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${chance(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
         ${g.vs_close != null ? `<div><dt>Posted price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
@@ -2027,7 +2029,7 @@ function renderNflGame(id) {
   const pHome = pHomeOf(g), d = g.detail ?? {}, post = g.status === "post" && g.won !== null;
   const tab = nflTable(g.season), rec = (c) => tab.find((r) => r.c === c);
   const side = (code, name, role, p) => `<div class="side-t ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
-      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${pct(p)}</div></div>`;
+      <div class="crest">${code}</div><div class="tn">${esc(name)}</div><div class="role eyebrow" style="margin:0">${role}</div><div class="pcbig">${chance(p)}</div></div>`;
   const qbCard = (team, q, flag) => `<div class="panel"><h2>${team} quarterback</h2>${q?.name ? `<div class="formlist">
       <div class="fr"><span class="badge">QB</span><span class="t"><b>${esc(q.name)}</b></span><span class="mono">${q.starts} starts</span></div>
       <div class="fr"><span></span><span class="t">Injury report</span><span class="mono">${esc(q.status ?? "–")}</span></div></div>` : `<p>No recent starter on record.</p>`}
@@ -2039,7 +2041,7 @@ function renderNflGame(id) {
         ${post ? `<span class="mark ${g.won ? "W" : "L"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
       <div class="vs">${side(g.away, g.away_name, "Away", 1 - pHome)}<div class="mid"><span class="x">VS</span>${post ? `<span class="score" style="font-size:20px;color:var(--ink)">${g.away_score}–${g.home_score}</span><span>Final</span>` : `<span>Win chance</span>`}</div>${side(g.home, g.home_name, "Home", pHome)}</div>
       <div class="bar"><i class="${g.pick === g.away ? "pk" : ""}" style="width:${(1 - pHome) * 100}%"></i><i class="${g.pick === g.home ? "pk" : ""}" style="width:${pHome * 100}%"></i></div>
-      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${pct(g.pick_p)}</dd></div>
+      <dl class="prices"><div><dt>Pick</dt><dd>${esc(g.pick_name)}</dd></div><div><dt>Chance</dt><dd>${chance(g.pick_p)}</dd></div>
         ${post ? `<div><dt>Result</dt><dd><span class="wl ${g.won ? "W" : "L"}">${g.won ? "✓ Correct" : "✕ Missed"}</span></dd></div>` : ""}
         ${g.vs_close != null ? `<div><dt>Posted price</dt><dd>$${g.posted_price.toFixed(2)}</dd></div><div><dt>Fair close</dt><dd>$${g.close_price.toFixed(2)}</dd></div><div><dt>vs close</dt><dd class="${g.vs_close > 0 ? "clv-pos" : "clv-neg"}">${sgnPct(g.vs_close)}</dd></div>` : ""}
         </dl>
@@ -2078,7 +2080,7 @@ function renderSideNfl() {
   const ts = nflFinals(NFL.season).length ? NFL.season : NSEASON, rows = nflTable(ts).filter((r) => r.gp).slice(0, 8);
   document.getElementById("side").innerHTML = `
     ${feat ? `<div class="mini"><h3>Pick of the week</h3><div class="feat" data-game="${esc(feat.game_id)}" tabindex="0" role="link">
-      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${pct(feat.pick_p)}</div>
+      <div class="lbig">${esc(feat.pick_name)}</div><div class="big">${chance(feat.pick_p)}</div>
       <div class="row"><span class="t">${esc(feat.away)} @ ${esc(feat.home)} · ${fmtShort.format(new Date(feat.start_utc))} ${fmtTime.format(new Date(feat.start_utc))}</span></div>
       <div class="row">${chip(feat.light)}</div></div></div>` : ""}
     <div class="mini"><h3>Top picks record</h3>
