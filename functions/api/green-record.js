@@ -1,6 +1,7 @@
 // Public green-record summary for the home page. Same grading as /results.
 import { SPORT_ORDER, loadSportRecord, lightTally } from "../_shared/record-pages.js";
 import { sportName } from "../_shared/site.js";
+import { labelLong } from "../_shared/lights.js";
 
 function pct(w, n) {
   return n ? Math.round((100 * w) / n) : null;
@@ -44,7 +45,7 @@ export async function onRequestGet(ctx) {
   const body = {
     generated_at: resultsUpdatedAt(views),
     green: { w: gW, n: gN, pct: pct(gW, gN) },
-    super: sN ? { w: sW, n: sN, pct: pct(sW, sN), label: "Super — best value", note: "NBA only" } : null,
+    super: sN ? { w: sW, n: sN, pct: pct(sW, sN), label: labelLong("SUPER"), note: "NBA only" } : null,
     sports,
   };
   return new Response(JSON.stringify(body), {

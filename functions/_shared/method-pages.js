@@ -1,6 +1,7 @@
 // Shared copy and figures for /how-it-works and /backtest.
 // Every backtest figure traces to a file listed in FIGURE_SOURCES. Do not invent replacements.
 import { shell, ORIGIN, chip } from "./site.js";
+import { greenSummary, orangeSummary, labelLong, bestValueMinP } from "./lights.js";
 
 export const FIGURE_SOURCES = {
   nbaWalk: "betting/models/nba/elo_netrtg/v2/backtest_predictions_v2.csv joined to v1/backtest_predictions.csv (results). Walk-forward v2 (H2).",
@@ -60,12 +61,12 @@ export function renderHowItWorksPage() {
     <h2>How the lights work</h2>
     <p>Every pick gets a coloured light so you can see, at a glance, how strongly the model rates its own call. The cut-offs are not the same in every sport, and that is deliberate. We do not move them to chase a short run of results. The short page — <a href="/lights">How the lights work</a> — is the reference. In brief:</p>
     <div class="lights">
-      <div><span>${chip("SUPER")}</span><p>Super — best value. NBA only. A value flag, not a higher-confidence green.</p></div>
-      <div><span>${chip("GREEN")}</span><p>65%+ in the NBA, NFL and NHL; 55%+ in the Premier League and Championship (a draw is possible); 70%+ in tennis.</p></div>
-      <div><span>${chip("ORANGE")}</span><p>A lean: 55–65% in the NBA, NFL and NHL; 45–55% in football; 60–70% in tennis.</p></div>
+      <div><span>${chip("SUPER")}</span><p>${labelLong("SUPER")}. NBA only. A value flag, not a higher-confidence green.</p></div>
+      <div><span>${chip("GREEN")}</span><p>${greenSummary()} (in football a draw is possible).</p></div>
+      <div><span>${chip("ORANGE")}</span><p>A lean: ${orangeSummary()}.</p></div>
       <div><span>${chip("RED")}</span><p>Below that. In a two-way sport this is close to a coin flip; in tennis a red light is a genuinely tight match.</p></div>
     </div>
-    <p>Super is different. An NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
+    <p>Super is different. An NBA pick only gets Super when the model is at least ${Math.round(bestValueMinP() * 100)}% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
     <p>If key players are listed as uncertain, a value pick is held back. It keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. We do not promote a held pick to Super, because the Super test knew the real line-ups.</p>
   </section>
 

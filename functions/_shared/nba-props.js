@@ -14,6 +14,7 @@
 //              rebounds: {...}, assists: {...}, threes: {...} } }
 // Older boards with proj_pts / primary_line still render for points (see statOf).
 import { esc, chip, slug } from "./site.js";
+import { LIGHTS as LIGHTS_CFG, propsLight, chanceText } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -30,9 +31,9 @@ export const STATS = [
   ["threes", "Threes"],
 ];
 const TZ = "Australia/Sydney";
-// Light colours, props scale: green 60%+, orange 55–59%, red under 55%.
-export const GREEN_MIN = 0.6;
-export const ORANGE_MIN = 0.55;
+// Light colours, props scale (lights.json "props": green 60%+, orange 55–59%, red under 55%).
+export const GREEN_MIN = LIGHTS_CFG.props.green_min;
+export const ORANGE_MIN = LIGHTS_CFG.props.orange_min;
 // Reserved for a later book line / price column. Off until prices exist.
 export const SHOW_BOOK_COLUMN = false;
 
@@ -136,11 +137,7 @@ export function isUncertain(player) {
 const num = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null : Number(x));
 const pct = (p) => `${Math.round(p * 100)}%`;
 // Colour follows the rounded % shown, so "55%" is never red and "60%" is always green.
-export const lightOf = (p) => {
-  if (p == null) return "";
-  const shown = Math.round(p * 100);
-  return shown >= Math.round(GREEN_MIN * 100) ? "GREEN" : shown >= Math.round(ORANGE_MIN * 100) ? "ORANGE" : "RED";
-};
+export const lightOf = (p) => (p == null ? "" : propsLight(p) || "");
 
 /** One stat block for a player, normalised: { avg, line, proj, over, under, side, p } or null. */
 export function statOf(player, stat) {
@@ -296,7 +293,7 @@ export function predictionRow(r, { link = true, name = true } = {}) {
       ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
       <td class="num">${one(s.line)}</td>
       <td class="call">${s.side}</td>
-      <td class="num pct">${pct(s.p)}</td>
+      <td class="num pct">${chanceText(s.p)}</td>
       <td class="lt">${chip(r.light)}</td>
     </tr>`;
 }

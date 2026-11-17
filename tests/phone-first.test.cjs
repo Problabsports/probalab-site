@@ -157,20 +157,22 @@ for (const sel of selectors) for (const part of sel.split(",")) assert.match(par
 for (const f of ["index.html", "404.html", "contact.html", "privacy.html", "terms.html", "functions/_shared/site.js"]) {
   const s = read(f);
   assert.ok(s.includes('href="/phone.css"') && s.includes('src="/phone-core.js"') && s.includes('src="/phone.js"'), f);
+  const li = s.indexOf('src="/lights.js"');
+  assert.ok(li > 0 && li < s.indexOf('src="/phone-core.js"'), f + ": /lights.js loads before /phone-core.js");
 }
 
 // ---------------------------------------------------------------- round 3: stacked keys, props scale, Today sport chips
 const rowsOf = (sp, o) => P.gameKeyRows(sp, o).map((r) => `${r.label}:${r.range}`);
-assert.deepEqual(rowsOf("nba", { best: true }), ["Best value:NBA value flag: the price beats our fair price", "Green:65%+", "Orange:Lean · 55–65%", "Red:Coin flip · under 55%"]);
+assert.deepEqual(rowsOf("nba", { best: true }), ["Best value:NBA value flag: the price beats our fair price", "Green:65%+", "Orange:Lean · 55–64%", "Red:Coin flip · under 55%"]);
 assert.deepEqual(rowsOf("nfl", { best: true }).slice(0, 1), ["Green:65%+"], "Best value is NBA only");
-assert.deepEqual(rowsOf("nhl"), ["Green:65%+", "Orange:Lean · 55–65%", "Red:Coin flip · under 55%"]);
+assert.deepEqual(rowsOf("nhl"), ["Green:65%+", "Orange:Lean · 55–64%", "Red:Coin flip · under 55%"]);
 assert.equal(rowsOf("epl")[0], "Green:55%+");
 assert.equal(rowsOf("championship")[0], "Green:55%+");
 assert.equal(rowsOf("tennis")[0], "Green:70%+");
 assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Best value", "Green", "Orange", "Red", "Injury watch"]);
 assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League, Championship.*70%\+ Tennis/);
 // props have their own scale, and it never appears in a game key
-assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55-59%", "Red:under 55%"]);
+assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55–59%", "Red:under 55%"]);
 for (const sp of ["nba", "nfl", "nhl", "epl", "championship", "tennis", "all"]) {
   const html = P.stackedKeyHtml(P.gameKeyRows(sp, { best: true, injury: true }));
   assert.ok(!/60%\+|55[-–]59%/.test(html), `game key ${sp} shows no props range`);

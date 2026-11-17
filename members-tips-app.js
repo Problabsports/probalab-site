@@ -25,7 +25,10 @@
   const fmtOdds = (x) => (M.number(x) == null ? "—" : '<span class="odds" data-dec="' + Number(x) + '">' + Number(x).toFixed(2) + "</span>");
   const fmtU = M.fmtUnits;
   const clsU = (x) => (x == null ? "" : Number(x) > 0 ? "pos" : Number(x) < 0 ? "neg" : "");
-  const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(l === "UNRATED" ? "Off-pick" : l) + "</span>" : "—");
+  // Light names from /lights.json (via /lights.js); MULTI and Off-pick are desk tags, not lights.
+  const LT = window.PLLights;
+  const lightName = (l) => (l === "UNRATED" ? "Off-pick" : LT && LT.norm(l) ? LT.labelLong(l) : l);
+  const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(lightName(l)) + "</span>" : "—");
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const dash = (v) => (v == null || v === "" ? "—" : esc(v));
   // Same rule as the live site's Important note (index.html hasNote/qbLine/nbaLine).

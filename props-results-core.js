@@ -8,6 +8,7 @@
 // record, hit rate, chart or breakdown; P and V are listed and counted beside the record.
 // No prices, units, ROI or profit exist here, and nothing private is ever passed in.
 
+import LT from "./lights.mjs";
 export const STATS = [
   ["points", "Points"],
   ["rebounds", "Rebounds"],
@@ -15,11 +16,8 @@ export const STATS = [
   ["threes", "Threes"],
 ];
 export const STAT_LABEL = Object.fromEntries(STATS);
-export const LIGHTS = [
-  ["GREEN", "Green"],
-  ["ORANGE", "Orange"],
-  ["RED", "Red"],
-];
+// Props lights (green / orange / red; no Best value), names from /lights.json via /lights.mjs.
+export const LIGHTS = ["GREEN", "ORANGE", "RED"].map((l) => [l, LT.label(l)]);
 const LIGHT_LABEL = Object.fromEntries(LIGHTS);
 export const CALLS = ["Over", "Under"];
 
@@ -315,7 +313,7 @@ export function rowHtml(r, showGame, showAvg = false) {
       <td class="n mono">${esc(numText(r.line))}</td>
       ${showAvg ? `<td class="n mono pr-avg">${esc(numText(r.season_avg))}</td>` : ""}
       <td class="pr-call mono">${r.call}</td>
-      <td class="n mono">${r.p == null ? "—" : `${Math.round(r.p * 100)}%`}</td>
+      <td class="n mono">${r.p == null ? "—" : LT.chanceText(r.p)}</td>
       <td><span class="chip ${r.light}">${LIGHT_LABEL[r.light]}</span></td>
       <td class="n mono pr-actual">${r.result === "V" ? "-" : esc(numText(r.actual))}</td>
       <td class="pr-res"><span class="pr-badge ${r.result}" title="${title}">${b}</span></td>

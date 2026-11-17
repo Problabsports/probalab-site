@@ -2,8 +2,9 @@
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
 import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
+import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
-export const EPL_LIGHTS_FROM = "2026-10-23T23:42:00Z";
+export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
 
 export const SPORT_ORDER = ["nba", "nfl", "nhl", "epl", "championship", "tennis"];
 
@@ -11,15 +12,15 @@ const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres"
 
 const CONF = { SUPER: "Very high", GREEN: "High", ORANGE: "Medium", RED: "Low" };
 
-// Display copy only. Cut-offs are the live ones already used on each sport page.
-export const LIGHT_COPY = {
-  nba: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: true, note: "Super is the NBA best-value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." },
-  nfl: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: false },
-  nhl: { scale: "two-way", green: "65%+", orange: "55–65%", red: "under 55%", super: false },
-  epl: { scale: "three-way", green: "55%+", orange: "45–55%", red: "under 45%", super: false, switchOn: EPL_LIGHTS_FROM },
-  championship: { scale: "three-way", green: "55%+", orange: "45–55%", red: "under 45%", super: false },
-  tennis: { scale: "two-way", green: "70%+", orange: "60–70%", red: "under 60%", super: false },
-};
+// Display copy, built from lights.json (the live cut-offs every page uses).
+export const LIGHT_COPY = Object.fromEntries(gameSports().map((s) => {
+  const t = scaleText(s);
+  return [s, {
+    scale: sportCfg(s).scale, green: t.GREEN, orange: t.ORANGE, red: t.RED, super: bestValueSports().includes(s),
+    ...(s === "nba" ? { note: "Super is the NBA best-value flag: the bookmaker price beats our fair price. It is not a higher-confidence green." } : {}),
+    ...(s === "epl" ? { switchOn: EPL_LIGHTS_FROM } : {}),
+  }];
+}));
 
 const BANDS_NBA = [[0.5, 0.55], [0.55, 0.6], [0.6, 0.65], [0.65, 0.7], [0.7, 0.8], [0.8, 1.01]];
 const BANDS_SOCCER = [[0, 0.45, "Under 45%"], [0.45, 0.55, "45–55%"], [0.55, 0.65, "55–65%"], [0.65, 2, "65% or more"]];
@@ -58,7 +59,7 @@ function soccerPickP(g) {
 function soccerLight(sport, start, pickP) {
   if (sport === "epl" && (!start || start < EPL_LIGHTS_FROM)) return null;
   if (pickP == null) return null;
-  return pickP >= 0.55 ? "GREEN" : pickP >= 0.45 ? "ORANGE" : "RED";
+  return gameLight(sport, pickP);
 }
 
 export function rowsFromFeed(sport, data) {
@@ -188,7 +189,7 @@ export function rowsFromTennis({ picks, market }) {
       away: m.player_b,
       pick: side === "a" ? m.player_a : side === "b" ? m.player_b : m.pick_name ?? side,
       pick_p: pickP,
-      light: m.light ?? null,
+      light: m.light ? shownLight("tennis", m.light, pickP) : null,
       won,
       home_score: null,
       away_score: null,
@@ -388,7 +389,7 @@ function filterNav(filters) {
   const lightLinks = [
     ["green", "Green + Best value"],
     ["all", "All lights"],
-    ["super", "Super — best value"],
+    ["super", labelLong("SUPER")],
     ["orange", "Orange"],
     ["red", "Red"],
   ].map(([id, label]) => {
@@ -413,7 +414,7 @@ function sportGreenCard(v) {
   const s = lightTally(v.rows, "SUPER");
   const href = resultsHref({ sport: v.sport, light: "green" });
   const superLine = s.n
-    ? `<p class="super-line">${chip("SUPER")} Super — best value: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price.</p>
+    ? `<p class="super-line">${chip("SUPER")} ${esc(labelLong("SUPER"))}: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price.</p>
        <p class="small">Green + Best value: ${esc(rateLine(g.w + s.w, g.n + s.n))}.</p>`
     : "";
   return `<article class="panel record-card green-card">
@@ -588,7 +589,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     : filters.light === "all"
       ? "Every finished pick"
       : filters.light === "super"
-        ? "Super — best value"
+        ? labelLong("SUPER")
       : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
   const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
   const lightNote = filters.light === "green"
@@ -600,8 +601,8 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>If you are coming to us for predictions, the green results are the ones to focus on. Every pick still stays on the record, including orange and red.</p>
     <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
-    ${sAll.n ? `<p>Super — best value (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
-    <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — 65%+ in the NBA, NFL and NHL, 55%+ in the Premier League and Championship, 70%+ in tennis — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
+    ${sAll.n ? `<p>${esc(labelLong("SUPER"))} (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>.</p>` : ""}
+    <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — ${esc(greenSummary().replace(/; /g, ", "))} — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
     <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Units below are 1 unit per pick at the recorded posted price — a way to track the record, not a staking plan.</p>
   </section>` : `<section class="panel"><p>No finished picks yet.</p></section>`;
 
@@ -628,7 +629,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
         <td><a href="${esc(resultsHref({ sport: g.sport, light: filters.light }))}">${esc(sportName(g.sport))}</a></td>
         <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
         <td>${esc(g.pick)}</td>
-        <td class="n">${pct(g.pick_p)}</td>
+        <td class="n">${chanceText(g.pick_p)}</td>
         <td>${g.light ? chip(g.light) : "—"}</td>
         <td>${resultCell(g)}</td>
         <td class="n">${closeCell(g)}</td>
@@ -704,6 +705,7 @@ export async function handleSportRecordRequest(ctx, sport) {
 }
 
 export function renderLightsPage() {
+  const T = (s) => scaleText(s), C = (s) => sportCfg(s), P = (x) => Math.round(x * 100);
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>How the lights work</span></nav>
   <p class="eyebrow">// lights · by sport</p>
   <h1>How the lights work</h1>
@@ -712,32 +714,32 @@ export function renderLightsPage() {
 
   <section class="panel"><h2>NBA, NFL and NHL</h2>
     <div class="lights">
-      <div><span>${chip("SUPER")}</span><p>Super — best value. NBA only. This is a value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price.</p></div>
-      <div><span>${chip("GREEN")}</span><p>65% or more. One of our top picks, on confidence alone.</p></div>
-      <div><span>${chip("ORANGE")}</span><p>A lean, 55 to 65%.</p></div>
-      <div><span>${chip("RED")}</span><p>Under 55%. Close to a coin flip.</p></div>
+      <div><span>${chip("SUPER")}</span><p>${esc(labelLong("SUPER"))}. NBA only. This is a value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price.</p></div>
+      <div><span>${chip("GREEN")}</span><p>${T("nba").GREEN}. One of our top picks, on confidence alone.</p></div>
+      <div><span>${chip("ORANGE")}</span><p>A lean, ${T("nba").ORANGE}.</p></div>
+      <div><span>${chip("RED")}</span><p>${T("nba").RED[0].toUpperCase()}${T("nba").RED.slice(1)}. Close to a coin flip.</p></div>
     </div>
-    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least ${P(bestValueMinP())}% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same ${P(C("nfl").green_min)} / ${P(C("nfl").orange_min)} confidence scale and do not have a Super flag.</p>
     <p>In a 2025–26 test of 162 Super games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 
   <section class="panel"><h2>Premier League and Championship</h2>
     <div class="lights">
-      <div><span>${chip("GREEN")}</span><p>55% or more. A genuine favourite in a three-way market.</p></div>
-      <div><span>${chip("ORANGE")}</span><p>A lean, 45 to 55%.</p></div>
-      <div><span>${chip("RED")}</span><p>Under 45%. The match is open, and a draw is a real third result.</p></div>
+      <div><span>${chip("GREEN")}</span><p>${T("epl").GREEN}. A genuine favourite in a three-way market.</p></div>
+      <div><span>${chip("ORANGE")}</span><p>A lean, ${T("epl").ORANGE}.</p></div>
+      <div><span>${chip("RED")}</span><p>${T("epl").RED[0].toUpperCase()}${T("epl").RED.slice(1)}. The match is open, and a draw is a real third result.</p></div>
     </div>
-    <p>Green starts at 55% because a draw is possible. In the Premier League and the Championship the model publishes three chances — home, draw and away — and the pick is the most likely of those three. A 55% side in that setting is already clearer than a 55% side in the NBA.</p>
+    <p>Green starts at ${P(C("epl").green_min)}% because a draw is possible. In the Premier League and the Championship the model publishes three chances — home, draw and away — and the pick is the most likely of those three. A 55% side in that setting is already clearer than a 55% side in the NBA.</p>
     <p>Premier League lights apply only to matches kicking off from <b>23 October 2026, 23:42 UTC</b>. Earlier Premier League picks stay on the record without a light; we do not go back and re-colour them. Championship picks have been lit from the first live round.</p>
   </section>
 
   <section class="panel"><h2>Tennis</h2>
     <div class="lights">
-      <div><span>${chip("GREEN")}</span><p>70% or more. A clear favourite.</p></div>
-      <div><span>${chip("ORANGE")}</span><p>A lean, 60 to 70%.</p></div>
-      <div><span>${chip("RED")}</span><p>Under 60%. In tennis that really does mean a close match: favourites win often, so the bar for a top pick is higher.</p></div>
+      <div><span>${chip("GREEN")}</span><p>${T("tennis").GREEN}. A clear favourite.</p></div>
+      <div><span>${chip("ORANGE")}</span><p>A lean, ${T("tennis").ORANGE}.</p></div>
+      <div><span>${chip("RED")}</span><p>${T("tennis").RED[0].toUpperCase()}${T("tennis").RED.slice(1)}. In tennis that really does mean a close match: favourites win often, so the bar for a top pick is higher.</p></div>
     </div>
-    <p>There is no draw in a completed singles match. Favourites also win more often than in team sports, so green starts at 70% and a red light is a genuinely tight call rather than a coin-flip team game.</p>
+    <p>There is no draw in a completed singles match. Favourites also win more often than in team sports, so green starts at ${P(C("tennis").green_min)}% and a red light is a genuinely tight call rather than a coin-flip team game.</p>
   </section>
 
   <section class="panel"><h2>What a light is not</h2>

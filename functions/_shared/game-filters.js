@@ -1,5 +1,6 @@
 // Sport + light filters for public Today / Predictions lists.
 // Defaults match /results: sport=all, light=green (Green + Best value, includes SUPER).
+import { labelLong } from "./lights.js";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League", championship: "Championship", tennis: "Tennis" }[s] ?? String(s).toUpperCase());
 
@@ -64,7 +65,7 @@ const SPORT_BTN = {
 const LIGHT_BTN = [
   ["green", "Green", "GREEN"],
   ["all", "All", ""],
-  ["super", "Super — best value", "SUPER"],
+  ["super", labelLong("SUPER"), "SUPER"],
   ["orange", "Orange", "ORANGE"],
   ["red", "Red", "RED"],
 ];
