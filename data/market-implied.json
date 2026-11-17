@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-17T20:51:13Z",
+  "generated_utc": "2026-11-17T22:00:21Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -9,8 +9,8 @@
       "away": "NY",
       "home": "TOR",
       "start_utc": "2026-11-18T00:30:00Z",
-      "market_home": 0.3956,
-      "market_away": 0.6044
+      "market_home": 0.3922,
+      "market_away": 0.6078
     },
     {
       "sport": "nba",
@@ -18,8 +18,8 @@
       "away": "POR",
       "home": "MIN",
       "start_utc": "2026-11-18T01:00:00Z",
-      "market_home": 0.5394,
-      "market_away": 0.4606
+      "market_home": 0.5558,
+      "market_away": 0.4442
     },
     {
       "sport": "nba",
@@ -27,8 +27,8 @@
       "away": "DET",
       "home": "SA",
       "start_utc": "2026-11-18T01:00:00Z",
-      "market_home": 0.7821,
-      "market_away": 0.2179
+      "market_home": 0.7805,
+      "market_away": 0.2195
     },
     {
       "sport": "nba",
@@ -36,8 +36,8 @@
       "away": "UTAH",
       "home": "LAC",
       "start_utc": "2026-11-18T03:30:00Z",
-      "market_home": 0.6808,
-      "market_away": 0.3192
+      "market_home": 0.6794,
+      "market_away": 0.3206
     },
     {
       "sport": "nba",
@@ -45,8 +45,8 @@
       "away": "CHA",
       "home": "LAL",
       "start_utc": "2026-11-18T04:00:00Z",
-      "market_home": 0.7149,
-      "market_away": 0.2851
+      "market_home": 0.7231,
+      "market_away": 0.2769
     },
     {
       "sport": "nfl",
