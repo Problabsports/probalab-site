@@ -30,7 +30,7 @@ export async function onRequestGet(ctx) {
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/members">Members</a> › <span>Join</span></nav>
   <p class="eyebrow">// join</p>
   <h1>${heading}</h1>
-  <p>Members get the John, ProbaLab and Sniper desks, every NBA player prop projection, live tip alerts in Discord, and the members newsletter. There are no guaranteed winners. Every pick, including losses, stays on the public <a href="/results">Results</a> record.</p>
+  <p>Members get the John, ProbaLab and Sniper desks, every NBA player prop prediction, live tip alerts in Discord, and the members newsletter. There are no guaranteed winners. Every pick, including losses, stays on the public <a href="/results">Results</a> record.</p>
   <p class="note">${priceNote}${remainingLine ? " " + remainingLine : ""}</p>
 
   <form id="joinForm" class="join-form">

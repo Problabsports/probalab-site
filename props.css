@@ -65,38 +65,136 @@
 .pp-member-note { margin: 0 0 14px; }
 .pp-member-note .note { margin: 0 0 8px; }
 
+/* Player names link to their player page. */
+.pp-table a.pp-name { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--line-hi); }
+.pp-table a.pp-name:hover, .pp-table a.pp-name:focus-visible { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* Prediction rows: Market | Line | Prediction | Chance | light chip, with a light-coloured left
+   border (same green / orange / red as the H2H chips). Green is the most prominent: thicker border,
+   tinted row, brighter chance. */
+.pp-table .mk { width: 1%; padding-left: 16px; color: var(--muted); font-size: 13px; }
+.pp-table .call { font-weight: 600; }
+.pp-table .pct { font-weight: 700; }
+.pp-table tr.pp-row > :first-child { box-shadow: inset 3px 0 0 var(--lt-c, transparent); padding-left: 12px; }
+.pp-table tr.lt-GREEN { --lt-c: var(--green); background: rgba(47,215,160,.07); }
+.pp-table tr.lt-GREEN > :first-child { box-shadow: inset 5px 0 0 var(--green); }
+.pp-table tr.lt-GREEN .pct { color: var(--green); }
+.pp-table tr.lt-ORANGE { --lt-c: var(--orange); }
+.pp-table tr.lt-RED { --lt-c: color-mix(in srgb, var(--red) 70%, transparent); }
+.pp-table tr.lt-RED .call, .pp-table tr.lt-RED .pct { color: var(--muted); }
+.pp-locked-row > :first-child { box-shadow: inset 3px 0 0 var(--line-hi); padding-left: 12px; }
+.pp-views { margin-bottom: 8px; }
+.pp-filters .pp-selects { display: flex; flex-wrap: wrap; }
+.pp-view[hidden], #ppLights[hidden] { display: none; }
+.pl-preds .pp-player-table { min-width: 0; }
+
+/* Phones: each prediction becomes a stacked card (name + light chip on top, Market / Line /
+   Prediction / Chance in a labelled grid, coloured left border). Big tap targets on tabs, filters
+   and names. Desktop unchanged. */
 @media (max-width: 640px) {
   .pp-strip { font-size: 12px; }
-  .pp-table { min-width: 340px; font-size: 13px; }
-  .pp-table th, .pp-table td { padding: 9px 4px; }
-  .pp-table .num { padding-left: 8px; }
-  .pp-table .call { padding-left: 10px; }
-  .pp-table .pl { white-space: normal; min-width: 92px; }
-  .pp-table thead th.num { white-space: normal; line-height: 1.25; }
-  .pp-tm { display: none; }
+  .pp-tab { min-height: 44px; padding: 10px 14px; flex: 1 1 auto; }
+  .pp-filters .game-filters { width: 100%; }
+  .pp-team-filter { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; width: 100%; }
+  .pp-team-filter select { min-height: 44px; width: 100%; min-width: 0; max-width: none; font-size: 16px; }
+  #ppLights .gf-btn { height: 44px; flex: 1 1 0; min-width: 0; padding: 0 6px; }
+  .pp-filters .game-filters.lights { display: flex; gap: 8px; width: 100%; }
+  .pp-filters .game-filters.lights[hidden] { display: none; }
+  .panel.pp-game { padding-left: 12px; padding-right: 12px; }
+  .pp-game .pp-scroll, .pl-preds .pp-scroll { overflow: visible; }
+  .pp-table, .pp-table tbody { display: block; min-width: 0; width: 100%; }
+  .pp-table thead { display: none; }
+  /* name + light chip on row 1, the 4 values across the full card width on row 2 */
+  .pp-table tr { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .8fr) minmax(0, 1.15fr) minmax(0, .9fr); gap: 6px 10px; align-items: end;
+    padding: 12px 10px 12px 14px; margin: 0 0 8px; border: 1px solid var(--line); border-left: 4px solid var(--lt-c, var(--line-hi)); }
+  .pp-table tr.lt-GREEN { border-left-width: 6px; border-color: rgba(47,215,160,.45); border-left-color: var(--green); }
+  .pp-table tr[hidden] { display: none; }
+  .pp-table tr.pp-row > :first-child, .pp-locked-row > :first-child { box-shadow: none; padding-left: 0; }
+  .pp-table th, .pp-table td { display: block; border: 0; padding: 0; white-space: normal; width: auto; text-align: left; }
+  .pp-table tbody th.pl { grid-column: 1 / 4; grid-row: 1; font-size: 15px; }
+  .pp-table .lt { grid-column: 4; grid-row: 1; justify-self: end; align-self: start; text-align: right; width: auto; padding: 0; }
+  .pp-table td:not(.lt) { grid-row: 2; }
+  .pp-table .num, .pp-table .call, .pp-table .mk { padding: 0; font-size: 15px; text-align: left; width: auto; color: inherit; }
+  .pp-table td::before { display: block; font: 600 10px var(--f-mono); letter-spacing: .02em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .pp-table tr > td:nth-of-type(1)::before { content: "Market"; }
+  .pp-table tr > td:nth-of-type(2)::before { content: "Line"; }
+  .pp-table tr > td:nth-of-type(3)::before { content: "Prediction"; }
+  .pp-table tr > td:nth-of-type(4)::before { content: "Chance"; }
+  .pp-table tr > td.lt::before { content: none; }
+  .pp-table a.pp-name { display: inline-block; padding: 6px 0; min-height: 32px; }
   .pp-injury { display: flex; margin: 3px 0 0; }
   .pp-injury .injury-watch-note { display: none; }
-  .pp-table .lt .chip { font-size: 10px; padding: 1px 5px; letter-spacing: .04em; }
-  .panel.pp-game { padding-left: 12px; padding-right: 12px; }
 }
-/* Narrow phones: real names and numbers are wider than the sample, so drop the Avg column
-   (2nd cell) to keep Line, projection, Call and the light on screen without side-scrolling. */
-@media (max-width: 440px) {
-  .pp-table { min-width: 0; }
-  .pp-table tr > :nth-child(2) { display: none; }
-  .pp-table th, .pp-table td { padding-left: 3px; padding-right: 3px; }
-  .pp-table .num { padding-left: 4px; }
-  .pp-table .call { padding-left: 6px; }
-  .pp-table .lt { padding-right: 0; }
-  .pp-table .pl { min-width: 72px; }
-  .pp-table thead th.num { letter-spacing: .02em; }
-  .pp-table .lt .chip { padding: 1px 3px; letter-spacing: 0; font-size: 9px; }
-  .pp-table thead th { font-size: 10px; letter-spacing: 0; }
-  .pp-table { font-size: 12.5px; }
-  /* members view: keep the warning badge narrower than the name column */
-  .pp-injury { padding: 2px 5px; border-radius: 6px; box-shadow: none; }
-  .pp-injury .injury-watch-label { font-size: 9px; letter-spacing: 0; gap: 2px; }
-  .panel.pp-game { padding-left: 10px; padding-right: 10px; }
+/* ------------------------------------------------------------------ hit-rate heatmap (/props/nba)
+   Green = often over today's line, red = rarely, grey = no data. Phones scroll sideways with the
+   player column pinned. */
+.hm { margin-top: 18px; }
+.hm-filters .game-filters { gap: 10px 14px; }
+.hm-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid var(--line); }
+.hm-scroll:focus-visible { outline: 1px solid var(--cyan); outline-offset: 2px; }
+.hm-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 13px; }
+.hm-table th, .hm-table td { padding: 8px 6px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.hm-table thead th { font: 600 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface); }
+.hm-table .hm-mk { color: var(--ink); border-left: 1px solid var(--line-hi); }
+.hm-table td.hm-c[data-w="5"] { border-left: 1px solid var(--line-hi); }
+.hm-table .hm-pl { position: sticky; left: 0; z-index: 1; text-align: left; background: var(--surface); min-width: 150px; max-width: 190px; white-space: normal; box-shadow: 1px 0 0 var(--line-hi); }
+.hm-table thead .hm-pl { z-index: 2; }
+.hm-table tbody .hm-pl a { color: var(--ink); text-decoration: none; font-weight: 600; display: inline-block; padding: 4px 0; }
+.hm-table tbody .hm-pl a:hover, .hm-table tbody .hm-pl a:focus-visible { color: var(--cyan); }
+.hm-tm { display: block; color: var(--muted); font-size: 11px; }
+.hm-c { font-family: var(--f-mono); font-weight: 600; min-width: 56px; }
+.hm-c small { display: block; font-weight: 400; font-size: 10px; opacity: .75; }
+.hm-4 { background: color-mix(in srgb, var(--green) 42%, var(--surface)); color: #eafff6; }
+.hm-3 { background: color-mix(in srgb, var(--green) 20%, var(--surface)); color: var(--ink); }
+.hm-2 { background: color-mix(in srgb, var(--orange) 16%, var(--surface)); color: var(--ink); }
+.hm-1 { background: color-mix(in srgb, var(--red) 20%, var(--surface)); color: var(--ink); }
+.hm-0 { background: color-mix(in srgb, var(--red) 40%, var(--surface)); color: #fff0f3; }
+.hm-na { background: var(--surface-2); color: var(--muted); }
+.hm-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+.hm-legend span { padding: 3px 8px; border: 1px solid var(--line); }
+.hm-none { margin: 10px 0 0; }
+@media (max-width: 640px) {
+  .hm-filters .pp-team-filter { width: 100%; }
+  .hm-table .hm-pl { min-width: 118px; max-width: 132px; }
+  .hm-table tbody .hm-pl a { min-height: 40px; display: flex; align-items: center; padding: 0; }
+  .hm-c { min-width: 52px; padding: 10px 4px; }
+}
+
+/* ------------------------------------------------------------------ player pages (/props/nba/player/<id>)
+   Same blocks as the team pages: .team-hero, .panel sections. */
+.pl-facts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px 18px; }
+.pl-facts li { display: flex; flex-direction: column; gap: 2px; }
+.pl-facts li > span:first-child { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pl-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.pl-tile { border: 1px solid var(--line-hi); background: var(--surface-2); padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.pl-tile .k { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pl-tile b { font-size: 26px; line-height: 1.1; color: var(--ink); }
+.pl-tile .s { font-size: 12px; color: var(--muted); }
+.pl-log, .pl-hits { width: 100%; border-collapse: collapse; font-size: 14px; }
+.pl-log th, .pl-log td, .pl-hits th, .pl-hits td { padding: 9px 8px; border-top: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.pl-log thead th, .pl-hits thead th { border-top: 0; font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pl-log .num, .pl-hits .num { text-align: right; font-family: var(--f-mono); }
+.pl-log td.over { color: var(--green); font-weight: 700; }
+.pl-log td.under { color: var(--red); }
+.pl-hits td.hm-c { text-align: center; }
+.pl-chart .pp-tabs { margin-top: 0; }
+.bc { margin: 10px 0 0; }
+.bc svg { width: 100%; height: auto; display: block; }
+.bc .bc-over { fill: var(--green); opacity: .85; }
+.bc .bc-under { fill: var(--red); opacity: .75; }
+.bc .bc-line { stroke: var(--cyan); stroke-width: 2; stroke-dasharray: 6 4; }
+.bc .bc-ll { fill: var(--cyan); font: 600 11px var(--f-mono); }
+.bc .bc-v { fill: var(--ink); font: 600 11px var(--f-mono); }
+.bc .bc-x { fill: var(--muted); font: 10px var(--f-mono); }
+.bc figcaption { margin-top: 6px; color: var(--muted); }
+.bc-k { display: inline-block; padding: 0 6px; font-family: var(--f-mono); font-size: 11px; }
+.bc-over-k { color: var(--green); border: 1px solid var(--green); }
+.bc-under-k { color: var(--red); border: 1px solid var(--red); }
+@media (max-width: 640px) {
+  .pl-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pl-chart .pp-tab { min-height: 44px; }
+  .bc .bc-v { font-size: 13px; }
+  .bc .bc-x { font-size: 12px; }
 }
 
 /* ------------------------------------------------------------------ /props/results
