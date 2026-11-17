@@ -7,7 +7,8 @@ Reads a Discord payload (one file, or the newest file in a folder):
   * a plain text file (e.g. tips_check would-post)
 Each line (or block) with a light marker - 🟣 / 🟢 / 🟠 / 🔴, the old green+star, or SUPER / Best value / GREEN / ORANGE /
 RED - and two teams (or players) is matched to a site game near the post time, and the lights are compared using the
-same rules as the site pages (lights.json).
+same rules as the site pages (lights.json). Green first: a 65%+ NBA Best value game is green on the site, so Discord
+must show "🟢 (Best value)" for it; 🟣 for it, or a plain 🟢 with no "(Best value)", is a MISMATCH.
 
 Usage:
   python check_discord_lights.py                                   newest payload in ..\\ledger\\discord_payloads
@@ -91,10 +92,11 @@ def site_games(site: str, L: Lights) -> list[dict]:
     """Every site game with the light the site shows (same rules as the pages)."""
     out = []
 
-    def add(sport, gid, away, home, away_abbr, home_abbr, start, light, p, pick):
+    def add(sport, gid, away, home, away_abbr, home_abbr, start, light, p, pick, best_value=False):
         if not light:
             return
         out.append({"sport": sport, "id": str(gid), "away": away, "home": home, "start": _ts(start), "light": light, "p": p, "pick": pick,
+                    "best_value": bool(best_value),
                     "teams": [aliases(away, away_abbr, sport), aliases(home, home_abbr, sport)]})
 
     for sport, path, names in (("nba", "/api/feed", NBA), ("nfl", "/api/feed?sport=nfl", None)):
@@ -105,8 +107,9 @@ def site_games(site: str, L: Lights) -> list[dict]:
                 continue
             p = _pc(g.get("pick_p"))
             light = L.shown_light(sport, g.get("light"), p) if g.get("light") else None
+            bv = L.best_value_tag(sport, g.get("light"), p, g.get("best_value") is True)
             add(sport, g.get("game_id"), nm.get(g["away"], g["away"]), nm.get(g["home"], g["home"]), g["away"], g["home"],
-                g.get("start_utc"), light, p, nm.get(g["pick"], g["pick"]))
+                g.get("start_utc"), light, p, nm.get(g["pick"], g["pick"]), bv)
     raw = fetch(site, "/data/nhl-picks.json", []) or []
     snap = (fetch(site, "/data/nhl-pretip.json", {}) or {}).get("games") or {}
     for g in raw if isinstance(raw, list) else raw.get("games") or []:
@@ -221,9 +224,13 @@ def check(text: str, sent: datetime | None, games: list[dict], L: Lights, days: 
         if key in seen:
             continue
         seen.add(key)
-        rows.append({"status": "OK" if f["discord"] == g["light"] else "MISMATCH", "sport": g["sport"], "game_id": g["id"],
+        tag_ok = True
+        if g["light"] == "GREEN" and f["discord"] == "GREEN":
+            tag_ok = L.line_best_value(f["line"]) == bool(g.get("best_value"))
+        rows.append({"status": "OK" if f["discord"] == g["light"] and tag_ok else "MISMATCH", "sport": g["sport"], "game_id": g["id"],
                      "game": f"{g['away']} @ {g['home']}", "start_utc": g["start"].strftime("%Y-%m-%dT%H:%MZ") if g["start"] else None,
-                     "discord": f["discord"], "marker": f["how"], "site": g["light"],
+                     "discord": f["discord"], "marker": f["how"], "site": g["light"], "site_best_value": bool(g.get("best_value")),
+                     "discord_best_value": L.line_best_value(f["line"]),
                      "site_p": None if g["p"] is None else round(g["p"], 4), "line": f["line"][:160]})
     if pending:
         unmatched.append((pending[2], pending[0]))
@@ -281,7 +288,9 @@ def main(argv=None) -> int:
                 print(f"UNMATCHED   light {L.tag(r['discord'])}, no site game found within {a.days:g} days: {r['line']}")
                 continue
             flag = "OK      " if r["status"] == "OK" else "MISMATCH"
-            print(f"{flag} {r['sport'].upper():<12} {r['game']:<48} Discord {L.tag(r['discord']):<16} site {L.tag(r['site']):<16}"
+            d_tag = L.tag(r['discord']) + (" (Best value)" if r['discord'] == "GREEN" and r.get('discord_best_value') else "")
+            s_tag = L.tag(r['site']) + (" (Best value)" if r['site'] == "GREEN" and r.get('site_best_value') else "")
+            print(f"{flag} {r['sport'].upper():<12} {r['game']:<48} Discord {d_tag:<16} site {s_tag:<16}"
                   f"{'' if r['site_p'] is None else ' (' + L.chance_text(r['site_p']) + ')'}")
             if r["status"] != "OK":
                 print(f"         line: {r['line']}")

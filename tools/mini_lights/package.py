@@ -2,7 +2,8 @@
 
     python tools/mini_lights/package.py [--out C:\\Users\\jwcob\\ClosingLine\\lights\\dist]
 
-Writes <out>/<job>_lights/ (+ .zip) for results_5pm, tips_check, john_desk and nhl_value. Registers nothing.
+Writes <out>/<job>_lights_v2/ (+ .zip) for results_5pm, tips_check, john_desk and nhl_value. Registers nothing.
+v2 (18 Nov 2026): green first. A 65%+ NBA Best value game is GREEN with a Best value tag ("🟢 (Best value)" in Discord).
 """
 import argparse
 import json
@@ -12,7 +13,7 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parent
 ROOT = SRC.parents[1]
-DEFAULT_OUT = Path(r"C:\Users\jwcob\ClosingLine\lights\dist")
+DEFAULT_OUT = Path(r"C:\Users\jwcob\ClosingLine\lights\dist_v2_green_first")
 
 WHAT = {
     "results_5pm": ("the 5pm results job",
@@ -36,10 +37,37 @@ WHAT = {
 }
 
 
+GREEN_FIRST = {
+    "results_5pm": "* Discord (`send.py`, `john_discord.py`, `multi_discord.py`): a Best value line whose chance is 65%+ is posted as "
+                   "`🟢 (Best value)`; 60–64% stays `🟣 Best value`; the word SUPER is never posted.\n"
+                   "* `scripts\\tips_page\\export_tips.py`: ProbaLab site picks and open bets get a `best_value` flag, so the members "
+                   "desk shows *Green + Best value*. The light itself and the NBA rule flags are unchanged.\n"
+                   "* `check_discord_lights.py`: a 65%+ Best value game must be `🟢 (Best value)` in Discord; 🟣, or a plain 🟢, is a MISMATCH.",
+    "john_desk": "* Discord (`send.py`, `john_discord.py`, `multi_discord.py` to #john): a Best value line whose chance is 65%+ is posted as "
+                 "`🟢 (Best value)`; 60–64% stays `🟣 Best value`; the word SUPER is never posted.\n"
+                 "* `scripts\\tips_page\\export_tips.py`: ProbaLab site picks and open bets get a `best_value` flag (members desk). "
+                 "The light itself and the NBA rule flags are unchanged.\n"
+                 "* `check_discord_lights.py`: a 65%+ Best value game must be `🟢 (Best value)`; 🟣, or a plain 🟢, is a MISMATCH.",
+    "nhl_value": "* Loader refresh only (NHL has no Best value light): same lights.json as the site, and the word SUPER is never posted.",
+    "tips_check": "* `run_scan.py` already uses the site's light (patched last time), so with the refreshed loader a 65%+ NBA Best value "
+                  "pick is GREEN (high chance, `🟢 Green`), and 60–64% stays `🟣 Best value`. The would-post line does not add "
+                  "\"(Best value)\" (it is not posted to Discord).",
+}
+
+
 def readme(job: str) -> str:
     who, changes = WHAT[job]
     check = job in ("results_5pm", "john_desk")
-    return f"""# Lights patch: {job}
+    return f"""# Lights patch v2 (green first): {job}
+
+## New in v2 (18 Nov 2026): green first
+A 65%+ NBA game that also beats our fair price is **GREEN** with a Best value tag, the same as probalabsports.com.
+Best value as the light is only for 60–64%. The word "Super" is never shown or posted.
+{GREEN_FIRST[job]}
+
+**Already patched last time (v1)?** Just run the same steps again: files patched by v1 are listed as `ok (already
+patched)` and stay as they are; the loader in `scripts\\probalab_lights\\` is refreshed (that is where the new rule
+lives){", the members-desk export is patched" if check else ""}{" and the lights check is refreshed" if check else ""}.
 
 One lights config for the site and the mini jobs: `probalab_lights\\lights.json` is a copy of the site's `lights.json`
 (game cut-offs per sport, Best value, the props scale, colours, labels and Discord emoji: 🟢 green, 🟠 orange, 🔴 red,
@@ -98,7 +126,7 @@ def main():
     out = Path(ap.parse_args().out)
     out.mkdir(parents=True, exist_ok=True)
     for job in WHAT:
-        d = out / f"{job}_lights"
+        d = out / f"{job}_lights_v2"
         if d.exists():
             shutil.rmtree(d)
         (d / "probalab_lights").mkdir(parents=True)
@@ -108,9 +136,9 @@ def main():
         for f in ("apply_lights_patch.py", "check_discord_lights.py"):
             shutil.copy2(SRC / f, d / f)
         shutil.copy2(SRC / "tests" / "test_lights_patch.py", d / "tests" / "test_lights_patch.py")
-        (d / "job.json").write_text(json.dumps({"job": job}) + "\n", encoding="utf-8")
+        (d / "job.json").write_text(json.dumps({"job": job, "version": 2, "rule": "green first"}) + "\n", encoding="utf-8")
         (d / "README.md").write_text(readme(job), encoding="utf-8")
-        z = out / f"{job}_lights.zip"
+        z = out / f"{job}_lights_v2.zip"
         with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as zf:
             for f in sorted(d.rglob("*")):
                 if f.is_file() and "__pycache__" not in f.parts:
