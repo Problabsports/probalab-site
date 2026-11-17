@@ -71,11 +71,36 @@
     }).join("") + '</div>';
   }
 
+  /** Opening (first pull) and closing (last pull before the start) price per bookie; best closing price highlighted. */
+  function openClose(it, books) {
+    var p = it.pulls || {}, closed = p.latest === "close";
+    var closeHead = closed ? "Close" : "Latest";
+    var cell = function (o, c, best) {
+      o = num(o); c = num(c);
+      return '<td class="n ppv-oc' + (c != null && c === best ? " best" : "") + '"><small>' + (o == null ? "-" : o.toFixed(2)) + '</small><b>' + (c == null ? "-" : c.toFixed(2)) + '</b></td>';
+    };
+    var note = '<p class="ppv-muted ppv-small">Open = first price pull (about a day before). ' +
+      (closed ? "Close = last pull before the start." : "Close appears after the last pull before the start; until then the latest pull shows.") +
+      ' Highest ' + (closed ? "closing" : "latest") + ' price highlighted. Prices move; check with the bookie.</p>';
+    if (it.kind === "yes") {
+      var by = Math.max.apply(null, books.map(function (b) { return num(b.yes) || 0; }));
+      return '<table class="ppv-books ppv-ocb"><thead><tr><th>Bookie</th><th class="n">Open · ' + closeHead + '</th></tr></thead><tbody>' +
+        books.map(function (b) { return '<tr><td>' + esc(b.name) + '</td>' + cell(b.open_yes, b.yes, by) + '</tr>'; }).join("") + '</tbody></table>' + note;
+    }
+    var bo = Math.max.apply(null, books.map(function (b) { return num(b.over) || 0; }));
+    var bu = Math.max.apply(null, books.map(function (b) { return num(b.under) || 0; }));
+    return '<table class="ppv-books ppv-ocb"><thead><tr><th>Bookie</th><th class="n">Over<small>open · ' + closeHead.toLowerCase() + '</small></th><th class="n">Under<small>open · ' + closeHead.toLowerCase() + '</small></th></tr></thead><tbody>' +
+      books.map(function (b) { return '<tr><td>' + esc(b.name) + '</td>' + cell(b.open_over, b.over, bo) + cell(b.open_under, b.under, bu) + '</tr>'; }).join("") +
+      '</tbody></table>' + note;
+  }
+
   function prices(it) {
     var books = it.books || [];
     if (!books.length) return it.no_au_price && (it.sport !== "nba" || it.line_source === "avg")
       ? '<p class="ppv-noau"><b>-</b> No AU price for this prop. No Australian bookie has posted it, so there is no price to show.</p>'
       : '<p class="ppv-muted">No prices posted for this prop yet.</p>';
+    var hasOpen = books.some(function (b) { return "open_over" in b || "open_under" in b || "open_yes" in b; });
+    if (hasOpen) return openClose(it, books);
     if (it.kind === "yes") {
       var best = Math.max.apply(null, books.map(function (b) { return num(b.yes) || 0; }));
       return '<table class="ppv-books"><thead><tr><th>Bookie</th><th class="n">Price</th><th class="n">Implied</th></tr></thead><tbody>' +

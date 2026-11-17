@@ -525,3 +525,20 @@ table.pr-table tr.RED { --lt: var(--red); }
 .ppv-avg { display: inline-block; margin-left: 6px; font: 600 10px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange); vertical-align: middle; }
 .ppv-noau { margin: 0; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--line-hi); color: var(--muted); font-size: 13.5px; }
 .ppv-noau b { font: 700 18px var(--f-mono); margin-right: 6px; color: var(--muted); }
+
+/* Player view: opening and closing price per bookie (NFL / NHL). Open small and muted, close bold. */
+.ppv-ocb th small { display: block; font: 600 9.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ppv-oc small { color: var(--muted); font: 12px var(--f-mono); margin-right: 8px; text-decoration: none; }
+.ppv-oc small::after { content: "\203A"; margin-left: 8px; color: var(--line-hi); }
+.ppv-oc b { font: 700 15px var(--f-mono); }
+/* results: period tabs and the data note */
+.pr-period-tabs { margin-top: 10px; }
+.pr-period-name { color: var(--muted); font-size: .7em; letter-spacing: .04em; }
+.pr-data-note { margin: -4px 0 12px; color: var(--muted); }
+/* phones: big records with a void count wrap the count under the number instead of running off the card */
+@media (max-width: 640px) {
+  .record-hero.pr-big { white-space: normal; }
+  .record-hero.pr-big b, .record-hero.pr-big > span { white-space: nowrap; }
+  .record-hero.pr-big .pr-aside { display: inline-block; margin-left: 0; vertical-align: baseline; }
+  .record-hero.pr-big b + span + .pr-aside { margin-left: 8px; }
+}

@@ -14,7 +14,23 @@ export const STATS = [
   ["assists", "Assists"],
   ["threes", "Threes"],
 ];
-export const STAT_LABEL = Object.fromEntries(STATS);
+// NFL / NHL rows are data, not calls: the side is the one that cleared the line more often this season (or Yes / No
+// by scoring rate), lit on the props scale. Their markets:
+export const SPORT_STATS = {
+  nba: STATS,
+  nfl: [["pass_yds", "Passing yards"], ["pass_tds", "Passing TDs"], ["completions", "Pass completions"], ["rush_yds", "Rushing yards"],
+    ["rec_yds", "Receiving yards"], ["receptions", "Receptions"], ["tds", "Anytime TD"]],
+  nhl: [["shots", "Shots on goal"], ["points", "Points"], ["assists", "Assists"], ["goals", "Anytime goal"], ["saves", "Goalie saves"]],
+};
+export const DATA_SPORTS = ["nfl", "nhl"];
+export const isDataSport = (sport) => DATA_SPORTS.includes(sport);
+export const statsFor = (sport) => SPORT_STATS[sport] || STATS;
+export const STAT_LABEL = Object.fromEntries(Object.values(SPORT_STATS).flat());
+export const statLabel = (sport, stat) => (Object.fromEntries(statsFor(sport))[stat] || STAT_LABEL[stat] || stat);
+/** Words that differ between NBA (model calls) and NFL / NHL (data rows). */
+export const words = (sport) => (isDataSport(sport)
+  ? { call: "Side", calls: "rows", Calls: "Rows", chance: "Season rate", byStat: "By market", allStats: "All markets", allCalls: "Every side" }
+  : { call: "Our call", calls: "calls", Calls: "Calls", chance: "Chance", byStat: "By stat", allStats: "All stats", allCalls: "Over + Under" });
 export const LIGHTS = [
   ["GREEN", "Green"],
   ["ORANGE", "Orange"],
@@ -22,6 +38,16 @@ export const LIGHTS = [
 ];
 const LIGHT_LABEL = Object.fromEntries(LIGHTS);
 export const CALLS = ["Over", "Under"];
+export const callsFor = (sport) => (isDataSport(sport) ? ["Over", "Under", "Yes", "No"] : CALLS);
+// Period tabs: the whole season, or the last 30 / 7 days up to today (Sydney date).
+export const PERIODS = [["season", "Season"], ["30", "Last 30 days"], ["7", "Last 7 days"]];
+/** First date (YYYY-MM-DD) inside the period, or null for the season. */
+export function periodStart(period, today) {
+  if (!period || period === "season" || !today) return null;
+  const [y, m, d] = String(today).split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d) - (Number(period) - 1) * 86400e3);
+  return dt.toISOString().slice(0, 10);
+}
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -61,6 +87,7 @@ export function filterRows(rows, f = {}) {
     (!f.stat || f.stat === "all" || r.stat === f.stat) &&
     (!f.call || f.call === "all" || r.call === f.call) &&
     (!f.date || f.date === "all" || r.date === f.date) &&
+    (!f.since || r.date >= f.since) &&
     (!f.game || f.game === "all" || r.game === f.game));
 }
 
@@ -136,22 +163,27 @@ const aside = (t) => (asideText(t) ? ` <em class="pr-aside">${asideText(t)}</em>
  * the all-settled hit rate beside it at the same size; then smaller Orange, Red, Over, Under and
  * a Void tile. Voids and pushes never enter a record or rate.
  */
-export function heroHtml(sportRows, sportName) {
+export function heroHtml(sportRows, sportName, sport = "nba", periodName = "") {
+  const W = words(sport);
   const all = tally(sportRows);
   const g = tally(sportRows.filter((r) => r.light === "GREEN"));
   const o = tally(sportRows.filter((r) => r.light === "ORANGE"));
   const rd = tally(sportRows.filter((r) => r.light === "RED"));
-  const ov = tally(sportRows.filter((r) => r.call === "Over"));
-  const un = tally(sportRows.filter((r) => r.call === "Under"));
-  return `<h2>${esc(sportName)} player props record</h2>
+  const sideTiles = callsFor(sport).map((c) => {
+    const t = tally(sportRows.filter((r) => r.call === c));
+    return isDataSport(sport) && !t.n && !t.v ? "" : miniTile(c.toUpperCase(), `${c} ${W.calls}`, t);
+  }).join("");
+  const right = isDataSport(sport) ? "green rows where the side hit" : "green calls right";
+  return `<h2>${esc(sportName)} player props record${periodName ? ` <span class="pr-period-name">· ${esc(periodName)}</span>` : ""}</h2>
+    ${isDataSport(sport) ? `<p class="small pr-data-note">Data, not tips: each row's side is the one that cleared the line more often this season (Yes / No by scoring rate), lit on the props scale. Hit = that side came in.</p>` : ""}
     <div class="pr-hero-main">
       <div class="pr-hero-block pr-hero-green" data-hero="green">
-        <p class="pr-hero-k"><span class="chip GREEN">Green</span> Green calls</p>
+        <p class="pr-hero-k"><span class="chip GREEN">Green</span> Green ${W.calls}</p>
         <p class="record-hero green-hero pr-big"><b>${g.n ? recText(g) : "—"}</b> <span>${pctText(g)}</span>${aside(g)}</p>
-        <p class="pr-hero-sub">${g.n ? `${ofText(g)} green calls right` : "No settled green calls yet"}</p>
+        <p class="pr-hero-sub">${g.n ? `${ofText(g)} ${right}` : `No settled green ${W.calls} yet`}</p>
       </div>
       <div class="pr-hero-block pr-hero-all" data-hero="all">
-        <p class="pr-hero-k">All settled calls</p>
+        <p class="pr-hero-k">All settled ${W.calls}</p>
         <p class="record-hero pr-big"><b>${ofText(all)}</b> <span>${pctText(all)}</span>${aside(all)}</p>
         <p class="pr-hero-sub mono">${recText(all)} · every light</p>
       </div>
@@ -159,8 +191,7 @@ export function heroHtml(sportRows, sportName) {
     <div class="pr-tiles" aria-label="More records">
       ${miniTile("ORANGE", "Orange", o)}
       ${miniTile("RED", "Red", rd)}
-      ${miniTile("OVER", "Over calls", ov)}
-      ${miniTile("UNDER", "Under calls", un)}
+      ${sideTiles}
       <div class="pr-tile VOID"><span class="ut-k">Void</span><b>${all.v}</b><span class="pr-tile-r">${all.p ? `${all.p} push${all.p === 1 ? "" : "es"} · ` : ""}not in records</span></div>
     </div>`;
 }
@@ -243,7 +274,8 @@ export function chartSvg(series, mode = "cum", lightsText = "Green", { narrow = 
 /** Chart panel body: summary tiles, then the chart (or an honest empty state). */
 export function chartBlockHtml(rows, mode, lightsText, opts = {}) {
   const t = tally(rows);
-  if (!t.n) return `<p class="pr-none">No settled ${esc(lightsText.toLowerCase())} calls with a result for this sport yet.</p>`;
+  const W = words(opts.sport || "nba");
+  if (!t.n) return `<p class="pr-none">No settled ${esc(lightsText.toLowerCase())} ${W.calls} with a result ${opts.periodName ? `in the ${esc(opts.periodName.toLowerCase())}` : "for this sport yet"}.</p>`;
   const series = dailySeries(rows);
   const best = series.length > 1 ? bestDay(series) : null;
   const one = series.length === 1 ? series[0] : null;
@@ -255,7 +287,7 @@ export function chartBlockHtml(rows, mode, lightsText, opts = {}) {
   const svg = chartSvg(series, mode, lightsText, opts);
   return `<div class="units-tiles pr-chart-tiles">
       <div><span class="ut-k">Hit rate</span><b>${pctText(t)}</b><span class="pr-tile-r mono">${ofText(t)} right</span></div>
-      <div><span class="ut-k">Settled calls</span><b>${t.n}</b><span class="pr-tile-r mono">${recText(t)}${asideText(t) ? ` · ${asideText(t)}` : ""}</span></div>
+      <div><span class="ut-k">Settled ${W.calls}</span><b>${t.n}</b><span class="pr-tile-r mono">${recText(t)}${asideText(t) ? ` · ${asideText(t)}` : ""}</span></div>
       ${third}
     </div>
     ${svg ? `<div class="chart-wrap">${svg}</div>` : ""}`;
@@ -278,17 +310,19 @@ function bkTile(kind, id, label, t, on) {
   return `<button type="button" class="pr-bk${on ? " on" : ""}" data-filter="${kind}" data-value="${esc(id)}" aria-pressed="${on}">
       <span class="pr-bk-k">${esc(label)}</span>
       <span class="pr-bk-v">${pctText(t)}</span>
-      <span class="pr-bk-r mono">${t.n ? recText(t) : "No settled calls"}</span>
+      <span class="pr-bk-r mono">${t.n ? recText(t) : "None settled"}</span>
       ${wlBar(t)}
     </button>`;
 }
 
 /** By stat and by Over/Under, for the selected sport + lights. The chosen stat / call is highlighted. */
-export function breakdownHtml(rows, { stat = "all", call = "all" } = {}) {
-  const byStat = STATS.map(([id, label]) => bkTile("stat", id, label, tally(rows.filter((r) => r.stat === id)), stat === id)).join("");
-  const byCall = CALLS.map((c) => bkTile("call", c, c, tally(rows.filter((r) => r.call === c)), call === c)).join("");
-  return `<h3 class="pr-sub">By stat</h3><div class="pr-bk-grid pr-bk-stats">${byStat}</div>
-    <h3 class="pr-sub">Over vs Under</h3><div class="pr-bk-grid pr-bk-calls">${byCall}</div>`;
+export function breakdownHtml(rows, { stat = "all", call = "all", sport = "nba" } = {}) {
+  const W = words(sport);
+  const byStat = statsFor(sport).map(([id, label]) => bkTile("stat", id, label, tally(rows.filter((r) => r.stat === id)), stat === id)).join("");
+  const calls = callsFor(sport).filter((c) => !isDataSport(sport) || rows.some((r) => r.call === c));
+  const byCall = calls.map((c) => bkTile("call", c, c, tally(rows.filter((r) => r.call === c)), call === c)).join("");
+  return `<h3 class="pr-sub">${W.byStat}</h3><div class="pr-bk-grid pr-bk-stats">${byStat}</div>
+    <h3 class="pr-sub">${isDataSport(sport) ? "By side" : "Over vs Under"}</h3><div class="pr-bk-grid pr-bk-calls">${byCall}</div>`;
 }
 
 // ------------------------------------------------------------------ settled list
@@ -300,8 +334,9 @@ export const hasSeasonAvg = (sportRows) => sportRows.some((r) => r.season_avg !=
 /** "vs Indiana Pacers" (home, or home unknown) / "@ Philadelphia 76ers" (away); "" without an opponent. */
 export const matchupText = (r) => (r.opp ? `${r.home === false ? "@" : "vs"} ${r.opp}` : "");
 
-export function headHtml(showGame, showAvg = false) {
-  return `<tr><th>Date</th>${showGame ? "<th>Game</th>" : ""}<th>Player</th><th>Stat</th><th class="n">Line</th>${showAvg ? '<th class="n">Season avg</th>' : ""}<th>Our call</th><th class="n">Chance</th><th>Light</th><th class="n">Actual</th><th class="pr-res">Result</th></tr>`;
+export function headHtml(showGame, showAvg = false, sport = "nba") {
+  const W = words(sport);
+  return `<tr><th>Date</th>${showGame ? "<th>Game</th>" : ""}<th>Player</th><th>${isDataSport(sport) ? "Market" : "Stat"}</th><th class="n">Line</th>${showAvg ? '<th class="n">Season avg</th>' : ""}<th>${W.call}</th><th class="n">${W.chance}</th><th>Light</th><th class="n">Actual</th><th class="pr-res">Result</th></tr>`;
 }
 
 export function rowHtml(r, showGame, showAvg = false) {
@@ -311,7 +346,7 @@ export function rowHtml(r, showGame, showAvg = false) {
       <td class="pr-date mono">${dateHtml(r.date)}</td>
       ${showGame ? `<td class="pr-game">${esc(r.game || "—")}</td>` : ""}
       <td class="pr-player">${esc(r.player)}${vs ? `<span class="pr-opp">${esc(vs)}</span>` : ""}</td>
-      <td class="pr-statn">${esc(STAT_LABEL[r.stat])}</td>
+      <td class="pr-statn">${esc(statLabel(r.sport, r.stat))}</td>
       <td class="n mono">${esc(numText(r.line))}</td>
       ${showAvg ? `<td class="n mono pr-avg">${esc(numText(r.season_avg))}</td>` : ""}
       <td class="pr-call mono">${r.call}</td>
@@ -323,9 +358,12 @@ export function rowHtml(r, showGame, showAvg = false) {
 }
 
 /** List summary line for the current filters. */
-export function listSummary(shown, totalInSport) {
+export function listSummary(shown, totalInSport, sport = "nba") {
   const t = tally(shown);
-  return `Showing <b>${shown.length}</b> of ${totalInSport} settled call${totalInSport === 1 ? "" : "s"}${t.n ? ` · <b>${recText(t)}</b> (${pctText(t)})` : ""}${asideText(t) ? ` · ${asideText(t)}` : ""}`;
+  const unit = isDataSport(sport) ? "row" : "call";
+  return `Showing <b>${shown.length}</b> of ${totalInSport} settled ${unit}${totalInSport === 1 ? "" : "s"}${t.n ? ` · <b>${recText(t)}</b> (${pctText(t)})` : ""}${asideText(t) ? ` · ${asideText(t)}` : ""}`;
 }
 
-export const sportEmptyText = (name) => `${name} props results will appear here once settled calls are up.`;
+export const sportEmptyText = (name, sport) => (isDataSport(sport)
+  ? `${name} props results will appear here after the first settled game.`
+  : `${name} props results will appear here once settled calls are up.`);
