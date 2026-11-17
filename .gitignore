@@ -2,3 +2,4 @@
 node_modules/
 tools/__pycache__/
 .turnstile-sitekey
+tests/__pycache__/
