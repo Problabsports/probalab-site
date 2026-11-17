@@ -6,7 +6,7 @@ import { greenSummary, orangeSummary, labelLong, bestValueMinP } from "./lights.
 export const FIGURE_SOURCES = {
   nbaWalk: "betting/models/nba/elo_netrtg/v2/backtest_predictions_v2.csv joined to v1/backtest_predictions.csv (results). Walk-forward v2 (H2).",
   nbaPrereg: "betting/models/nba/elo_netrtg/v2/preregistration.json and README.md (selection 2008-18, SBR holdout to 16 Jan 2023, Pinnacle 2024-26 scored once).",
-  nbaSuperPublished: "Already published on /lights and in nba-collect case-against copy: 2025-26 test of 162 Super games, 63% wins. Original worksheet not found as a standalone file; a later price dump did not reproduce 162 exactly, so the published hit rate is used unchanged, with that caveat.",
+  nbaSuperPublished: "Already published on /lights and in nba-collect case-against copy: 2025-26 test of 162 Best value games, 63% wins. Original worksheet not found as a standalone file; a later price dump did not reproduce 162 exactly, so the published hit rate is used unchanged, with that caveat.",
   nbaGreenCollector: "nba-collect case-against copy (78% of 2025-26 greens won). Consistent with ops/20261110_held_value_recheck/_hist_super.json at late Pinnacle: 546/697 = 78.3%. The research walk-forward file has the same 697 greens but 536 wins (76.9%).",
   nflWalk: "betting/models/nfl/epa_elo/v2/backtest_predictions_v2.csv (p, home_win, season). v2 is the live NFL model. Pre-registered windows in v2/backtest_results.json: validation 2016-22, holdout 2023-26.",
   eplJson: "probalab-site/data/epl-backtest.json (match counts and 'model right'). Independently matched to betting/probalab-epl/backtest/epl_walk.csv.",
@@ -39,7 +39,7 @@ export function renderHowItWorksPage() {
     <p>Each sport has its own model. None of them “knows” the result of the game they are pricing. Ratings and features are built from information that was already available before that game started.</p>
 
     <h3>NBA</h3>
-    <p>The model rates every player from recent box scores, weighted toward recent games. Before tip-off it reads the official injury report, works out the minutes each side is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent team strength, rest, back-to-backs, travel and a home-court edge that has declined over the years, to give each side a win probability. Super — best value, described below — is an NBA-only flag on top of that number.</p>
+    <p>The model rates every player from recent box scores, weighted toward recent games. Before tip-off it reads the official injury report, works out the minutes each side is likely to play, and turns that into a team strength for tonight. That is blended with a long-run team rating, recent team strength, rest, back-to-backs, travel and a home-court edge that has declined over the years, to give each side a win probability. Best value, described below, is an NBA-only flag on top of that number.</p>
 
     <h3>NFL</h3>
     <p>The model rates every team from results and winning margins, adds a measure of how efficiently they move the ball (expected points), then home field and rest, and checks who is expected to start at quarterback. A backup or an inexperienced starter counts against that team. Picks can go up as early as a week before kick-off and update as quarterback news comes in, then freeze at kick-off.</p>
@@ -66,8 +66,8 @@ export function renderHowItWorksPage() {
       <div><span>${chip("ORANGE")}</span><p>A lean: ${orangeSummary()}.</p></div>
       <div><span>${chip("RED")}</span><p>Below that. In a two-way sport this is close to a coin flip; in tennis a red light is a genuinely tight match.</p></div>
     </div>
-    <p>Super is different. An NBA pick only gets Super when the model is at least ${Math.round(bestValueMinP() * 100)}% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
-    <p>If key players are listed as uncertain, a value pick is held back. It keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. We do not promote a held pick to Super, because the Super test knew the real line-ups.</p>
+    <p>Best value is different. An NBA pick only gets Best value when the model is at least ${Math.round(bestValueMinP() * 100)}% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
+    <p>If key players are listed as uncertain, a value pick is held back. It keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Best value except for those injuries. We do not promote a held pick to Best value, because the Best value test knew the real line-ups.</p>
   </section>
 
   <section class="panel prose">
@@ -86,7 +86,7 @@ export function renderHowItWorksPage() {
     <h2>What we don’t claim</h2>
     <ul class="reading">
       <li>These figures are for entertainment, not betting advice, and they are not a guarantee. A 70% pick is still meant to miss about three times in ten.</li>
-      <li>A light is not a staking plan. Green is about confidence. Super is about price. Backing every green pick is not the same as backing Super.</li>
+      <li>A light is not a staking plan. Green is about confidence. Best value is about price. Backing every green pick is not the same as backing Best value picks.</li>
       <li>A backtest is a re-run on the past, not a record of tips we published at the time. It can look tidier than live results. That is why it has its own page.</li>
       <li>We do not claim to be the best, the most accurate, or to have a long public live record. The live site is recent. The backtests are how we tested the models before that.</li>
     </ul>
@@ -127,9 +127,9 @@ export function renderBacktestPage() {
     <h2>NBA</h2>
     <p>The live NBA model (v2) was tested walk-forward: each game is priced from earlier games only. The 2008–09 to 2017–18 seasons were used to choose the version. A later holdout, and a 2025–26 season test, were scored after that. Headline figures below are the completed 2025–26 season — the same window the site already cites for calibration — plus an earlier holdout window for green hit rate.</p>
     <p><b>2025–26, 1,322 games:</b> the model picked the winner in ${frac(895, 1322)}. Games it gave 70–75% won ${frac(100, 136)}. Green picks (65%+) won ${frac(536, 697)}.</p>
-    <p>A separate, already published Super test on 2025–26 — the one quoted on <a href="/lights">How the lights work</a> — looked at 162 Super games: they won 63%. That test knew the real line-ups. Live Super still depends on the injury report being right, which is why a value pick with uncertain key players is held at its normal light.</p>
+    <p>A separate, already published Best value test on 2025–26 — the one quoted on <a href="/lights">How the lights work</a> — looked at 162 Best value games: they won 63%. That test knew the real line-ups. Live Best value still depends on the injury report being right, which is why a value pick with uncertain key players is held at its normal light.</p>
     <p>In the older SBR-matched window (2018–19 through 16 January 2023, 5,613 games), green picks (65%+) won 2,139 of 2,938 (72.8%). Green is a confidence light, not a value flag.</p>
-    <p class="small">Sources: NBA v2 walk-forward predictions joined to results; Super hit rate as already published on How the lights work.</p>
+    <p class="small">Sources: NBA v2 walk-forward predictions joined to results; Best value hit rate as already published on How the lights work.</p>
   </section>
 
   <section class="panel prose" id="nfl">

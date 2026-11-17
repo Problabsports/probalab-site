@@ -31,7 +31,7 @@ export async function onRequestGet(ctx) {
 <p>We publish probabilities, not certainties. A 70% pick still loses about three times in ten, and we want you to see that happen in the record rather than hear about it later.</p></section>
 <section class="panel prose"><h2>What the lights mean</h2>
 <p>Every pick carries a light, so you can see at a glance how strongly the model leans.</p>
-<ul><li><b>SUPER</b> — ${esc(labelLong("SUPER"))} (NBA only): a value flag, not a higher-confidence green. The bookmaker price beats our fair price. <a href="/lights">How the lights work</a>.</li>
+<ul><li><b>${esc(labelLong("SUPER"))}</b> (NBA only): a value flag, not a higher-confidence green. The bookmaker price beats our fair price. <a href="/lights">How the lights work</a>.</li>
 <li><b>GREEN</b>: The model gives the pick ${NBA.GREEN} (NBA, NFL and NHL; <a href="/lights">other sports</a>). One of our top picks.</li>
 <li><b>ORANGE</b>: A lean, ${NBA.ORANGE}.</li>
 <li><b>RED</b>: ${cap(NBA.RED)}. Close to a coin flip.</li></ul></section>

@@ -27,7 +27,7 @@ assert.match(bt, /href="\/results\.csv"/);
 assert.doesNotMatch(bt, /fold(?:ed)? into the live green/i);
 assert.match(bt, /1,322/); // NBA 2025-26 games
 assert.match(bt, /536 of 697/);
-assert.match(bt, /162 Super games/);
+assert.match(bt, /162 Best value games/);
 assert.match(bt, /592 of 919/);
 assert.match(bt, /2,414 of 4,192/);
 assert.match(bt, /609 of 867/);
