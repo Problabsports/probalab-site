@@ -345,10 +345,11 @@
   html.pf .pf-lkey[hidden] { display: none !important; }
   html.pf .pf-lkey-note { margin: 0; font-size: 13px; color: var(--pf-muted); }
   html.pf .pf-lkey ul { list-style: none; margin: 0; padding: 10px 14px; display: grid; gap: 6px; border-radius: 12px; background: var(--pf-surface); border: 1px solid var(--pf-line); }
-  html.pf .pf-lkey li { display: grid; grid-template-columns: 12px 70px 1fr; align-items: center; gap: 10px; font-size: 13px; }
+  html.pf .pf-lkey li { display: grid; grid-template-columns: 12px 92px minmax(0, 1fr); align-items: center; gap: 10px; font-size: 13px; line-height: 1.35; }
   html.pf .pf-lkey i { width: 10px; height: 10px; border-radius: 50%; background: var(--pf-lc); box-shadow: 0 0 8px var(--pf-lc); }
   html.pf .pf-lkey b { font-family: var(--f-mono, monospace); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--pf-lc); }
-  html.pf .pf-lkey span { font-family: var(--f-mono, monospace); color: var(--pf-ink); }
+  html.pf .pf-lkey li > span { font-family: var(--f-body, sans-serif); font-size: 13.5px; color: var(--pf-ink); }
+  html.pf .pf-lkey .pf-lk-line { display: block; }
 
   /* ---------------------------------------------------------------- player page: chart legend */
   html.pf figure.bc > figcaption.pf-replaced { display: none !important; }
@@ -385,4 +386,53 @@
   html.pf.pf-results #growth .units-tiles > div { padding: 10px; border-radius: 12px; }
   html.pf.pf-results #growth .units-tiles .ut-k { font-size: 9.5px; letter-spacing: .08em; }
   html.pf.pf-results #growth .units-tiles b { font-size: 17px; }
+
+  /* ---------------------------------------------------------------- stacked lights key, every page (round 3) */
+  html.pf .legend.pf-replaced, html.pf p.legend-line.pf-replaced, html.pf div.lights.pf-replaced { display: none !important; }
+  html.pf .pf-lkey { margin: 12px 0; }
+  html.pf .pf-lkey-title { margin: 0; font-family: var(--f-mono, monospace); font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pf-ink); }
+  html.pf .pf-lkey-sub { margin: -4px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--pf-muted); }
+  html.pf .pf-lkey li.pf-l-WARN { --pf-lc: #ffcc33; }
+  html.pf .pf-lkey i.pf-lkey-warn { width: auto; height: auto; background: none; box-shadow: none; font-style: normal; font-size: 12px; line-height: 1; color: var(--pf-lc); text-align: center; }
+  html.pf .pf-lkey li.pf-lkey-long { align-items: start; }
+  html.pf .pf-lkey li.pf-lkey-long i { margin-top: 4px; }
+  html.pf .pf-lkey li.pf-lkey-long b { padding-top: 1px; }
+  html.pf .pf-lkey li.pf-lkey-long span { font-family: var(--f-body, sans-serif); font-size: 13.5px; color: var(--pf-ink); }
+  html.pf .pf-lkey li.pf-lkey-long span a { color: var(--pf-cyan); }
+  html.pf .pf-lkey-link { justify-self: start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 13px; color: var(--pf-cyan); }
+  html.pf.pf-today .howto.compact { padding: 4px 12px; }
+  html.pf #pf-home .pf-lkey { margin-top: 18px; }
+
+  /* light filter chips: a tidy wrapped grid instead of a row running off the screen */
+  html.pf .game-filter-bar .game-filters.lights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; overflow: visible; margin: 0; padding: 0; }
+  html.pf .game-filter-bar .game-filters.lights[hidden] { display: none; }
+  html.pf .game-filter-bar .game-filters.lights .gf-btn { width: 100%; min-height: 44px; justify-content: center; text-align: center; padding: 0 8px; font-size: 12.5px; line-height: 1.15; }
+  html.pf.pf-results .results-filters .record-sports { display: flex; flex-wrap: wrap; gap: 8px; }
+  html.pf.pf-results .results-filters .record-sports.light-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 10px; }
+  html.pf.pf-results .results-filters .record-sports > a, html.pf.pf-results .results-filters .record-sports > span {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 12px; margin: 0; border-radius: 999px;
+    border: 1px solid var(--pf-line-hi); background: var(--pf-surface); color: var(--pf-muted); text-decoration: none; text-align: center; font-size: 12px; line-height: 1.15;
+  }
+  html.pf.pf-results .results-filters .record-sports > span.on { color: #07080f; background: var(--pf-cyan); border-color: var(--pf-cyan); }
+  html.pf.pf-results .results-filters .record-sports.light-filters > a, html.pf.pf-results .results-filters .record-sports.light-filters > span { min-height: 44px; padding: 0 6px; }
+
+  /* Today: every sport, with counts */
+  html.pf .game-filters.sports.pf-replaced { display: none !important; }
+  html.pf .pf-sc-wrap { display: grid !important; gap: 10px; }
+  html.pf .pf-sportchips { display: flex; flex-wrap: wrap; gap: 8px; }
+  html.pf .pf-sc {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 8px 0 14px; border-radius: 999px;
+    border: 1px solid var(--pf-line-hi); background: var(--pf-surface); color: var(--pf-ink); text-decoration: none; cursor: pointer;
+    font: 700 13px var(--f-display, sans-serif); letter-spacing: .04em; text-transform: uppercase;
+  }
+  html.pf .pf-sc-n { min-width: 26px; height: 26px; padding: 0 7px; display: inline-grid; place-items: center; border-radius: 999px; background: var(--pf-surface-2); color: var(--pf-cyan); font: 700 12px var(--f-mono, monospace); }
+  html.pf .pf-sc-on { color: #07080f; background: var(--pf-cyan); border-color: var(--pf-cyan); }
+  html.pf .pf-sc-on .pf-sc-n { background: rgba(7, 8, 15, .2); color: #07080f; }
+  html.pf .pf-sc-dim { opacity: .5; border-style: dashed; background: transparent; color: var(--pf-muted); }
+  html.pf .pf-sc-dim .pf-sc-n { color: var(--pf-muted); background: transparent; border: 1px solid var(--pf-line-hi); }
+  html.pf .pf-sc-dim.pf-sc-tapped { opacity: .85; border-color: var(--pf-muted); }
+  html.pf .pf-sc-msg { display: grid !important; gap: 3px; padding: 12px 14px; border-radius: 12px; background: var(--pf-surface); border: 1px dashed var(--pf-line-hi); font-size: 13.5px; }
+  html.pf .pf-sc-msg[hidden] { display: none !important; }
+  html.pf .pf-sc-msg span { color: var(--pf-muted); font-family: var(--f-mono, monospace); font-size: 12.5px; }
+  html.pf .pf-sc-msg a { color: var(--pf-cyan); font-size: 13px; }
 }

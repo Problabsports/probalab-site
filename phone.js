@@ -36,7 +36,8 @@
   function start() {
     tabBar();
     relabel(document.body);
-    new MutationObserver(debounce(function () { if (mq.matches) relabel(document.body); }, 60)).observe(document.body, { childList: true, subtree: true });
+    lightKeys(document);
+    new MutationObserver(debounce(function () { if (mq.matches) { relabel(document.body); lightKeys(document); } }, 60)).observe(document.body, { childList: true, subtree: true });
     window.addEventListener("hashchange", markTab);
     window.addEventListener("popstate", markTab);
     if (location.pathname === "/today") todayPage();
@@ -157,6 +158,7 @@
 
   function todayPage() {
     root.classList.add("pf-today");
+    sportChips();
     var all = rowsFromToday(document);
     $$("section.panel[id]").forEach(function (sec) {
       var ul = $("ul.today-games", sec);
@@ -184,6 +186,7 @@
       '<a class="pf-record" id="pfRecord" href="/results"><span class="pf-rec-dot" aria-hidden="true"></span><span>Green record · see Results</span></a></div>' +
       '<div class="pf-greens" id="pfGreens" aria-live="polite">' + skeleton(2) + "</div>" +
       '<a class="pf-more" href="/today">All of today\'s games<span aria-hidden="true">→</span></a>' +
+      P.stackedKeyHtml(P.gameKeyRows("all", { best: true, injury: true }), { title: "Light key", kind: "home", link: "/lights" }) +
       '<div class="pf-yest" id="pfYest" hidden></div>' +
       '<h2 class="pf-h2">Go to</h2>' +
       '<nav class="pf-grid" aria-label="Main features">' + P.HOME_TILES.map(function (t) {
@@ -341,6 +344,13 @@
     var firstOverview = $(":scope > [data-pf-tab='overview']", view) || $("[data-pf-tab='overview']", view);
     if (firstOverview && firstOverview.parentNode === view) view.insertBefore(hero, firstOverview); else view.insertBefore(hero, view.firstElementChild.nextSibling);
     used.overview = true;
+    if (!$(".pf-lkey[data-pf-key='match']", view)) {
+      var warn = /injury watch/i.test(view.textContent) || !!$(".injury-watch, .qbwarn", view);
+      hero.insertAdjacentHTML("afterend", P.stackedKeyHtml(P.gameKeyRows(sport, { best: sport === "nba", injury: warn && sport !== "nfl", note: warn && sport === "nfl" ? "Quarterback news could change the pick" : "" }),
+        { title: "Light key · " + (P.SPORT_NAME[sport] || sport), kind: "match", link: "/lights" }));
+      var mk = $(".pf-lkey[data-pf-key='match']", view);
+      if (mk) mk.setAttribute("data-pf-tab", "overview");
+    }
 
     // 3. Props tab: NBA games only, predictions only (loaded when first opened)
     var awayName = g ? g.away_name : "", homeName = g ? g.home_name : "";
@@ -483,21 +493,15 @@
       if (m) box.appendChild(chipPicker(m, "Market"));
       host.classList.add("pf-replaced");
     }
-    // 3. lights key, one line each
+    // 3. lights key, one line each: the props scale, labelled as its own scale
     var legend = document.getElementById("ppLegend");
-    if (legend && !$(".pf-lkey")) {
-      var rows = [], first = "";
-      Array.prototype.slice.call(legend.childNodes).forEach(function (n) {
-        if (n.nodeType === 1 && n.classList.contains("chip")) rows.push({ light: P.lightOf(n.className), label: txt(n), range: "" });
-        else if (rows.length) rows[rows.length - 1].range += n.textContent;
-        else first += n.textContent;
-      });
-      var key = document.createElement("div");
-      key.className = "pf-lkey pf-only";
-      key.innerHTML = (first.trim() ? '<p class="pf-lkey-note">' + esc(first.trim()) + "</p>" : "") + '<ul aria-label="Light key">' + rows.map(function (r) {
-        return '<li class="pf-l-' + r.light + '"><i aria-hidden="true"></i><b>' + esc(r.label) + "</b><span>" + esc(r.range.replace(/[·\s]+$/, "").trim().replace(/–/g, "-")) + "</span></li>";
-      }).join("") + "</ul>";
-      legend.parentNode.insertBefore(key, legend.nextSibling);
+    if (legend && !$(".pf-lkey[data-pf-key='props']")) {
+      legend.insertAdjacentHTML("afterend", P.stackedKeyHtml(P.propsKeyRows(), {
+        title: "Props scale", kind: "props",
+        sub: "Props use their own scale, because player stats swing more than match results.",
+        note: "Green first, then highest chance.",
+      }));
+      var key = legend.nextElementSibling;
       legend.classList.add("pf-replaced");
       var sync = function () { key.hidden = legend.hidden; };
       new MutationObserver(sync).observe(legend, { attributes: true, attributeFilter: ["hidden"] });
@@ -602,6 +606,9 @@
       top.appendChild(hero.cloneNode(true));
       h1.parentNode.insertBefore(top, h1.nextSibling);
     }
+    if (lead && !$(".pf-lkey[data-pf-key='results']", main)) {
+      lead.insertAdjacentHTML("afterend", P.stackedKeyHtml(P.gameKeyRows("all", { best: true }), { title: "Light key · every sport", kind: "results", link: "/lights" }));
+    }
     var seenIntro = false;
     Array.prototype.slice.call(main.children).forEach(function (el) {
       var o = 9;
@@ -612,11 +619,97 @@
       else if (el.id === "growth") o = 4;
       else if (el.matches(".record-grid")) o = 5;
       else if (el.matches("p:not(.note)") && !seenIntro) { o = 6; seenIntro = true; }
-      else if (el.matches(".green-lead")) o = 7;
+      else if (el.matches(".green-lead, .pf-lkey")) o = 7;
       else if (el.matches(".trust-strip")) o = 8;
       else if (el.id === "picks") o = 10;
       else if (el.matches("p.note")) o = 11;
       el.setAttribute("data-pf-order", String(o));
+    });
+  }
+
+
+  // ------------------------------------------------------------------ stacked lights keys (every page)
+  function pageSport() {
+    if (window.HIDDEN_SPORT) return window.HIDDEN_SPORT;
+    try { if (typeof SP !== "undefined" && SP) return SP; } catch (e) {} // eslint-disable-line no-undef
+    return "nba";
+  }
+  var after = function (el, html) { el.insertAdjacentHTML("afterend", html); el.classList.add("pf-replaced"); };
+  function lightKeys(doc) {
+    // inline keys in the sport views (NBA, NFL, NHL, EPL, Championship, tennis): that sport's scale
+    $$(".legend[aria-label='Light key']:not(.pf-replaced)", doc).forEach(function (lg) {
+      var sport = pageSport(), t = lg.textContent;
+      var note = /important note/i.test(t);
+      after(lg, P.stackedKeyHtml(P.gameKeyRows(sport, {
+        best: !!$(".chip.SUPER", lg), injury: /injury/i.test(t),
+        note: note ? (sport === "nfl" ? "Quarterback news could change the pick" : "News could change the pick") : "",
+      }), { title: "Light key", kind: "view", link: "/lights" }));
+    });
+    // Today: every sport on one board, so the multi-sport scale (or one sport's when filtered)
+    $$("p.legend-line:not(.pf-replaced)", doc).forEach(function (lg) {
+      var q = new URLSearchParams(location.search), sp = q.get("sport") || "all";
+      after(lg, P.stackedKeyHtml(P.gameKeyRows(P.GAME_SCALE[sp] ? sp : "all", { best: !!$(".chip.SUPER", lg), injury: /injury/i.test(lg.textContent) }),
+        { title: "Light key", kind: "today", link: "/lights" }));
+    });
+    // definition lists (How the lights work, How it works, About): keep each page's own words
+    $$("div.lights:not(.pf-replaced)", doc).forEach(function (box) {
+      var rows = $$(":scope > div", box).map(function (d) {
+        var c = $(".chip", d), p = $("p", d);
+        var l = c ? P.lightOf(c.className) : "";
+        return l && p ? { light: l, label: P.LIGHT_LABEL[l], rangeHtml: p.innerHTML, long: true } : null;
+      }).filter(Boolean);
+      if (rows.length) after(box, P.stackedKeyHtml(rows, { kind: "lights" }));
+    });
+  }
+
+  // ------------------------------------------------------------------ Today: every sport, with counts
+  function sportChips() {
+    var bar = $(".game-filter-bar");
+    var serverNav = bar && $("nav.game-filters.sports", bar);
+    if (!bar || $(".pf-sportchips", bar)) return;
+    var q = new URLSearchParams(location.search);
+    var cur = (q.get("sport") || "all").toLowerCase(), light = (q.get("light") || "green").toLowerCase();
+    var holder = document.createElement("div");
+    holder.className = "pf-sc-wrap pf-only";
+    holder.innerHTML = P.sportChipsHtml({}, cur, light).replace(/<span class="pf-sc-n">0<\/span>/g, '<span class="pf-sc-n">·</span>') + '<div class="pf-sc-msg" role="status" hidden></div>';
+    bar.insertBefore(holder, bar.firstChild);
+    if (serverNav) serverNav.classList.add("pf-replaced");
+    var counts = null;
+    var paint = function () {
+      var nav = $(".pf-sportchips", holder);
+      nav.outerHTML = P.sportChipsHtml(counts, cur, light);
+    };
+    // counts: every sport, every light, from the same board (a sport that failed to load shows no number)
+    fetch("/today?light=all", { credentials: "same-origin" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (h) {
+        var doc = new DOMParser().parseFromString(h, "text/html"), loaded = {};
+        P.TODAY_SPORTS.forEach(function (s) {
+          var sec = doc.getElementById(s[0]);
+          loaded[s[0]] = !!sec && !/couldn.t load/i.test(sec.textContent);
+        });
+        counts = P.sportCounts(rowsFromToday(doc), light, loaded);
+        paint();
+      })
+      .catch(function () {});
+    holder.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("button[data-pf-sport]");
+      if (!b || !counts) return;
+      var sport = b.getAttribute("data-pf-sport"), box = $(".pf-sc-msg", holder);
+      $$(".pf-sc", holder).forEach(function (x) { x.classList.toggle("pf-sc-tapped", x === b); });
+      var show = function (nx) {
+        var m = P.noGamesText(sport, counts, light, nx && nx.iso, nx && nx.tbc);
+        box.innerHTML = "<b>" + esc(m.text) + "</b>" + (m.next ? "<span>" + esc(m.next) + "</span>" : "") +
+          (m.more ? '<a href="' + esc(m.href) + '">' + esc(m.more) + '<span aria-hidden="true"> →</span></a>' : "");
+        box.hidden = false;
+      };
+      show(null);
+      if ((counts[sport] || {}).total === 0) {
+        fetch(P.NEXT_SOURCE[sport], { credentials: "same-origin" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { if (d) show(P.nextStart(sport, d, Date.now())); })
+          .catch(function () {});
+      }
     });
   }
 

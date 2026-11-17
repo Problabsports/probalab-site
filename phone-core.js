@@ -252,6 +252,136 @@
       esc(String(sport).toLowerCase() + "|" + name + "|" + (abbr || "")) + '"></span>';
   }
 
+  // ---------------------------------------------------------------- stacked lights key
+  // Game scales: the live cut-offs (same copy as record-pages.js LIGHT_COPY and /lights). Props have their own scale.
+  var GAME_SCALE = {
+    nba: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
+    nfl: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
+    nhl: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
+    epl: { GREEN: "55%+", ORANGE: "Lean · 45–55%", RED: "Open match · under 45%" },
+    championship: { GREEN: "55%+", ORANGE: "Lean · 45–55%", RED: "Open match · under 45%" },
+    tennis: { GREEN: "70%+", ORANGE: "Lean · 60–70%", RED: "Close match · under 60%" },
+    all: { GREEN: "65%+ NBA, NFL, NHL · 55%+ Premier League, Championship · 70%+ tennis", ORANGE: "Lean", RED: "Coin flip" },
+  };
+  var PROPS_SCALE = { GREEN: "60%+", ORANGE: "55-59%", RED: "under 55%" };
+  var BEST_VALUE_TEXT = "NBA value flag: the price beats our fair price";
+  var INJURY_TEXT = "Key players uncertain";
+
+  /** Rows for one sport's game scale. opts.best adds Best value (NBA / all only); opts.injury / opts.note add a warning row. */
+  function gameKeyRows(sport, opts) {
+    opts = opts || {};
+    var s = GAME_SCALE[sport] ? sport : "all";
+    var sc = GAME_SCALE[s], rows = [];
+    if (opts.best && (s === "nba" || s === "all")) rows.push({ light: "SUPER", label: LIGHT_LABEL.SUPER, range: BEST_VALUE_TEXT });
+    rows.push(s === "all"
+      ? { light: "GREEN", label: "Green", range: sc.GREEN, rangeHtml: "<span class=\"pf-lk-line\">65%+ NBA, NFL, NHL</span><span class=\"pf-lk-line\">55%+ Premier League, Championship</span><span class=\"pf-lk-line\">70%+ Tennis</span>" }
+      : { light: "GREEN", label: "Green", range: sc.GREEN });
+    rows.push({ light: "ORANGE", label: "Orange", range: sc.ORANGE });
+    rows.push({ light: "RED", label: "Red", range: sc.RED });
+    if (opts.injury) rows.push({ light: "WARN", label: "Injury watch", range: INJURY_TEXT });
+    if (opts.note) rows.push({ light: "WARN", label: "Important note", range: opts.note });
+    return rows;
+  }
+  function propsKeyRows() {
+    return ["GREEN", "ORANGE", "RED"].map(function (l) { return { light: l, label: LIGHT_LABEL[l], range: PROPS_SCALE[l] }; });
+  }
+  /** The stacked key: one line per light (dot, label, range) in a card. rangeHtml rows are trusted page HTML. */
+  function stackedKeyHtml(rows, opts) {
+    opts = opts || {};
+    return '<div class="pf-lkey pf-only"' + (opts.kind ? ' data-pf-key="' + esc(opts.kind) + '"' : "") + ">" +
+      (opts.title ? '<p class="pf-lkey-title">' + esc(opts.title) + "</p>" : "") +
+      (opts.sub ? '<p class="pf-lkey-sub">' + esc(opts.sub) + "</p>" : "") +
+      '<ul aria-label="' + esc(opts.title || "Light key") + '">' + rows.map(function (r) {
+        return '<li class="pf-l-' + esc(r.light || "none") + (r.long ? " pf-lkey-long" : "") + '">' +
+          (r.light === "WARN" ? '<i class="pf-lkey-warn" aria-hidden="true">⚠</i>' : '<i aria-hidden="true"></i>') +
+          "<b>" + esc(r.label) + "</b><span>" + (r.rangeHtml != null ? r.rangeHtml : esc(r.range)) + "</span></li>";
+      }).join("") + "</ul>" +
+      (opts.note ? '<p class="pf-lkey-note">' + esc(opts.note) + "</p>" : "") +
+      (opts.link ? '<a class="pf-lkey-link" href="' + esc(opts.link) + '">How the lights work<span aria-hidden="true"> →</span></a>' : "") +
+      "</div>";
+  }
+
+  // ---------------------------------------------------------------- Today: sport chips with counts
+  var TODAY_SPORTS = [["nba", "NBA"], ["nfl", "NFL"], ["nhl", "NHL"], ["epl", "Premier League"], ["championship", "Championship"], ["tennis", "Tennis"]];
+  /** Same rule as the server's light filter (functions/_shared/game-filters.js). */
+  function matchesLight(l, f) {
+    if (f === "all") return true;
+    if (f === "green") return l === "GREEN" || l === "SUPER";
+    if (f === "super") return l === "SUPER";
+    if (f === "orange") return l === "ORANGE";
+    if (f === "red") return l === "RED";
+    return true;
+  }
+  /** Same URLs as the server's filter links. */
+  function todayHref(sport, light) {
+    var q = [];
+    if (sport && sport !== "all") q.push("sport=" + encodeURIComponent(sport));
+    if (light && light !== "green") q.push("light=" + encodeURIComponent(light));
+    return "/today" + (q.length ? "?" + q.join("&") : "");
+  }
+  /** Per sport: games in the next 24 hours (total) and games matching the light filter (shown). rows from the /today?light=all board. */
+  function sportCounts(rows, light, loaded) {
+    var out = { all: { total: 0, shown: 0 } };
+    TODAY_SPORTS.forEach(function (s) { out[s[0]] = { total: 0, shown: 0, known: !loaded || loaded[s[0]] !== false }; });
+    rows.forEach(function (g) {
+      var c = out[g.sport];
+      if (!c) return;
+      c.total++; out.all.total++;
+      if (matchesLight(g.light, light)) { c.shown++; out.all.shown++; }
+    });
+    return out;
+  }
+  function sportChipsHtml(counts, current, light) {
+    var chip = function (id, label) {
+      var c = counts[id] || { shown: 0 }, on = current === id, n = c.shown;
+      var num = c.known === false ? "" : '<span class="pf-sc-n">' + n + "</span>";
+      if (id !== "all" && n === 0 && c.known !== false) {
+        return '<button type="button" class="pf-sc pf-sc-dim' + (on ? " pf-sc-on" : "") + '" data-pf-sport="' + id + '"' + (on ? ' aria-current="true"' : "") + ">" + esc(label) + num + "</button>";
+      }
+      return '<a class="pf-sc' + (on ? " pf-sc-on" : "") + '" href="' + esc(todayHref(id, light)) + '"' + (on ? ' aria-current="true"' : "") + ">" + esc(label) + num + "</a>";
+    };
+    return '<nav class="pf-sportchips pf-only" aria-label="Filter by sport">' + chip("all", "All") +
+      TODAY_SPORTS.map(function (s) { return chip(s[0], s[1]); }).join("") + "</nav>";
+  }
+  var LIGHT_WORD = { green: "green", super: "Best value", orange: "orange", red: "red", all: "" };
+  /** Message for a dimmed (0) chip. nextIso: the next start we have on file, if any. */
+  function noGamesText(sport, counts, light, nextIso, tbc) {
+    var name = SPORT_NAME[sport] || sport, c = counts[sport] || { total: 0 };
+    if (c.total > 0 && light !== "all") {
+      return { text: "No " + LIGHT_WORD[light] + " " + name + " picks in the next 24 hours.", more: c.total + " " + name + " game" + (c.total === 1 ? "" : "s") + " at other lights", href: todayHref(sport, "all") };
+    }
+    var t = "No " + name + " " + (sport === "tennis" ? "matches" : "games") + " in the next 24 hours.";
+    return { text: t, next: nextIso ? "Next: " + sydneyWhen(nextIso, tbc) : "" };
+  }
+  /** Earliest upcoming start after the 24-hour window, from the files /today itself reads. */
+  function nextStart(sport, data, now) {
+    var after = (now || Date.now()) + 0;
+    var best = null, tbc = false;
+    var consider = function (iso, done, isTbc) {
+      if (!iso || done) return;
+      var t = Date.parse(iso);
+      if (!isFinite(t) || t <= after) return;
+      if (best == null || t < best) { best = t; tbc = !!isTbc; }
+    };
+    if (sport === "nba" || sport === "nfl") (data && data.games || []).forEach(function (g) { consider(g.start_utc, g.status === "post"); });
+    else if (sport === "tennis") (data && data.matches || []).forEach(function (m) { consider(m.start_utc, m.status !== "pre", m.time_tbc); });
+    else (Array.isArray(data) ? data : (data && data.games) || []).forEach(function (g) {
+      consider(g.start_utc || g.kickoff_utc || g.puck_drop_utc || g.date, g.status === "post");
+    });
+    return best == null ? null : { iso: new Date(best).toISOString(), tbc: tbc };
+  }
+  /** "Thu 20 Nov, 11:00am AEDT" (Sydney). Date only when the start time isn't known yet. */
+  function sydneyWhen(iso, tbc) {
+    try {
+      var d = new Date(iso);
+      if (tbc) return new Intl.DateTimeFormat("en-AU", { timeZone: "America/New_York", weekday: "short", day: "numeric", month: "short" }).format(d).replace(/,/g, "") + ", time TBC";
+      var parts = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Sydney", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" }).formatToParts(d);
+      var g = function (t) { var p = parts.filter(function (x) { return x.type === t; })[0]; return p ? p.value : ""; };
+      return g("weekday") + " " + g("day") + " " + g("month") + ", " + g("hour") + ":" + g("minute") + g("dayPeriod").toLowerCase() + " " + g("timeZoneName");
+    } catch (e) { return ""; }
+  }
+  var NEXT_SOURCE = { nba: "/api/feed?sport=nba", nfl: "/api/feed?sport=nfl", nhl: "/data/nhl-picks.json", epl: "/data/epl-picks.json", championship: "/data/championship-picks.json", tennis: "/data/tennis-picks.json" };
+
   // ---------------------------------------------------------------- bottom tab bar
   var TAB_BAR = [
     ["home", "/", "Home"],
@@ -288,6 +418,9 @@
     splitPick: splitPick, splitMatch: splitMatch, gameIdFromHref: gameIdFromHref, matchHref: matchHref, rowFromParts: rowFromParts,
     gaugeSvg: gaugeSvg, lightChip: lightChip, cardHtml: cardHtml, classifyPanel: classifyPanel,
     sortProps: sortProps, propsGameMatches: propsGameMatches, propRowHtml: propRowHtml, activeTab: activeTab,
+    GAME_SCALE: GAME_SCALE, PROPS_SCALE: PROPS_SCALE, TODAY_SPORTS: TODAY_SPORTS, NEXT_SOURCE: NEXT_SOURCE,
+    gameKeyRows: gameKeyRows, propsKeyRows: propsKeyRows, stackedKeyHtml: stackedKeyHtml, matchesLight: matchesLight, todayHref: todayHref,
+    sportCounts: sportCounts, sportChipsHtml: sportChipsHtml, noGamesText: noGamesText, nextStart: nextStart, sydneyWhen: sydneyWhen,
     teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,
   };
 });

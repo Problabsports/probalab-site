@@ -159,4 +159,56 @@ for (const f of ["index.html", "404.html", "contact.html", "privacy.html", "term
   assert.ok(s.includes('href="/phone.css"') && s.includes('src="/phone-core.js"') && s.includes('src="/phone.js"'), f);
 }
 
+// ---------------------------------------------------------------- round 3: stacked keys, props scale, Today sport chips
+const rowsOf = (sp, o) => P.gameKeyRows(sp, o).map((r) => `${r.label}:${r.range}`);
+assert.deepEqual(rowsOf("nba", { best: true }), ["Best value:NBA value flag: the price beats our fair price", "Green:65%+", "Orange:Lean · 55–65%", "Red:Coin flip · under 55%"]);
+assert.deepEqual(rowsOf("nfl", { best: true }).slice(0, 1), ["Green:65%+"], "Best value is NBA only");
+assert.deepEqual(rowsOf("nhl"), ["Green:65%+", "Orange:Lean · 55–65%", "Red:Coin flip · under 55%"]);
+assert.equal(rowsOf("epl")[0], "Green:55%+");
+assert.equal(rowsOf("championship")[0], "Green:55%+");
+assert.equal(rowsOf("tennis")[0], "Green:70%+");
+assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Best value", "Green", "Orange", "Red", "Injury watch"]);
+assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League, Championship.*70%\+ Tennis/);
+// props have their own scale, and it never appears in a game key
+assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55-59%", "Red:under 55%"]);
+for (const sp of ["nba", "nfl", "nhl", "epl", "championship", "tennis", "all"]) {
+  const html = P.stackedKeyHtml(P.gameKeyRows(sp, { best: true, injury: true }));
+  assert.ok(!/60%\+|55[-–]59%/.test(html), `game key ${sp} shows no props range`);
+}
+const pk = P.stackedKeyHtml(P.propsKeyRows(), { title: "Props scale", sub: "Props use their own scale, because player stats swing more than match results." });
+assert.match(pk, /<p class="pf-lkey-title">Props scale<\/p><p class="pf-lkey-sub">Props use their own scale, because player stats swing more than match results\.<\/p>/);
+assert.equal((pk.match(/<li /g) || []).length, 3, "one line per light");
+assert.match(P.stackedKeyHtml(P.gameKeyRows("nba", { injury: true })), /pf-lkey-warn/);
+// Today sport chips: every sport, counts under the current light, dimmed 0
+assert.deepEqual(P.TODAY_SPORTS.map((s) => s[1]), ["NBA", "NFL", "NHL", "Premier League", "Championship", "Tennis"]);
+const board = [{ sport: "nba", light: "GREEN" }, { sport: "nba", light: "RED" }, { sport: "nba", light: "SUPER" }, { sport: "nhl", light: "ORANGE" }];
+const cg = P.sportCounts(board, "green");
+assert.deepEqual([cg.all.shown, cg.nba.shown, cg.nhl.shown, cg.nhl.total, cg.nfl.total], [2, 2, 0, 1, 0]);
+assert.equal(P.sportCounts(board, "all").nba.shown, 3);
+const chipsHtml = P.sportChipsHtml(cg, "all", "green");
+assert.match(chipsHtml, /href="\/today\?sport=nba">NBA<span class="pf-sc-n">2<\/span>/);
+assert.match(chipsHtml, /pf-sc-dim" data-pf-sport="nfl">NFL<span class="pf-sc-n">0<\/span>/);
+for (const name of ["All", "NBA", "NFL", "NHL", "Premier League", "Championship", "Tennis"]) assert.ok(chipsHtml.includes(`>${name}<span`), name);
+assert.match(P.sportChipsHtml(P.sportCounts(board, "orange", { nfl: false }), "all", "orange"), /NFL<\/a>/, "a sport that failed to load shows no count and stays a link");
+assert.equal(P.todayHref("nhl", "all"), "/today?sport=nhl&light=all");
+assert.equal(P.todayHref("all", "green"), "/today");
+const nfl0 = P.noGamesText("nfl", cg, "green", "2026-11-20T01:15:00Z");
+assert.equal(nfl0.text, "No NFL games in the next 24 hours.");
+assert.equal(nfl0.next, "Next: Fri 20 Nov, 12:15pm AEDT");
+assert.equal(P.noGamesText("nfl", cg, "green", null).next, "");
+const nhl0 = P.noGamesText("nhl", cg, "green");
+assert.equal(nhl0.text, "No green NHL picks in the next 24 hours.");
+assert.equal(nhl0.more, "1 NHL game at other lights");
+assert.equal(nhl0.href, "/today?sport=nhl&light=all");
+assert.equal(P.noGamesText("tennis", cg, "green").text, "No Tennis matches in the next 24 hours.");
+const now = Date.parse("2026-11-17T00:00:00Z");
+assert.deepEqual(P.nextStart("nfl", { games: [{ start_utc: "2026-11-21T01:00:00Z", status: "pre" }, { start_utc: "2026-11-20T01:00:00Z", status: "pre" }, { start_utc: "2026-11-10T01:00:00Z", status: "post" }] }, now), { iso: "2026-11-20T01:00:00.000Z", tbc: false });
+assert.equal(P.nextStart("epl", [{ kickoff_utc: "2026-11-22T15:00:00Z" }], now).iso, "2026-11-22T15:00:00.000Z");
+assert.equal(P.nextStart("nhl", { games: [{ puck_drop_utc: "2026-11-18T00:00:00Z" }] }, now).iso, "2026-11-18T00:00:00.000Z");
+assert.deepEqual(P.nextStart("tennis", { matches: [{ start_utc: "2026-11-19T05:00:00Z", status: "pre", time_tbc: true }] }, now), { iso: "2026-11-19T05:00:00.000Z", tbc: true });
+assert.equal(P.nextStart("nba", { games: [] }, now), null);
+assert.match(P.sydneyWhen("2026-11-19T05:00:00Z", true), /time TBC$/);
+assert.deepEqual(Object.keys(P.NEXT_SOURCE), ["nba", "nfl", "nhl", "epl", "championship", "tennis"]);
+for (const u of Object.values(P.NEXT_SOURCE)) assert.match(u, /^\/(api\/feed\?sport=|data\/[a-z]+-picks\.json$)/, "next-game dates come from the files /today already reads");
+
 console.log("phone-first tests passed");
