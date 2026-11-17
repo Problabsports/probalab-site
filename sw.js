@@ -5,9 +5,9 @@
    Pages, /api/*, /data/*, /members/*, /join, sign-in and billing are never written to the cache,
    so nothing one member sees can be served to another account on the same phone.
    Static files are network-first, so a deploy shows straight away; the cache is only a fallback. */
-var VERSION = "pl-shell-v1";
+var VERSION = "pl-shell-v2";
 var SHELL = [
-  "/offline.html",
+  "/offline", // Cloudflare Pages serves offline.html here (/offline.html 308-redirects to it)
   "/phone.css",
   "/phone-core.js",
   "/phone.js",
@@ -51,7 +51,12 @@ if (typeof self !== "undefined" && typeof self.addEventListener === "function" &
     var req = e.request;
     var kind = classify(req.method, req.url, req.mode, self.location.origin);
     if (kind === "page") {
-      e.respondWith(fetch(req).catch(function () { return caches.match("/offline.html"); }));
+      e.respondWith(fetch(req).catch(function () {
+        // a fresh copy: browsers refuse a cached response marked "redirected" for a page load
+        return caches.match("/offline").then(function (r) {
+          return r ? r.text().then(function (body) { return new Response(body, { status: 503, headers: { "content-type": "text/html; charset=utf-8" } }); }) : Response.error();
+        });
+      }));
     } else if (kind === "shell") {
       e.respondWith(fetch(req).then(function (res) {
         if (res && res.ok && res.type === "basic") {

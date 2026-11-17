@@ -125,9 +125,11 @@ for (const u of ["/", "/today", "/members", "/members/tips/john", "/members/bill
 assert.equal(c("/phone.css", "no-cors", "POST"), "pass");
 assert.equal(SW.classify("GET", "https://zwdpsereqicvzbtfrrnd.supabase.co/auth/v1/user", "cors", O), "pass");
 assert.equal(c("/odds.js?member=1"), "pass");
-assert.ok(SW.SHELL.every((u) => u === "/offline.html" || SW.classify("GET", O + u, "no-cors", O) === "shell"), "precache list is the offline page plus public static files only");
+assert.ok(SW.SHELL.every((u) => u === "/offline" || SW.classify("GET", O + u, "no-cors", O) === "shell"), "precache list is the offline page plus public static files only");
 const swSrc = read("sw.js");
 assert.ok(!/cache\.put\(|c\.put\(req/.test(swSrc.split('kind === "page"')[1].split('kind === "shell"')[0]), "pages are never cached");
+
+assert.ok(SW.SHELL.includes("/offline") && !SW.SHELL.includes("/offline.html"), "precache the un-redirected offline URL");
 
 // ---------------------------------------------------------------- manifest + icons
 const man = JSON.parse(read("site.webmanifest"));
