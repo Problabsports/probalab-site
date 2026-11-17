@@ -1,7 +1,7 @@
 // Shared track-record pages for every sport ProbaLab covers.
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
-import { getFeed, gamesOf, shell, html, esc, chip, sportName, signupMain, ORIGIN } from "./site.js";
+import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
 
 export const EPL_LIGHTS_FROM = "2026-10-23T23:42:00Z";
 
@@ -613,7 +613,6 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   ${trustStrip()}
   ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
-  ${signupMain("results")}
   <section class="panel" id="picks">
     <div class="toolbar results-toolbar">
       <h2 class="grow">${esc(listTitle)} · ${esc(sportLabel)}</h2>
@@ -718,7 +717,7 @@ export function renderLightsPage() {
       <div><span>${chip("ORANGE")}</span><p>A lean, 55 to 65%.</p></div>
       <div><span>${chip("RED")}</span><p>Under 55%. Close to a coin flip.</p></div>
     </div>
-    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price (with a cap on how large that gap can be). If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
+    <p>Green, orange and red are about how likely the model thinks the pick is. Super is different: an NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market's no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price. If key players are listed as uncertain, a value pick is held back: it keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. The NFL and NHL use the same 65 / 55 confidence scale and do not have a Super flag.</p>
     <p>In a 2025–26 test of 162 Super games, the picks won 63% and beat the closing price by about +0.7%. Staking return was about break-even.</p>
   </section>
 

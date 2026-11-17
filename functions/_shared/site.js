@@ -354,6 +354,11 @@ ${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" hr
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/page.css">
 <link rel="stylesheet" href="/site-nav.css">
+<link rel="stylesheet" href="/phone.css">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ProbaLab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://challenges.cloudflare.com">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, "\\u003c")}</script>` : ""}
@@ -380,6 +385,8 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 });
 </script>
 <script src="/site-nav.js"></script>
+<script src="/phone-core.js"></script>
+<script src="/phone.js"></script>
 <script src="/odds.js"></script>
 <script src="/injury-warning.js"></script>
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57d222ff2aaf4fd39b6d82524fe356ca"}'></script><!-- End Cloudflare Web Analytics -->

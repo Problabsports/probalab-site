@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07080f">
+<title>Offline | ProbaLab</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #07080f; color: #e8ecf8;
+    font: 16px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background-image: linear-gradient(rgba(25,227,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(25,227,255,.035) 1px, transparent 1px);
+    background-size: 32px 32px; }
+  main { max-width: 360px; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  img { border-radius: 18px; box-shadow: 0 0 24px rgba(25,227,255,.25); }
+  h1 { margin: 0; font: 700 24px/1.15 "Chakra Petch", "Arial Narrow", system-ui, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 0; color: #8b93b0; }
+  button { min-height: 48px; padding: 0 22px; border: 0; border-radius: 14px; background: #19e3ff; color: #07080f;
+    font: 700 14px "Chakra Petch", system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/icon-192.png" width="88" height="88" alt="ProbaLab">
+  <h1>You're offline</h1>
+  <p>ProbaLab needs a connection to show live predictions and results. Check your signal, then try again.</p>
+  <button type="button" onclick="location.reload()">Try again</button>
+</main>
+</body>
+</html>

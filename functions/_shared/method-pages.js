@@ -65,7 +65,7 @@ export function renderHowItWorksPage() {
       <div><span>${chip("ORANGE")}</span><p>A lean: 55–65% in the NBA, NFL and NHL; 45–55% in football; 60–70% in tennis.</p></div>
       <div><span>${chip("RED")}</span><p>Below that. In a two-way sport this is close to a coin flip; in tennis a red light is a genuinely tight match.</p></div>
     </div>
-    <p>Super is different. An NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price (with a cap on how large that gap can be).</p>
+    <p>Super is different. An NBA pick only gets Super when the model is at least 60% on the side, that chance is at least 3 points above the sharp market’s no-margin price, and the best Australian bookmaker price is at least 3% better than our fair price. Best value is an NBA pick where the bookmaker's price beats our fair price.</p>
     <p>If key players are listed as uncertain, a value pick is held back. It keeps its normal confidence light — so a 63% pick stays orange — and we add a note that it would have been Super except for those injuries. We do not promote a held pick to Super, because the Super test knew the real line-ups.</p>
   </section>
 
