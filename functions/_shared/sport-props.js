@@ -2,7 +2,8 @@
 // No tips, no units, no edge, no fair price, no model chance.
 //
 // Data: Supabase public.tips_page_snapshot id "nfl-props" / "nhl-props", uploaded by the mini PC jobs
-// (ClosingLine\nfl_props, \nhl_props: schema "props-board-v1"). Read here on the server with the service key.
+// (ClosingLine\nfl_props, \nhl_props: schema "props-board-v1") through the members-auth-admin edge function
+// (action upload_props; the mini holds no service-role key). Read here on the server with the site's own key.
 //   * a fresh row (< 36 h) is the real board, even when it has no games yet (then the empty message shows);
 //   * no row at all (job not set up) -> the members-only sample fixture /data/<sport>_props/board.json, marked sample.
 //
