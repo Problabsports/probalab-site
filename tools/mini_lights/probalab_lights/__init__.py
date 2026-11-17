@@ -6,7 +6,9 @@
     LIGHTS.game_light("nhl", 0.62)     -> "ORANGE"
     LIGHTS.shown_light("nba", "GREEN", 0.63) -> "ORANGE"   (same rule as the site: held value keeps its cut-off light)
     LIGHTS.shown_light("nba", "SUPER", 0.77) -> "GREEN"    (green first; LIGHTS.best_value_tag(...) -> True)
-    fix_discord_text(text)             -> text with any old green+star Best value marker replaced by 🟣
+    LIGHTS.discord_marker("nba", "SUPER", 0.77) -> "🟢 (Best value)"   (green first; 0.61 -> "🟣 Best value")
+    fix_discord_text(text)             -> old green+star Best value marker replaced by 🟣; a Best value line whose
+                                          chance is in the green range becomes "🟢 (Best value)"; never "SUPER"
 
 Mirrors lights-core.mjs on the site; the site's tests run parity.py against this module so they cannot drift.
 Standard library only. Never raises from fix_discord_text / save_payload (Discord posts must not fail because of it).
@@ -23,6 +25,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DEFAULT_PATH = HERE / "lights.json"
 _ALIASES = {"SUPER_GREEN": "SUPER", "SUPERGREEN": "SUPER", "BEST_VALUE": "SUPER", "BESTVALUE": "SUPER"}
+# Discord text helpers (fix_discord_text): a chance is an unsigned whole or decimal %; Best value markers.
+_CHANCE = re.compile(r"(?<![+\-\u2212\d.])(\d{1,3}(?:\.\d+)?)\s?%")
+_SUPER_WORD = re.compile(r"\bSUPER(?:[ _-]?GREEN)?\b")
+_BV_WORD = re.compile(r"\bbest value\b", re.I)
+_PURPLE_TAG = re.compile("\U0001F7E3(?:\\s*Best value)?")
 DASH = "–"
 
 
@@ -130,11 +137,12 @@ class Lights:
             return self.game_light(sport, n)
         return k
 
-    def best_value_tag(self, sport, feed_light, p) -> bool:
-        """Same as bestValueTag in lights-core.mjs: feed SUPER, in a Best value sport, at min_p or more (shown %).
-        True for the Best value light and for a green pick that also beats our fair price."""
+    def best_value_tag(self, sport, feed_light, p, feed_flag=False) -> bool:
+        """Same as bestValueTag in lights-core.mjs: feed SUPER (or the newer feed's best_value: true flag), in a Best
+        value sport, at min_p or more (shown %). True for the Best value light and for a green pick that also beats
+        our fair price."""
         v = shown_pct(p)
-        if self.norm(feed_light) != "SUPER" or v is None:
+        if (self.norm(feed_light) != "SUPER" and feed_flag is not True) or v is None:
             return False
         return str(sport or "").lower() in self.best_value["sports"] and v >= _pct(self.best_value["min_p"])
 
@@ -155,13 +163,56 @@ class Lights:
     def legacy_best_value(self):
         return list(self.data.get("discord", {}).get("legacy_best_value") or [])
 
+    def discord_marker(self, sport, feed_light, p, feed_flag=False) -> str:
+        """The light marker a Discord line uses for a game, green first (same rule as the site):
+        '🟢 (Best value)' for a green pick that also beats our fair price, '🟣 Best value' below the green range,
+        else '🟢 Green' / '🟠 Orange' / '🔴 Red' ('' when unknown)."""
+        light = self.shown_light(sport, feed_light, p)
+        if not light:
+            return ""
+        if light == "GREEN" and self.best_value_tag(sport, feed_light, p, feed_flag):
+            return f"{self.emoji('GREEN')} ({self.label('SUPER')})"
+        return self.tag(light)
+
+    def _green_cut(self, sport="nba"):
+        c = self.sport_cfg(sport)
+        return _pct(c["green_min"]) if c else None
+
+    def _line_chance(self, line: str):
+        """The one chance shown on a line ('LA Clippers 77%' -> 77), or None when there is none or more than one.
+        Signed numbers (+9.8% value, -2% vs close) are not chances."""
+        vals = {int(float(m)) for m in _CHANCE.findall(line) if 50 <= float(m) <= 100}
+        return vals.pop() if len(vals) == 1 else None
+
     def fix_discord_text(self, text: str) -> str:
-        """Best value is 🟣 in Discord: replace any old green+star marker. Nothing else changes."""
+        """Discord text, green first (lights.json):
+        * an old green+star marker is Best value (🟣);
+        * a Best value line (🟣, or the word Best value / SUPER) whose one chance is in the NBA green range becomes
+          '🟢 (Best value)': green light, Best value as a tag;
+        * the word SUPER / SUPER GREEN is never posted: it becomes 'Best value'.
+        A line with no chance, or two different chances, keeps its marker (the lights check will flag it)."""
         out = str(text or "")
         purple = self.emoji("SUPER")
         for old in sorted(self.legacy_best_value(), key=len, reverse=True):
             out = out.replace(old, purple)
-        return out
+        green, cut, word = self.emoji("GREEN"), self._green_cut("nba"), self.label("SUPER")
+        lines = []
+        for line in out.split("\n"):
+            line = _SUPER_WORD.sub(word, line)
+            v = self._line_chance(line)
+            if cut is not None and v is not None and v >= cut and (purple in line or _BV_WORD.search(line)):
+                if purple in line:
+                    line = _PURPLE_TAG.sub(f"{green} ({word})", line, count=1)
+                elif "(" + word.lower() + ")" not in line.lower():
+                    line = _BV_WORD.sub(f"{green} ({word})", line, count=1)
+                line = line.replace(f"{green} ({word}) ({word})", f"{green} ({word})")
+            lines.append(line)
+        return "\n".join(lines)
+
+    def line_best_value(self, text: str) -> bool:
+        """True when a Discord line carries the Best value tag or light (🟣, '(Best value)', 'Best value')."""
+        s = str(text or "")
+        return self.emoji("SUPER") in s or bool(_BV_WORD.search(s))
 
     def light_marker(self, text: str):
         """The light a piece of Discord text shows: (light, how) or (None, None).

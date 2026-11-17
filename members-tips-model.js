@@ -1,7 +1,28 @@
 /* Unit-only view model. Never mutates the source snapshot. */
 (function (root) {
   const number = (v) => v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v);
-  const colours = ['SUPER', 'GREEN', 'ORANGE', 'RED', 'UNRATED'];
+  // Green first (lights.json). SUPER is the internal key for Best value; it is never shown as a word.
+  const colours = ['GREEN', 'SUPER', 'ORANGE', 'RED', 'UNRATED'];
+  const SPORT_KEY = { NBA: 'nba', NFL: 'nfl', NHL: 'nhl', EPL: 'epl', CHAMP: 'championship', TENNIS: 'tennis' };
+  function lightsApi() {
+    if (root && root.PLLights) return root.PLLights;
+    try { return typeof require === 'function' ? require('./lights.js') : null; } catch (_) { return null; }
+  }
+  /** The light the desk shows for a tip, green first: a stored Best value (SUPER) tip whose chance is in the sport's
+   *  green range shows GREEN with a Best value tag (older tips were stored as SUPER at 65%+, e.g. LAL 68.7% on 7 Nov).
+   *  A newer export's best_value: true on a green tip also gets the tag. Display only: the stored light, results and
+   *  rule flags (QUALIFIES uses the stored light) are unchanged. -> { light, bestValue } */
+  function displayLight(r) {
+    const raw = String((r && r.light) || '').toUpperCase() || null;
+    const L = lightsApi();
+    const sp = SPORT_KEY[String((r && r.sport) || '').toUpperCase()];
+    const p = number(r && (r.win_pct != null ? r.win_pct : r.pick_p));
+    let light = raw;
+    if (raw === 'SUPER' && L && sp && p != null && L.bestValueSports().indexOf(sp) >= 0 && L.gameLight(sp, p) === 'GREEN') light = 'GREEN';
+    // the same Best value rule as the site (NBA only, 60%+ shown); without a chance on file a stored SUPER keeps its tag
+    const bestValue = L && sp && p != null ? L.bestValueTag(sp, raw, p, !!(r && r.best_value === true)) : raw === 'SUPER';
+    return { light, bestValue };
+  }
   const isMulti = (r) => !!(r && (r.is_multi || String(r.tag || '').toUpperCase() === 'MULTI' || String(r.market || '').toLowerCase() === 'multi'));
   const legKey = (game, selection) => (String(game || '').trim().toUpperCase() + '\0' + String(selection || '').trim().toUpperCase());
   let johnLegLights = Object.create(null);
@@ -23,7 +44,7 @@
     return !!legs.length && legs.every((l) => johnLegLights[legKey(l.game, l.selection)] === 'GREEN');
   }
   const colour = (r) => {
-    const lit = String((r && r.light) || '').toUpperCase();
+    const lit = String(displayLight(r).light || '').toUpperCase();
     if (colours.includes(lit)) return lit;
     if (isMulti(r) && allGreenLegs(r)) return 'GREEN';
     return 'UNRATED';
@@ -227,7 +248,7 @@
   function tipsterMeta(id) {
     return TIPSTERS[canonicalDeskId(id)] || TIPSTERS.john;
   }
-  const api = {number, colours, colour, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, deskRows, headline, toCsv, csvFilename, fmtUnits, fmtPct, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
+  const api = {number, colours, colour, displayLight, settled, valid, visible, visibleFor, day, date, pnl, stats, series, bindJohnDocument, tipsterMeta, deskRows, headline, toCsv, csvFilename, fmtUnits, fmtPct, TIPSTERS, comingWindow, MEMBER_DESKS, OWNER_ONLY_DESKS, OWNER_EMAILS, canonicalDeskId, isOwnerOnlyDesk, isMemberDesk, isOwnerEmail, isOwnerAccount, canViewDesk, desksFor};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   root.TipsModel=api;
 })(typeof window !== 'undefined' ? window : globalThis);

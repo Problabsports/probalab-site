@@ -985,9 +985,10 @@ const SEASONS = { 2027: "2026–27", 2026: "2025–26" };
 const LT = window.PLLights;
 function normalizeNbaGameLight(g) {
   if (!g) return g;
+  const feedFlag = g.best_value === true; // newer feed: light GREEN + best_value true
   g.best_value = false;
   if (g.pick_p == null || !g.light) return g;
-  g.best_value = LT.bestValueTag("nba", g.light, g.pick_p);
+  g.best_value = LT.bestValueTag("nba", g.light, g.pick_p, feedFlag);
   g.light = LT.shownLight("nba", g.light, g.pick_p);
   return g;
 }

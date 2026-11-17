@@ -67,9 +67,10 @@ export function gamesOf(sport, feed) {
   // tag (g.best_value), counted once in the green record; the Best value light is only for Best value picks below
   // the green range. In a guarded sport (NBA) a feed GREEN under the green cut-off keeps its cut-off light.
   for (const g of games) {
+    const feedFlag = g.best_value === true; // newer feed: light GREEN + best_value true for a 65%+ Best value pick
     g.best_value = false;
     if (g.pick_p == null || !g.light) continue;
-    g.best_value = bestValueTag(sport, g.light, g.pick_p);
+    g.best_value = bestValueTag(sport, g.light, g.pick_p, feedFlag);
     g.light = shownLight(sport, g.light, g.pick_p);
   }
   games.forEach((g) => (g.path = gamePath(g)));

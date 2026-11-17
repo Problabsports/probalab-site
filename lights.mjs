@@ -50,12 +50,13 @@ function makeLights(data) {
     return l;
   }
 
-  /** True when a game carries the Best value tag: the feed flagged it Best value (SUPER), in a Best value sport,
-   *  at min_p or more (shown %). Covers both the purple Best value light (below the green range) and a green
-   *  pick that also beats our fair price (shown GREEN + a small Best value tag, counted only as green). */
-  function bestValueTag(sport, feedLight, p) {
+  /** True when a game carries the Best value tag: the feed flagged it Best value (light SUPER, or the newer feed's
+   *  best_value: true flag, passed as feedFlag), in a Best value sport, at min_p or more (shown %). Covers both the
+   *  purple Best value light (below the green range) and a green pick that also beats our fair price (shown GREEN +
+   *  a small Best value tag, counted only as green). */
+  function bestValueTag(sport, feedLight, p, feedFlag) {
     var v = shown(p);
-    if (norm(feedLight) !== "SUPER" || v == null) return false;
+    if ((norm(feedLight) !== "SUPER" && feedFlag !== true) || v == null) return false;
     return bv.sports.indexOf(String(sport || "").toLowerCase()) >= 0 && v >= pct(bv.min_p);
   }
 

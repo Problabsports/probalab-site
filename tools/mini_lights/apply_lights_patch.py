@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Lights patch for a ProbaLab mini job: Discord and the tips check read lights.json (Best value is 🟣, not green+star).
 
+Green first (18 Nov 2026, patch v2): a 65%+ NBA Best value game is GREEN with a Best value tag, everywhere. Discord
+posts it as "🟢 (Best value)" (the rule lives in probalab_lights, so jobs patched by v1 get it by re-running --apply:
+the loader is refreshed); the members-desk export carries a best_value flag; the word SUPER is never posted.
+
 Default is a DRY RUN: it prints what would change and changes nothing. Add --apply to write.
   python apply_lights_patch.py                      job folder = the folder this patch folder sits in
   python apply_lights_patch.py --job C:\\path\\to\\results_5pm
@@ -15,6 +19,8 @@ What --apply does (only text edits listed below; each file is backed up first as
   * tips_check run_scan.py: cut-offs from lights.json (fixes EPL orange: it was 55%, the same as green) and the
     high-chance text shows the light as "🟣 Best value" / "🟢 Green"
   * results_5pm / john_desk: copies check_discord_lights.py into <job>\\scripts\\lights_check\\
+  * results_5pm / john_desk (v2): tips_page\\export_tips.py writes best_value on ProbaLab site picks and open bets,
+    so the members desk can show "Green + Best value" (the lights themselves, and the NBA rule flags, are unchanged)
 A file whose expected text is not found is left alone and reported (the job on the mini may be newer than this
 patch). Files already patched are skipped. Nothing is registered or scheduled; no keys are read or printed.
 """
@@ -76,6 +82,18 @@ def _lights():
 
 TIP_LIGHTS = {"SUPER", "GREEN"}'''
 
+EXPORT_HELPER = '''# ProbaLab lights (added by the lights patch v2): green first, a 65%+ NBA Best value pick is GREEN with a
+# best_value flag. Only adds the flag; lights and the NBA rule flags are unchanged. Never raises.
+def _pl_best_value(sport, light, p, flag=None):
+    try:
+        from probalab_lights import LIGHTS
+        return bool(LIGHTS.best_value_tag(str(sport or "").lower(), light, p, flag is True))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def probalab_site_tips('''
+
 # (relative path, [(old, new), ...]); "{H}" marks an insertion of a helper block.
 EDITS = {
     "send": ("scripts/discord_alerts/send.py", [
@@ -100,6 +118,15 @@ EDITS = {
          "    content = _lights_fix(multis.format_discord_message(multi, kind=kind))"),
         ("\n\ndef ", "\n" + DIRECT_HELPER + "\ndef "),
     ]),
+    "export_tips": ("scripts/tips_page/export_tips.py", [
+        ("\n\ndef probalab_site_tips(", "\n\n" + EXPORT_HELPER),
+        ('''                "selection": sel, "market": market, "light": light, "win_pct": round(p, 4),''',
+         '''                "selection": sel, "market": market, "light": light, "win_pct": round(p, 4),
+                "best_value": _pl_best_value(sport, g.get("light"), p, g.get("best_value")),'''),
+        ('''            row["light"] = P.norm_light(current["light"])''',
+         '''            row["light"] = P.norm_light(current["light"])
+            row["best_value"] = _pl_best_value(row.get("sport"), current.get("light"), current.get("pick_p"), current.get("best_value"))'''),
+    ]),
     "tips_check": ("scripts/tips_check/run_scan.py", [
         ('TIP_LIGHTS = {"SUPER", "GREEN"}', TIPS_IMPORT),
         ('''    return "GREEN" if p >= 0.65 else "ORANGE" if p >= 0.55 else "RED"''',
@@ -122,8 +149,8 @@ EDITS = {
     ]),
 }
 JOBS = {
-    "results_5pm": {"edits": ["send", "john_discord", "multi_discord"], "check": True},
-    "john_desk": {"edits": ["send", "john_discord", "multi_discord"], "check": True},
+    "results_5pm": {"edits": ["send", "john_discord", "multi_discord", "export_tips"], "check": True},
+    "john_desk": {"edits": ["send", "john_discord", "multi_discord", "export_tips"], "check": True},
     "nhl_value": {"edits": ["send"], "check": False},
     "tips_check": {"edits": ["tips_check"], "check": False},
 }
@@ -201,9 +228,12 @@ def main(argv=None) -> int:
                 shutil.copy2(p, p.with_name(p.name + ".bak-lights"))
                 p.write_text(new, encoding="utf-8", newline="")
     dst = job / "scripts" / "probalab_lights"
-    print(f"  copy   probalab_lights\\ (lights.json + loader) -> scripts\\probalab_lights\\")
+    print(f"  copy   probalab_lights\\ (lights.json + loader, green first) -> scripts\\probalab_lights\\")
     if a.apply:
-        shutil.copytree(HERE / "probalab_lights", dst, dirs_exist_ok=True)
+        shutil.copytree(HERE / "probalab_lights", dst, dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        if not (dst / "lights.json").is_file():
+            shutil.copy2(HERE.parents[1] / "lights.json", dst / "lights.json")
     if spec["check"]:
         print(f"  copy   check_discord_lights.py -> scripts\\lights_check\\")
         if a.apply:

@@ -29,6 +29,11 @@
   const LT = window.PLLights;
   const lightName = (l) => (l === "UNRATED" ? "Off-pick" : LT && LT.norm(l) ? LT.labelLong(l) : l);
   const chip = (l) => (l ? '<span class="chip ' + esc(l) + '">' + esc(lightName(l)) + "</span>" : "—");
+  // Green first: a 65%+ NBA Best value tip shows Green plus a small Best value tag (display only, see TipsModel.displayLight).
+  const lightCell = (r) => {
+    const d = M.displayLight(r);
+    return chip(d.light) + (d.light === "GREEN" && d.bestValue ? ' <span class="bv-tag" title="Also Best value: the price beat our fair price. Counted as green.">Best value</span>' : "");
+  };
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const dash = (v) => (v == null || v === "" ? "—" : esc(v));
   // Same rule as the live site's Important note (index.html hasNote/qbLine/nbaLine).
@@ -66,7 +71,7 @@
       $("colourFilters").innerHTML = "";
       return;
     }
-    $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+(c==='UNRATED'?'Off-pick':c)+'</button>').join('');
+    $("colourFilters").innerHTML = M.colours.map(c => '<button type="button" class="chip '+c+'" aria-pressed="'+selectedColours.has(c)+'" data-colour="'+c+'">'+esc(lightName(c))+'</button>').join('');
     document.querySelectorAll('[data-colour]').forEach(b => b.addEventListener('click', () => {
       const c=b.dataset.colour; selectedColours.has(c) ? selectedColours.delete(c) : selectedColours.add(c);
       colourControls(); renderAll();
@@ -611,7 +616,7 @@
         return "<tr><td>" + esc(dateTime(p.tipoff_utc)) + "</td>"
           + '<td class="game">' + esc(short(p.game)) + "</td>"
           + "<td>" + esc(shortSel(p.selection)) + "</td>"
-          + "<td>" + chip(p.light) + "</td>"
+          + "<td>" + lightCell(p) + "</td>"
           + "<td>" + fmtPct(p.win_pct) + "</td>"
           + "<td>" + fmtOdds(p.min_price) + "</td>"
           + "<td>" + fmtOdds(p.current_price) + "</td>"
@@ -690,7 +695,7 @@
           }
           return "<tr><td>" + esc(shortDate(r.placed_utc)) + "</td><td>" + esc(shortDate(r.kickoff_utc)) + "</td>" + gameCell(r)
             + "<td>" + esc(shortSel(r.selection)) + "</td>"
-            + "<td>" + chip(r.light) + "</td>"
+            + "<td>" + lightCell(r) + "</td>"
             + "<td>" + fmtOdds(r.price_taken) + "</td>"
             + '<td class="u">' + fmtU(r.units) + "</td>"
             + '<td class="fl">' + betFlags(r) + "</td></tr>";
@@ -742,7 +747,7 @@
           }
           return "<tr><td>" + esc(shortDate(r.kickoff_utc || r.placed_utc)) + "</td>" + gameCell(r)
             + "<td>" + esc(shortSel(r.selection)) + "</td>"
-            + "<td>" + chip(r.light) + "</td>"
+            + "<td>" + lightCell(r) + "</td>"
             + "<td>" + fmtOdds(r.price_taken) + "</td>"
             + "<td>" + esc(r.result) + "</td>"
             + '<td class="u">' + fmtU(r.units) + "</td>"
