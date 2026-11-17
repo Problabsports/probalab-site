@@ -1,19 +1,3 @@
-/* Newsletter tab ([data-nl]): scroll to the page's signup (#newsletter, else the first
-   signup form) and focus the email box. Pages without a form go to the homepage signup. */
-(function () {
-  document.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest("[data-nl]");
-    if (!a) return;
-    var f = document.getElementById("newsletter") || document.querySelector("form[data-signup]");
-    e.preventDefault();
-    if (!f) { location.href = "/#newsletter"; return; }
-    var r = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    f.scrollIntoView({ behavior: r ? "auto" : "smooth", block: "center" });
-    var i = f.querySelector("input[type=email]");
-    if (i) setTimeout(function () { i.focus({ preventScroll: true }); }, r ? 0 : 600);
-  });
-})();
-
 /* Accessible site menu drawer + Sports dropdown.
    Drawer: Esc / overlay closes; toggle aria-expanded.
    Sports: desktop hover + click + keyboard; mobile expands as a sub-list.

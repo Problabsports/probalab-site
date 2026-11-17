@@ -2,6 +2,7 @@
 import { shell, html, ORIGIN } from "./_shared/site.js";
 import { offerLineHtml, OFFER_SWAP_JS } from "./_shared/membership.js";
 import { greenSummary, labelLong } from "./_shared/lights.js";
+import { DISCORD_INVITE_URL } from "./_shared/discord.js";
 
 export function onRequestGet() {
   const title = "FAQ | ProbaLab";
@@ -39,7 +40,7 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>How do I get the newsletter?</h2>
-  <p>Use the signup form on the <a href="/#newsletter">home page</a>. Free emails go out every Tuesday and Friday with predictions and results.</p>
+  <p>The newsletter now goes out in our free <a href="${DISCORD_INVITE_URL}" target="_blank" rel="noopener noreferrer">Discord</a>, along with free picks and results. 18+ only.</p>
 </section>
 <section class="panel prose">
   <h2>Who can join Members?</h2>
