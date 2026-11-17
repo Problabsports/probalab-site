@@ -13,7 +13,7 @@ const read = (f) => fs.readFileSync(path.join(repo, f), "utf8");
 assert.equal(P.LIGHT_LABEL.SUPER, "Best value");
 assert.equal(P.lightChip("SUPER"), '<span class="chip SUPER pf-chip">Best value</span>');
 for (const f of ["phone-core.js", "phone.js", "phone.css", "sw.js", "offline.html"]) {
-  const src = read(f).replace(/var BANNED = .*\n/, ""); // the ban list itself
+  const src = read(f).replace(/var BANNED = [^\r\n]*\r?\n/, ""); // the ban list itself (CRLF-safe)
   assert.ok(!P.BANNED.test(src), `${f} has banned wording`);
 }
 

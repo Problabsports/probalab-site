@@ -40,6 +40,16 @@
     window.addEventListener("hashchange", markTab);
     window.addEventListener("popstate", markTab);
     if (location.pathname === "/today") todayPage();
+    if (location.pathname === "/props/nba") propsPage();
+    if (/^\/props\/nba\/player\//.test(location.pathname)) playerPage();
+    if (location.pathname === "/results") resultsPage();
+    // a missing logo file swaps itself for the round team-colour badge
+    document.addEventListener("error", function (e) {
+      var img = e.target;
+      if (!img || img.tagName !== "IMG" || !img.hasAttribute("data-pf-logo")) return;
+      var d = img.getAttribute("data-pf-logo").split("|"), box = img.closest(".pf-logo");
+      if (box) box.outerHTML = P.badgeHtml(d[0], d[1], d[2], parseInt(box.style.getPropertyValue("--pf-ls"), 10) || 56);
+    }, true);
     if (document.getElementById("view-game")) matchView();
     if ((location.pathname === "/" || location.pathname === "/index.html") && !window.HIDDEN_SPORT && document.getElementById("view-home")) homeScreen();
     installable();
@@ -303,6 +313,8 @@
       tag(el, P.classifyPanel(txt($("h2", el))));
     });
 
+    addLogos(view, sport);
+
     // 2. headline: our pick, chance gauge, light, and the price info we already show
     var pickName = g ? g.pick_name : ddAfter(view, "pick");
     var chance = g ? g.pick_p : P.splitPick("x " + ddAfter(view, "chance")).p;
@@ -320,7 +332,8 @@
     hero.className = "pf-mhero pf-only pf-l-" + (light || "none");
     hero.setAttribute("data-pf-tab", "overview");
     hero.innerHTML = P.gaugeSvg(chance, light, { size: 132, big: true, caption: "chance", label: "Chance of our pick" }) +
-      '<div class="pf-mhero-txt"><span class="pf-pick-lab">Our pick</span><b class="pf-mhero-pick">' + esc(pickName || "Posted soon") + "</b>" +
+      '<div class="pf-mhero-txt"><span class="pf-mhero-who">' + (pickName && pickName !== "Draw" && P.logoSrc(sport, pickName) ? P.logoHtml(sport, pickName, "", 34) : "") +
+      '<span class="pf-pick-lab">Our pick</span></span><b class="pf-mhero-pick">' + esc(pickName || "Posted soon") + "</b>" +
       '<span class="pf-mhero-chips">' + P.lightChip(light) + "</span>" +
       (priceRows.length ? '<dl class="pf-price">' + priceRows.map(function (r) { return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>"; }).join("") + "</dl>" +
         '<span class="pf-price-note">From Today\'s board' + (price.when ? " · " + esc(price.when) : "") + "</span>" : "") +
@@ -409,6 +422,201 @@
     }).catch(function () {
       pane.removeAttribute("data-loaded");
       pane.innerHTML = '<div class="panel"><h2>Player props</h2><p class="pf-muted">Props didn\'t load. <a href="/props/nba">Open the Props page</a>.</p></div>';
+    });
+  }
+
+
+  // ------------------------------------------------------------------ team logos in the match view
+  function addLogos(view, sport) {
+    if (!P.logoSrc(sport, "x")) return; // tennis: players, no logos
+    // big team boxes (NBA / NFL): logo inside the crest, abbreviation text hidden on phones
+    $$(".side-t .crest", view).forEach(function (c) {
+      if ($(".pf-crest-in", c)) return;
+      var name = txt($(".tn", c.closest(".side-t"))), abbr = txt(c);
+      c.classList.add("pf-crest");
+      c.insertAdjacentHTML("beforeend", '<span class="pf-crest-in pf-only">' + P.logoHtml(sport, name, abbr, 60) + "</span>");
+    });
+    // small code boxes in the form list
+    $$(".formlist .fr .badge", view).forEach(function (b) {
+      if ($(".pf-crest-in", b)) return;
+      var name = txt($(".t", b.closest(".fr"))), abbr = txt(b);
+      if (!name) return;
+      b.classList.add("pf-crest");
+      b.insertAdjacentHTML("beforeend", '<span class="pf-crest-in pf-only">' + P.logoHtml(sport, name, abbr, 26) + "</span>");
+    });
+    // NHL / EPL / Championship match card: logo beside each team name
+    $$("article.card .team .nm", view).forEach(function (n) {
+      var name = txt(n), prev = n.previousElementSibling;
+      if (!name || name === "Draw" || (prev && prev.classList.contains("pf-tlogo"))) return;
+      n.insertAdjacentHTML("beforebegin", '<span class="pf-tlogo pf-only">' + P.logoHtml(sport, name, "", 40) + "</span>");
+    });
+  }
+
+  // ------------------------------------------------------------------ props page (/props/nba)
+  function propsPage() {
+    root.classList.add("pf-props");
+    // 1. info box → clean stats card
+    var strip = $(".pp-strip");
+    if (strip && !$(".pf-pstats")) {
+      var info = { day: "", games: "", players: "", updated: "" }, sample = false;
+      $$("span", strip).forEach(function (sp) {
+        var t = txt(sp), m;
+        if (sp.classList.contains("pp-sample")) { sample = true; return; }
+        if ((m = t.match(/^(\d+) games?$/i))) info.games = m[1];
+        else if ((m = t.match(/^(\d+) players?$/i))) info.players = m[1];
+        else if ((m = t.match(/^Updated (.+)$/i))) info.updated = m[1];
+        else if (t) info.day = t;
+      });
+      var cell = function (k, v) { return v ? '<div class="pf-stat"><small>' + k + "</small><b>" + esc(v) + "</b></div>" : ""; };
+      strip.insertAdjacentHTML("afterend", '<div class="pf-pstats pf-only" role="status">' + (sample ? '<span class="pf-sample">Sample data</span>' : "") +
+        '<div class="pf-stat-grid">' + cell("Date", info.day) + cell("Games", info.games) + cell("Players", info.players) + cell("Updated", info.updated) + "</div></div>");
+    }
+    // 2. filters → custom pickers (Game, Team) and a chip row (Market); the real selects stay and keep driving the filters
+    var g = document.getElementById("ppGame"), t = document.getElementById("ppTeam"), m = document.getElementById("ppMarket");
+    var host = g && g.closest(".pp-selects");
+    if (host && !$(".pf-filters", host.parentNode)) {
+      var box = document.createElement("div");
+      box.className = "pf-filters pf-only";
+      host.parentNode.insertBefore(box, host);
+      if (g) box.appendChild(sheetPicker(g, "Game"));
+      if (t) box.appendChild(sheetPicker(t, "Team"));
+      if (m) box.appendChild(chipPicker(m, "Market"));
+      host.classList.add("pf-replaced");
+    }
+    // 3. lights key, one line each
+    var legend = document.getElementById("ppLegend");
+    if (legend && !$(".pf-lkey")) {
+      var rows = [], first = "";
+      Array.prototype.slice.call(legend.childNodes).forEach(function (n) {
+        if (n.nodeType === 1 && n.classList.contains("chip")) rows.push({ light: P.lightOf(n.className), label: txt(n), range: "" });
+        else if (rows.length) rows[rows.length - 1].range += n.textContent;
+        else first += n.textContent;
+      });
+      var key = document.createElement("div");
+      key.className = "pf-lkey pf-only";
+      key.innerHTML = (first.trim() ? '<p class="pf-lkey-note">' + esc(first.trim()) + "</p>" : "") + '<ul aria-label="Light key">' + rows.map(function (r) {
+        return '<li class="pf-l-' + r.light + '"><i aria-hidden="true"></i><b>' + esc(r.label) + "</b><span>" + esc(r.range.replace(/[·\s]+$/, "").trim().replace(/–/g, "-")) + "</span></li>";
+      }).join("") + "</ul>";
+      legend.parentNode.insertBefore(key, legend.nextSibling);
+      legend.classList.add("pf-replaced");
+      var sync = function () { key.hidden = legend.hidden; };
+      new MutationObserver(sync).observe(legend, { attributes: true, attributeFilter: ["hidden"] });
+      sync();
+    }
+  }
+  var labelOf = function (sel) { var o = sel.options[sel.selectedIndex]; return o ? o.textContent : ""; };
+  function choose(sel, v) {
+    if (sel.value === v) return;
+    sel.value = v;
+    sel.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  var CHEVRON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function sheetPicker(sel, label) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "pf-pick-btn";
+    b.setAttribute("aria-haspopup", "dialog");
+    var paint = function () {
+      b.innerHTML = '<span class="pf-pick-txt"><small>' + esc(label) + "</small><b>" + esc(labelOf(sel)) + "</b></span>" + CHEVRON;
+      b.classList.toggle("pf-set", sel.selectedIndex > 0);
+    };
+    paint();
+    sel.addEventListener("change", paint);
+    b.addEventListener("click", function () { openSheet(sel, label, b); });
+    return b;
+  }
+  function openSheet(sel, label, opener) {
+    var wrap = document.createElement("div");
+    wrap.className = "pf-sheet-wrap";
+    wrap.innerHTML = '<div class="pf-sheet-bg" data-pf-close></div><div class="pf-sheet" role="dialog" aria-modal="true" aria-label="' + esc(label) + '">' +
+      '<div class="pf-sheet-grab" aria-hidden="true"></div><div class="pf-sheet-head"><b>' + esc(label) + '</b><button type="button" class="pf-sheet-x" data-pf-close aria-label="Close">✕</button></div>' +
+      '<ul class="pf-sheet-list">' + Array.prototype.map.call(sel.options, function (o, i) {
+        var on = i === sel.selectedIndex;
+        return '<li><button type="button" data-v="' + esc(o.value) + '"' + (on ? ' aria-current="true"' : "") + "><span>" + esc(o.textContent) + "</span>" + (on ? '<i aria-hidden="true">✓</i>' : "") + "</button></li>";
+      }).join("") + "</ul></div>";
+    document.body.appendChild(wrap);
+    root.classList.add("pf-sheet-open");
+    var onKey = function (e) { if (e.key === "Escape") close(); };
+    var close = function () {
+      wrap.remove();
+      root.classList.remove("pf-sheet-open");
+      document.removeEventListener("keydown", onKey);
+      opener.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    wrap.addEventListener("click", function (e) {
+      if (e.target.closest("[data-pf-close]")) return close();
+      var o = e.target.closest("[data-v]");
+      if (o) { choose(sel, o.getAttribute("data-v")); close(); }
+    });
+    requestAnimationFrame(function () {
+      wrap.classList.add("pf-in");
+      var cur = $("[aria-current]", wrap) || $("[data-v]", wrap);
+      if (cur) { cur.focus({ preventScroll: true }); cur.scrollIntoView({ block: "nearest" }); }
+    });
+  }
+  function chipPicker(sel, label) {
+    var box = document.createElement("div");
+    box.className = "pf-chipset";
+    box.setAttribute("role", "group");
+    box.setAttribute("aria-label", label);
+    var paint = function () {
+      box.innerHTML = '<small class="pf-chipset-lab">' + esc(label) + '</small><div class="pf-chiprow">' + Array.prototype.map.call(sel.options, function (o, i) {
+        return '<button type="button" data-v="' + esc(o.value) + '" aria-pressed="' + (i === sel.selectedIndex) + '">' + esc(o.value ? o.textContent : "All") + "</button>";
+      }).join("") + "</div>";
+    };
+    paint();
+    sel.addEventListener("change", paint);
+    box.addEventListener("click", function (e) { var o = e.target.closest("[data-v]"); if (o) choose(sel, o.getAttribute("data-v")); });
+    return box;
+  }
+
+  // ------------------------------------------------------------------ player page chart legend
+  function playerPage() {
+    var run = function () {
+      $$("figure.bc > figcaption:not(.pf-replaced)").forEach(function (fc) {
+        var m = txt(fc).match(/^(.+?), last (\d+) games?\. Dashed line: (.+?) \(([-\d.]+)\)/i);
+        if (!m) return;
+        var lineLab = /line/i.test(m[3]) ? "Line" : m[3].charAt(0).toUpperCase() + m[3].slice(1);
+        fc.classList.add("pf-replaced");
+        fc.insertAdjacentHTML("afterend", '<div class="pf-bcl pf-only"><b class="pf-bcl-t">' + esc(m[1]) + " – last " + esc(m[2]) + " games</b>" +
+          '<span class="pf-bcl-keys"><span><i class="pf-sq pf-sq-over" aria-hidden="true"></i>Over</span><span><i class="pf-sq pf-sq-under" aria-hidden="true"></i>Under</span>' +
+          '<span><i class="pf-dash" aria-hidden="true"></i>' + esc(lineLab) + " " + esc(m[4]) + "</span></span></div>");
+      });
+    };
+    run();
+    var main = $("main");
+    if (main) new MutationObserver(debounce(run, 50)).observe(main, { childList: true, subtree: true }); // members view re-renders the page body
+  }
+
+  // ------------------------------------------------------------------ results page: green record first
+  function resultsPage() {
+    var main = $("main.wrap");
+    if (!main || $(".pf-rtop", main)) return;
+    root.classList.add("pf-results");
+    var lead = $(".green-lead", main), hero = lead && $(".record-hero", lead), h1 = $(":scope > h1", main);
+    if (hero && h1) {
+      var top = document.createElement("section");
+      top.className = "pf-rtop pf-only";
+      top.innerHTML = '<p class="pf-rtop-lab"><i aria-hidden="true"></i>Green record · every sport</p>';
+      top.appendChild(hero.cloneNode(true));
+      h1.parentNode.insertBefore(top, h1.nextSibling);
+    }
+    var seenIntro = false;
+    Array.prototype.slice.call(main.children).forEach(function (el) {
+      var o = 9;
+      if (el.matches("nav.crumbs")) o = 0;
+      else if (el.matches("p.eyebrow")) o = 1;
+      else if (el.matches("h1")) o = 2;
+      else if (el.matches(".pf-rtop")) o = 3;
+      else if (el.id === "growth") o = 4;
+      else if (el.matches(".record-grid")) o = 5;
+      else if (el.matches("p:not(.note)") && !seenIntro) { o = 6; seenIntro = true; }
+      else if (el.matches(".green-lead")) o = 7;
+      else if (el.matches(".trust-strip")) o = 8;
+      else if (el.id === "picks") o = 10;
+      else if (el.matches("p.note")) o = 11;
+      el.setAttribute("data-pf-order", String(o));
     });
   }
 
