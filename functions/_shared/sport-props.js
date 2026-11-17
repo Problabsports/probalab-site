@@ -97,8 +97,19 @@ export function rateLight(rate) {
   return rate == null ? "" : propsLight(rate) || "";
 }
 
+/** Season light for an anytime (Yes-only) row: Yes or No by season scoring rate (same rule the settle step uses). */
+export function yesLight(row) {
+  const s = row && row.rates && row.rates.season;
+  if (!s || s.n < MIN_GAMES_FOR_LIGHT) return { light: "", side: "", rate: null };
+  const no = s.n - s.yes;
+  const side = s.yes >= no ? "Yes" : "No";
+  const rate = (side === "Yes" ? s.yes : no) / s.n;
+  return { light: rateLight(rate), side, rate };
+}
+
 /** Season hit-rate light for an O/U row: the side that cleared today's line more often, and how often. */
 export function hitLight(row) {
+  if (row && row.kind === "yes") return yesLight(row);
   const s = row && row.hits && row.hits.season;
   // no light against an "Avg line": a line made from the player's own average says nothing on its own
   if (!s || s.n < MIN_GAMES_FOR_LIGHT || (row && row.line_source === "avg")) return { light: "", side: "", rate: null };
@@ -205,10 +216,11 @@ export function propRow(sport, r, pvId = "") {
   if (r.kind === "yes") {
     const rt = r.rates || {};
     const noAu = !(r.books || []).length;
-    return `<tr class="pp-row pp-yes" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="">
+    const yl = yesLight(r);
+    return `<tr class="pp-row pp-yes lt-${yl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${yl.light}">
       ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}
       <td class="pp-formc">${formChart(r)}</td><td class="num pp-hit">—</td>${rt.l8 && rt.l8.n ? `<td class="num pp-hit"><b>${pct0(rt.l8.yes / rt.l8.n)}</b><small>${rt.l8.yes}/${rt.l8.n} last ${rt.l8.n}</small></td>` : `<td class="num pp-hit">—</td>`}${rateCell(rt.season, "yes")}
-      <td class="lt"><span class="pp-ratelab">Scored</span></td></tr>`;
+      <td class="lt">${yl.light ? `${chip(yl.light)}<span class="pp-ratelab">${yl.side}</span>` : `<span class="pp-ratelab">Scored</span>`}</td></tr>`;
   }
   const hl = hitLight(r);
   const side = hl.side || "Over";
@@ -253,7 +265,7 @@ export function renderSportBoard(sport, board, { full = false } = {}) {
     const hidden = all.length - rows.length;
     const teams = [g.away, g.home].concat(g.props.map((r) => r.team)).filter(Boolean);
     const ids = rows.map((r, i) => `${g.event_id || "g"}-${i}`);
-    const items = rows.map((r, i) => { const hl = hitLight(r); return [ids[i], itemFromSportRow(sport, r, marketLabel(sport, r.market), r.kind === "yes" ? "" : hl.light, r.kind === "yes" ? "" : hl.side)]; });
+    const items = rows.map((r, i) => { const hl = hitLight(r); return [ids[i], itemFromSportRow(sport, r, marketLabel(sport, r.market), hl.light, hl.side, g)]; });
     const cards = items.map(([id, it], i) => cardHtml(it, id, `data-team="${esc(rows[i].team || "")}" data-market="${esc(rows[i].market)}" data-light="${esc(it.light)}"`)).join("");
     return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc([...new Set(teams)].join("|"))}">
     <header class="pp-head"><h2>${teamLogo(sport, g.away, g.away_abbr)}${esc(g.away || "")} @ ${teamLogo(sport, g.home, g.home_abbr)}${esc(g.home || "")}</h2>

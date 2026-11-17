@@ -30,13 +30,15 @@ export function countHits(values, line) {
 export const rateLight = (r) => (r == null ? "" : propsLight(r) || "");
 
 /** Item from an NFL / NHL board row (props-board-v1). */
-export function itemFromSportRow(sport, r, label, light, side) {
+export function itemFromSportRow(sport, r, label, light, side, game = null) {
   return {
     sport, player: r.player, team: r.team || "", team_abbr: r.team_abbr || "", position: r.position || "",
     market: label, kind: r.kind, line: r.kind === "yes" ? null : num(r.line), light: light || "", side: side || "",
     pred: null, books: r.books || [], log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
     season: r.season || null, hits: r.hits || null, rates: r.rates || null,
     line_source: r.line_source || "book", no_au_price: !(r.books || []).length,
+    // when each price was pulled: opening = first pull with lines, closing = the last pull before the start
+    pulls: game ? { open_utc: game.open_utc || null, latest_utc: game.prices_utc || null, latest: game.price_pull || null } : null,
   };
 }
 

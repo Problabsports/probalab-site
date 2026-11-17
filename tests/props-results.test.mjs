@@ -124,7 +124,7 @@ const bk = breakdownHtml(filterRows(nba, { lights: ["GREEN"] }), { stat: "points
 for (const s of ["Points", "Rebounds", "Assists", "Threes", "Over", "Under"]) assert.ok(bk.includes(`<span class="pr-bk-k">${s}</span>`), s);
 assert.match(bk, /class="pr-bk on" data-filter="stat" data-value="points" aria-pressed="true"/);
 assert.match(bk, /data-filter="call" data-value="Over" aria-pressed="false"/);
-assert.ok(bk.includes("No settled calls"), "honest empty state for an empty stat");
+assert.ok(bk.includes("None settled"), "honest empty state for an empty stat");
 assert.ok((bk.match(/class="pr-bar"/g) || []).length === 6, "a small chart per tile");
 
 // ------------------------------------------------------------------ Game column + filter
@@ -224,7 +224,7 @@ const cb = chartBlockHtml(greenV, "cum", "Green");
 assert.ok(cb.includes("<b>8</b>") && cb.includes("4–4 · 2 void") && !cb.includes("<b>10</b>"), "settled-calls tile counts W/L only");
 const vbk = breakdownHtml(greenV);
 assert.ok(vbk.includes('data-value="points" aria-pressed="false">\n      <span class="pr-bk-k">Points</span>\n      <span class="pr-bk-v">50%</span>\n      <span class="pr-bk-r mono">4–4</span>'), "stat tile: W-L only");
-assert.match(vbk, /data-value="assists"[^>]*>\s*<span class="pr-bk-k">Assists<\/span>\s*<span class="pr-bk-v">—<\/span>\s*<span class="pr-bk-r mono">No settled calls<\/span>/, "void-only stat: honest empty state");
+assert.match(vbk, /data-value="assists"[^>]*>\s*<span class="pr-bk-k">Assists<\/span>\s*<span class="pr-bk-v">—<\/span>\s*<span class="pr-bk-r mono">None settled<\/span>/, "void-only stat: honest empty state");
 assert.equal((wlBar({ w: 1, l: 1, n: 2 }).match(/<rect/g) || []).length, 2, "bar: W and L only");
 assert.equal(listSummary(greenV, 12), "Showing <b>10</b> of 12 settled calls · <b>4–4</b> (50%) · 2 void");
 const vRow = rowHtml(vr.find((r) => r.player === "GV1"), false);
@@ -280,7 +280,7 @@ const r = await page(ctx("/props/results"));
 assert.equal(r.status, 200);
 assert.match(r.headers.get("cache-control"), /s-maxage=60/);
 const h = await r.text();
-assert.ok(h.includes("Every settled player prop call, updated daily."));
+assert.ok(h.includes("Every settled player prop, updated daily"));
 assert.ok(h.includes("Player B") && !h.includes("Open One"));
 assert.ok(h.includes('<a href="/props/results" aria-current="page">Props Results</a>'));
 assert.ok(h.includes('<script type="module" src="/props-results.js"></script>'));

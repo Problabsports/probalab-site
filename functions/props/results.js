@@ -12,8 +12,8 @@ export async function onRequestGet(ctx) {
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/props/nba">Player props</a> › <span>Results</span></nav>
   <p class="eyebrow">// Player props results · green first</p>
   <h1>Player props results</h1>
-  <p class="pr-intro">Every settled player prop call, updated daily.${updated ? ` <span class="mono small pr-updated">Updated ${esc(updated)}</span>` : ""}</p>
-  ${renderBody(results)}
+  <p class="pr-intro">Every settled player prop, updated daily: NBA calls, and NFL and NHL rows (data: the side each player's season form favoured).${updated ? ` <span class="mono small pr-updated">Updated ${esc(updated)}</span>` : ""}</p>
+  ${renderBody(results, { now: ctx.now ?? Date.now() })}
   <p class="note">For entertainment, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   ${results ? `<script type="module" src="/props-results.js"></script>` : ""}`;

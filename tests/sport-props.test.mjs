@@ -72,7 +72,7 @@ const nhlYes = boards.nhl.games[0].props.find((r) => r.kind === "yes");
 const yesHtml = propRow("nhl", nhlYes);
 assert.ok(/<b>\d+\.\d\d<\/b><small>\d+% implied<\/small>/.test(yesHtml), "Sportsbet price + implied chance");
 assert.ok(/<small>[A-Za-z0-9 ]+ · \d+%<\/small>/.test(yesHtml), "best other book + implied chance");
-assert.ok(/last \d+<\/small>/.test(yesHtml) && yesHtml.includes("Scored"), "scoring rate last 8");
+assert.ok(/last \d+<\/small>/.test(yesHtml) && (yesHtml.includes("Scored") || /class="chip (GREEN|ORANGE|RED)">[^<]+<\/span><span class="pp-ratelab">(Yes|No)</.test(yesHtml)), "scoring rate last 8; light with its Yes / No side once lit");
 assert.match(formChart(nhlYes), /<circle/);
 
 // ---- O/U: Sportsbet first, best other per side, hit-rate light on the season
