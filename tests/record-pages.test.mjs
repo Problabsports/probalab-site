@@ -42,7 +42,7 @@ const nhl = rowsFromNhl({
   market: await load("nhl-market.json"),
 });
 const nhlT = tally(nhl);
-assert.equal(nhlT.n, 129);
+assert.equal(nhlT.n, 179);
 assert.equal(nhlT.w, nhl.filter((r) => r.won).length);
 assert.ok(nhl.every((r) => r.start_utc));
 assert.equal(nhl.filter((r) => r.posted_utc).length, nhlT.posted);
