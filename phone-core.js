@@ -177,6 +177,95 @@
       "</a>";
   }
 
+  // ---------------------------------------------------------------- sport page rows (/nba, /nfl, /nhl, /epl, /championship, /tennis)
+  /** One sport-page row as plain values. Parts are read out of the server-rendered (or app-rendered) row by phone.js. */
+  function hubRowFromParts(o) {
+    var pick = splitPick(o.pickText);
+    var clean = function (t) { return String(t == null ? "" : t).replace(/\s+/g, " ").trim(); };
+    var m = splitMatch(o.matchText);
+    var res = clean(o.resultText);
+    var note = clean(o.injuryNote).replace(/^⚠️\s*/, "").replace(/…$/, "");
+    return {
+      sport: o.sport,
+      day: clean(o.dayText),
+      a: m.a, b: m.b, sep: m.sep,
+      side: resolveSide(o.side != null ? clean(o.side) : pick.side, m.a, m.b),
+      p: o.p != null ? o.p : pick.p,
+      light: lightOf(o.chipClass),
+      href: o.href || "#",
+      injury: o.injury || note ? (note || "Key players are uncertain.") : "",
+      result: res ? { won: /✓/.test(res), text: res.replace(/^[✓✕]\s*/, "") } : null,
+    };
+  }
+
+  /** Which of the two teams a pick names. The NBA / NFL boards show a code ("NY", "LAC"), the others the full name.
+      Returns the full team name, or the pick as given when it is neither (a draw, or a code we can't place). */
+  function resolveSide(side, a, b) {
+    var s = String(side || "").trim();
+    if (!s || s === a || s === b) return s;
+    var up = s.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    var score = function (name) {
+      var n = String(name || "").toUpperCase(), compact = n.replace(/[^A-Z0-9]/g, "");
+      if (!compact || !up) return 0;
+      var initials = n.split(/[^A-Z0-9]+/).filter(Boolean).map(function (w) { return w[0]; }).join("");
+      if (initials.indexOf(up) === 0) return 3;
+      if (compact.indexOf(up) === 0) return 2;
+      if (compact[0] !== up[0]) return 0;
+      for (var i = 0, j = 0; i < compact.length && j < up.length; i++) if (compact[i] === up[j]) j++;
+      return j === up.length ? 1 : compact.indexOf(up.slice(0, 2)) === 0 ? 0.5 : 0; // JAX → Jacksonville
+    };
+    var sa = score(a), sb = score(b);
+    if (sa > sb) return a;
+    if (sb > sa) return b;
+    return s;
+  }
+
+  /** Rows grouped by their day label, first-seen order (rows inside a group keep their order). */
+  function groupByDay(rows) {
+    var out = [], at = {};
+    rows.forEach(function (g) {
+      var k = g.day || "";
+      if (!(k in at)) { at[k] = out.length; out.push({ day: k, rows: [] }); }
+      out[at[k]].rows.push(g);
+    });
+    return out;
+  }
+
+  /** One compact sport-page row: logos, matchup, our pick (+ Injury watch chip), chance and light on the right.
+      The injury note itself is never shown on the row; the chip opens it in the bottom sheet. */
+  function hubRowHtml(g) {
+    var hasLogos = !!logoSrc(g.sport, "x");
+    var logos = hasLogos
+      ? '<span class="pf-hr-logos" aria-hidden="true">' + logoHtml(g.sport, g.a, "", 26) + (g.b ? logoHtml(g.sport, g.b, "", 26) : "") + "</span>"
+      : "";
+    var team = function (n) { return '<span class="pf-hr-t' + (g.side && g.side === n ? " pf-picked" : "") + '">' + esc(n) + "</span>"; };
+    var matchTxt = g.b ? g.a + (g.sep === "@" ? " @ " : " v ") + g.b : g.a;
+    var pctTxt = g.p != null && isFinite(g.p) ? L.shown(g.p) + "%" : "";
+    var aria = matchTxt + ". " + (g.side ? "Our pick " + g.side + (pctTxt ? ", " + pctTxt + " chance" : "") : "Pick posted soon") +
+      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") +
+      (g.result ? ", " + (g.result.won ? "won" : "lost") + (g.result.text ? " " + g.result.text : "") : "");
+    var sub = '<span class="pf-hr-sub">' + (g.side ? "Our pick · <b>" + esc(g.side) + "</b>" : "Pick posted soon") +
+      (g.result ? ' <span class="pf-hr-res ' + (g.result.won ? "pf-win" : "pf-loss") + '">' + (g.result.won ? "✓" : "✕") + (g.result.text ? " " + esc(g.result.text) : "") + "</span>" : "") + "</span>";
+    var inj = g.injury
+      ? '<button type="button" class="pf-injchip" data-pf-inj="' + esc(g.injury) + '" data-pf-inj-title="' + esc(matchTxt) + '" aria-haspopup="dialog">⚠️ Injury watch</button>'
+      : "";
+    return '<li class="pf-hr pf-l-' + (g.light || "none") + (hasLogos ? "" : " pf-hr-nologo") + '">' + logos +
+      '<span class="pf-hr-mid"><a class="pf-hr-link" href="' + esc(g.href) + '" aria-label="' + esc(aria) + '"><span class="pf-hr-match">' +
+      team(g.a) + (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + team(g.b) : "") + "</span></a>" +
+      sub + inj + "</span>" +
+      '<span class="pf-hr-right" aria-hidden="true">' + (pctTxt ? '<b class="pf-hr-p">' + pctTxt + "</b>" : "") + lightChip(g.light) + "</span></li>";
+  }
+
+  /** The rows of one list, with a small date header per day. skipHeader: the list already sits under that day's heading. */
+  function hubListHtml(rows, opts) {
+    opts = opts || {};
+    var groups = groupByDay(rows);
+    return groups.map(function (gr) {
+      var head = opts.skipHeader && groups.length === 1 ? "" : (gr.day ? '<p class="pf-dayhead">' + esc(gr.day) + "</p>" : "");
+      return head + '<ul class="pf-hrows">' + gr.rows.map(hubRowHtml).join("") + "</ul>";
+    }).join("");
+  }
+
   // ---------------------------------------------------------------- match view tabs
   var MATCH_TABS = [["overview", "Overview"], ["stats", "Stats / H2H"], ["form", "Form"], ["props", "Props"]];
 
@@ -428,6 +517,7 @@
     esc: esc, lightOf: lightOf, lightRank: lightRank, isGreen: isGreen, sortGreenFirst: sortGreenFirst, topGreens: topGreens,
     splitPick: splitPick, splitMatch: splitMatch, gameIdFromHref: gameIdFromHref, matchHref: matchHref, rowFromParts: rowFromParts,
     gaugeSvg: gaugeSvg, lightChip: lightChip, cardHtml: cardHtml, classifyPanel: classifyPanel,
+    hubRowFromParts: hubRowFromParts, resolveSide: resolveSide, groupByDay: groupByDay, hubRowHtml: hubRowHtml, hubListHtml: hubListHtml,
     sortProps: sortProps, propsGameMatches: propsGameMatches, propRowHtml: propRowHtml, activeTab: activeTab,
     GAME_SCALE: GAME_SCALE, PROPS_SCALE: PROPS_SCALE, TODAY_SPORTS: TODAY_SPORTS, NEXT_SOURCE: NEXT_SOURCE,
     todayCountLine: todayCountLine,

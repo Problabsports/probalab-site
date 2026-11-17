@@ -44,6 +44,15 @@
     if (location.pathname === "/props/nba") propsPage();
     if (/^\/props\/nba\/player\//.test(location.pathname)) playerPage();
     if (location.pathname === "/results") resultsPage();
+    var hub = location.pathname.match(/^\/(nba|nfl|nhl|epl|tennis)\/?$/);
+    if (hub && !window.HIDDEN_SPORT && $("main h1")) hubPage(hub[1]);
+    if (/^\/championship\/?$/.test(location.pathname) && window.HIDDEN_SPORT === "championship") appHubPage("championship");
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest(".pf-injchip");
+      if (!b) return;
+      e.preventDefault();
+      injurySheet(b);
+    });
     // a missing logo file swaps itself for the round team-colour badge
     document.addEventListener("error", function (e) {
       var img = e.target;
@@ -530,15 +539,13 @@
     b.addEventListener("click", function () { openSheet(sel, label, b); });
     return b;
   }
-  function openSheet(sel, label, opener) {
+  // the bottom sheet: one shell for pickers and for detail notes
+  function sheet(label, inner, opener, onPick) {
     var wrap = document.createElement("div");
     wrap.className = "pf-sheet-wrap";
     wrap.innerHTML = '<div class="pf-sheet-bg" data-pf-close></div><div class="pf-sheet" role="dialog" aria-modal="true" aria-label="' + esc(label) + '">' +
       '<div class="pf-sheet-grab" aria-hidden="true"></div><div class="pf-sheet-head"><b>' + esc(label) + '</b><button type="button" class="pf-sheet-x" data-pf-close aria-label="Close">✕</button></div>' +
-      '<ul class="pf-sheet-list">' + Array.prototype.map.call(sel.options, function (o, i) {
-        var on = i === sel.selectedIndex;
-        return '<li><button type="button" data-v="' + esc(o.value) + '"' + (on ? ' aria-current="true"' : "") + "><span>" + esc(o.textContent) + "</span>" + (on ? '<i aria-hidden="true">✓</i>' : "") + "</button></li>";
-      }).join("") + "</ul></div>";
+      inner + "</div>";
     document.body.appendChild(wrap);
     root.classList.add("pf-sheet-open");
     var onKey = function (e) { if (e.key === "Escape") close(); };
@@ -546,18 +553,36 @@
       wrap.remove();
       root.classList.remove("pf-sheet-open");
       document.removeEventListener("keydown", onKey);
-      opener.focus();
+      if (opener) opener.focus();
     };
     document.addEventListener("keydown", onKey);
     wrap.addEventListener("click", function (e) {
       if (e.target.closest("[data-pf-close]")) return close();
-      var o = e.target.closest("[data-v]");
-      if (o) { choose(sel, o.getAttribute("data-v")); close(); }
+      if (onPick && onPick(e)) close();
     });
     requestAnimationFrame(function () {
       wrap.classList.add("pf-in");
-      var cur = $("[aria-current]", wrap) || $("[data-v]", wrap);
-      if (cur) { cur.focus({ preventScroll: true }); cur.scrollIntoView({ block: "nearest" }); }
+      var cur = $("[aria-current]", wrap) || $("[data-v]", wrap) || $(".pf-sheet-x", wrap);
+      if (cur) { cur.focus({ preventScroll: true }); if (cur.hasAttribute("data-v")) cur.scrollIntoView({ block: "nearest" }); }
+    });
+    return wrap;
+  }
+  function injurySheet(b) {
+    var li = b.closest(".pf-hr"), link = li && $(".pf-hr-link", li);
+    sheet("⚠️ Injury watch",
+      '<div class="pf-sheet-body"><p class="pf-sheet-title">' + esc(b.getAttribute("data-pf-inj-title") || "") + "</p>" +
+      '<p class="pf-sheet-note">' + esc(b.getAttribute("data-pf-inj") || "") + "</p>" +
+      (link ? '<a class="pf-more pf-more-sm" href="' + esc(link.getAttribute("href")) + '">Match details<span aria-hidden="true">→</span></a>' : "") + "</div>", b);
+  }
+  function openSheet(sel, label, opener) {
+    sheet(label, '<ul class="pf-sheet-list">' + Array.prototype.map.call(sel.options, function (o, i) {
+      var on = i === sel.selectedIndex;
+      return '<li><button type="button" data-v="' + esc(o.value) + '"' + (on ? ' aria-current="true"' : "") + "><span>" + esc(o.textContent) + "</span>" + (on ? '<i aria-hidden="true">✓</i>' : "") + "</button></li>";
+    }).join("") + "</ul>", opener, function (e) {
+      var o = e.target.closest("[data-v]");
+      if (!o) return false;
+      choose(sel, o.getAttribute("data-v"));
+      return true;
     });
   }
   function chipPicker(sel, label) {
@@ -633,6 +658,161 @@
     });
   }
 
+
+  // ------------------------------------------------------------------ sport pages: short intro, green record first, compact rows
+  function plainText(p) {
+    var c = p.cloneNode(true);
+    $$("a", c).forEach(function (a) { a.remove(); });
+    return txt(c).replace(/[\s·]+$/, "");
+  }
+  function greenLine(sport, existing) {
+    if (existing) { var c = existing.cloneNode(true); c.classList.add("pf-hub-green"); return c; }
+    var p = document.createElement("p");
+    p.className = "record-hero green-hero pf-hub-green";
+    p.hidden = true;
+    p.innerHTML = '<a href="/results?sport=' + esc(sport) + '"></a>';
+    fetch("/api/green-record", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) {
+        var s = ((d && d.sports) || []).filter(function (x) { return x.sport === sport; })[0];
+        if (!s || s.error || !s.green) return;
+        var g = s.green;
+        $("a", p).textContent = g.n ? "Green " + g.w + "–" + (g.n - g.w) + " (" + Math.round((100 * g.w) / g.n) + "%)" : "Green record starts with the first results";
+        p.hidden = false;
+      })
+      .catch(function () {});
+    return p;
+  }
+  function readMore(p) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "pf-readmore pf-only";
+    b.setAttribute("aria-expanded", "false");
+    b.textContent = "Read more";
+    b.addEventListener("click", function () {
+      var open = p.classList.toggle("pf-open");
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      b.textContent = open ? "Show less" : "Read more";
+    });
+    p.insertAdjacentElement("afterend", b);
+    requestAnimationFrame(function () { if (p.scrollHeight <= p.clientHeight + 2) b.hidden = true; });
+    return b;
+  }
+  function linksLine(anchors) {
+    var p = document.createElement("p");
+    p.className = "pf-hublinks pf-only";
+    anchors.forEach(function (a, i) {
+      if (i) p.appendChild(document.createTextNode(" · "));
+      p.appendChild(a.cloneNode(true));
+    });
+    return p;
+  }
+
+  function hubPage(sport) {
+    root.classList.add("pf-hub");
+    var main = $("main"), h1 = $("h1", main);
+    if ($(".pf-hubtop", main)) return;
+    // 1. intro: green record first, two lines of text with Read more, then the record / teams links
+    var paras = [], el = h1.nextElementSibling;
+    while (el && el.tagName === "P" && !el.matches(".cta, .note")) { paras.push(el); el = el.nextElementSibling; }
+    var rec = paras.filter(function (p) { return p.classList.contains("record-hero"); })[0];
+    var text = paras.filter(function (p) { return p !== rec; });
+    var anchors = [];
+    text.forEach(function (p) { $$("a", p).forEach(function (a) { anchors.push(a); }); });
+    var top = document.createElement("div");
+    top.className = "pf-hubtop pf-only";
+    top.appendChild(greenLine(sport, rec));
+    var intro = document.createElement("p");
+    intro.className = "pf-intro";
+    intro.textContent = text.map(plainText).filter(Boolean).join(" ");
+    top.appendChild(intro);
+    h1.insertAdjacentElement("afterend", top);
+    readMore(intro);
+    if (anchors.length) top.appendChild(linksLine(anchors));
+    paras.forEach(function (p) { p.classList.add("pf-replaced"); });
+
+    // 2. game lists: compact rows, the date once per day
+    $$("section.panel", main).forEach(function (sec) {
+      var ul = $(":scope > ul.games", sec);
+      if (!ul || $(".pf-hublist", sec)) return;
+      var rows = $$(":scope > li", ul).map(function (li) {
+        var a = $("a", li), m = $(".m", li), mc = m ? m.cloneNode(true) : null;
+        if (mc) $$("small, br", mc).forEach(function (x) { x.remove(); });
+        var more = $(".injury-watch-more", li), chip = $(".chip", li);
+        return P.hubRowFromParts({
+          sport: sport,
+          dayText: txt($(".d", li)),
+          matchText: txt(mc),
+          pickText: txt($(".p", li)),
+          chipClass: chip ? chip.className : "",
+          href: P.matchHref(sport, a ? a.getAttribute("href") : ""),
+          injury: !!$(".injury-watch", li),
+          injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", li)),
+          resultText: txt($(".r", li)),
+        });
+      });
+      var h2 = $(":scope > h2", sec);
+      var dayPanel = !!h2 && sport !== "nfl" && !/recent results/i.test(txt(h2));
+      var single = P.groupByDay(rows).length === 1;
+      var box = document.createElement("div");
+      box.className = "pf-hublist pf-only";
+      box.innerHTML = P.hubListHtml(rows, { skipHeader: dayPanel });
+      ul.parentNode.insertBefore(box, ul);
+      ul.classList.add("pf-replaced");
+      if (dayPanel && single) h2.classList.add("pf-dayhead-h2");
+    });
+  }
+
+  // /championship: the app view (hidden-sports.js) repaints #main, so rows are rebuilt after each paint
+  function appHubPage(sport) {
+    root.classList.add("pf-hub", "pf-apphub");
+    var lede = document.getElementById("spLede");
+    if (lede && !$(".pf-hub-green", lede.parentNode)) {
+      lede.parentNode.insertBefore(greenLine(sport, null), lede);
+      lede.classList.add("pf-intro");
+      var more = readMore(lede);
+      more.insertAdjacentElement("afterend", linksLine([Object.assign(document.createElement("a"), { href: "/" + sport + "/results", textContent: "Full record →" })]));
+    }
+    var mainEl = document.getElementById("main");
+    if (!mainEl) return;
+    function ddAfterIn(card, label) {
+      var dt = $$("dl.prices dt", card).filter(function (d) { return txt(d).toLowerCase() === label; })[0];
+      return dt && dt.nextElementSibling ? txt(dt.nextElementSibling) : "";
+    }
+    var rowOf = function (card, day) {
+      var names = $$(".teams .team .nm", card).map(txt).filter(function (n) { return n && n !== "Draw"; });
+      var mark = $(".mark", card), scores = $$(".teams .team .role b", card).map(txt);
+      var chip = $(".card-top .chip", card);
+      return P.hubRowFromParts({
+        sport: sport,
+        dayText: day,
+        matchText: names.join(" v "),
+        pickText: ddAfterIn(card, "pick") + " " + ddAfterIn(card, "chance"),
+        chipClass: chip ? chip.className : "",
+        href: "#game-" + card.getAttribute("data-game"),
+        resultText: mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "",
+      });
+    };
+    var run = function () {
+      if (!mq.matches || $(":scope > .pf-hublist", mainEl)) return;
+      var groups = [], cur = null;
+      Array.prototype.slice.call(mainEl.children).forEach(function (c) {
+        if (c.classList.contains("dayhead")) { cur = { head: c, cards: [] }; groups.push(cur); return; }
+        if (c.matches("article.card[data-game]") && cur) cur.cards.push(c);
+      });
+      groups.forEach(function (g) {
+        if (!g.cards.length) return;
+        var box = document.createElement("div");
+        box.className = "pf-hublist pf-only";
+        box.innerHTML = P.hubListHtml(g.cards.map(function (c) { return rowOf(c, txt(g.head)); }), { skipHeader: true });
+        g.head.insertAdjacentElement("afterend", box);
+        g.head.classList.add("pf-dayhead-h2");
+        g.cards.forEach(function (c) { c.classList.add("pf-replaced"); });
+      });
+    };
+    new MutationObserver(debounce(run, 30)).observe(mainEl, { childList: true });
+    run();
+  }
 
   // ------------------------------------------------------------------ stacked lights keys (every page)
   function pageSport() {
