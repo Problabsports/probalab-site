@@ -7,6 +7,7 @@
 import { shell, html, esc, asHead } from "../_shared/site.js";
 import { loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
+import { propsSportNav } from "../_shared/sport-props.js";
 
 export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
@@ -49,6 +50,7 @@ export async function onRequestGet(ctx) {
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <span>Player props</span></nav>
   <p class="eyebrow">// NBA player props · Australia/Sydney</p>
   <h1>NBA player props</h1>
+  ${propsSportNav("nba")}
   <p>Every NBA game, every player: points, rebounds, assists and threes, with the line, our prediction and our chance. Strongest in green. Updated every morning before tip-off.</p>
   <p class="note">Predictions only, not betting advice.</p>
   <p class="small pp-results-link"><a href="/props/results">See props results →</a></p>

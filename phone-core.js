@@ -419,6 +419,8 @@
     ["today", "/today", "Today's games", "Every game, next 24 hours"],
     ["tips", "/members/tips/probalab", "Tips", "Members tip desk"],
     ["props", "/props/nba", "Props", "NBA player predictions"],
+    ["nflprops", "/props/nfl", "NFL props", "Prices and player form"],
+    ["nhlprops", "/props/nhl", "NHL props", "Prices and player form"],
     ["results", "/results", "Results", "Every pick, wins and losses"],
     ["tipsters", "/members", "Tipsters", "All members desks"],
     ["account", "/members/billing", "Account", "Billing and sign-in"],

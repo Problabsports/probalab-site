@@ -126,7 +126,7 @@
     var got = await sb.auth.getSession();
     var session = got && got.data && got.data.session;
     if (!session) return;
-    var r = await fetch("/api/props-nba", { headers: { authorization: "Bearer " + session.access_token }, credentials: "same-origin" });
+    var r = await fetch(boardEl.getAttribute("data-api") || "/api/props-nba", { headers: { authorization: "Bearer " + session.access_token }, credentials: "same-origin" });
     if (!r.ok) {
       if (r.status === 401 && note) note.innerHTML = '<p class="note">You are signed in, but this account is not a paying member yet.</p><div class="pp-cta pp-cta-left"><a class="btn pp-join" href="/join">Join members</a></div>';
       return;

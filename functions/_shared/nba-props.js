@@ -157,7 +157,8 @@ export function statOf(player, stat) {
   if (over == null) over = 1 - under;
   if (under == null) under = 1 - over;
   const side = over >= under ? "Over" : "Under";
-  return { avg: num(s.season_avg), line, proj, over, under, side, p: Math.max(over, under) };
+  const books = Array.isArray(s.books) ? s.books.filter((b) => b && (num(b.over) != null || num(b.under) != null)) : [];
+  return { avg: num(s.season_avg), line, proj, over, under, side, p: Math.max(over, under), books };
 }
 
 /** Players with this stat, strongest call first. Hidden statuses and players without the stat are dropped. */
@@ -287,7 +288,25 @@ const warnHtml = (p) => {
 };
 
 /** One prediction row: Player | Market | Line | Prediction | Chance | light chip, coloured left border. */
-export function predictionRow(r, { link = true, name = true } = {}) {
+/** Bookie price cells (only when the board carries prices): Sportsbet Over/Under, then the best other book per side. */
+const pr = (x) => (num(x) == null ? "—" : Number(x).toFixed(2));
+export function bookCells(books) {
+  const list = books || [];
+  const sb = list.find((b) => b.key === "sportsbet");
+  const others = list.filter((b) => b.key !== "sportsbet");
+  const best = (side) => others.reduce((a, b) => (num(b[side]) != null && (!a || b[side] > a[side]) ? b : a), null);
+  const bo = best("over"), bu = best("under");
+  const names = bo && bu && bo !== bu ? `${bo.name} · ${bu.name}` : (bo || bu) ? (bo || bu).name : "";
+  return `<td class="num pp-price pp-ou"><span><b>${pr(sb && sb.over)}</b><b>${pr(sb && sb.under)}</b></span></td>
+      <td class="num pp-price pp-ou"><span><b>${pr(bo && bo.over)}</b><b>${pr(bu && bu.under)}</b></span>${names ? `<small>${esc(names)}</small>` : ""}</td>`;
+}
+const BOOK_HEADS = `<th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>`;
+/** True when any player stat on the board carries bookie prices (the mini job adds stats.<stat>.books). */
+export function boardHasBooks(board) {
+  return sortedGames(board || { games: [] }).some((g) => (g.players || []).some((p) => STATS.some(([id]) => { const x = statOf(p, id); return x && x.books.length; })));
+}
+
+export function predictionRow(r, { link = true, name = true, books = false } = {}) {
   const s = r.s;
   const who = name
     ? `<th scope="row" class="pl">${link ? `<a class="pp-name" href="${esc(playerPath(r))}">${esc(r.player)}</a>` : `<span class="pp-name">${esc(r.player)}</span>`} <span class="pp-tm">${esc(nick(r.team))}</span>${warnHtml(r)}</th>`
@@ -297,7 +316,7 @@ export function predictionRow(r, { link = true, name = true } = {}) {
       <td class="num">${one(s.line)}</td>
       <td class="call">${s.side}</td>
       <td class="num pct">${pct(s.p)}</td>
-      <td class="lt">${chip(r.light)}</td>
+      ${books ? bookCells(s.books) : ""}<td class="lt">${chip(r.light)}</td>
     </tr>`;
 }
 
@@ -325,6 +344,7 @@ export const EMPTY_HTML = `<section class="panel pp-empty"><p>No player props on
 export function renderCards(board, { full = false } = {}) {
   const games = sortedGames(board);
   if (!games.length || !STATS.some(([id]) => hasStat(board, id))) return EMPTY_HTML;
+  const withBooks = boardHasBooks(board);
   return games.map((g) => {
     const all = gamePredictions(g);
     if (!all.length) return "";
@@ -338,7 +358,7 @@ export function renderCards(board, { full = false } = {}) {
       : "";
     return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc(teams.join("|"))}">
     <header class="pp-head"><h2>${esc(g.away || "")} @ ${esc(g.home || "")}</h2><p class="pp-when mono">${esc(startLabel(g.commence_utc || g.commence_syd))}</p></header>
-    <div class="pp-scroll"><table class="pp-table">${HEAD}<tbody class="pp-rows">${rows.map((r) => predictionRow(r)).join("")}</tbody>${locked}</table></div>
+    <div class="pp-scroll"><table class="pp-table">${withBooks ? HEAD.replace('<th scope="col" class="lt">', BOOK_HEADS + '<th scope="col" class="lt">') : HEAD}<tbody class="pp-rows">${rows.map((r) => predictionRow(r, { books: withBooks })).join("")}</tbody>${locked}</table></div>
     <p class="pp-none small" hidden>No predictions match these filters in this game.</p>
     ${gate}
   </section>`;

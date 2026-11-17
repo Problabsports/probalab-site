@@ -41,7 +41,7 @@
     window.addEventListener("hashchange", markTab);
     window.addEventListener("popstate", markTab);
     if (location.pathname === "/today") todayPage();
-    if (location.pathname === "/props/nba") propsPage();
+    if (/^\/props\/(nba|nfl|nhl)$/.test(location.pathname)) propsPage();
     if (/^\/props\/nba\/player\//.test(location.pathname)) playerPage();
     if (location.pathname === "/results") resultsPage();
     // a missing logo file swaps itself for the round team-colour badge
@@ -87,6 +87,8 @@
     members: '<circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>',
     tips: '<path d="M12 3 4 6v6c0 4.5 3.4 7.6 8 9 4.6-1.4 8-4.5 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
     tipsters: '<circle cx="9" cy="9" r="3.2"/><circle cx="17" cy="10" r="2.6"/><path d="M3 20a6 6 0 0 1 12 0M14.5 20a4.5 4.5 0 0 1 7-3.7"/>',
+    nflprops: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    nhlprops: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     account: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18M7 15h4"/>',
   };
   var icon = function (k) { return '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (ICONS[k] || "") + "</svg>"; };
@@ -499,7 +501,9 @@
     if (legend && !$(".pf-lkey[data-pf-key='props']")) {
       legend.insertAdjacentHTML("afterend", P.stackedKeyHtml(P.propsKeyRows(), {
         title: "Props scale", kind: "props",
-        sub: "Props use their own scale, because player stats swing more than match results.",
+        sub: legend.getAttribute("data-basis") === "hit"
+          ? "Lights show how often the player cleared today's line this season. Props use their own scale, because player stats swing more than match results."
+          : "Props use their own scale, because player stats swing more than match results.",
         note: "Green first, then highest chance.",
       }));
       var key = legend.nextElementSibling;

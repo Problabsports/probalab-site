@@ -110,7 +110,7 @@ assert.equal(P.activeTab("/props/nba", ""), "props");
 assert.equal(P.activeTab("/props/results", ""), "results");
 assert.equal(P.activeTab("/results", ""), "results");
 assert.equal(P.activeTab("/members/tips/john", ""), "members");
-assert.deepEqual(P.HOME_TILES.map((t) => t[2]), ["Today's games", "Tips", "Props", "Results", "Tipsters", "Account"]);
+assert.deepEqual(P.HOME_TILES.map((t) => t[2]), ["Today's games", "Tips", "Props", "NFL props", "NHL props", "Results", "Tipsters", "Account"]);
 
 // ---------------------------------------------------------------- service worker: never stores member data
 const O = "https://probalabsports.com";
