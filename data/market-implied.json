@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-17T02:17:30Z",
+  "generated_utc": "2026-11-17T02:51:17Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -79,10 +79,9 @@
       "home": "UTA",
       "away_name": "Vancouver Canucks",
       "home_name": "Utah Mammoth",
-      "start_utc": "2026-11-17T02:30:00Z",
-      "market_home": 0.7195,
-      "market_away": 0.2573,
-      "market_draw": 0.0232
+      "start_utc": "2026-11-17T02:40:00Z",
+      "market_home": 0.7431,
+      "market_away": 0.2569
     }
   ]
 }
