@@ -70,8 +70,18 @@ const LIGHT_BTN = [
   ["red", "Red", "RED"],
 ];
 
-/** availableSports: iterable of sport ids present in the current page data */
-export function renderFilterBar(filters, { basePath = "/today", availableSports = null, showSport = true, showSuper = true } = {}) {
+/** What the default (green) view holds. Best value is NBA-only, so it is named only where NBA picks can show:
+ *  the NBA pages and the all-sports board. Every other sport shows plain green picks. */
+export function greenViewLabel(sport) {
+  const s = String(sport || "all").toLowerCase();
+  return s === "nba" || s === "all" ? "Green + Best value" : "Green picks";
+}
+export function greenFilterNote(sport) {
+  return `Showing ${greenViewLabel(sport)}. Choose All lights to see every colour.`;
+}
+
+/** availableSports: iterable of sport ids present in the current page data. sport: the page's sport (else filters.sport). */
+export function renderFilterBar(filters, { basePath = "/today", availableSports = null, showSport = true, showSuper = true, sport = null } = {}) {
   const sports = ["all", ...(availableSports
     ? FILTER_SPORTS.filter((s) => availableSports.has(s) || availableSports.has(s.toUpperCase()))
     : FILTER_SPORTS)];
@@ -95,7 +105,7 @@ export function renderFilterBar(filters, { basePath = "/today", availableSports 
       : `<a class="gf-btn${c}" href="${esc(href)}">${esc(label)}</a>`;
   }).join("")}</nav>`;
   const note = filters.light === "green"
-    ? `<p class="small filter-note">Showing Green + Best value (green picks, plus NBA Super). Choose All lights to see every colour.</p>`
+    ? `<p class="small filter-note">${esc(greenFilterNote(sport || filters.sport))}</p>`
     : filters.light === "all"
     ? `<p class="small filter-note">All lights, green first.</p>`
     : "";
@@ -106,11 +116,11 @@ export function renderFilterBar(filters, { basePath = "/today", availableSports 
   </div>`;
 }
 
-export function emptyFilterMessage(filters, { basePath = "/today" } = {}) {
+export function emptyFilterMessage(filters, { basePath = "/today", sport = null } = {}) {
   const allHref = gameFilterHref(basePath, { sport: "all", light: "all" });
   const greenHref = gameFilterHref(basePath, { sport: filters.sport, light: "green" });
   return `<section class="panel filter-empty"><h2>No games match these filters</h2>
     <p>Try another sport or light colour.</p>
-    <p class="small"><a href="${esc(allHref)}">All sports · All lights</a>${filters.light !== "green" ? ` · <a href="${esc(greenHref)}">Green + Best value</a>` : ""}</p>
+    <p class="small"><a href="${esc(allHref)}">All sports · All lights</a>${filters.light !== "green" ? ` · <a href="${esc(greenHref)}">${esc(greenViewLabel(sport || filters.sport))}</a>` : ""}</p>
   </section>`;
 }

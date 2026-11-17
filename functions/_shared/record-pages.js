@@ -2,6 +2,7 @@
 // Grading rules match the existing per-sport records exactly. Light thresholds are not changed.
 // Units are not invented: the public record is wins and losses, not a staking record.
 import { getFeed, gamesOf, shell, html, esc, chip, sportName, ORIGIN } from "./site.js";
+import { greenViewLabel } from "./game-filters.js";
 import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
 export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
@@ -387,7 +388,7 @@ function filterNav(filters) {
       return on ? `<span class="on">${esc(label)}</span>` : `<a href="${esc(href)}">${esc(label)}</a>`;
     }).join("");
   const lightLinks = [
-    ["green", "Green + Best value"],
+    ["green", greenViewLabel(filters.sport)],
     ["all", "All lights"],
     ["super", labelLong("SUPER")],
     ["orange", "Orange"],
@@ -401,7 +402,7 @@ function filterNav(filters) {
     <nav class="record-sports" aria-label="Filter by sport">${sportLinks}</nav>
     <nav class="record-sports light-filters" aria-label="Filter by light">${lightLinks}</nav>
   </div>
-  <p class="small">The default list is Green + Best value. Super is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
+  <p class="small">The default list is ${greenViewLabel(filters.sport) === "Green picks" ? "green picks" : "Green + Best value. Best value is the NBA value pick — where the bookmaker price beats our fair price — not a higher-confidence green"}. Orange and red stay on the record; choose All lights to see them. The CSV always has every pick.</p>`;
 }
 
 function sportGreenCard(v) {
@@ -585,7 +586,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   const topW = gAll.w + sAll.w, topN = gAll.n + sAll.n;
   const tShown = tally(shown);
   const listTitle = filters.light === "green"
-    ? "Green + Best value"
+    ? greenViewLabel(filters.sport)
     : filters.light === "all"
       ? "Every finished pick"
       : filters.light === "super"
@@ -593,7 +594,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
       : `${filters.light[0].toUpperCase()}${filters.light.slice(1)} picks`;
   const sportLabel = filters.sport === "all" ? "all sports" : sportName(filters.sport);
   const lightNote = filters.light === "green"
-    ? "Showing Green + Best value (green picks, plus NBA Super value picks). "
+    ? `Showing ${greenViewLabel(filters.sport)}. `
     : "";
 
   const overall = allRows.length ? `<section class="panel green-lead">
