@@ -1316,6 +1316,69 @@
       "right": "Not much. Minnesota was without Anthony Edwards and Donte DiVincenzo, and Chicago was without Nic Claxton and Caleb Wilson, so both sides were short-handed.",
       "missed": "We picked Minnesota at 89%, and they lost. The model had Minnesota far ahead on team strength (92.1 to 83.3) and form (about 8.9 a game against about −10.9). Instead Minnesota shot 9 of 38 from three, and Chicago shot better overall (44 of 90 to 38 of 91).",
       "why": "The model was wrong on a high-confidence pick. A cold night from three for Minnesota and a hot one for Chicago were enough to flip it. Even an 89% chance loses about 1 in 9 times."
+    },
+    "401909985": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The 76ers beat the Pacers 131–124 at home. Philadelphia made 18 of 42 threes while Indiana made 8 of 32. Jaylen Brown scored 31 and Tyrese Maxey 27 for Philadelphia, and Pascal Siakam scored 31 for Indiana.",
+      "right": "We picked Philadelphia at 75%, and they won. The model had them in slightly better recent form (about −0.9 a game against about −3.1) and a small edge in team strength (89.7 to 89.2). They won even without Joel Embiid, and Indiana was missing Tyrese Haliburton.",
+      "missed": "The model did not expect a seven-point margin to come from the three-point line. Its team-strength gap was only 0.5 points, a close call on paper.",
+      "why": "The pick was right, and the long-range shooting did most of the work. A 75% chance still loses about 1 in 4, so a closer game would not have been a surprise."
+    },
+    "401909986": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Lakers beat the Suns 131–123 in Phoenix. Los Angeles made 29 of 36 free throws to Phoenix's 24 of 30, and 16 of 41 threes to 13 of 46. Quentin Grimes scored 22 for the Lakers, and Collin Gillespie led Phoenix with 26.",
+      "right": "We picked the Lakers at 63%, and they won. The model had them clearly stronger on team strength (96.3 to 88.6) and in better form (about 6.1 a game against about −3.7). Both teams were short-handed: Austin Reaves was out for Los Angeles and Mark Williams for Phoenix.",
+      "missed": "Nothing major. The final margin of 8 was smaller than the team-strength gap suggested, and Phoenix shot well enough at the free-throw line and from the field to stay in range.",
+      "why": "The pick was right. A 63% chance is a lean rather than a certainty, and an eight-point win is about what that kind of edge looks like."
+    },
+    "401909987": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Clippers beat the Hornets 113–105 at home. Los Angeles made 41 of 74 shots, while Charlotte made 35 of 92. Darius Garland scored 27 for the Clippers, and Coby White led Charlotte with 21.",
+      "right": "We picked the Clippers at 59%, and they won. The model had them slightly ahead on team strength (85.5 to 82.1) and form (about −3.5 a game against about −6.1). The Clippers were without Brandon Ingram and Bradley Beal, and Charlotte without Kon Knueppel, so both sides had key players out.",
+      "missed": "Charlotte took 17 of 52 threes and out-rebounded Los Angeles 46 to 37, which the model's inputs would not show. The Clippers still won on shooting efficiency and 32 assists to 23.",
+      "why": "The pick was right, but at 59% it was close to a coin flip with a small lean. Shooting accuracy decided it."
+    },
+    "401909988": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Spurs beat the Jazz 110–102 in Utah. Dylan Harper had 31 points and 9 rebounds, and Victor Wembanyama had 26 points and 10 rebounds. Utah made 17 of 40 threes and only 3 of 6 free throws, and San Antonio out-rebounded them 48 to 40.",
+      "right": "We picked San Antonio at 88%, and they won. The model had them far ahead on team strength (93.5 to 79.6) and form (about 13.1 a game against about −10.9). Utah was missing Lauri Markkanen and Jaren Jackson Jr., and San Antonio was without De'Aaron Fox.",
+      "missed": "The size of the win. The model's gap suggested a comfortable result, but Utah stayed within eight points, with Mo Bamba scoring 26 on 6 of 6 from three.",
+      "why": "The pick was right. An 88% chance still loses about 1 in 8, and Utah's hot three-point shooting made this closer than the ratings suggested."
+    },
+    "401909989": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Celtics beat the Mavericks 131–94 in Boston. Boston made 23 of 55 threes to Dallas's 14 of 41, had 34 assists to 27, and out-rebounded Dallas 52 to 38. Jayson Tatum scored 32 with 6 rebounds and 6 assists.",
+      "right": "We picked Boston at 88%, and they won by 37. The model had Boston ahead on team strength (91.8 to 84.2) and well ahead in form (about 11.0 a game against about −2.4). Dallas was without Kyrie Irving and Dereck Lively II.",
+      "missed": "Nothing. If anything the result was bigger than the team-strength gap suggested.",
+      "why": "The pick was right, with a margin well beyond the model's expectation. Boston's shooting from three and Dallas's missing players made it lopsided."
+    },
+    "401909990": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Knicks beat the Raptors 112–108 in Toronto. Karl-Anthony Towns had 28 points and 17 rebounds, Jalen Brunson had 28 points and 9 assists, and Scottie Barnes scored 30 for Toronto. New York made 23 of 28 free throws to Toronto's 11 of 19.",
+      "right": "We picked New York at 60%, and they won. The model had them in better form (about 8.0 a game against about 0.6), and Toronto was without Kawhi Leonard.",
+      "missed": "Team strength, where the model actually had Toronto slightly ahead (91.5 to 90.3). Toronto also took more shots, making 43 of 98 to New York's 38 of 87, and out-rebounded them 53 to 50. The Knicks won at the free-throw line.",
+      "why": "The pick was right, but it was a four-point game that could have gone either way. A 60% chance loses about 2 in 5 times."
+    },
+    "401909991": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Rockets beat the Wizards 147–119 in Washington. Houston made 52 of 90 shots, had 40 assists to 27, and out-rebounded Washington 56 to 35. Amen Thompson scored 26, with Kevin Durant and Tari Eason on 25 each, and Alex Sarr led Washington with 25.",
+      "right": "We picked Houston at 74%, and they won by 28. The model had them well ahead in form (about 6.3 a game against about −8.6). Washington was missing Tre Johnson and Tristan Vukcevic, and Houston was without Clint Capela.",
+      "missed": "The size of the result, and team strength, where the model had Washington marginally ahead (92.3 to 91.0). It was form that told the story here, not strength.",
+      "why": "The pick was right. The model's strength figures did not see this coming, and form was the better guide on the night."
+    },
+    "401909992": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Hawks beat the Bucks 113–106 in Milwaukee. Milwaukee made 18 of 54 threes to Atlanta's 12 of 40, but Atlanta made 25 of 34 free throws to 14 of 18. CJ McCollum and Nickeil Alexander-Walker scored 20 each for Atlanta. Rebounds were close, 55 to 53 for Atlanta.",
+      "right": "We picked Atlanta at 73%, and they won. The model had them clearly ahead on team strength (92.4 to 82.4) and form (about −0.4 a game against about −13.5). Milwaukee was without Ryan Rollins, and Atlanta without Asa Newell and Mouhamed Gueye.",
+      "missed": "The margin was smaller than the strength gap implied. Milwaukee took 54 threes and made 18, which kept the game within seven points.",
+      "why": "The pick was right. A 73% chance still loses about 1 in 4, and a seven-point win with more made free throws is a normal outcome."
+    },
+    "401909993": {
+      "updated_utc": "2026-11-17T06:13:03Z",
+      "happened": "The Thunder beat the Kings 125–103 in Sacramento. Oklahoma City made 46 of 88 shots to Sacramento's 37 of 82. Shai Gilgeous-Alexander scored 37, and Aday Mara had 16 points and 13 rebounds. Sacramento had more assists, 27 to 21.",
+      "right": "We picked Oklahoma City at 79%, and they won by 22. The model had them well ahead on team strength (89.6 to 78.9) and form (about 4.5 a game against about −11.6). They won despite missing Chet Holmgren, Jalen Williams and Cason Wallace.",
+      "missed": "Nothing big. Oklahoma City won comfortably even with three rotation players out.",
+      "why": "The pick was right. Shooting efficiency decided it, and a 79% chance still loses about 1 in 5."
     }
   }
 }
