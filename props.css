@@ -512,3 +512,16 @@ table.pr-table tr.RED { --lt: var(--red); }
   .ppv-grab { display: block; width: 40px; height: 4px; margin: 8px auto 0; border-radius: 4px; background: var(--line-hi); }
 }
 @media (prefers-reduced-motion: reduce) { .ppv, .ppv-bg { transition: none; } }
+
+/* Round 3: "Avg line" (no bookie line: season average to the nearest .5) and "No AU price" (blank price cells) */
+.pp-avgline, .ppc-avg { display: block; margin-top: 2px; font: 600 9.5px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+.ppc-avg { display: inline-block; margin: 0 0 0 4px; vertical-align: middle; }
+.pp-noau { color: var(--muted); }
+.pp-noau small { display: block; font: 10px var(--f-mono); color: var(--muted); white-space: nowrap; }
+@media (max-width: 767.98px) {
+  .ppc-noau b { color: var(--muted); }
+  .ppc-noau span { font: 600 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
+}
+.ppv-avg { display: inline-block; margin-left: 6px; font: 600 10px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange); vertical-align: middle; }
+.ppv-noau { margin: 0; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--line-hi); color: var(--muted); font-size: 13.5px; }
+.ppv-noau b { font: 700 18px var(--f-mono); margin-right: 6px; color: var(--muted); }

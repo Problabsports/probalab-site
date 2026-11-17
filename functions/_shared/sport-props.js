@@ -23,12 +23,14 @@ import { itemFromSportRow, cardHtml, pvScript } from "./prop-cards.js";
 export const SPORTS = {
   nfl: {
     name: "NFL", snapshot: "nfl-props", sample: "/data/nfl_props/board.json", start: "kick-off",
-    markets: [["player_pass_yds", "Passing yards"], ["player_rush_yds", "Rushing yards"], ["player_reception_yds", "Receiving yards"], ["player_anytime_td", "Anytime TD"]],
+    markets: [["player_pass_yds", "Passing yards"], ["player_pass_tds", "Passing TDs"], ["player_pass_completions", "Pass completions"],
+      ["player_rush_yds", "Rushing yards"], ["player_reception_yds", "Receiving yards"], ["player_receptions", "Receptions"], ["player_anytime_td", "Anytime TD"]],
     empty: "No NFL player props posted yet. Lines usually appear about a day before kick-off.",
   },
   nhl: {
     name: "NHL", snapshot: "nhl-props", sample: "/data/nhl_props/board.json", start: "puck drop",
-    markets: [["player_shots_on_goal", "Shots on goal"], ["player_goal_scorer_anytime", "Anytime goal scorer"]],
+    markets: [["player_shots_on_goal", "Shots on goal"], ["player_points", "Points"], ["player_assists", "Assists"],
+      ["player_goal_scorer_anytime", "Anytime goal scorer"], ["player_total_saves", "Goalie saves"]],
     empty: "No NHL player props posted yet. Lines usually appear about a day before puck drop.",
   },
 };
@@ -99,7 +101,8 @@ export function rateLight(rate) {
 /** Season hit-rate light for an O/U row: the side that cleared today's line more often, and how often. */
 export function hitLight(row) {
   const s = row && row.hits && row.hits.season;
-  if (!s || s.n < MIN_GAMES_FOR_LIGHT) return { light: "", side: "", rate: null };
+  // no light against an "Avg line": a line made from the player's own average says nothing on its own
+  if (!s || s.n < MIN_GAMES_FOR_LIGHT || (row && row.line_source === "avg")) return { light: "", side: "", rate: null };
   const side = s.over >= s.under ? "Over" : "Under";
   const rate = (side === "Over" ? s.over : s.under) / s.n;
   return { light: rateLight(rate), side, rate };
@@ -180,9 +183,11 @@ const rateCell = (c, side) => {
   return `<td class="num pp-hit${lt ? ` hl-${lt}` : ""}"><b>${pct0(k / c.n)}</b><small>${k}/${c.n}</small></td>`;
 };
 
+const NO_AU = `<td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
 const bookCell = (b, side) => (b && num(b[side]) != null
   ? `<td class="num pp-price"><b>${price(b[side])}</b>${side === "yes" ? `<small>${pct0(1 / b.yes)} implied</small>` : ""}</td>`
   : `<td class="num pp-price">—</td>`);
+const lineCell = (r) => `<td class="num">${lineTxt(r.line)}${r.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>`;
 const bestCell = (b, side) => (b && num(b[side]) != null
   ? `<td class="num pp-price"><b>${price(b[side])}</b><small>${esc(b.name)}${side === "yes" ? ` · ${pct0(1 / b.yes)}` : ""}</small></td>`
   : `<td class="num pp-price">—</td>`);
@@ -200,8 +205,9 @@ export function propRow(sport, r, pvId = "") {
   const split = bookSplit(r);
   if (r.kind === "yes") {
     const rt = r.rates || {};
+    const noAu = !(r.books || []).length;
     return `<tr class="pp-row pp-yes" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="">
-      ${who}${mk}<td class="num">Anytime</td>${bookCell(split.sb, "yes")}${bestCell(split.yes, "yes")}
+      ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}
       <td class="pp-formc">${formChart(r)}</td><td class="num pp-hit">—</td>${rt.l8 && rt.l8.n ? `<td class="num pp-hit"><b>${pct0(rt.l8.yes / rt.l8.n)}</b><small>${rt.l8.yes}/${rt.l8.n} last ${rt.l8.n}</small></td>` : `<td class="num pp-hit">—</td>`}${rateCell(rt.season, "yes")}
       <td class="lt"><span class="pp-ratelab">Scored</span></td></tr>`;
   }
@@ -209,10 +215,11 @@ export function propRow(sport, r, pvId = "") {
   const side = hl.side || "Over";
   const sb = split.sb;
   const two = (a, b) => `<td class="num pp-price pp-ou"><span><b>${price(a && a.over)}</b><b>${price(b && b.under)}</b></span>${a && b && a !== b ? `<small>${esc(a.name)} · ${esc(b.name)}</small>` : a ? `<small>${esc(a.name)}</small>` : ""}</td>`;
+  const noAu = !(r.books || []).length;
   return `<tr class="pp-row lt-${hl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${hl.light}">
-      ${who}${mk}<td class="num">${lineTxt(r.line)}</td>
-      <td class="num pp-price pp-ou"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
-      ${two(split.over, split.under)}
+      ${who}${mk}${lineCell(r)}
+      ${noAu ? NO_AU + NO_AU : `<td class="num pp-price pp-ou"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
+      ${two(split.over, split.under)}`}
       <td class="pp-formc">${formChart(r)}</td>${rateCell(r.hits && r.hits.l5, side)}${rateCell(r.hits && r.hits.l10, side)}${rateCell(r.hits && r.hits.season, side)}
       <td class="lt">${hl.light ? `${chip(hl.light)}<span class="pp-ratelab">${side}</span>` : `<span class="pp-ratelab">${hl.side || "—"}</span>`}</td></tr>`;
 }

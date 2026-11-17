@@ -14,7 +14,7 @@
 //              rebounds: {...}, assists: {...}, threes: {...} } }
 // Older boards with proj_pts / primary_line still render for points (see statOf).
 import { esc, chip, slug, NBA_TEAMS } from "./site.js";
-import { itemFromNbaRow, cardHtml, pvScript } from "./prop-cards.js";
+import { itemFromNbaRow, cardHtml, pvScript, nbaLogValue } from "./prop-cards.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -30,6 +30,11 @@ export const STATS = [
   ["assists", "Assists"],
   ["threes", "Threes"],
 ];
+// Data-only NBA markets: no prediction, just the line, AU prices (when posted) and form. Threes only when the board has
+// no prediction for it. Line = the bookie's (from the prices patch) or, with no AU price, the season average to the
+// nearest .5 ("Avg line"), only for a meaningful season average.
+export const DATA_STATS = [["threes", "Threes"], ["pra", "Pts + Reb + Ast"], ["pr", "Pts + Reb"], ["pa", "Pts + Ast"]];
+const DATA_MIN_AVG = { threes: 0.8, pra: 10, pr: 8, pa: 8 };
 const TZ = "Australia/Sydney";
 // Light colours, props scale: green 60%+, orange 55–59%, red under 55%.
 export const GREEN_MIN = 0.6;
@@ -241,7 +246,45 @@ export const playerPath = (p) => `/props/nba/player/${playerId(p)}`;
 const nick = (team) => String(team || "").trim().split(/\s+/).pop();
 const NBA_ABBR = Object.fromEntries(Object.entries(NBA_TEAMS).map(([a, n]) => [n.toLowerCase(), a]));
 const one = (x) => (x == null ? "—" : x.toFixed(1));
-export const MARKET_LABEL = Object.fromEntries(STATS);
+export const MARKET_LABEL = Object.fromEntries([...STATS, ...DATA_STATS]);
+const ALL_MARKETS = [...STATS.map(([id]) => id), ...DATA_STATS.map(([id]) => id).filter((id) => !STATS.some(([s]) => s === id))];
+
+/** A data-only stat for a player, or null (a stat with a prediction is shown as a prediction row instead). */
+export function dataStatOf(p, stat) {
+  if (!p || statOf(p, stat)) return null;
+  const block = p.stats && p.stats[stat];
+  const books = block && Array.isArray(block.books) ? block.books.filter((b) => b && (num(b.over) != null || num(b.under) != null)) : [];
+  const values = (Array.isArray(p.game_log) ? p.game_log : []).map((g) => nbaLogValue(g, stat)).filter((v) => v != null);
+  const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+  if (block && num(block.line) != null && books.length) {
+    return { line: num(block.line), line_source: "book", books, avg, side: "", p: null };
+  }
+  if (avg != null && avg >= (DATA_MIN_AVG[stat] ?? 1)) {
+    return { line: Math.floor(avg) + 0.5, line_source: "avg", books: [], avg, side: "", p: null };
+  }
+  return null;
+}
+
+/** Data-only rows in one game (players with a hidden status left off). */
+export function gameDataRows(g) {
+  const out = [];
+  for (const [stat] of DATA_STATS) {
+    for (const p of g.players || []) {
+      if (isHiddenStatus(p)) continue;
+      const s = dataStatOf(p, stat);
+      if (s) out.push({ ...p, stat, s, light: "" });
+    }
+  }
+  return out;
+}
+
+/** Free view for data-only rows: FREE_PER_GAME per market per game, highest season average first. */
+function dataFreeKeys(rows, n = FREE_PER_GAME) {
+  const keys = new Set(), by = {};
+  for (const r of rows) (by[r.stat] ||= []).push(r);
+  for (const rs of Object.values(by)) rs.slice().sort((a, b) => (b.s.avg ?? -1) - (a.s.avg ?? -1)).slice(0, n).forEach((r) => keys.add(predKey(r, r.stat)));
+  return keys;
+}
 const LIGHT_RANK = { GREEN: 0, ORANGE: 1, RED: 2 };
 const STAT_RANK = Object.fromEntries(STATS.map(([id], i) => [id, i]));
 /** Key for one prediction: player id + market. */
@@ -298,6 +341,7 @@ export function bookCells(books) {
   const others = list.filter((b) => b.key !== "sportsbet");
   const best = (side) => others.reduce((a, b) => (num(b[side]) != null && (!a || b[side] > a[side]) ? b : a), null);
   const bo = best("over"), bu = best("under");
+  if (!list.length) return `<td class="num pp-price pp-noau">-<small>No AU price</small></td><td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
   const names = bo && bu && bo !== bu ? `${bo.name} · ${bu.name}` : (bo || bu) ? (bo || bu).name : "";
   return `<td class="num pp-price pp-ou"><span><b>${pr(sb && sb.over)}</b><b>${pr(sb && sb.under)}</b></span></td>
       <td class="num pp-price pp-ou"><span><b>${pr(bo && bo.over)}</b><b>${pr(bu && bu.under)}</b></span>${names ? `<small>${esc(names)}</small>` : ""}</td>`;
@@ -305,7 +349,8 @@ export function bookCells(books) {
 const BOOK_HEADS = `<th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>`;
 /** True when any player stat on the board carries bookie prices (the mini job adds stats.<stat>.books). */
 export function boardHasBooks(board) {
-  return sortedGames(board || { games: [] }).some((g) => (g.players || []).some((p) => STATS.some(([id]) => { const x = statOf(p, id); return x && x.books.length; })));
+  return sortedGames(board || { games: [] }).some((g) => (g.players || []).some((p) =>
+    STATS.some(([id]) => { const x = statOf(p, id); return x && x.books.length; }) || DATA_STATS.some(([id]) => { const x = dataStatOf(p, id); return x && x.books.length; })));
 }
 
 export function predictionRow(r, { link = true, name = true, books = false } = {}) {
@@ -313,12 +358,13 @@ export function predictionRow(r, { link = true, name = true, books = false } = {
   const who = name
     ? `<th scope="row" class="pl">${link ? `<a class="pp-name" href="${esc(playerPath(r))}">${esc(r.player)}</a>` : `<span class="pp-name">${esc(r.player)}</span>`} <span class="pp-tm">${esc(nick(r.team))}</span>${warnHtml(r)}</th>`
     : "";
-  return `<tr class="pp-row lt-${r.light}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light}" data-p="${s.p.toFixed(3)}">
+  const data = s.p == null; // data-only row: no prediction, no light
+  return `<tr class="pp-row lt-${r.light || "none"}${data ? " pp-data-row" : ""}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light || ""}" data-p="${data ? "" : s.p.toFixed(3)}">
       ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
-      <td class="num">${one(s.line)}</td>
-      <td class="call">${s.side}</td>
-      <td class="num pct">${pct(s.p)}</td>
-      ${books ? bookCells(s.books) : ""}<td class="lt">${chip(r.light)}</td>
+      <td class="num">${one(s.line)}${s.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>
+      <td class="call">${data ? "—" : s.side}</td>
+      <td class="num pct">${data ? "—" : pct(s.p)}</td>
+      ${books ? bookCells(s.books) : ""}<td class="lt">${data ? "" : chip(r.light)}</td>
     </tr>`;
 }
 
@@ -345,13 +391,14 @@ export const EMPTY_HTML = `<section class="panel pp-empty"><p>No player props on
  */
 export function renderCards(board, { full = false } = {}) {
   const games = sortedGames(board);
-  if (!games.length || !STATS.some(([id]) => hasStat(board, id))) return EMPTY_HTML;
+  if (!games.length || (!STATS.some(([id]) => hasStat(board, id)) && !games.some((g) => gameDataRows(g).length))) return EMPTY_HTML;
   const withBooks = boardHasBooks(board);
   return games.map((g) => {
-    const all = gamePredictions(g);
+    const dataRows = gameDataRows(g);
+    const all = gamePredictions(g).concat(dataRows);
     if (!all.length) return "";
     const teams = gameTeams(g);
-    const keys = full ? null : freeKeys(g);
+    const keys = full ? null : new Set([...freeKeys(g), ...dataFreeKeys(dataRows)]);
     const rows = full ? all : all.filter((r) => keys.has(predKey(r, r.stat)));
     const hidden = all.length - rows.length;
     const locked = hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: Math.min(hidden, LOCKED_SHOWN) }, lockedRow).join("")}</tbody>` : "";
@@ -389,7 +436,8 @@ export function playerPredictions(p, { keys = null } = {}) {
 }
 
 /** Markets with at least one prediction on the board, in tab order. */
-export const marketsOn = (board) => STATS.filter(([id]) => hasStat(board, id));
+export const marketsOn = (board) => ALL_MARKETS.filter((id) => hasStat(board, id) || sortedGames(board).some((g) => gameDataRows(g).some((r) => r.stat === id)))
+  .map((id) => [id, MARKET_LABEL[id]]);
 
 export function teamsOf(board) {
   const set = new Set();

@@ -35,24 +35,36 @@ export function itemFromSportRow(sport, r, label, light, side) {
     market: label, kind: r.kind, line: r.kind === "yes" ? null : num(r.line), light: light || "", side: side || "",
     pred: null, books: r.books || [], log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
     season: r.season || null, hits: r.hits || null, rates: r.rates || null,
+    line_source: r.line_source || "book", no_au_price: !(r.books || []).length,
   };
+}
+
+/** One stat from an NBA game_log row; combos add up their parts (pra = points + rebounds + assists). */
+export function nbaLogValue(g, stat) {
+  const v = (k) => num(g[k]);
+  const sum = (ks) => (ks.every((k) => v(k) != null) ? ks.reduce((a, k) => a + v(k), 0) : null);
+  if (stat === "pra") return sum(["points", "rebounds", "assists"]);
+  if (stat === "pr") return sum(["points", "rebounds"]);
+  if (stat === "pa") return sum(["points", "assists"]);
+  return v(stat);
 }
 
 /** Item from an NBA board prediction row (players[] + stats.<stat>, game_log for form). */
 export function itemFromNbaRow(r, label, teamAbbr) {
   const s = r.s;
   const log = (Array.isArray(r.game_log) ? r.game_log : [])
-    .map((g) => ({ date: String(g.date || "").slice(0, 10), opp: g.opp || "", ha: g.home === true ? "H" : g.home === false ? "A" : "", v: num(g[r.stat]) }))
+    .map((g) => ({ date: String(g.date || "").slice(0, 10), opp: g.opp || "", ha: g.home === true ? "H" : g.home === false ? "A" : "", v: nbaLogValue(g, r.stat) }))
     .filter((g) => g.v != null)
     .sort((a, b) => b.date.localeCompare(a.date));
   const values = log.map((g) => g.v);
   const avg = s.avg != null ? s.avg : values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
   return {
     sport: "nba", player: r.player, team: r.team || "", team_abbr: teamAbbr || "", position: "",
-    market: label, kind: "ou", line: s.line, light: r.light || "", side: s.side,
-    pred: { side: s.side, p: s.p }, books: s.books || [], log,
+    market: label, kind: "ou", line: s.line, light: r.light || "", side: s.side || "",
+    pred: s.p != null ? { side: s.side, p: s.p } : null, books: s.books || [], log,
     season: { gp: values.length || null, avg: avg == null ? null : Math.round(avg * 10) / 10 },
     hits: values.length ? countHits(values, s.line) : null, rates: null,
+    line_source: s.line_source || "book", no_au_price: !(s.books || []).length,
   };
 }
 
@@ -91,7 +103,11 @@ function hitCells(it) {
   return h ? cell("L5", h.l5) + cell("L10", h.l10) + cell("Season", h.season) : `<span><small>Form</small><b>—</b></span>`;
 }
 
+const NO_AU_CELLS = (a, b) => `<div class="ppc-prices ppc-noau"><div><small>${a}</small><b>-</b><span>No AU price</span></div><div><small>${b}</small><b>-</b><span>No AU price</span></div></div>`;
+
 function priceCells(it) {
+  if (it.no_au_price && it.sport !== "nba") return it.kind === "yes" ? NO_AU_CELLS("Best price", "Implied chance") : NO_AU_CELLS("Over", "Under");
+  if (it.no_au_price && it.line_source === "avg") return NO_AU_CELLS("Over", "Under");
   if (it.kind === "yes") {
     const b = bestBook(it.books, "yes");
     if (!b) return `<p class="ppc-noprice">Prices appear once this market is posted.</p>`;
@@ -111,7 +127,7 @@ export function cardHtml(it, pvId, attrs) {
     : it.kind === "yes" ? `<span class="ppc-side">Anytime</span>` : "";
   return `<article class="ppc lt-${it.light || "none"}" ${attrs}>
     <header class="ppc-top"><button type="button" class="ppc-who" data-pv-open="${esc(pvId)}" aria-haspopup="dialog">${logo(it)}<span><b>${esc(it.player)}</b><small>${who}</small></span></button><span class="ppc-badge">${badge}</span></header>
-    <p class="ppc-mk">${esc(it.market)}${it.line != null ? ` <b>${lineTxt(it.line)}</b>` : ""}${it.pred ? `<span class="ppc-pred">Prediction <b>${esc(it.pred.side)}</b> · <b>${pct0(it.pred.p)}</b></span>` : ""}</p>
+    <p class="ppc-mk">${esc(it.market)}${it.line != null ? ` <b>${lineTxt(it.line)}</b>${it.line_source === "avg" ? `<small class="ppc-avg">Avg line</small>` : ""}` : ""}${it.pred ? `<span class="ppc-pred">Prediction <b>${esc(it.pred.side)}</b> · <b>${pct0(it.pred.p)}</b></span>` : ""}</p>
     ${priceCells(it)}
     <div class="ppc-form">${miniChart(it)}<div class="ppc-hits">${hitCells(it)}</div></div>
   </article>`;
