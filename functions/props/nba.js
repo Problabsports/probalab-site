@@ -4,10 +4,22 @@
 // Free view: FREE_PER_GAME players per market in each game; members get the full board via
 // /api/props-nba (props-nba.js swaps it in after the members session check).
 // No prices, no tips, no units, no projection numbers.
-import { shell, html, esc, asHead } from "../_shared/site.js";
-import { loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
+import { shell, html, esc, asHead, getFeed } from "../_shared/site.js";
+import { startLabel, loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 import { propsSportNav } from "../_shared/sport-props.js";
+
+/** "No props posted yet" with the next NBA game time, from the same feed the NBA pages use. */
+async function emptyWithNextGame(ctx) {
+  let next = null;
+  try {
+    const feed = await getFeed(ctx, "nba");
+    const now = ctx.now ?? Date.now();
+    next = (feed.games || []).filter((g) => g.status !== "post" && Date.parse(g.start_utc) > now)
+      .map((g) => g.start_utc).sort()[0] || null;
+  } catch (_) { next = null; }
+  return `<section class="panel pp-empty"><p>No NBA player props posted yet.${next ? ` Next game: <b>${esc(startLabel(next))}</b>.` : ""} Props are posted on the morning of game day.</p></section>`;
+}
 
 export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
@@ -59,14 +71,15 @@ export async function onRequestGet(ctx) {
   ${filters}
   ${st.games ? `<div id="ppMemberNote" class="pp-member-note"><p class="note">Free view shows ${FREE_PER_GAME} top players per market in each game. Members see every player.</p>${memberButtons("pp-cta-left")}</div>` : ""}
   <div id="pp-view-preds" class="pp-view"${heat ? ' role="tabpanel" aria-labelledby="pp-tab-preds"' : ""}>
-    <div id="propsBoard">${renderPanels(board, { full: false })}</div>
+    <div id="propsBoard">${st.games ? renderPanels(board, { full: false }) : await emptyWithNextGame(ctx)}</div>
     <p id="ppNone" class="note" hidden>No predictions match these filters.</p>
   </div>
   ${heat ? `<div id="pp-view-hits" class="pp-view" role="tabpanel" aria-labelledby="pp-tab-hits" hidden><div id="propsHeatmap">${heat}</div></div>` : ""}
   <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Predictions only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/props-nba.js"></script>`;
+  <script src="/props-nba.js"></script>
+  <script src="/props-cards.js"></script>`;
 
   return html(shell({
     title: "NBA Player Prop Predictions: Points, Rebounds, Assists, Threes | ProbaLab",

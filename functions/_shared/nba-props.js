@@ -13,7 +13,8 @@
 //     stats: { points:   { season_avg, line, proj, sigma, p_over, p_under },
 //              rebounds: {...}, assists: {...}, threes: {...} } }
 // Older boards with proj_pts / primary_line still render for points (see statOf).
-import { esc, chip, slug } from "./site.js";
+import { esc, chip, slug, NBA_TEAMS } from "./site.js";
+import { itemFromNbaRow, cardHtml, pvScript } from "./prop-cards.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -238,6 +239,7 @@ export function boardStats(board) {
 export const playerId = (p) => slug((p && (p.player_id != null && p.player_id !== "" ? String(p.player_id) : p.player)) || "");
 export const playerPath = (p) => `/props/nba/player/${playerId(p)}`;
 const nick = (team) => String(team || "").trim().split(/\s+/).pop();
+const NBA_ABBR = Object.fromEntries(Object.entries(NBA_TEAMS).map(([a, n]) => [n.toLowerCase(), a]));
 const one = (x) => (x == null ? "—" : x.toFixed(1));
 export const MARKET_LABEL = Object.fromEntries(STATS);
 const LIGHT_RANK = { GREEN: 0, ORANGE: 1, RED: 2 };
@@ -356,9 +358,13 @@ export function renderCards(board, { full = false } = {}) {
     const gate = hidden > 0
       ? `<div class="pp-gate"><p class="small">${hidden} more prediction${hidden === 1 ? "" : "s"} in this game.</p>${memberButtons()}</div>`
       : "";
+    // phone cards + player view data (only the rows this viewer can see)
+    const items = rows.map((r, i) => [`${g.event_id || "g"}-${i}`, itemFromNbaRow(r, MARKET_LABEL[r.stat], NBA_ABBR[String(r.team || "").toLowerCase()] || nick(r.team))]);
+    const cards = items.map(([id, it], i) => cardHtml(it, id, `data-team="${esc(rows[i].team || "")}" data-market="${rows[i].stat}" data-light="${rows[i].light}"`)).join("");
     return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc(teams.join("|"))}">
     <header class="pp-head"><h2>${esc(g.away || "")} @ ${esc(g.home || "")}</h2><p class="pp-when mono">${esc(startLabel(g.commence_utc || g.commence_syd))}</p></header>
     <div class="pp-scroll"><table class="pp-table">${withBooks ? HEAD.replace('<th scope="col" class="lt">', BOOK_HEADS + '<th scope="col" class="lt">') : HEAD}<tbody class="pp-rows">${rows.map((r) => predictionRow(r, { books: withBooks })).join("")}</tbody>${locked}</table></div>
+    <div class="ppc-list">${cards}</div>${pvScript(g.event_id || "g", items)}
     <p class="pp-none small" hidden>No predictions match these filters in this game.</p>
     ${gate}
   </section>`;

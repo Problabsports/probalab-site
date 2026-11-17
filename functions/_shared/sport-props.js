@@ -18,6 +18,7 @@
 import { esc, chip, slug } from "./site.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons, startLabel, updatedLabel, dayLabel, shortDay, FREE_PER_GAME } from "./nba-props.js";
+import { itemFromSportRow, cardHtml, pvScript } from "./prop-cards.js";
 
 export const SPORTS = {
   nfl: {
@@ -192,8 +193,9 @@ export const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope=
   <th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
 
 /** One row. O/U rows take two lines (Over, Under) in the price cells; hit rates show the season's stronger side. */
-export function propRow(sport, r) {
-  const who = `<th scope="row" class="pl">${teamLogo(sport, r.team, r.team_abbr)}<span class="pp-name">${esc(r.player)}</span> <span class="pp-tm">${esc(r.team_abbr || "")}${r.position ? ` · ${esc(r.position)}` : ""}</span></th>`;
+export function propRow(sport, r, pvId = "") {
+  const name = pvId ? `<button type="button" class="pp-name pp-pv-btn" data-pv-open="${esc(pvId)}" aria-haspopup="dialog">${esc(r.player)}</button>` : `<span class="pp-name">${esc(r.player)}</span>`;
+  const who = `<th scope="row" class="pl">${teamLogo(sport, r.team, r.team_abbr)}${name} <span class="pp-tm">${esc(r.team_abbr || "")}${r.position ? ` · ${esc(r.position)}` : ""}</span></th>`;
   const mk = `<td class="mk">${esc(marketLabel(sport, r.market))}</td>`;
   const split = bookSplit(r);
   if (r.kind === "yes") {
@@ -244,11 +246,15 @@ export function renderSportBoard(sport, board, { full = false } = {}) {
     const rows = full ? all : all.filter((r) => keys.has(`${r.player}|${r.market}`));
     const hidden = all.length - rows.length;
     const teams = [g.away, g.home].concat(g.props.map((r) => r.team)).filter(Boolean);
+    const ids = rows.map((r, i) => `${g.event_id || "g"}-${i}`);
+    const items = rows.map((r, i) => { const hl = hitLight(r); return [ids[i], itemFromSportRow(sport, r, marketLabel(sport, r.market), r.kind === "yes" ? "" : hl.light, r.kind === "yes" ? "" : hl.side)]; });
+    const cards = items.map(([id, it], i) => cardHtml(it, id, `data-team="${esc(rows[i].team || "")}" data-market="${esc(rows[i].market)}" data-light="${esc(it.light)}"`)).join("");
     return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc([...new Set(teams)].join("|"))}">
     <header class="pp-head"><h2>${teamLogo(sport, g.away, g.away_abbr)}${esc(g.away || "")} @ ${teamLogo(sport, g.home, g.home_abbr)}${esc(g.home || "")}</h2>
       <p class="pp-when mono">${esc(startLabel(g.commence_utc))}${g.prices_utc ? ` · prices ${esc(updatedLabel(g.prices_utc))}` : ""}</p></header>
-    <div class="pp-scroll"><table class="pp-table pp-data">${HEAD}<tbody class="pp-rows">${rows.map((r) => propRow(sport, r)).join("")}</tbody>
+    <div class="pp-scroll"><table class="pp-table pp-data">${HEAD}<tbody class="pp-rows">${rows.map((r, i) => propRow(sport, r, ids[i])).join("")}</tbody>
       ${hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: Math.min(hidden, 3) }, lockedRow).join("")}</tbody>` : ""}</table></div>
+    <div class="ppc-list">${cards}</div>${pvScript(g.event_id || "g", items)}
     <p class="pp-none small" hidden>No props match these filters in this game.</p>
     ${hidden > 0 ? `<div class="pp-gate"><p class="small">${hidden} more prop${hidden === 1 ? "" : "s"} in this game.</p>${memberButtons()}</div>` : ""}
   </section>`;

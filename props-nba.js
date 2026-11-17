@@ -59,6 +59,10 @@
         tr.hidden = !ok;
         if (ok) shown++;
       });
+      // phone cards follow the same filters (they mirror the visible table rows)
+      card.querySelectorAll(".ppc").forEach(function (c) {
+        c.hidden = !((!team || c.getAttribute("data-team") === team) && (!m || c.getAttribute("data-market") === m) && (allLights || !!lightsOn[c.getAttribute("data-light")]));
+      });
       card.hidden = filtering && shown === 0;
       var locked = card.querySelector(".pp-locked");
       if (locked) locked.hidden = filtering;

@@ -46,7 +46,8 @@ export async function sportPropsPage(ctx, sport) {
   <p class="note">Prices are from our last pull before the ${S.start} (about a day out, then about 30 minutes out). Implied chance = 1 ÷ price, bookmaker margin included. Last 8 and hit rates are this season's games. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/props-nba.js"></script>`;
+  <script src="/props-nba.js"></script>
+  <script src="/props-cards.js"></script>`;
   return html(shell({
     title: `${S.name} Player Props: Bookie Prices and Player Form | ProbaLab`,
     description: `${S.name} player props with Sportsbet and best Australian bookmaker prices, each player's last 8 games against the line and hit rates. Data only.`,
