@@ -5,7 +5,7 @@
 // /api/props-nba (props-nba.js swaps it in after the members session check).
 // No prices, no tips, no units, no projection numbers.
 import { shell, html, esc, asHead } from "../_shared/site.js";
-import { loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn } from "../_shared/nba-props.js";
+import { loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 
 export async function onRequestGet(ctx) {
@@ -37,13 +37,13 @@ export async function onRequestGet(ctx) {
   const sel = (id, label, opts) => `<label class="pp-team-filter">${label}<select id="${id}">${opts}</select></label>`;
   const filters = board && st.games ? `<div class="game-filter-bar pp-filters" role="region" aria-label="Props filters">
     <div class="game-filters pp-selects">
-      ${sel("ppGame", "Game", `<option value="">All games</option>${games.map((g) => `<option value="${esc(g.event_id || "")}">${esc(g.away || "")} @ ${esc(g.home || "")}</option>`).join("")}`)}
+      ${sel("ppGame", "Game", `<option value="">All games</option>${games.map((g) => { const day = shortDay(g.commence_utc || g.commence_syd); return `<option value="${esc(g.event_id || "")}">${day ? `${esc(day)} · ` : ""}${esc(g.away || "")} @ ${esc(g.home || "")}</option>`; }).join("")}`)}
       ${sel("ppTeam", "Team", `<option value="">All teams</option>${teams.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("")}`)}
       ${sel("ppMarket", "Market", `<option value="">All markets</option>${markets.map(([m, l]) => `<option value="${m}">${esc(l)}</option>`).join("")}`)}
     </div>
     <nav class="game-filters lights" id="ppLights" aria-label="Filter by light">${[["GREEN", "Green"], ["ORANGE", "Orange"], ["RED", "Red"]].map(([cls, label]) =>
       `<button type="button" class="gf-btn ${cls} on" data-light="${cls}" aria-pressed="true">${label}</button>`).join("")}</nav>
-    <p class="small filter-note">Green first, then highest chance. <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
+    <p class="small filter-note" id="ppLegend">Green first, then highest chance. <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
   </div>` : "";
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <span>Player props</span></nav>

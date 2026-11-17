@@ -204,14 +204,32 @@ export const startLabel = (iso) => ampm(fmt(iso, clock));
 /** "7:31 am AEDT" (Australia/Sydney short zone name: AEDT or AEST). */
 export const updatedLabel = (iso) => ampm(fmt(iso, { hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" }));
 export const dayLabel = (iso) => fmt(iso, { weekday: "long", day: "numeric", month: "long" });
+/** Sydney calendar date "YYYY-MM-DD" for an ISO string or epoch ms ("" when unparseable). */
+export const sydDate = (t) => {
+  const d = new Date(t);
+  if (!Number.isFinite(d.getTime())) return "";
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-AU", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+};
+const dayBits = (iso) => ({ wd: fmt(iso, { weekday: "short" }), d: fmt(iso, { day: "numeric" }), mon: fmt(iso, { month: "short" }) });
+/** "Wed 18 Nov" (Sydney). */
+export const shortDay = (iso) => { const b = dayBits(iso); return b.wd ? `${b.wd} ${b.d} ${b.mon}` : ""; };
+/** Strip day: "Tuesday 17 November" for one day, "Tue 17 – Wed 18 Nov" (or "Mon 30 Nov – Tue 1 Dec") across days. */
+export function daySpanLabel(isos) {
+  const ts = (isos || []).filter((x) => sydDate(x)).sort((a, b) => Date.parse(a) - Date.parse(b));
+  if (!ts.length) return "";
+  const first = ts[0], last = ts[ts.length - 1];
+  if (sydDate(first) === sydDate(last)) return dayLabel(first);
+  const a = dayBits(first), b = dayBits(last);
+  return a.mon === b.mon ? `${a.wd} ${a.d} – ${b.wd} ${b.d} ${b.mon}` : `${a.wd} ${a.d} ${a.mon} – ${b.wd} ${b.d} ${b.mon}`;
+}
 
 /** Strip counts: games on the board, and players with at least one stat (hidden statuses never counted). */
 export function boardStats(board) {
   const games = sortedGames(board);
   const ids = STATS.map(([id]) => id);
   const players = games.reduce((n, g) => n + (g.players || []).filter((p) => !isHiddenStatus(p) && ids.some((id) => statOf(p, id))).length, 0);
-  const first = games[0];
-  return { games: games.length, players, day: first ? dayLabel(first.commence_utc || first.commence_syd) : "" };
+  return { games: games.length, players, day: daySpanLabel(games.map((g) => g.commence_utc || g.commence_syd)) };
 }
 
 /// ------------------------------------------------------------------ rendering

@@ -2,8 +2,8 @@
 // Game logs here are test-only fixtures; the live snapshot has none yet, so those pieces must hide.
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { _resetBoardCache, renderCards } from "../functions/_shared/nba-props.js";
-import { hitRate, heatBand, gameLog, renderHeatmap, renderHeatmapSection, renderPlayerBody, findPlayer, publicIds, playerId, playerPath, boardHasLogs, teamAbbr } from "../functions/_shared/nba-player-props.js";
+import { _resetBoardCache, renderCards, daySpanLabel } from "../functions/_shared/nba-props.js";
+import { hitRate, heatBand, gameLog, renderHeatmap, renderHeatmapSection, renderPlayerBody, findPlayer, publicIds, playerId, playerPath, boardHasLogs, teamAbbr, gameDayWords } from "../functions/_shared/nba-player-props.js";
 import { onRequestGet as page } from "../functions/props/nba.js";
 import { onRequestGet as playerPage } from "../functions/props/nba/player/[id].js";
 import { onRequestGet as playerApi } from "../functions/api/props-nba-player.js";
@@ -195,5 +195,34 @@ assert.ok(renderPlayerBody(findPlayer(logBoard, "realname-alpha")).includes(">Se
 // members API also takes the old name id
 const pjn = await (await playerApi(ctx("https://x.test/api/props-nba-player?id=realname-bravo", {}, { authorization: "Bearer member-token" }))).json();
 assert.ok(pjn.ok && pjn.name === "Realname Bravo");
+
+// ---------------------------------------------------------------- boards spanning two days
+assert.equal(daySpanLabel(["2026-11-15T00:00:00Z"]), "Sunday 15 November", "one day: full day name");
+assert.equal(daySpanLabel(["2026-11-16T00:00:00Z", "2026-11-15T00:00:00Z"]), "Sun 15 – Mon 16 Nov", "two days, same month");
+assert.equal(daySpanLabel(["2026-11-30T00:00:00Z", "2026-12-01T00:00:00Z"]), "Mon 30 Nov – Tue 1 Dec", "two days across months");
+const twoDay = structuredClone(idBoard);
+const g2 = structuredClone(twoDay.games[0]);
+g2.event_id = "e2"; g2.commence_syd = "2026-11-16T11:00:00+11:00"; g2.commence_utc = new Date(Date.parse(g2.commence_syd)).toISOString();
+g2.players.push(P("Realname Hotel", "Denver Nuggets", { player_id: "1628999", game_log: log12.slice(0, 10) }));
+twoDay.games.push(g2); // same matchup again the next day (repeated players)
+use(twoDay);
+h = await (await page(ctx("https://x.test/props/nba"))).text();
+assert.ok(h.includes("<span>Sun 15 – Mon 16 Nov</span>"), "strip shows the day span, not one day");
+assert.ok(h.includes('<option value="e1">Sun 15 Nov · Oklahoma City Thunder @ Denver Nuggets</option>') && h.includes('<option value="e2">Mon 16 Nov · Oklahoma City Thunder @ Denver Nuggets</option>'), "game filter labels carry the day");
+assert.ok(h.includes('<p class="small filter-note" id="ppLegend">'), "lights legend has an id so the Hit rates view can hide it");
+const memHm = (await (await boardApi(ctx("https://x.test/api/props-nba", {}, { authorization: "Bearer member-token" }))).json()).heatmap;
+assert.equal((memHm.match(new RegExp(`href="/props/nba/player/${alphaId}"`, "g")) || []).length, 1, "a player in two games gets one heatmap row");
+assert.ok(memHm.includes(`<tr data-game="e1 e2" data-team="Oklahoma City Thunder" data-name="Realname Alpha">`), "the row carries both game ids");
+const pubHm = h.split('id="propsHeatmap"')[1];
+assert.equal(new Set(pubHm.match(/href="\/props\/nba\/player\/\d+"/g)).size, (pubHm.match(/href="\/props\/nba\/player\/\d+"/g) || []).length, "no repeated players in the free heatmap");
+// day wording: "Today" only for games on today's Sydney date (NOW = 15 Nov)
+assert.deepEqual([gameDayWords(twoDay.games[0], NOW).head, gameDayWords(g2, NOW).head], ["Today", "Mon 16 Nov"]);
+const hotel = await (await playerApi(ctx("https://x.test/api/props-nba-player?id=1628999", {}, { authorization: "Bearer member-token" }))).json();
+assert.ok(hotel.ok && hotel.html.includes("<h2>Mon 16 Nov</h2>") && hotel.html.includes("Predictions for Mon 16 Nov") && !/Today/.test(hotel.html + hotel.hero), "next-day game: no Today wording");
+assert.ok(hotel.hero.includes("Predictions for Mon 16 Nov, season averages and lines"));
+assert.ok(hotel.html.includes(">Line 25.5<") && hotel.html.includes("over the line"), "line wording without today");
+r = await playerPage(ctx(`https://x.test/props/nba/player/${alphaId}`, { id: alphaId }));
+h = await r.text();
+assert.ok(h.includes("<h2>Today</h2>") && h.includes("Today's predictions") && h.includes("Today's line"), "today's game keeps Today");
 
 console.log("nba-player-props tests passed");

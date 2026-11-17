@@ -9,7 +9,7 @@
 //                           points: 31, rebounds: 5, assists: 6, threes: 3 }, ...]   (whole season)
 // players[].player_id, when present, is used for the page URL; otherwise a slug of the name.
 import { esc, slug, NBA_TEAMS } from "./site.js";
-import { STATS, sortedGames, isHiddenStatus, statusLabel, statOf, startLabel, playerId, playerPath, boardFreeKeys, playerPredictions, memberButtons } from "./nba-props.js";
+import { STATS, sortedGames, isHiddenStatus, statusLabel, statOf, startLabel, sydDate, shortDay, playerId, playerPath, boardFreeKeys, playerPredictions, memberButtons } from "./nba-props.js";
 export { playerId, playerPath };
 
 export const MARKETS = STATS; // [["points","Points"], ...]
@@ -126,13 +126,21 @@ function heatCell(h, market, win) {
  */
 export function renderHeatmap(board, { ids = null } = {}) {
   if (!board || !boardHasLogs(board)) return "";
-  const players = boardPlayers(board).filter((p) => !ids || ids.has(p.id));
+  // One row per player: a player listed in two games on the board (e.g. a board spanning two days)
+  // keeps the first game's row, tagged with every game id so the Game filter still finds it.
+  const seen = new Map();
+  for (const p of boardPlayers(board)) {
+    if (ids && !ids.has(p.id)) continue;
+    const hit = seen.get(p.id);
+    if (hit) { if (p.game.event_id) hit.gameIds.push(p.game.event_id); continue; }
+    seen.set(p.id, { ...p, gameIds: p.game.event_id ? [p.game.event_id] : [] });
+  }
+  const players = [...seen.values()];
   if (!players.length) return "";
   const rows = players.map((p) => {
     const log = gameLog(p);
-    const g = p.game;
     const cells = MARKETS.map(([m]) => heatCell(hitRate(p, m, 5, log), m, 5) + heatCell(hitRate(p, m, 10, log), m, 10)).join("");
-    return `<tr data-game="${esc(g.event_id || "")}" data-team="${esc(p.team || "")}" data-name="${esc(p.player)}">
+    return `<tr data-game="${esc(p.gameIds.join(" "))}" data-team="${esc(p.team || "")}" data-name="${esc(p.player)}">
       <th scope="row" class="hm-pl"><a href="${esc(playerPath(p))}">${esc(p.player)}</a><span class="hm-tm mono">${esc(teamAbbr(p.team))}</span></th>${cells}</tr>`;
   }).join("");
   const top = MARKETS.map(([m, label]) => `<th scope="colgroup" colspan="2" class="hm-mk" data-m="${m}">${esc(label)}</th>`).join("");
@@ -148,7 +156,7 @@ export function renderHeatmapSection(board, opts = {}) {
   const sortOpts = [["name", "Player A–Z"], ["team", "Team"], ...MARKETS.flatMap(([m, l]) => [[`${m}-5`, `${l} L5 high–low`], [`${m}-10`, `${l} L10 high–low`]])];
   return `<section class="panel hm" id="hitRates" aria-labelledby="hmTitle">
     <h2 id="hmTitle">Hit rates</h2>
-    <p class="small">Share of each player's last 5 and last 10 games over today's line. Tap a name for the full game log.</p>
+    <p class="small">Share of each player's last 5 and last 10 games over their line on this board. Tap a name for the full game log.</p>
     <div class="hm-filters"><label class="pp-team-filter">Sort<select id="hmSort">${sortOpts.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("")}</select></label></div>
     <p class="hm-legend small mono" aria-hidden="true"><span class="hm-4">80%+</span><span class="hm-3">60–79%</span><span class="hm-2">40–59%</span><span class="hm-1">20–39%</span><span class="hm-0">under 20%</span><span class="hm-na">no data</span></p>
     <div class="hm-scroll" tabindex="0" role="region" aria-label="Hit rate table, scrolls sideways">${table}</div>
@@ -157,7 +165,7 @@ export function renderHeatmapSection(board, opts = {}) {
 }
 
 // ------------------------------------------------------------------ player page body
-function barChart(p, market, log) {
+function barChart(p, market, log, lineWord = "today's line") {
   const line = lineOf(p, market);
   const games = log.filter((r) => num(r[market]) != null).slice(0, CHART_GAMES).reverse(); // oldest → newest
   if (line == null || !games.length) return "";
@@ -181,18 +189,19 @@ function barChart(p, market, log) {
   const ly = y(line).toFixed(1);
   const label = MARKETS.find(([m]) => m === market)[1];
   return `<figure class="bc" data-m="${market}">
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}, last ${games.length} games against today's line of ${line}" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}, last ${games.length} games against ${lineWord} of ${line}" preserveAspectRatio="xMidYMid meet">
       ${bars}
       <line class="bc-line" x1="${padL}" x2="${W}" y1="${ly}" y2="${ly}" />
       <text class="bc-ll" x="2" y="${(Number(ly) + 4).toFixed(1)}">${line}</text>
     </svg>
-    <figcaption class="small">${esc(label)}, last ${games.length} games. Dashed line: today's line (${line}). <span class="bc-k bc-over-k">Over</span> <span class="bc-k bc-under-k">Under</span></figcaption>
+    <figcaption class="small">${esc(label)}, last ${games.length} games. Dashed line: ${lineWord} (${line}). <span class="bc-k bc-over-k">Over</span> <span class="bc-k bc-under-k">Under</span></figcaption>
   </figure>`;
 }
 
 /** Everything on a player's page under the header. Pieces without data are left out. */
-export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
+export function renderPlayerBody(p, { teamHref = null, keys = null, now = null } = {}) {
   const g = p.game || {};
+  const w = gameDayWords(g, now);
   const log = gameLog(p);
   const markets = MARKETS.filter(([m]) => lineOf(p, m) != null || seasonAvgOf(p, m) != null);
   const opp = p.team && g.home === p.team ? g.away : g.home;
@@ -200,7 +209,7 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
   const status = statusLabel(p);
   const when = startLabel(g.commence_utc || g.commence_syd);
 
-  const today = `<section class="panel pl-today"><h2>Today</h2><ul class="pl-facts">
+  const today = `<section class="panel pl-today"><h2>${w.head}</h2><ul class="pl-facts">
     ${p.team ? `<li><span>Team</span><b>${teamHref ? `<a href="${esc(teamHref)}">${esc(p.team)}</a>` : esc(p.team)}</b></li>` : ""}
     ${opp ? `<li><span>Game</span><b>${vs} ${esc(opp)}</b></li>` : ""}
     ${when ? `<li><span>Starts</span><b class="mono">${esc(when)}</b></li>` : ""}
@@ -210,13 +219,13 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
   // Today's predictions: side, chance and light per market, green first. keys = free-view
   // player|market keys for the public page (other markets are counted and left to members).
   const pred = playerPredictions(p, { keys });
-  const preds = pred.rows.length || pred.locked ? `<section class="panel pl-preds"><h2>Today's predictions</h2>
+  const preds = pred.rows.length || pred.locked ? `<section class="panel pl-preds"><h2>${w.preds}</h2>
     ${pred.html}
     ${pred.locked ? `<div class="pp-gate"><p class="small">${pred.locked} more prediction${pred.locked === 1 ? "" : "s"} for this player.</p>${memberButtons()}</div>` : ""}
   </section>` : "";
 
   const avgs = markets.length ? `<section class="panel"><h2>Season averages</h2>
-    <div class="pl-tiles">${markets.map(([m, l]) => `<div class="pl-tile"><span class="k">${esc(l)}</span><b class="mono">${one(seasonAvgOf(p, m))}</b><span class="s mono">Today's line ${one(lineOf(p, m))}</span></div>`).join("")}</div>
+    <div class="pl-tiles">${markets.map(([m, l]) => `<div class="pl-tile"><span class="k">${esc(l)}</span><b class="mono">${one(seasonAvgOf(p, m))}</b><span class="s mono">${w.lineCap} ${one(lineOf(p, m))}</span></div>`).join("")}</div>
   </section>` : "";
 
   const last10 = log.slice(0, 10);
@@ -229,11 +238,11 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
       return `<td class="num${cls}">${v == null ? "—" : v}</td>`;
     }).join("")}</tr>`).join("")}
     </tbody></table></div>
-    <p class="small">Green: over today's line. Red: at or under it.</p>
+    <p class="small">Green: over ${w.line}. Red: at or under it.</p>
   </section>` : "";
 
-  const charts = log.length ? markets.map(([m]) => barChart(p, m, log)).filter(Boolean) : [];
-  const chartMarkets = markets.filter(([m]) => log.length && barChart(p, m, log));
+  const charts = log.length ? markets.map(([m]) => barChart(p, m, log, w.line)).filter(Boolean) : [];
+  const chartMarkets = markets.filter(([m]) => log.length && barChart(p, m, log, w.line));
   const chart = charts.length ? `<section class="panel pl-chart"><h2>Game by game</h2>
     <div class="pp-tabs" role="tablist" aria-label="Market">${chartMarkets.map(([m, l], i) => `<button type="button" role="tab" class="pp-tab pl-ctab" aria-selected="${i === 0}" tabindex="${i === 0 ? 0 : -1}" data-m="${m}">${esc(l)}</button>`).join("")}</div>
     ${charts.map((c, i) => (i === 0 ? c : c.replace('<figure class="bc"', '<figure class="bc" hidden'))).join("")}
@@ -245,8 +254,21 @@ export function renderPlayerBody(p, { teamHref = null, keys = null } = {}) {
     <div class="pp-scroll"><table class="pl-hits"><thead><tr><th scope="col">Market</th><th scope="col" class="num">Line</th><th scope="col" class="num">Last 5</th><th scope="col" class="num">Last 10</th>${season ? '<th scope="col" class="num">Season</th>' : ""}</tr></thead><tbody>
     ${rates.map(([l, h5, h10, hs, line]) => `<tr><th scope="row">${esc(l)}</th><td class="num mono">${one(line)}</td>${(season ? [h5, h10, hs] : [h5, h10]).map((h) => `<td class="num hm-c hm-${heatBand(h)}">${pct(h)}<small>${frac(h)}</small></td>`).join("")}</tr>`).join("")}
     </tbody></table></div>
-    <p class="small">Share of games over today's line.</p>
+    <p class="small">Share of games over ${w.line}.</p>
   </section>` : "";
 
   return [today, preds, avgs, form, chart, hits].filter(Boolean).join("\n");
+}
+
+/**
+ * Day wording for a player's game: "Today" only when the game is on today's Sydney date (now);
+ * otherwise the game's day ("Wed 18 Nov"). now == null keeps the "Today" wording.
+ */
+export function gameDayWords(g, now = null) {
+  const iso = g && (g.commence_utc || g.commence_syd);
+  const today = now == null || !iso || sydDate(iso) === sydDate(now);
+  const day = iso ? shortDay(iso) : "";
+  return today || !day
+    ? { today: true, day, head: "Today", preds: "Today's predictions", lineCap: "Today's line", line: "today's line", intro: "Today's predictions" }
+    : { today: false, day, head: day, preds: `Predictions for ${day}`, lineCap: "Line", line: "the line", intro: `Predictions for ${day}` };
 }

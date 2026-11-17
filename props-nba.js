@@ -11,6 +11,7 @@
   var teamSel = document.getElementById("ppTeam");
   var mktSel = document.getElementById("ppMarket");
   var lightsNav = document.getElementById("ppLights");
+  var legend = document.getElementById("ppLegend");
   var lightBtns = Array.prototype.slice.call(document.querySelectorAll("#ppLights .gf-btn"));
   var note = document.getElementById("ppMemberNote");
   var noneAll = document.getElementById("ppNone");
@@ -29,6 +30,7 @@
     });
     // light toggles only filter predictions
     if (lightsNav) lightsNav.hidden = v === "hits";
+    if (legend) legend.hidden = v === "hits";
   }
   views.forEach(function (t, i) {
     t.addEventListener("click", function () { showView(t.getAttribute("data-view")); });
@@ -89,7 +91,7 @@
     root.querySelectorAll(".hm-table [data-m]").forEach(function (el) { el.hidden = !!m && el.getAttribute("data-m") !== m; });
     var rows = Array.prototype.slice.call(tbody.rows);
     rows.forEach(function (tr) {
-      var ok = (!g || tr.getAttribute("data-game") === g) && (!t || tr.getAttribute("data-team") === t);
+      var ok = (!g || (" " + tr.getAttribute("data-game") + " ").indexOf(" " + g + " ") >= 0) && (!t || tr.getAttribute("data-team") === t);
       tr.hidden = !ok;
       if (ok) shown++;
     });

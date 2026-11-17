@@ -6,7 +6,7 @@
 import { shell, html, esc, asHead } from "../../../_shared/site.js";
 import { teamPath, teamLogoHtml } from "../../../_shared/teams.js";
 import { loadBoard, memberButtons, statusLabel, boardFreeKeys } from "../../../_shared/nba-props.js";
-import { findPlayer, findPlayerByName, publicIds, renderPlayerBody, teamAbbr, playerPath } from "../../../_shared/nba-player-props.js";
+import { findPlayer, findPlayerByName, publicIds, renderPlayerBody, teamAbbr, playerPath, gameDayWords } from "../../../_shared/nba-player-props.js";
 
 const CRUMBS = (name) => `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <a href="/props/nba">Player props</a> › <span>${esc(name)}</span></nav>`;
 const FOOT = `<p class="note">Predictions only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>`;
@@ -34,6 +34,8 @@ export async function onRequestGet(ctx) {
     return html(shell({ title: "Player not on today's board | ProbaLab", description: "This player isn't on today's NBA props board.", path: `/props/nba/player/${esc(id)}`, body, noindex: true, signup: false }), 404, 60);
   }
 
+  const now = ctx.now ?? Date.now();
+  const words = gameDayWords(p.game, now);
   const open = publicIds(board).has(p.id);
   const abbr = teamAbbr(p.team);
   const sample = !!board.sample;
@@ -45,8 +47,8 @@ export async function onRequestGet(ctx) {
   const body = open
     ? `${head}
   <div class="team-hero">${p.team ? teamLogoHtml("nba", { name: p.team, abbr }) : ""}<h1>${esc(p.player)}</h1></div>
-  <p>${p.team ? `<a href="${esc(teamPath("nba", p.team))}">${esc(p.team)}</a> · ` : ""}Today's predictions, season averages and lines${status ? `. Listed ${esc(status)}` : ""}.</p>
-  <div id="playerBody">${renderPlayerBody(p, { teamHref: teamHrefOf(p), keys: boardFreeKeys(board) })}</div>
+  <p>${p.team ? `<a href="${esc(teamPath("nba", p.team))}">${esc(p.team)}</a> · ` : ""}${words.intro}, season averages and lines${status ? `. Listed ${esc(status)}` : ""}.</p>
+  <div id="playerBody">${renderPlayerBody(p, { teamHref: teamHrefOf(p), keys: boardFreeKeys(board), now })}</div>
   ${FOOT}${ASSETS}
   <script src="/props-player.js"></script>`
     : `${head}
@@ -58,7 +60,7 @@ export async function onRequestGet(ctx) {
 
   return html(shell({
     title: open ? `${p.player} props: points, rebounds, assists, threes | ProbaLab` : "NBA player props | ProbaLab",
-    description: open ? `${p.player} NBA prop predictions, season averages and today's lines for points, rebounds, assists and threes.` : "NBA player props for members.",
+    description: open ? `${p.player} NBA prop predictions, season averages and lines for points, rebounds, assists and threes.` : "NBA player props for members.",
     path: playerPath(p),
     body,
     noindex: sample || !open,
