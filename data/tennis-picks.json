@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-16T20:56:14Z",
+  "generated_at": "2026-11-17T03:42:53Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -31,30 +31,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "187382",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-09T22:30:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Mirra Andreeva",
-      "player_b": "Elina Svitolina",
-      "a_pct": 48.9,
-      "b_pct": 51.1,
-      "pick": "b",
-      "pick_pct": 51.1,
-      "light": "RED",
-      "winner": "a",
-      "score": "6-4 6-0",
-      "retired": false,
-      "result": "lost"
-    },
     {
       "id": "186526",
       "tour": "ATP",
