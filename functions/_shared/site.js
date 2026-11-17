@@ -10,6 +10,7 @@ import {
   renderFilterBar, emptyFilterMessage,
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
+import { labelLong, scaleText, shownLight, isTip as isTipLight } from "./lights.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
 import { discordNavLink, socialFooterStack, X_PROFILE_URL } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
@@ -62,18 +63,11 @@ export function gamesOf(sport, feed) {
     fair_price: undefined, value_price: undefined, // never shown: no odds or prices on the site
   }));
   if (sport === "nba") applyInjuryPreviewDemo(games, feed.__hostname);
-  // NBA light guard: Green is 65%+. A feed GREEN below 65% is a held value pick
-  // (injury uncertainty) — keep the threshold light (Orange/Red), never promote to SUPER.
-  if (sport === "nba") {
-    for (const g of games) {
-      if (g.pick_p == null || !g.light) continue;
-      const p = Number(g.pick_p);
-      if (g.light === "GREEN" && p < 0.65) {
-        g.light = p >= 0.55 ? "ORANGE" : "RED";
-      } else if (g.light === "SUPER" && p < 0.6) {
-        g.light = p >= 0.55 ? "ORANGE" : "RED";
-      }
-    }
+  // Light guard (lights.json): Best value only in its sports and at its minimum chance; in a guarded sport (NBA)
+  // a feed GREEN under the green cut-off is a held value pick and keeps its cut-off light. Never promotes.
+  for (const g of games) {
+    if (g.pick_p == null || !g.light) continue;
+    g.light = shownLight(sport, g.light, g.pick_p);
   }
   games.forEach((g) => (g.path = gamePath(g)));
   return { games, names, season: feed.season, teams: feed.teams ?? [] };
@@ -118,11 +112,16 @@ const dayET = (iso) => fmt(iso, "America/New_York", { weekday: "long", day: "num
 const timeET = (iso) => fmt(iso, "America/New_York", { hour: "numeric", minute: "2-digit", hour12: true }).replace(" ", "").toLowerCase();
 const whenAU = (iso) => fmt(iso, "Australia/Melbourne", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" });
 export const shortDay = (iso) => fmt(iso, "America/New_York", { weekday: "short", day: "numeric", month: "short" });
-const LIGHT = {
-  SUPER: ["Super — best value", "a value pick (NBA; bookie price beats our fair price)"], GREEN: ["Green", "a 65%+ top pick"],
-  ORANGE: ["Orange", "a lean (55 to 65%)"], RED: ["Red", "close to a coin flip (under 55%)"],
-};
-const isTip = (g) => g.light === "SUPER" || g.light === "GREEN";
+// Light names and preview wording; cut-offs from lights.json.
+function lightInfo(sport, l) {
+  const s = scaleText(sport) || scaleText("nba");
+  const words = {
+    SUPER: "a value pick (NBA; bookie price beats our fair price)", GREEN: `a ${s.GREEN} top pick`,
+    ORANGE: `a lean (${s.ORANGE})`, RED: `close to a coin flip (${s.RED})`,
+  };
+  return words[l] ? [labelLong(l), words[l]] : ["", ""];
+}
+const isTip = (g) => isTipLight(g.light);
 const poss = (t) => `${esc(t)}${/s$/i.test(t) ? "'" : "'s"}`;
 const list = (xs) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 const wkLabel = (w) => (w >= 22 ? "Super Bowl" : w === 21 ? "Conference Championships" : w === 20 ? "Divisional Round" : w === 19 ? "Wild Card Round" : `Week ${w}`);
@@ -131,7 +130,7 @@ const wkLabel = (w) => (w >= 22 ? "Super Bowl" : w === 21 ? "Conference Champion
 function nbaPreview(g, rec) {
   const d = g.detail ?? {}, A = g.away_name, H = g.home_name, P = g.pick_name, pickHome = g.pick === g.home;
   const O = pickHome ? A : H, out = [];
-  const lt = LIGHT[g.light] ?? ["", ""];
+  const lt = lightInfo("nba", g.light);
   out.push(`<p>${esc(P)} are our pick ${pickHome ? `at home against the ${esc(O)}` : `on the road against the ${esc(O)}`}. The model gives them a <b>${pct(g.pick_p)}</b> chance of winning, which makes this game ${esc(lt[1])}.</p>`);
   const ta = d.tal_away == null ? null : Number(d.tal_away), th = d.tal_home == null ? null : Number(d.tal_home);
   if (ta != null && th != null) {
@@ -172,7 +171,7 @@ function nbaPreview(g, rec) {
 
 function nflPreview(g, rec) {
   const d = g.detail ?? {}, A = g.away_name, H = g.home_name, P = g.pick_name, pickHome = g.pick === g.home;
-  const O = pickHome ? A : H, out = [], lt = LIGHT[g.light] ?? ["", ""];
+  const O = pickHome ? A : H, out = [], lt = lightInfo("nfl", g.light);
   out.push(`<p>${esc(P)} are our pick ${g.neutral ? `against the ${esc(O)} at a neutral venue` : pickHome ? `at home against the ${esc(O)}` : `on the road against the ${esc(O)}`} in ${wkLabel(g.week)}. The model gives them a <b>${pct(g.pick_p)}</b> chance of winning, which makes this game ${esc(lt[1])}.</p>`);
   const ea = Number(d.elo_away), eh = Number(d.elo_home);
   if (Number.isFinite(ea) && Number.isFinite(eh)) {
@@ -385,6 +384,7 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 });
 </script>
 <script src="/site-nav.js"></script>
+<script src="/lights.js"></script>
 <script src="/phone-core.js"></script>
 <script src="/phone.js"></script>
 <script src="/odds.js"></script>
@@ -397,7 +397,7 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 export const html = (s, status = 200, maxAge = 120) => new Response(s, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": maxAge ? `public, max-age=0, s-maxage=${maxAge}, must-revalidate` : "no-cache" } });
 
 // ------------------------------------------------------------------ game page
-export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc((LIGHT[l] ?? [l])[0])}</span>` : "");
+export const chip = (l) => (l ? `<span class="chip ${esc(l)}">${esc(labelLong(l))}</span>` : "");
 export const sportName = (s) => ({ nba: "NBA", nfl: "NFL", nhl: "NHL", epl: "Premier League", championship: "Championship", tennis: "Tennis" }[s] ?? String(s).toUpperCase());
 
 // the pre-game preview section: one code path for the game page (/nba/<game>) and the app's game view (via /api/preview)
@@ -502,7 +502,7 @@ export function renderHub(sport, data) {
   <p class="eyebrow">// ${S} · win predictions · ${esc(sport === "nfl" ? `${data.season} season` : `${data.season - 1}–${String(data.season).slice(2)} season`)}</p>
   <h1>${S} predictions</h1>
   ${intro}
-  <p>Green picks (65%+) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a> · <a href="/${sport}/team">All ${S} teams →</a></p>
+  <p>Green picks (${scaleText(sport).GREEN}) are our top picks. Orange is a lean, red is close to a coin flip. ${settled.length ? `Record so far: all picks ${rate(settled)}; top picks ${rate(tips)}.` : "Our record starts with the first results, and every pick stays on it, win or lose."} <a href="/#${sport}-record">Full record →</a> · <a href="/${sport}/team">All ${S} teams →</a></p>
   ${upcoming.length ? Object.entries(groups).map(([k, xs]) => `<section class="panel"><h2>${esc(k)}</h2><ul class="games">${xs.map(gameRow).join("")}</ul></section>`).join("")
     : `<section class="panel"><h2>No upcoming picks yet</h2><p>${sport === "nfl" ? "Next week's picks appear up to 8 days before kick-off." : "Picks appear about 48 hours before game time."}</p></section>`}
   ${recent.length ? `<section class="panel"><h2>Recent results</h2><ul class="games">${recent.map(gameRow).join("")}</ul></section>` : ""}

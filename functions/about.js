@@ -1,6 +1,8 @@
 // /about: About ProbaLab. Record figures are loaded live from the same source as /results.
 import { shell, html, esc, ORIGIN, asHead } from "./_shared/site.js";
 import { loadSportRecord, lightTally } from "./_shared/record-pages.js";
+import { scaleText, labelLong } from "./_shared/lights.js";
+const NBA = scaleText("nba"), cap = (t) => t[0].toUpperCase() + t.slice(1);
 const BOOKS = [
   ["Sprawlball: A Visual Tour of the New Era of the NBA", "Kirk Goldsberry", "https://www.amazon.com/dp/0358329752?tag=altafgroupus-20", "How shot location changed the modern NBA."],
   ["Basketball on Paper: Rules and Tools for Performance Analysis", "Dean Oliver", "https://www.amazon.com/dp/1574886886?tag=altafgroupus-20", "The book that set out the Four Factors many basketball models still use."],
@@ -29,10 +31,10 @@ export async function onRequestGet(ctx) {
 <p>We publish probabilities, not certainties. A 70% pick still loses about three times in ten, and we want you to see that happen in the record rather than hear about it later.</p></section>
 <section class="panel prose"><h2>What the lights mean</h2>
 <p>Every pick carries a light, so you can see at a glance how strongly the model leans.</p>
-<ul><li><b>SUPER</b> — Super, best value (NBA only): a value flag, not a higher-confidence green. The bookmaker price beats our fair price. <a href="/lights">How the lights work</a>.</li>
-<li><b>GREEN</b>: The model gives the pick 65% or more. One of our top picks.</li>
-<li><b>ORANGE</b>: A lean, 55 to 65%.</li>
-<li><b>RED</b>: Under 55%. Close to a coin flip.</li></ul></section>
+<ul><li><b>SUPER</b> — ${esc(labelLong("SUPER"))} (NBA only): a value flag, not a higher-confidence green. The bookmaker price beats our fair price. <a href="/lights">How the lights work</a>.</li>
+<li><b>GREEN</b>: The model gives the pick ${NBA.GREEN} (NBA, NFL and NHL; <a href="/lights">other sports</a>). One of our top picks.</li>
+<li><b>ORANGE</b>: A lean, ${NBA.ORANGE}.</li>
+<li><b>RED</b>: ${cap(NBA.RED)}. Close to a coin flip.</li></ul></section>
 <section class="panel prose"><h2>How we check ourselves</h2>
 <p>Our <a href="/results">results page</a> shows every finished game. We also track calibration: if the model says 70%, those picks should win about 70% of the time. Past-season tests, kept separate from the live record, are on the <a href="/backtest">backtest page</a>. The method is explained on <a href="/how-it-works">How it works</a>.</p></section>
 <section class="panel prose"><h2>What we cover</h2>

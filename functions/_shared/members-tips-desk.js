@@ -90,6 +90,7 @@ export function tipsDeskBody(tipsterId = "john") {
   <script src="/members-owner.js"></script>
   <script src="/odds.js"></script>
   <script src="/members-john-multis.js"></script>
+  <script src="/lights.js"></script>
   <script src="/members-tips-app.js"></script>`;
 }
 

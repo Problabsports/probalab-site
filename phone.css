@@ -8,17 +8,17 @@
     --pf-bg: #07080f; --pf-bg-2: #0c0e1a; --pf-surface: #10131f; --pf-surface-2: #161a2a;
     --pf-ink: #e8ecf8; --pf-muted: #8b93b0; --pf-line: #232a42; --pf-line-hi: #343d5e;
     --pf-cyan: #19e3ff; --pf-magenta: #ff2fc0;
-    --pf-super: #b56cff; --pf-green: #2fd7a0; --pf-orange: #ffad33; --pf-red: #ff4f6e;
+    --pf-super: var(--super, #b56cff); --pf-green: var(--green, #2fd7a0); --pf-orange: var(--orange, #ffad33); --pf-red: var(--red, #ff4f6e);
     --pf-tabbar-h: 62px;
     --pf-r: 16px;
     -webkit-tap-highlight-color: transparent;
   }
   html.pf .pf-only { display: revert !important; }
   html.pf .pf-only[hidden] { display: none !important; }
-  html.pf .pf-l-SUPER { --pf-lc: var(--pf-super); --pf-lc-soft: rgba(181, 108, 255, .16); }
-  html.pf .pf-l-GREEN { --pf-lc: var(--pf-green); --pf-lc-soft: rgba(47, 215, 160, .14); }
-  html.pf .pf-l-ORANGE { --pf-lc: var(--pf-orange); --pf-lc-soft: rgba(255, 173, 51, .13); }
-  html.pf .pf-l-RED { --pf-lc: var(--pf-red); --pf-lc-soft: rgba(255, 79, 110, .13); }
+  html.pf .pf-l-SUPER { --pf-lc: var(--pf-super); --pf-lc-soft: var(--super-soft); }
+  html.pf .pf-l-GREEN { --pf-lc: var(--pf-green); --pf-lc-soft: var(--green-soft); }
+  html.pf .pf-l-ORANGE { --pf-lc: var(--pf-orange); --pf-lc-soft: var(--orange-soft); }
+  html.pf .pf-l-RED { --pf-lc: var(--pf-red); --pf-lc-soft: var(--red-soft); }
   html.pf .pf-l-none { --pf-lc: var(--pf-line-hi); --pf-lc-soft: rgba(52, 61, 94, .2); }
 
   /* ---------------------------------------------------------------- page chrome */

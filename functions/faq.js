@@ -1,6 +1,7 @@
 // /faq: short FAQ aligned with /lights. No betting advice.
 import { shell, html, ORIGIN } from "./_shared/site.js";
 import { offerLineHtml, OFFER_SWAP_JS } from "./_shared/membership.js";
+import { greenSummary, labelLong } from "./_shared/lights.js";
 
 export function onRequestGet() {
   const title = "FAQ | ProbaLab";
@@ -14,10 +15,10 @@ export function onRequestGet() {
 </section>
 <section class="panel prose">
   <h2>What do the lights mean?</h2>
-  <p>Green, orange and red show how strongly the model leans. Cut-offs differ by sport: 65%+ green in the NBA, NFL and NHL; 55%+ in the Premier League and Championship; 70%+ in tennis. <a href="/lights">How the lights work</a> explains each scale. <a href="/how-it-works">How it works</a> covers the models themselves.</p>
+  <p>Green, orange and red show how strongly the model leans. Cut-offs differ by sport: green is ${greenSummary()}. <a href="/lights">How the lights work</a> explains each scale. <a href="/how-it-works">How it works</a> covers the models themselves.</p>
 </section>
 <section class="panel prose">
-  <h2>What is Super — best value?</h2>
+  <h2>What is ${labelLong("SUPER")}?</h2>
   <p>Super is an NBA-only value flag, not a higher-confidence green. It marks a pick where the bookmaker price beats our fair price under the rules on the lights page. Other sports do not use Super.</p>
 </section>
 <section class="panel prose">

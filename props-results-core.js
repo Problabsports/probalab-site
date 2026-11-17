@@ -8,6 +8,7 @@
 // record, hit rate, chart or breakdown; P and V are listed and counted beside the record.
 // No prices, units, ROI or profit exist here, and nothing private is ever passed in.
 
+import LT from "./lights.mjs";
 export const STATS = [
   ["points", "Points"],
   ["rebounds", "Rebounds"],
@@ -15,11 +16,8 @@ export const STATS = [
   ["threes", "Threes"],
 ];
 export const STAT_LABEL = Object.fromEntries(STATS);
-export const LIGHTS = [
-  ["GREEN", "Green"],
-  ["ORANGE", "Orange"],
-  ["RED", "Red"],
-];
+// Props lights (green / orange / red; no Best value), names from /lights.json via /lights.mjs.
+export const LIGHTS = ["GREEN", "ORANGE", "RED"].map((l) => [l, LT.label(l)]);
 const LIGHT_LABEL = Object.fromEntries(LIGHTS);
 export const CALLS = ["Over", "Under"];
 

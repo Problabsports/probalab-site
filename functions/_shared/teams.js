@@ -1,4 +1,5 @@
 import { stClass, teamInjuries, getInjuries, INJ_CSS } from "./injuries.js";
+import { gameLight, shownLight } from "./lights.js";
 export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
@@ -644,7 +645,7 @@ export function nhlDataFromFiles(picks, pretip, seasonFile, grades) {
       home_score, away_score,
       start_utc: start, status: done ? "post" : "pre",
       pick, pick_p, pick_name: NHL_TEAMS[pick] ?? pick,
-      light: sn?.light ?? (pick_p >= 0.65 ? "GREEN" : pick_p >= 0.55 ? "ORANGE" : "RED"),
+      light: sn?.light ? shownLight("nhl", sn.light, pick_p) : gameLight("nhl", pick_p),
       won, path: `/nhl#game-${id}`, detail: g.detail || null,
       result_type: sea?.result_type || null,
       _from_pick: true,
@@ -697,7 +698,7 @@ export function eplDataFromFiles(picks, grades, seasonFile) {
       home_score, away_score,
       start_utc: start, status: done ? "post" : "pre",
       pick, pick_p, pick_name: pick, p_home: g.p_home, p_away: g.p_away, p_draw: g.p_draw,
-      light: g.light ?? (pick_p >= 0.55 ? "GREEN" : pick_p >= 0.45 ? "ORANGE" : "RED"),
+      light: g.light ? shownLight("epl", g.light, pick_p) : gameLight("epl", pick_p),
       won: gr?.graded ? !!gr.correct : null,
       path: `/epl#game-${id}`, detail: null,
       _from_pick: true,

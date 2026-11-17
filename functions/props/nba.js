@@ -5,6 +5,8 @@
 // /api/props-nba (props-nba.js swaps it in after the members session check).
 // No prices, no tips, no units, no projection numbers.
 import { shell, html, esc, asHead } from "../_shared/site.js";
+import { propsText } from "../_shared/lights.js";
+const PT = propsText();
 import { loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 
@@ -43,7 +45,7 @@ export async function onRequestGet(ctx) {
     </div>
     <nav class="game-filters lights" id="ppLights" aria-label="Filter by light">${[["GREEN", "Green"], ["ORANGE", "Orange"], ["RED", "Red"]].map(([cls, label]) =>
       `<button type="button" class="gf-btn ${cls} on" data-light="${cls}" aria-pressed="true">${label}</button>`).join("")}</nav>
-    <p class="small filter-note" id="ppLegend">Green first, then highest chance. <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
+    <p class="small filter-note" id="ppLegend">Green first, then highest chance. <span class="chip GREEN">Green</span> ${PT.GREEN} · <span class="chip ORANGE">Orange</span> ${PT.ORANGE} · <span class="chip RED">Red</span> ${PT.RED}</p>
   </div>` : "";
 
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/nba">NBA predictions</a> › <span>Player props</span></nav>

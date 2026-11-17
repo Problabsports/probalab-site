@@ -10,6 +10,7 @@
 // No units, prices, ROI or profit. Today's board (snapshot "nba-props") is never read here.
 // Numbers, charts and table rows come from /props-results-core.js, shared with the browser.
 import { esc } from "./site.js";
+import { propsLight } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons } from "./nba-props.js";
 import {
@@ -60,13 +61,11 @@ function prob(x) {
   return n > 1 ? n / 100 : n;
 }
 
-/** Light from the data, else from the % (green 60%+, orange 55–59%, red under 55%). */
+/** Light from the data, else from the % on the lights.json props scale. */
 function lightFor(r, p) {
   const l = String(r.light || "").trim().toUpperCase();
   if (l === "GREEN" || l === "ORANGE" || l === "RED") return l;
-  if (p == null) return "";
-  const shown = Math.round(p * 100);
-  return shown >= 60 ? "GREEN" : shown >= 55 ? "ORANGE" : "RED";
+  return p == null ? "" : propsLight(p) || "";
 }
 
 /** true / false (also "true" / "false"), else null. */

@@ -5,6 +5,7 @@
  // (built on the box from existing comparison CSVs — no new Odds API credits).
 import { getFeed, gamesOf, shell, html, esc, chip, slug, asHead } from "./_shared/site.js";
 import { injuryBadge } from "./_shared/injury-warning.js";
+import { gameLight, shownLight, scaleText, labelLong, sportCfg } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
@@ -144,7 +145,7 @@ function section(id, name, games, links, extra, showMkt = true) {
 }
 
 const HOW_TO = `<section class="panel howto compact" id="how-to-read">
-  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} Super — best value · ${chip("GREEN")} 65%+ · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
+  <p class="legend-line" aria-label="How to read this">${chip("SUPER")} ${labelLong("SUPER")} · ${chip("GREEN")} ${scaleText("nba").GREEN} · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
 </section>`;
 
 export async function onRequestGet(ctx) {
@@ -211,7 +212,7 @@ export async function onRequestGet(ctx) {
         id, start_utc: start, home: g.home, away: g.away, p,
         pickName: NHLN[pickHome ? g.home : g.away] ?? (pickHome ? g.home : g.away),
         pickSide: pickHome ? "home" : "away",
-        light: sn?.light ?? (p >= 0.65 ? "GREEN" : p >= 0.55 ? "ORANGE" : "RED"),
+        light: sn?.light ? shownLight("nhl", sn.light, p) : gameLight("nhl", p),
         done: (sn && typeof sn.won === "boolean") || g.status === "post" || new Date(start).getTime() < now - 3 * 3600e3,
       };
     });
@@ -252,7 +253,7 @@ export async function onRequestGet(ctx) {
 
   {
     const [raw, grades] = await Promise.all([asset(ctx, "/data/epl-picks.json", []), asset(ctx, "/data/epl-grades.json", {})]);
-    const LF = "2026-10-23T23:42:00Z";
+    const LF = sportCfg("epl").lights_from; // lights.json
     const gs = (Array.isArray(raw) ? raw : raw.games ?? []).map((g) => {
       const id = String(g.game_id ?? g.id);
       const ps = { home: Number(g.p_home), draw: Number(g.p_draw), away: Number(g.p_away) };
@@ -262,7 +263,7 @@ export async function onRequestGet(ctx) {
       return {
         id, start_utc: start, home: g.home, away: g.away, p, pick: g.pick,
         pickName: g.pick === "home" ? g.home : g.pick === "away" ? g.away : "Draw",
-        light: start >= LF ? (p >= 0.55 ? "GREEN" : p >= 0.45 ? "ORANGE" : "RED") : null,
+        light: start >= LF ? gameLight("epl", p) : null,
         done: !!gr?.graded || g.status === "post" || new Date(start).getTime() < now - 3 * 3600e3,
       };
     });
@@ -308,7 +309,7 @@ export async function onRequestGet(ctx) {
       return {
         id, start_utc: start, home: g.home, away: g.away, p, pick: g.pick,
         pickName: g.pick === "home" ? g.home : g.pick === "away" ? g.away : "Draw",
-        light: p >= 0.55 ? "GREEN" : p >= 0.45 ? "ORANGE" : "RED",
+        light: gameLight("championship", p),
         done: !!gr?.graded || g.status === "post" || new Date(start).getTime() < now - 3 * 3600e3,
       };
     });
@@ -339,7 +340,7 @@ export async function onRequestGet(ctx) {
   }
 
   {
-    // Tennis (live 7 Nov 2026): ATP and WTA main-draw singles; lights GREEN 70%+, ORANGE 60-70%, RED under 60%; no market comparison
+    // Tennis (live 7 Nov 2026): ATP and WTA main-draw singles; lights from the feed on the lights.json tennis cut-offs; no market comparison
     const feed = await asset(ctx, "/data/tennis-picks.json", null);
     const upcoming = (feed?.matches ?? []).filter((m) => m.status === "pre" && tennisInWindow(m, now)).sort((a, b) => a.start_utc.localeCompare(b.start_utc) || String(a.id).localeCompare(String(b.id)));
     total += upcoming.length;
@@ -354,7 +355,7 @@ export async function onRequestGet(ctx) {
         matchHtml: `${esc(m.player_a)} v ${esc(m.player_b)}<br><small>${esc(m.tournament)} · ${esc(m.round)}</small>`,
         pick: `${pickName} ${pct(p)}`,
         pickName,
-        light: m.light,
+        light: shownLight("tennis", m.light, p),
         modelP: p,
         marketP: null,
         value: null,

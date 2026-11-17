@@ -2,18 +2,21 @@
    No DOM access in here. Everything returns plain values or HTML strings built from the same
    numbers the desktop pages show: no new data, no new wording beyond the phone chrome. */
 (function (root, factory) {
-  var api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
+  // Lights (labels, cut-offs, key text) come from /lights.json through /lights.js, loaded just before this file.
+  var node = typeof module === "object" && module.exports;
+  var api = factory(node ? require("./lights.js") : root.PLLights);
+  if (node) module.exports = api;
   else root.PLPhone = api;
-})(typeof self !== "undefined" ? self : this, function () {
+})(typeof self !== "undefined" ? self : this, function (L) {
   "use strict";
 
   // Phones only. Kept in one place so CSS (phone.css) and JS agree on the breakpoint.
   var PHONE_MQ = "(max-width: 767.98px)";
 
-  // Light names on the phone. SUPER is always "Best value".
-  var LIGHT_LABEL = { SUPER: "Best value", GREEN: "Green", ORANGE: "Orange", RED: "Red" };
-  var LIGHTS = ["SUPER", "GREEN", "ORANGE", "RED"];
+  // Light names on the phone (lights.json labels). SUPER is always "Best value".
+  var LIGHTS = L.order.slice();
+  var LIGHT_LABEL = {};
+  LIGHTS.forEach(function (l) { LIGHT_LABEL[l] = L.label(l); });
 
   // Words that must never appear in the phone layout.
   var BANNED = /paper units?|fresh record|still proving|price cap/i;
@@ -253,18 +256,13 @@
   }
 
   // ---------------------------------------------------------------- stacked lights key
-  // Game scales: the live cut-offs (same copy as record-pages.js LIGHT_COPY and /lights). Props have their own scale.
-  var GAME_SCALE = {
-    nba: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
-    nfl: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
-    nhl: { GREEN: "65%+", ORANGE: "Lean · 55–65%", RED: "Coin flip · under 55%" },
-    epl: { GREEN: "55%+", ORANGE: "Lean · 45–55%", RED: "Open match · under 45%" },
-    championship: { GREEN: "55%+", ORANGE: "Lean · 45–55%", RED: "Open match · under 45%" },
-    tennis: { GREEN: "70%+", ORANGE: "Lean · 60–70%", RED: "Close match · under 60%" },
-    all: { GREEN: "65%+ NBA, NFL, NHL · 55%+ Premier League, Championship · 70%+ tennis", ORANGE: "Lean", RED: "Coin flip" },
-  };
-  var PROPS_SCALE = { GREEN: "60%+", ORANGE: "55-59%", RED: "under 55%" };
-  var BEST_VALUE_TEXT = "NBA value flag: the price beats our fair price";
+  // Game scales: the live cut-offs from lights.json (same as /lights and record-pages.js). Props have their own scale.
+  var GREEN_LINES = L.greenSummary({ short: true });
+  var GAME_SCALE = {};
+  L.gameSports().forEach(function (s) { GAME_SCALE[s] = L.keyText(s); });
+  GAME_SCALE.all = { GREEN: GREEN_LINES.join(" · "), ORANGE: "Lean", RED: "Coin flip" };
+  var PROPS_SCALE = L.propsText();
+  var BEST_VALUE_TEXT = L.bestValueText();
   var INJURY_TEXT = "Key players uncertain";
 
   /** Rows for one sport's game scale. opts.best adds Best value (NBA / all only); opts.injury / opts.note add a warning row. */
@@ -272,12 +270,12 @@
     opts = opts || {};
     var s = GAME_SCALE[sport] ? sport : "all";
     var sc = GAME_SCALE[s], rows = [];
-    if (opts.best && (s === "nba" || s === "all")) rows.push({ light: "SUPER", label: LIGHT_LABEL.SUPER, range: BEST_VALUE_TEXT });
+    if (opts.best && (s === "all" || L.bestValueSports().indexOf(s) >= 0)) rows.push({ light: "SUPER", label: LIGHT_LABEL.SUPER, range: BEST_VALUE_TEXT });
     rows.push(s === "all"
-      ? { light: "GREEN", label: "Green", range: sc.GREEN, rangeHtml: "<span class=\"pf-lk-line\">65%+ NBA, NFL, NHL</span><span class=\"pf-lk-line\">55%+ Premier League, Championship</span><span class=\"pf-lk-line\">70%+ Tennis</span>" }
-      : { light: "GREEN", label: "Green", range: sc.GREEN });
-    rows.push({ light: "ORANGE", label: "Orange", range: sc.ORANGE });
-    rows.push({ light: "RED", label: "Red", range: sc.RED });
+      ? { light: "GREEN", label: LIGHT_LABEL.GREEN, range: sc.GREEN, rangeHtml: GREEN_LINES.map(function (t) { return "<span class=\"pf-lk-line\">" + esc(t) + "</span>"; }).join("") }
+      : { light: "GREEN", label: LIGHT_LABEL.GREEN, range: sc.GREEN });
+    rows.push({ light: "ORANGE", label: LIGHT_LABEL.ORANGE, range: sc.ORANGE });
+    rows.push({ light: "RED", label: LIGHT_LABEL.RED, range: sc.RED });
     if (opts.injury) rows.push({ light: "WARN", label: "Injury watch", range: INJURY_TEXT });
     if (opts.note) rows.push({ light: "WARN", label: "Important note", range: opts.note });
     return rows;
