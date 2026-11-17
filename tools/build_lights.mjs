@@ -1,6 +1,6 @@
 // Generates the browser copies of /lights.json (the single source of truth for lights):
 //   /lights.js   classic script (window.PLLights; require() in Node) for phone-core.js, phone.js, index.html, members desk
-//   /lights.mjs  ES module for browser modules (props-results-core.js)
+//   /lights.mjs  ES module for the Pages Functions (functions/_shared/lights.js) and browser modules (props-results-core.js)
 //   the light colour variables between the "lights:begin" / "lights:end" markers in page.css and index.html
 // Both JS copies embed lights-core.mjs, the same rules the Pages Functions use.
 // Usage: node tools/build_lights.mjs          write the copies
