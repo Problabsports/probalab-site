@@ -58,7 +58,7 @@ assert.match(card, /<span class="pf-lpill pf-l-SUPER">Best value<\/span>/, "the 
 assert.ok(!/pf-bv/.test(card), "the Best value light needs no extra tag");
 assert.match(card, /href="\/#game-401810123"/);
 assert.match(card, /Tue 11:00am AEDT/);
-assert.match(card, /pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img src="\/img\/logos\/nba\/denver-nuggets\.png"[^>]*><\/span><span class="pf-tname">Denver Nuggets/);
+assert.match(card, /pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img src="\/img\/logos\/nba\/denver-nuggets\.png"[^>]*><\/span><span class="pf-tname">Denver Nuggets <span class="pf-tick"/);
 assert.match(card, /aria-label="Chance 74%"/);
 assert.ok(!/fair|units?\b|edge/i.test(card.replace(/aria-label="[^"]*"/g, "")), "cards show no fair price, units or edge");
 for (const l of ["GREEN", "ORANGE", "RED"]) assert.match(P.cardHtml({ ...row, light: l }), new RegExp(`pf-card pf-l-${l}"`));

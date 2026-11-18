@@ -58,7 +58,7 @@ assert.match(P.cardHtml(done), /<span class="pf-res pf-win">✓ 101–110<\/span
 
 // tennis: players, tournament under them
 const ten = P.hubRowFromParts({ sport: "tennis", dayText: "Wed 18 Nov", matchText: "J Sinner v C Alcaraz", subText: "ATP Finals · Final", pickText: "J Sinner 72%", chipClass: "chip GREEN", href: "/tennis/app#game-1" });
-assert.match(P.cardHtml(ten), /pf-team pf-picked"><span class="pf-tname">J Sinner<\/span>.*<span class="pf-sep">v<\/span><span class="pf-team"><span class="pf-tname">C Alcaraz<\/span><\/span><span class="pf-sub">ATP Finals · Final<\/span>/s);
+assert.match(P.cardHtml(ten), /pf-team pf-picked"><span class="pf-tname">J Sinner <span class="pf-tick" aria-hidden="true">●<\/span><\/span><\/span><span class="pf-sep">v<\/span><span class="pf-team"><span class="pf-tname">C Alcaraz<\/span><\/span><span class="pf-sub">ATP Finals · Final<\/span>/s);
 
 // ---------------------------------------------------------------- one date header per day
 const rows = [

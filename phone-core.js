@@ -224,8 +224,9 @@
   var CARD_LOGO = 24;
   function teamLine(sport, name, abbr, picked) {
     var logo = logoSrc(sport, name) ? logoHtml(sport, name, abbr, CARD_LOGO) : "";
-    return '<span class="pf-team' + (picked ? " pf-picked" : "") + (logo ? " pf-has-logo" : "") + '">' + logo + '<span class="pf-tname">' + esc(name) + "</span>" +
-      (picked ? '<span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span>";
+    // the pick dot sits inside the name, so it follows the last word when a long name wraps
+    return '<span class="pf-team' + (picked ? " pf-picked" : "") + (logo ? " pf-has-logo" : "") + '">' + logo + '<span class="pf-tname">' + esc(name) +
+      (picked ? ' <span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span></span>";
   }
   /** Team codes from the row's data-abbr ("away|home", e.g. "NY|TOR"): a/b order follows the matchup (a @ b is away @ home,
    *  a v b is home v away). Only real codes (2-4 capitals / digits) are kept; otherwise the badge uses initials. */

@@ -32,7 +32,7 @@ const top = card.split('<span class="pf-card-top">')[1].split('<span class="pf-c
 assert.match(top, /^<span class="pf-sport">NBA<\/span><span class="pf-time">7:30pm AEDT<\/span><span class="pf-lights">/, "sport tag + start time top left");
 assert.match(top, /<span class="pf-lights"><span class="pf-lpill pf-l-GREEN">Green<\/span><span class="pf-bv">Best value<\/span><\/span>/, "light pill top right; green Best value shows Green + small tag");
 assert.ok(!/WED|18 NOV/.test(card), "no date on the card");
-assert.match(card, /<span class="pf-team pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Utah Jazz<\/span><\/span><span class="pf-sep">@<\/span><span class="pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Denver Nuggets<\/span><span class="pf-tick" aria-hidden="true">●<\/span><\/span>/, "away @ home stacked with logos, picked team bold + dot");
+assert.match(card, /<span class="pf-team pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Utah Jazz<\/span><\/span><span class="pf-sep">@<\/span><span class="pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Denver Nuggets <span class="pf-tick" aria-hidden="true">●<\/span><\/span><\/span>/, "away @ home stacked with logos, picked team bold + dot");
 assert.match(card, /pf-gauge pf-g-GREEN[\s\S]*>74%</, "gauge on the right in the light colour");
 assert.match(card, /<span class="pf-card-foot"><span class="pf-pick"><span class="pf-pick-lab">Our pick<\/span><b>Denver Nuggets<\/b><\/span><span class="pf-foot-r"><span class="chip GREEN pf-chip">Green<\/span><\/span><\/span>/, "bottom row: Our pick + light badge");
 assert.match(card, /^<article class="pf-card pf-l-GREEN pf-has-inj"/, "border / glow in the light colour");
@@ -130,7 +130,7 @@ for (const [sp, a, b, abbr, want] of [["nba", "New York Knicks", "Toronto Raptor
   const h = P.cardHtml(row);
   for (const [i, name] of [[0, a], [1, b]]) {
     const src = `/img/logos/${sp}/${P.teamSlug(name)}.png`;
-    assert.ok(h.includes(`<span class="pf-logo" style="--pf-ls:24px"><img src="${src}" alt="" width="24" height="24" decoding="async" data-pf-logo="${sp}|${name}|${want[i]}"></span><span class="pf-tname">${name}</span>`), `${sp}: logo beside ${name}`);
+    assert.ok(h.includes(`<span class="pf-logo" style="--pf-ls:24px"><img src="${src}" alt="" width="24" height="24" decoding="async" data-pf-logo="${sp}|${name}|${want[i]}"></span><span class="pf-tname">${name}`), `${sp}: logo beside ${name}`);
     assert.ok(fs2.existsSync(path2.join(__dirname, "..", src)), `${sp}: logo file for ${name}`);
   }
 }
