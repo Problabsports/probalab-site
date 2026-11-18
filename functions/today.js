@@ -99,6 +99,9 @@ function heldNoteOf(g) {
   return s || "";
 }
 
+// start time for the phone cards (day header + AEDT time); attributes only, the desktop row is unchanged
+const startAttrs = (g) => (g.start_utc ? ` data-start="${esc(g.start_utc)}"${g.tbc ? ` data-tbc="1"` : ""}` : "");
+
 function todayRow(g, showMkt) {
   const v = g.value;
   let gapCls = "";
@@ -115,7 +118,7 @@ function todayRow(g, showMkt) {
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   const warn = g.injuryBadgeHtml || "";
-  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
+  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${startAttrs(g)}${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
@@ -361,6 +364,7 @@ export async function onRequestGet(ctx) {
         marketP: null,
         value: null,
         start_utc: m.start_utc,
+        tbc: !!m.time_tbc,
       };
     });
     sections.push({

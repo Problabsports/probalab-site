@@ -445,7 +445,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
 export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
   const warn = injuryBadge(g);
-  return `<li class="${warn ? "has-injury-watch" : ""}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
+  return `<li class="${warn ? "has-injury-watch" : ""}"${g.start_utc ? ` data-start="${esc(g.start_utc)}"` : ""}><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
     <span class="p">${g.pick ? `${esc(g.pick)} ${chanceText(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}${bvTag(g)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
 }
 

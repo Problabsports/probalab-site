@@ -73,7 +73,7 @@
     const last = IS_SOC ? team("away", g.away_name, "Away", g.p_away).replace('class="team  ', 'class="team r ') : team("home", g.home_name, "Home", g.p_home);
     const segs = IS_SOC ? [["home", g.p_home], ["draw", g.p_draw], ["away", g.p_away]] : [["away", g.p_away], ["home", g.p_home]];
     const status = post ? "Final" : g.finished ? "Result being checked" : fmtTime.format(new Date(g.start_utc));
-    return `<article class="card ${LIGHTS && g.light === "GREEN" ? "tip" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" tabindex="0" role="link" aria-label="${esc(g.home_name)} and ${esc(g.away_name)}, details">
+    return `<article class="card ${LIGHTS && g.light === "GREEN" ? "tip" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" data-start="${esc(g.start_utc)}" tabindex="0" role="link" aria-label="${esc(g.home_name)} and ${esc(g.away_name)}, details">
     <div class="card-top"><span class="time">${status}</span>${lchip(g.light)}${post ? `<span class="mark ${g.correct ? "W" : "L"}">${g.correct ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams" ${IS_SOC ? 'style="grid-template-columns:1fr auto 1fr"' : ""}>${first}${mid}${last}</div>
     <div class="bar${IS_SOC ? " bar3" : ""}">${segs.map(([k, p]) => `<i class="seg-${k} ${g.pick === k ? "pk" : ""}" style="width:${p * 100}%"></i>`).join("")}</div>

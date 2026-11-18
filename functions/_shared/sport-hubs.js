@@ -138,7 +138,8 @@ function soccerOrTennisRow(g) {
       : `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"}${g.home_score != null ? ` ${g.away_score}–${g.home_score}` : ""}</span>`)
     : "";
   const when = g.sport === "tennis" ? tennisShortDay(g) : shortDay(g.start_utc);
-  return `<li id="game-${esc(g.game_id)}"><a href="${esc(g.path)}"><span class="d">${esc(when)}</span><span class="m">${match}</span>
+  const start = g.start_utc ? ` data-start="${esc(g.start_utc)}"${g.time_tbc ? ` data-tbc="1"` : ""}` : "";
+  return `<li id="game-${esc(g.game_id)}"${start}><a href="${esc(g.path)}"><span class="d">${esc(when)}</span><span class="m">${match}</span>
     <span class="p">${g.pick ? `${esc(g.pick_name || g.pick)} ${g.pick_p == null || !Number.isFinite(Number(g.pick_p)) ? "—" : `${Math.round(Number(g.pick_p) * 100)}%`}` : "soon"}</span>${chip(g.light)}${result}</a></li>`;
 }
 

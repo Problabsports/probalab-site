@@ -46,12 +46,16 @@
     if (location.pathname === "/results") resultsPage();
     var hub = location.pathname.match(/^\/(nba|nfl|nhl|epl|tennis)\/?$/);
     if (hub && !window.HIDDEN_SPORT && $("main h1")) hubPage(hub[1]);
+    var week = location.pathname.match(/^\/(nba|nfl)\/today\/?$/);
+    if (week && !window.HIDDEN_SPORT && $("main h1")) { root.classList.add("pf-sportlist"); gameLists(week[1], $("main"), { mergeDays: true }); }
     if (/^\/championship\/?$/.test(location.pathname) && window.HIDDEN_SPORT === "championship") appHubPage("championship");
+    if (document.getElementById("main")) appLists(); // the app's own game lists (NBA / NFL app, NHL / EPL / Championship app)
+    // Injury watch: the chip (or the card's More) opens the note inside the card; tap again to close
     document.addEventListener("click", function (e) {
-      var b = e.target.closest && e.target.closest(".pf-injchip");
+      var b = e.target.closest && e.target.closest("[data-pf-injtoggle]");
       if (!b) return;
       e.preventDefault();
-      injurySheet(b);
+      P.setInjuryOpen(b.closest(".pf-card"));
     });
     // a missing logo file swaps itself for the round team-colour badge
     document.addEventListener("error", function (e) {
@@ -130,10 +134,12 @@
         var mc = m ? m.cloneNode(true) : null;
         if (mc) $$(".best-tag, .held-note, small, br", mc).forEach(function (x) { x.remove(); });
         var a = $(".d a", li) || $("a.row-rest", li);
-        var chip = $(".chip", li), odds = $(".fp .odds", li);
+        var chip = $(".chip", li), odds = $(".fp .odds", li), more = $(".injury-watch-more", li);
         out.push(P.rowFromParts({
           sport: sec.id,
           whenText: txt($(".d", li)),
+          start: li.getAttribute("data-start"),
+          tbc: li.getAttribute("data-tbc") === "1",
           matchText: txt(mc),
           teams: links.length === 2 ? [txt(links[0]), txt(links[1])] : null,
           sep: m && / v /.test(txt(mc)) ? "v" : "@",
@@ -147,6 +153,7 @@
           valued: li.classList.contains("has-value"),
           bestValue: !!$(".bv-tag", li),
           injuryText: txt($(".injury-watch-note", li)),
+          injuryFull: more ? more.getAttribute("data-injury-note") : "",
         }));
         out[out.length - 1].el = li;
       });
@@ -161,9 +168,9 @@
   }
   function wireCards(box, rows) {
     box.addEventListener("click", function (e) {
-      var a = e.target.closest && e.target.closest(".pf-card");
+      var a = e.target.closest && e.target.closest(".pf-card-link");
       if (!a) return;
-      var key = a.getAttribute("data-pf-key");
+      var key = a.parentNode.getAttribute("data-pf-key");
       rows.forEach(function (g) { if (g.sport + ":" + (g.id || "") === key) rememberPrice(g); });
     });
   }
@@ -176,13 +183,27 @@
     $$("section.panel[id]").forEach(function (sec) {
       var ul = $("ul.today-games", sec);
       if (!ul || $(".pf-cards", sec)) return;
-      var rows = P.sortGreenFirst(all.filter(function (g) { return sec.contains(g.el); }));
+      var rows = all.filter(function (g) { return sec.contains(g.el); });
       var box = document.createElement("div");
-      box.className = "pf-cards pf-only";
-      box.innerHTML = rows.map(function (g) { return P.cardHtml(g); }).join("");
+      box.className = "pf-cardlist pf-only";
+      box.innerHTML = P.cardListHtml(rows, { sort: "asc", greenFirst: true });
       ul.parentNode.insertBefore(box, ul);
       wireCards(box, rows);
+      dayOffH2(sec);
     });
+  }
+
+  // "NBA · Wednesday 18 November": the day moves to the headers above the cards, so the phone heading keeps the sport only
+  function dayOffH2(sec) {
+    var h2 = $(":scope > h2", sec);
+    if (!h2 || $(".pf-h2-day", h2)) return;
+    var t = h2.textContent, i = t.indexOf(" · ");
+    if (i < 0 || h2.children.length) return;
+    h2.textContent = t.slice(0, i);
+    var s = document.createElement("span");
+    s.className = "pf-h2-day";
+    s.textContent = t.slice(i);
+    h2.appendChild(s);
   }
 
   // ------------------------------------------------------------------ home screen
@@ -229,7 +250,7 @@
         var rows = rowsFromToday(new DOMParser().parseFromString(h, "text/html"));
         var top = P.topGreens(rows, 5);
         box.innerHTML = top.length
-          ? top.map(function (g) { return P.cardHtml(g); }).join("")
+          ? P.cardListHtml(top, { sort: "asc" })
           : '<div class="pf-empty"><b>No green picks in the next 24 hours yet.</b><span>New picks land as games come into range. Every game is on Today.</span></div>';
         relabel(box);
         wireCards(box, top);
@@ -544,7 +565,7 @@
     b.addEventListener("click", function () { openSheet(sel, label, b); });
     return b;
   }
-  // the bottom sheet: one shell for pickers and for detail notes
+  // the bottom sheet (props pickers)
   function sheet(label, inner, opener, onPick) {
     var wrap = document.createElement("div");
     wrap.className = "pf-sheet-wrap";
@@ -571,13 +592,6 @@
       if (cur) { cur.focus({ preventScroll: true }); if (cur.hasAttribute("data-v")) cur.scrollIntoView({ block: "nearest" }); }
     });
     return wrap;
-  }
-  function injurySheet(b) {
-    var li = b.closest(".pf-hr"), link = li && $(".pf-hr-link", li);
-    sheet("⚠️ Injury watch",
-      '<div class="pf-sheet-body"><p class="pf-sheet-title">' + esc(b.getAttribute("data-pf-inj-title") || "") + "</p>" +
-      '<p class="pf-sheet-note">' + esc(b.getAttribute("data-pf-inj") || "") + "</p>" +
-      (link ? '<a class="pf-more pf-more-sm" href="' + esc(link.getAttribute("href")) + '">Match details<span aria-hidden="true">→</span></a>' : "") + "</div>", b);
   }
   function openSheet(sel, label, opener) {
     sheet(label, '<ul class="pf-sheet-list">' + Array.prototype.map.call(sel.options, function (o, i) {
@@ -736,40 +750,57 @@
     if (anchors.length) top.appendChild(linksLine(anchors));
     paras.forEach(function (p) { p.classList.add("pf-replaced"); });
 
-    // 2. game lists: compact rows, the date once per day
-    $$("section.panel", main).forEach(function (sec) {
-      var ul = $(":scope > ul.games", sec);
-      if (!ul || $(".pf-hublist", sec)) return;
-      var rows = $$(":scope > li", ul).map(function (li) {
-        var a = $("a", li), m = $(".m", li), mc = m ? m.cloneNode(true) : null;
-        if (mc) $$("small, br", mc).forEach(function (x) { x.remove(); });
-        var more = $(".injury-watch-more", li), chip = $(".chip", li);
-        return P.hubRowFromParts({
-          sport: sport,
-          dayText: txt($(".d", li)),
-          matchText: txt(mc),
-          pickText: txt($(".p", li)),
-          chipClass: chip ? chip.className : "",
-          bestValue: !!$(".bv-tag", li),
-          href: P.matchHref(sport, a ? a.getAttribute("href") : ""),
-          injury: !!$(".injury-watch", li),
-          injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", li)),
-          resultText: txt($(".r", li)),
-        });
-      });
-      var h2 = $(":scope > h2", sec);
-      var dayPanel = !!h2 && sport !== "nfl" && !/recent results/i.test(txt(h2));
-      var single = P.groupByDay(rows).length === 1;
-      var box = document.createElement("div");
-      box.className = "pf-hublist pf-only";
-      box.innerHTML = P.hubListHtml(rows, { skipHeader: dayPanel });
-      ul.parentNode.insertBefore(box, ul);
-      ul.classList.add("pf-replaced");
-      if (dayPanel && single) h2.classList.add("pf-dayhead-h2");
-    });
+    // 2. game lists: the shared game card, one small header per day
+    gameLists(sport, main, { mergeDays: sport !== "nfl" }); // NFL hub panels are weeks, kept as headings
   }
 
-  // /championship: the app view (hidden-sports.js) repaints #main, so rows are rebuilt after each paint
+  // Server game lists (sport pages, /nba/today, /nfl/today): every row becomes the shared game card.
+  // Day panels (headed by a US date) are merged into one list with an AEDT day header per day; Recent results and
+  // NFL week panels keep their heading and get the day headers inside.
+  function hubRow(sport, li) {
+    var a = $("a", li), m = $(".m", li), mc = m ? m.cloneNode(true) : null;
+    if (mc) $$("small, br", mc).forEach(function (x) { x.remove(); });
+    var more = $(".injury-watch-more", li), chip = $(".chip", li);
+    return P.hubRowFromParts({
+      sport: sport,
+      start: li.getAttribute("data-start"),
+      tbc: li.getAttribute("data-tbc") === "1",
+      dayText: txt($(".d", li)),
+      matchText: txt(mc),
+      subText: txt(m && $("small", m)),
+      pickText: txt($(".p", li)),
+      chipClass: chip ? chip.className : "",
+      bestValue: !!$(".bv-tag", li),
+      href: P.matchHref(sport, a ? a.getAttribute("href") : ""),
+      injury: !!$(".injury-watch", li),
+      injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", li)),
+      resultText: txt($(".r", li)),
+    });
+  }
+  function gameLists(sport, main, opts) {
+    if (!main || $(".pf-cardlist", main)) return;
+    var light = (new URLSearchParams(location.search).get("light") || "green").toLowerCase();
+    var secs = $$("section.panel", main).filter(function (sec) { return $(":scope > ul.games", sec); });
+    var isResults = function (sec) { return /recent results/i.test(txt($(":scope > h2", sec))); };
+    var put = function (sec, rows, sort, hideH2) {
+      var ul = $(":scope > ul.games", sec), h2 = $(":scope > h2", sec);
+      var box = document.createElement("div");
+      box.className = "pf-cardlist pf-only";
+      box.innerHTML = P.cardListHtml(rows, { sort: sort, greenFirst: sort === "asc" && light === "all" });
+      ul.parentNode.insertBefore(box, ul);
+      ul.classList.add("pf-cardsrc");
+      if (hideH2 && h2) h2.classList.add("pf-cardsrc");
+    };
+    var rowsOf = function (sec) { return $$(":scope > ul.games > li", sec).map(function (li) { return hubRow(sport, li); }); };
+    var days = secs.filter(function (s) { return !isResults(s); });
+    if (opts && opts.mergeDays && days.length) {
+      put(days[0], [].concat.apply([], days.map(rowsOf)), "asc", true);
+      days.slice(1).forEach(function (s) { s.classList.add("pf-cardsrc"); });
+    } else days.forEach(function (s) { put(s, rowsOf(s), "asc", false); });
+    secs.filter(isResults).forEach(function (s) { put(s, rowsOf(s), "desc", false); });
+  }
+
+  // /championship: the app view (hidden-sports.js) repaints #main, so its intro is set once and the lists by appLists
   function appHubPage(sport) {
     root.classList.add("pf-hub", "pf-apphub");
     var lede = document.getElementById("spLede");
@@ -779,8 +810,14 @@
       var more = readMore(lede);
       more.insertAdjacentElement("afterend", linksLine([Object.assign(document.createElement("a"), { href: "/" + sport + "/results", textContent: "Full record →" })]));
     }
+  }
+
+  // The app's game lists (#main: the NBA / NFL app, and the NHL / EPL / Championship app pages): day headers and
+  // app cards become the shared game card, rebuilt after every repaint.
+  function appLists() {
     var mainEl = document.getElementById("main");
     if (!mainEl) return;
+    var sport = pageSport();
     function ddAfterIn(card, label) {
       var dt = $$("dl.prices dt", card).filter(function (d) { return txt(d).toLowerCase() === label; })[0];
       return dt && dt.nextElementSibling ? txt(dt.nextElementSibling) : "";
@@ -788,34 +825,38 @@
     var rowOf = function (card, day) {
       var names = $$(".teams .team .nm", card).map(txt).filter(function (n) { return n && n !== "Draw"; });
       var mark = $(".mark", card), scores = $$(".teams .team .role b", card).map(txt);
-      var chip = $(".card-top .chip", card);
+      var chip = $(".card-top .chip", card), more = $(".injury-watch-more", card), id = card.getAttribute("data-game");
+      var pick = ddAfterIn(card, "pick");
       return P.hubRowFromParts({
         sport: sport,
+        id: id,
+        start: card.getAttribute("data-start"),
         dayText: day,
-        matchText: names.join(" v "),
-        pickText: ddAfterIn(card, "pick") + " " + ddAfterIn(card, "chance"),
+        timeText: txt($(".card-top .time", card)),
+        matchText: names.join($(".teams .at", card) ? " @ " : " v "),
+        pickText: pick ? pick + " " + ddAfterIn(card, "chance") : "",
         chipClass: chip ? chip.className : "",
         bestValue: !!$(".card-top .bv-tag", card),
-        href: "#game-" + card.getAttribute("data-game"),
+        href: id ? "#game-" + id : "#",
+        injury: !!$(".injury-watch", card),
+        injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", card)),
         resultText: mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "",
       });
     };
     var run = function () {
-      if (!mq.matches || $(":scope > .pf-hublist", mainEl)) return;
-      var groups = [], cur = null;
+      if (!mq.matches || $(":scope > .pf-cardlist", mainEl)) return;
+      sport = pageSport(); // the NBA app switches between NBA and NFL in place
+      var rows = [], cards = [], heads = [], day = "";
       Array.prototype.slice.call(mainEl.children).forEach(function (c) {
-        if (c.classList.contains("dayhead")) { cur = { head: c, cards: [] }; groups.push(cur); return; }
-        if (c.matches("article.card[data-game]") && cur) cur.cards.push(c);
+        if (c.classList.contains("dayhead")) { day = txt(c); heads.push(c); return; }
+        if (c.matches("article.card")) { rows.push(rowOf(c, day)); cards.push(c); }
       });
-      groups.forEach(function (g) {
-        if (!g.cards.length) return;
-        var box = document.createElement("div");
-        box.className = "pf-hublist pf-only";
-        box.innerHTML = P.hubListHtml(g.cards.map(function (c) { return rowOf(c, txt(g.head)); }), { skipHeader: true });
-        g.head.insertAdjacentElement("afterend", box);
-        g.head.classList.add("pf-dayhead-h2");
-        g.cards.forEach(function (c) { c.classList.add("pf-replaced"); });
-      });
+      if (!cards.length) return;
+      var box = document.createElement("div");
+      box.className = "pf-cardlist pf-only";
+      box.innerHTML = P.cardListHtml(rows, {});
+      (heads[0] || cards[0]).insertAdjacentElement("beforebegin", box);
+      heads.concat(cards).forEach(function (c) { c.classList.add("pf-cardsrc"); });
     };
     new MutationObserver(debounce(run, 30)).observe(mainEl, { childList: true });
     run();
