@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-17T22:52:32Z",
+  "generated_utc": "2026-11-18T00:07:53Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -180,25 +180,58 @@
     },
     {
       "sport": "nhl",
-      "game_id": "2ef747b5f529d07b71843f1b5240eb38",
-      "away": "MTL",
-      "home": "NYR",
-      "away_name": "Montr\u00e9al Canadiens",
-      "home_name": "New York Rangers",
-      "start_utc": "2026-11-17T00:30:00Z",
-      "market_home": 0.4808,
-      "market_away": 0.5192
+      "game_id": "5cfe0dc8ffa69bdd676d878da0ae62fb",
+      "away": "LAK",
+      "home": "BOS",
+      "away_name": "Los Angeles Kings",
+      "home_name": "Boston Bruins",
+      "start_utc": "2026-11-18T00:10:00Z",
+      "market_home": 0.5916,
+      "market_away": 0.4084
     },
     {
       "sport": "nhl",
-      "game_id": "f5973475196770206d4e81300ca54634",
-      "away": "VAN",
-      "home": "UTA",
-      "away_name": "Vancouver Canucks",
-      "home_name": "Utah Mammoth",
-      "start_utc": "2026-11-17T02:40:00Z",
-      "market_home": 0.7431,
-      "market_away": 0.2569
+      "game_id": "c5e76339fef03145801250ff2216947b",
+      "away": "BUF",
+      "home": "PHI",
+      "away_name": "Buffalo Sabres",
+      "home_name": "Philadelphia Flyers",
+      "start_utc": "2026-11-18T00:10:00Z",
+      "market_home": 0.4606,
+      "market_away": 0.5394
+    },
+    {
+      "sport": "nhl",
+      "game_id": "03ad7eb1b11b6d15943b734624469fdf",
+      "away": "CBJ",
+      "home": "NYI",
+      "away_name": "Columbus Blue Jackets",
+      "home_name": "New York Islanders",
+      "start_utc": "2026-11-18T00:10:00Z",
+      "market_home": 0.5217,
+      "market_away": 0.4783
+    },
+    {
+      "sport": "nhl",
+      "game_id": "335e0828d32c0c78646ed876d6ca4555",
+      "away": "EDM",
+      "home": "FLA",
+      "away_name": "Edmonton Oilers",
+      "home_name": "Florida Panthers",
+      "start_utc": "2026-11-18T00:10:00Z",
+      "market_home": 0.5445,
+      "market_away": 0.4555
+    },
+    {
+      "sport": "nhl",
+      "game_id": "49403a7a83c32958f485162e0c8ec655",
+      "away": "OTT",
+      "home": "WPG",
+      "away_name": "Ottawa Senators",
+      "home_name": "Winnipeg Jets",
+      "start_utc": "2026-11-18T00:10:00Z",
+      "market_home": 0.4456,
+      "market_away": 0.5544
     }
   ]
 }
