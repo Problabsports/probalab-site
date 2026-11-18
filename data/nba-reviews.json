@@ -1379,6 +1379,62 @@
       "right": "We picked Oklahoma City at 79%, and they won by 22. The model had them well ahead on team strength (89.6 to 78.9) and form (about 4.5 a game against about −11.6). They won despite missing Chet Holmgren, Jalen Williams and Cason Wallace.",
       "missed": "Nothing big. Oklahoma City won comfortably even with three rotation players out.",
       "why": "The pick was right. Shooting efficiency decided it, and a 79% chance still loses about 1 in 5."
+    },
+    "401909994": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Magic beat the Celtics 115–105 in Boston. Orlando made 13 of 34 threes and 20 of 25 free throws, while Boston made 20 of 56 threes and only 9 of 17 free throws. Desmond Bane scored 24 for Orlando and Anthony Black added 20. Jayson Tatum had 24 points and 12 rebounds for Boston.",
+      "right": "The reasons we leaned on were real. Boston rated stronger (92.4 to 83.7) and was in much better form (about +13 a game against about −2). Orlando also played without Paolo Banchero, Jonathan Isaac and Noah Penda, and Boston without Neemias Queta.",
+      "missed": "We picked Boston at 76% and that was wrong. Orlando shot well enough from three and at the line to cover for the missing starters, and Boston's shooting from outside never got going.",
+      "why": "This is one of the 1-in-4 games a 76% pick loses. Orlando's shooting was well above what the model expected from a short-handed team, and nothing in our inputs could see that coming."
+    },
+    "401909995": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Cavaliers beat the Bulls 126–115 in Cleveland. Cleveland made 51 of 97 shots and out-rebounded Chicago 51 to 37. Donovan Mitchell scored 39. Norman Powell led Chicago with 27 points but missed all six of his threes.",
+      "right": "We picked Cleveland at 80% and they won by 11. The model had them stronger (94.5 to 89.6) and in much better form (about +0.5 a game against about −8.7). Chicago was without Caleb Wilson and Tobe Awaka, and Cleveland's Evan Mobley and Sam Merrill were also out, so the missing players on the home side did not change the result.",
+      "missed": "Nothing big. Cleveland missed Mobley and still won comfortably, which is a little more resilient than the model assumed.",
+      "why": "The pick was right. Cleveland's shooting and rebounding edge decided it, and even an 80% chance still loses about 1 in 5."
+    },
+    "401909996": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Grizzlies beat the Wizards 136–120 in Washington. Memphis made 53 of 95 shots and had 42 assists to Washington's 25, and out-rebounded them 48 to 31. Cameron Boozer scored 29 with 7 rebounds and 7 assists, and Zach Edey had 23 points and 10 rebounds. Washington made 29 of 36 free throws.",
+      "right": "We picked Memphis at 68% and they won by 16. The model's case was form (about +2.6 a game against about −10.5 for Washington). Both teams were missing players, including Ty Jerome, Isaiah Stewart and GG Jackson for Memphis and Tristan Vukcevic for Washington.",
+      "missed": "The model actually rated Washington slightly stronger overall (89.3 to 86.4), so the pick rested on form, not talent. The size of the win was larger than the model suggested.",
+      "why": "The pick was right. Passing and shot-making carried Memphis, and a 68% chance still loses about 1 in 3."
+    },
+    "401909997": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The 76ers beat the Nets 135–123 in Brooklyn. Philadelphia made 32 of 38 free throws to Brooklyn's 22 of 34 and out-rebounded them 47 to 38. Joel Embiid scored 37, Jaylen Brown had 31 points and 13 rebounds, and Tyrese Maxey added 24 points and 9 assists. Julius Randle led Brooklyn with 33.",
+      "right": "We picked Philadelphia at 63% and they won by 12. The model had them slightly stronger (87.7 to 85.3) and in better form (about −0.4 a game against about −7.3). Embiid was listed as questionable and played well, and LeBron James was out for Philadelphia.",
+      "missed": "This was a modest-confidence pick and it came in, but we should not read too much into it. Philadelphia was missing four players and the model gave that only a small penalty.",
+      "why": "The pick was right. Free throws and rebounding decided a game where both teams shot almost the same from the field, and a 63% chance still loses about 4 in 10."
+    },
+    "401909998": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Heat beat the Rockets 128–110 in Miami. Miami made 18 of 50 threes to Houston's 10 of 36. Giannis Antetokounmpo had 20 points, 13 rebounds and 6 assists, and Klay Thompson hit 5 of 8 threes on the way to 17. Kevin Durant scored 22 for Houston, who out-rebounded Miami 52 to 40 but still lost by 18.",
+      "right": "We picked Miami at 55%, which is close to a coin flip, and they won comfortably. The model had them stronger overall (98.9 to 89.7) and Houston was without Clint Capela.",
+      "missed": "The model's form numbers actually favoured Houston (about +8.4 a game against about +1.3), so the two signals pulled in different directions. The size of the Miami win was well beyond a 55% game.",
+      "why": "The pick was right, but at 55% that is close to luck. Miami's three-point shooting made the difference."
+    },
+    "401909999": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Timberwolves beat the Trail Blazers 106–98 in Minnesota. Minnesota made 30 of 39 free throws to Portland's 12 of 15 and out-rebounded them 53 to 49, even though Portland made more field goals, 37 to 33. Terrence Shannon Jr. scored 34 for Minnesota, and Deni Avdija had 27 points and 8 rebounds for Portland.",
+      "right": "We picked Minnesota at 61%, which is a modest-confidence pick, and they won by 8. The model had both teams in good form, Minnesota slightly ahead (about +6.9 a game against about +5.5). Both sides were missing key players: Anthony Edwards, Jaylen Clark and Donte DiVincenzo for Minnesota, and Ja Morant and Shaedon Sharpe for Portland.",
+      "missed": "The model rated Portland a bit stronger overall (93.2 to 91.1), so the pick leaned on form alone. Portland actually outshot Minnesota from the field and lost at the free-throw line.",
+      "why": "The pick was right, though the game was closer to even than the result looks. A 61% chance still loses about 4 in 10."
+    },
+    "401910000": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Pelicans beat the Warriors 115–94 in New Orleans. Golden State made 28 of 84 shots and 11 of 46 threes. New Orleans made 15 of 40 threes. Yaxel Lendeborg scored 28 for Golden State, but he shot 2 of 9 from three. Saddiq Bey scored 23 for New Orleans.",
+      "right": "Not much. We picked Golden State at 52%, which was effectively a coin flip, and the model's main reason was form (about +1.9 a game against about −10.8 for New Orleans).",
+      "missed": "We picked Golden State and that was wrong, by 21. The model rated New Orleans stronger overall (90.9 to 83.7), so we were leaning on form against a better-rated team. Both teams were missing several rotation players, including Stephen Curry and Jimmy Butler for Golden State, and the model did not see how big the gap in shooting would be.",
+      "why": "At 52% the pick was never a confident one. Golden State's poor shooting turned a close call into a lopsided loss."
+    },
+    "401910001": {
+      "updated_utc": "2026-11-18T06:16:29Z",
+      "happened": "The Suns beat the Nuggets 117–105 in Denver. Phoenix made 43 of 88 shots and 16 of 36 threes and out-rebounded Denver 51 to 35. Denver made only 9 of 30 threes. Devin Booker had 20 points and 8 assists, and Jamal Murray scored 28 for Denver.",
+      "right": "The model had Denver stronger (97.2 to 88.4) and in better form (about +3.4 a game against about −4.3), and those reasons are fair. Phoenix was without Mark Williams and Denver without Julian Strawther.",
+      "missed": "We picked Denver at 77% and that was wrong. Phoenix hit far more threes and won the rebounding by 16, and Denver's outside shooting never showed up.",
+      "why": "This is one of the roughly 1-in-4 games a 77% pick loses. The model does not know about a bad shooting night in advance."
     }
   }
 }
