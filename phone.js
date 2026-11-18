@@ -778,7 +778,8 @@
     // pick + chance: the contract, else the app card's Pick / Chance, else the row's "Pick 62%"
     var pickText = d("pick") ? "" : ddIn(el, "pick") ? ddIn(el, "pick") + " " + ddIn(el, "chance") : txt($(".p", el));
     var mark = $(".mark", el), scores = $$(".teams .team .role b", el).map(txt);
-    var result = d("result") || txt($(".r", el)) ||
+    // result: the server row's <span class="r"> (an app card's away team box is also class "r", so only the span counts)
+    var result = d("result") || txt($("span.r", el)) ||
       (mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "");
     var link = $("a[href]:not(.team-link)", el) || (el.matches("a[href]") ? el : null);
     var href = d("game") ? "#game-" + d("game") : link ? P.matchHref(sport, link.getAttribute("href")) : "";

@@ -162,6 +162,7 @@ assert.match(js, /gameLists\(\$\("main"\)\)/, "every other server page with game
 assert.match(js, /\$\$\("\[data-sport\]\[data-start\]", mainEl\)/, "app lists, every sport");
 assert.match(js, /closest\("\[data-pf-injtoggle\]"\)[\s\S]{0,80}P\.setInjuryOpen\(b\.closest\("\.pf-card"\)\)/, "chip / More toggle the note in their card");
 assert.ok(!/P\.cardHtml\(/.test(js), "phone.js draws cards only through the shared list");
+assert.match(js, /txt\(\$\("span\.r", el\)\)/, "result comes from the row's span.r, never an app card's away team box (div.team.r)");
 const listCode = js.slice(js.indexOf("// ---- every game list → the shared game card".replace("---- ", "------------------------------------------------------------------ ")), js.indexOf("// ------------------------------------------------------------------ stacked lights keys"));
 assert.ok(listCode.length > 1000, "list code found");
 assert.ok(!/["'](nba|nfl|nhl|epl|championship|tennis)["']|nba\||\|nfl/.test(listCode), "no sport names in the list code");
