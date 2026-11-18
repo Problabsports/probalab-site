@@ -1251,5 +1251,54 @@
   "away_score": 3,
   "result": "away",
   "correct": false
+ },
+ "2026020333": {
+  "graded": true,
+  "home_score": 0,
+  "away_score": 3,
+  "result": "away",
+  "correct": false
+ },
+ "2026020335": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 5,
+  "result": "away",
+  "correct": true
+ },
+ "2026020336": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 1,
+  "result": "home",
+  "correct": true
+ },
+ "2026020337": {
+  "graded": true,
+  "home_score": 4,
+  "away_score": 3,
+  "result": "home",
+  "correct": false
+ },
+ "2026020341": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 2,
+  "result": "away",
+  "correct": true
+ },
+ "2026020334": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 2,
+  "result": "home",
+  "correct": true
+ },
+ "2026020338": {
+  "graded": true,
+  "home_score": 6,
+  "away_score": 3,
+  "result": "home",
+  "correct": false
  }
 }
