@@ -542,3 +542,9 @@ table.pr-table tr.RED { --lt: var(--red); }
   .record-hero.pr-big .pr-aside { display: inline-block; margin-left: 0; vertical-align: baseline; }
   .record-hero.pr-big b + span + .pr-aside { margin-left: 8px; }
 }
+
+/* Prices by country (props-region.js sets html[data-region]; AU shows by default, also without JS) */
+html[data-region="us"] .rg-au { display: none !important; }
+html:not([data-region="us"]) .rg-us { display: none !important; }
+.pp-region { display: flex; align-items: center; gap: 6px; margin: 4px 0 12px; }
+.pp-region .pp-region-lab { color: var(--muted); margin-right: 2px; font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .08em; }

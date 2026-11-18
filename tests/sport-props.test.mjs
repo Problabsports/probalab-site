@@ -51,7 +51,8 @@ for (const [sport, page] of [["nfl", nflPage], ["nhl", nhlPage]]) {
   assert.ok(m.includes('data-basis="hit"') && m.includes("60%+") && m.includes("55–59%"), "props scale key on hit rates");
   assert.ok(m.includes(`data-api="/api/props-${sport}"`), "member swap endpoint");
   assert.ok(m.includes('class="pp-sports') && m.includes('href="/props/nba"') && m.includes('href="/props/nhl"'), "sport switch");
-  assert.ok(m.includes("<th scope=\"col\" class=\"num\">Sportsbet") && m.includes("Best other"), "price columns");
+  assert.ok(m.includes("<th scope=\"col\" class=\"num rg-au\">Sportsbet") && m.includes("Best other"), "AU price columns");
+  assert.ok(m.includes("<th scope=\"col\" class=\"num rg-us\">Best Over") && m.includes("Best Under"), "US price columns");
   assert.ok(m.includes('class="pp-form"'), "last 8 chart");
   assert.ok(/\/img\/logos\/(nfl|nhl)\/[a-z0-9-]+\.png/.test(m), "team logos");
   // data only: none of these words anywhere in the page body

@@ -1,7 +1,9 @@
 /* Player view for the props pages (/props/nba, /props/nfl, /props/nhl): opens from a player name on a card
    (phones: bottom sheet) or in the table (desktop: panel). Data only: the prop's line, every bookie's prices
    (best per side highlighted), last 8 against the line, game-by-game results, season average and hit rates.
-   Reads the per-game JSON written by the server (only the rows the viewer can see). */
+   Reads the per-game JSON written by the server (only the rows the viewer can see).
+   Prices follow the region (<html data-region>, set by props-region.js): AU bookies in decimal, or US sportsbooks in
+   American odds (-110, +150); "No AU price" / "No US price" when that region has none. */
 (function () {
   "use strict";
   var board = document.getElementById("propsBoard");
@@ -14,6 +16,10 @@
   var pct = function (x) { return PL ? PL.chanceText(x) : shownPct(x) + "%"; };
   var light = function (r) { if (r == null) return ""; if (PL) return PL.propsLight(r) || ""; var p = shownPct(r); return p >= 60 ? "GREEN" : p >= 55 ? "ORANGE" : "RED"; };
   var LIGHT = { GREEN: "Green", ORANGE: "Orange", RED: "Red" };
+  var region = function () { return document.documentElement.getAttribute("data-region") === "us" ? "us" : "au"; };
+  /** Decimal -> American: 2.50 -> +150, 1.91 -> -110. */
+  var american = function (d) { d = num(d); if (d == null || d <= 1) return "—"; return d >= 2 ? "+" + Math.round((d - 1) * 100) : "-" + Math.round(100 / (d - 1)); };
+  var fmt = function (d, rg) { d = num(d); return d == null ? "—" : rg === "us" ? american(d) : d.toFixed(2); };
 
   function findItem(id) {
     var blocks = board.querySelectorAll("script.pp-pv");
@@ -75,12 +81,12 @@
   }
 
   /** Opening (first pull) and closing (last pull before the start) price per bookie; best closing price highlighted. */
-  function openClose(it, books) {
+  function openClose(it, books, rg) {
     var p = it.pulls || {}, closed = p.latest === "close";
     var closeHead = closed ? "Close" : "Latest";
     var cell = function (o, c, best) {
       o = num(o); c = num(c);
-      return '<td class="n ppv-oc' + (c != null && c === best ? " best" : "") + '"><small>' + (o == null ? "-" : o.toFixed(2)) + '</small><b>' + (c == null ? "-" : c.toFixed(2)) + '</b></td>';
+      return '<td class="n ppv-oc' + (c != null && c === best ? " best" : "") + '"><small>' + (o == null ? "-" : fmt(o, rg)) + '</small><b>' + (c == null ? "-" : fmt(c, rg)) + '</b></td>';
     };
     var note = '<p class="ppv-muted ppv-small">Open = first price pull (about a day before). ' +
       (closed ? "Close = last pull before the start." : "Close appears after the last pull before the start; until then the latest pull shows.") +
@@ -97,19 +103,22 @@
       '</tbody></table>' + note;
   }
 
-  function prices(it) {
-    var books = it.books || [];
-    if (!books.length) return it.no_au_price && (it.sport !== "nba" || it.line_source === "avg")
-      ? '<p class="ppv-noau"><b>-</b> No AU price for this prop. No Australian bookie has posted it, so there is no price to show.</p>'
-      : '<p class="ppv-muted">No prices posted for this prop yet.</p>';
+  function prices(it, rg) {
+    var books = (rg === "us" ? it.books_us : it.books) || [];
+    if (!books.length) {
+      if (rg === "us") return '<p class="ppv-noau"><b>-</b> No US price for this prop. No US sportsbook has posted it on this line, so there is no price to show.</p>';
+      return it.no_au_price && (it.sport !== "nba" || it.line_source === "avg")
+        ? '<p class="ppv-noau"><b>-</b> No AU price for this prop. No Australian bookie has posted it, so there is no price to show.</p>'
+        : '<p class="ppv-muted">No prices posted for this prop yet.</p>';
+    }
     var hasOpen = books.some(function (b) { return "open_over" in b || "open_under" in b || "open_yes" in b; });
-    if (hasOpen) return openClose(it, books);
+    if (hasOpen) return openClose(it, books, rg);
     if (it.kind === "yes") {
       var best = Math.max.apply(null, books.map(function (b) { return num(b.yes) || 0; }));
       return '<table class="ppv-books"><thead><tr><th>Bookie</th><th class="n">Price</th><th class="n">Implied</th></tr></thead><tbody>' +
         books.map(function (b) {
           var on = num(b.yes) === best;
-          return '<tr' + (on ? ' class="best"' : "") + '><td>' + esc(b.name) + '</td><td class="n"><b>' + Number(b.yes).toFixed(2) + '</b></td><td class="n">' + pct(1 / b.yes) + '</td></tr>';
+          return '<tr' + (on ? ' class="best"' : "") + '><td>' + esc(b.name) + '</td><td class="n"><b>' + fmt(b.yes, rg) + '</b></td><td class="n">' + pct(1 / b.yes) + '</td></tr>';
         }).join("") + '</tbody></table>';
     }
     var bo = Math.max.apply(null, books.map(function (b) { return num(b.over) || 0; }));
@@ -117,8 +126,8 @@
     return '<table class="ppv-books"><thead><tr><th>Bookie</th><th class="n">Over</th><th class="n">Under</th></tr></thead><tbody>' +
       books.map(function (b) {
         var o = num(b.over), u = num(b.under);
-        return '<tr><td>' + esc(b.name) + '</td><td class="n' + (o != null && o === bo ? " best" : "") + '">' + (o == null ? "—" : o.toFixed(2)) + '</td>' +
-          '<td class="n' + (u != null && u === bu ? " best" : "") + '">' + (u == null ? "—" : u.toFixed(2)) + '</td></tr>';
+        return '<tr><td>' + esc(b.name) + '</td><td class="n' + (o != null && o === bo ? " best" : "") + '">' + fmt(o, rg) + '</td>' +
+          '<td class="n' + (u != null && u === bu ? " best" : "") + '">' + fmt(u, rg) + '</td></tr>';
       }).join("") + '</tbody></table><p class="ppv-muted ppv-small">Highest price per side highlighted. Prices move; check with the bookie.</p>';
   }
 
@@ -162,7 +171,7 @@
       (it.pred ? '<p class="ppv-pred">Prediction <b>' + esc(it.pred.side) + '</b> · <b>' + pct(it.pred.p) + '</b></p>' : "") +
       '<h3>Last ' + Math.min(8, it.log.length || 8) + (it.kind === "yes" ? " games" : it.line_source === "avg" ? " against the avg line" : " against the line") + '</h3>' + bigChart(it) +
       stats(it) +
-      '<h3>Prices</h3>' + prices(it) +
+      '<h3>Prices · ' + (region() === "us" ? "US sportsbooks" : "AU bookies") + '</h3>' + prices(it, region()) +
       (it.log.length ? '<h3>Game by game</h3>' + games(it) : "") +
       '<p class="ppv-muted ppv-small">Player stats and bookie prices only. 18+.</p>' +
       '</div></section>';
