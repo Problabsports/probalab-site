@@ -28,6 +28,21 @@ export function gameFilterHref(basePath, { sport = "all", light = "green" } = {}
   return s ? `${path}?${s}` : path;
 }
 
+/** Edge page cache for the Today lists (/today and /<sport>/today).
+ *  The cache key is the canonical filter URL (sport + light, query included), so each filter view gets its own copy
+ *  and ?light=GREEN, ?light=green and no light all share the default one. Only the default view (all sports, green)
+ *  is kept, for TODAY_PAGE_TTL seconds; a filtered view is rendered fresh on every request from the edge-cached feed,
+ *  so switching Green / All lights / Best value always shows that filter's own, current list. */
+export const TODAY_PAGE_TTL = 60;
+/** ignoreSport: a single-sport page (/<sport>/today) renders the same whatever ?sport= says, so it is left out. */
+export function todayCachePlan(url, { basePath = null, defaultLight = "green", ignoreSport = false } = {}) {
+  const u = typeof url === "string" ? new URL(url, "https://probalabsports.com") : new URL(url);
+  const filters = parseGameFilters(u, { defaultLight });
+  if (ignoreSport) filters.sport = "all";
+  const isDefault = filters.sport === "all" && filters.light === defaultLight;
+  return { key: `${u.origin}${gameFilterHref(basePath || u.pathname, filters)}`, ttl: isDefault ? TODAY_PAGE_TTL : 0, filters };
+}
+
 /** Best value tag: the purple Best value light, or a green pick that also beats our fair price (g.best_value). */
 export const hasBestValue = (g) => !!g && (g.light === "SUPER" || !!g.best_value);
 
