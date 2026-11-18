@@ -7,6 +7,7 @@ import { getFeed, gamesOf, shell, html, esc, chip, bvTag, slug, asHead } from ".
 import { injuryBadge } from "./_shared/injury-warning.js";
 import { gameLight, shownLight, scaleText, labelLong, sportCfg, chanceText } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
+import { phoneAttrs } from "./_shared/phone-row.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
   renderFilterBar, emptyFilterMessage,
@@ -99,9 +100,6 @@ function heldNoteOf(g) {
   return s || "";
 }
 
-// start time for the phone cards (day header + AEDT time); attributes only, the desktop row is unchanged
-const startAttrs = (g) => (g.start_utc ? ` data-start="${esc(g.start_utc)}"${g.tbc ? ` data-tbc="1"` : ""}` : "");
-
 function todayRow(g, showMkt) {
   const v = g.value;
   let gapCls = "";
@@ -118,7 +116,7 @@ function todayRow(g, showMkt) {
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   const warn = g.injuryBadgeHtml || "";
-  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${startAttrs(g)}${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
+  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${phoneAttrs(g, g.sport)}${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
@@ -194,6 +192,7 @@ export async function onRequestGet(ctx) {
         heldNote: heldNoteOf(g),
         injuryBadgeHtml: injuryBadge(g),
         start_utc: g.start_utc,
+        week: g.week,
       };
     });
     sections.push({

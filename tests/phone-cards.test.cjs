@@ -109,22 +109,63 @@ assert.equal(P.setInjuryOpen(fc, true), true);
 assert.equal(P.setInjuryOpen(fc, true), true, "an explicit open stays open");
 assert.equal(P.setInjuryOpen({ querySelector: () => null }), false, "a card with no injury watch is left alone");
 
-// ---------------------------------------------------------------- wiring: every phone game list uses the card
+// ---------------------------------------------------------------- hard rule: one card, every sport, every list
+// The card's markup skeleton (tags + classes, text and attribute values removed) is identical for every sport,
+// for every kind of list row, and for a sport that doesn't exist yet.
+const skeleton = (h) => h.replace(/>[^<]+</g, "><").replace(/ (?:href|aria-label|aria-controls|id|data-pf-key|style|stroke-dasharray|width|height|d|viewBox|pathLength)="[^"]*"/g, "")
+  .replace(/pf-(?:l|g)-(?:GREEN|SUPER|ORANGE|RED|none)/g, "pf-L");
+const rowFor = (sport, extra = {}) => P.hubRowFromParts({ sport, start: "2026-11-18T08:30:00Z", matchText: sport === "epl" || sport === "championship" || sport === "tennis" ? "A v B" : "A @ B",
+  pickText: "A 66%", chipClass: "chip GREEN", href: "/x#game-1", injury: true, injuryNote: "Key player uncertain.", ...extra });
+const base = skeleton(P.cardHtml(rowFor("nba")));
+for (const sp of ["nfl", "nhl", "epl", "championship", "tennis", "cricket"]) assert.equal(skeleton(P.cardHtml(rowFor(sp))), base, `${sp}: same card as NBA`);
+assert.equal(skeleton(P.cardHtml({ ...todayRow, side: todayRow.a, bestValue: false })), base, "a /today row draws the same card");
+assert.match(P.cardHtml(rowFor("cricket")), /<span class="pf-sport">CRICKET<\/span>/, "a new sport gets the card with no code change");
+// only the data differs: NFL lists group by week (from data-group), everything else by day; same header element
+const wk = (start, w) => rowFor("nfl", { start, group: `Week ${w}`, groupKey: String(w).padStart(3, "0") });
+const nflList = P.cardListHtml([wk("2026-11-30T18:00:00Z", 13), wk("2026-11-23T18:00:00Z", 12), wk("2026-11-24T01:15:00Z", 12)], { sort: "asc" });
+assert.deepEqual(nflList.match(/<p class="pf-dayhead">[^<]*<\/p>/g), ['<p class="pf-dayhead">Week 12</p>', '<p class="pf-dayhead">Week 13</p>']);
+assert.match(nflList, /<span class="pf-time">Tue 24 Nov, 5:00am AEDT<\/span>/, "grouped by week, the card's time carries its day");
+assert.equal(skeleton(P.cardHtml(wk("2026-11-23T18:00:00Z", 12))), base, "NFL week rows: same card");
+assert.deepEqual(P.cardListHtml([wk("2026-11-23T18:00:00Z", 12)], { by: "day" }).match(/pf-dayhead">[^<]*/g), ['pf-dayhead">TUE 24 NOV'], "Home (mixed sports) groups by day");
+// a row with no match view to open (tennis app) is the same card, not a link
+const noLink = P.cardHtml(rowFor("tennis", { href: "" }));
+assert.match(noLink, /<span class="pf-card-link" role="group"/);
+assert.equal(skeleton(noLink).replace('<span class="pf-card-link" role="group">', '<a class="pf-card-link">').replace(/<\/span><span class="pf-card-inj">/, '</a><span class="pf-card-inj">'), base);
+
+// ---------------------------------------------------------------- the phone data contract on every game row
+(async () => {
+  const PR = await import("../functions/_shared/phone-row.js");
+  assert.equal(PR.phoneAttrs({ start_utc: "2026-11-18T08:30:00Z" }, "nba"), ' data-sport="nba" data-start="2026-11-18T08:30:00Z"');
+  assert.equal(PR.phoneAttrs({ start_utc: "2026-11-23T18:00:00Z", week: 12 }, "nfl"), ' data-sport="nfl" data-start="2026-11-23T18:00:00Z" data-group="Week 12" data-group-key="012"');
+  assert.match(PR.phoneAttrs({ start_utc: "2026-11-19T05:00:00Z", time_tbc: true }, "tennis"), / data-tbc="1"$/);
+  assert.equal(PR.phoneAttrs({ start_utc: "2026-11-18T08:30:00Z" }, "cricket"), ' data-sport="cricket" data-start="2026-11-18T08:30:00Z"', "a new sport works by default");
+  assert.equal(PR.matchText({ home_name: "Arsenal", away_name: "Chelsea" }, "epl"), "Arsenal v Chelsea");
+  assert.equal(PR.matchText({ home_name: "B", away_name: "A" }, "nhl"), "A @ B");
+  const site = await import("../functions/_shared/site.js");
+  const li = site.gameRow({ sport: "nfl", week: 12, path: "/nfl/a-b-1", start_utc: "2026-11-23T18:00:00Z", away_name: "A", home_name: "B", pick: "B", pick_p: 0.7, light: "GREEN", status: "pre" });
+  assert.match(li, /^<li class=""\s*data-sport="nfl" data-start="2026-11-23T18:00:00Z" data-group="Week 12" data-group-key="012"><a href="\/nfl\/a-b-1">/);
+  console.log("phone-cards tests passed");
+})().catch((e) => { console.error(e); process.exit(1); });
+
+// every game row renderer emits the contract (server rows and the app rows)
+for (const [f, re] of [["functions/_shared/site.js", /\$\{phoneAttrs\(g, g\.sport\)\}><a href/], ["functions/_shared/sport-hubs.js", /<li id="game-\$\{esc\(g\.game_id\)\}"\$\{phoneAttrs\(g, g\.sport\)\}>/],
+  ["functions/today.js", /\$\{phoneAttrs\(g, g\.sport\)\}/], ["functions/_shared/teams.js", /<li\$\{phone\}><a href/], ["tennis.js", /<div class="tn-row"\$\{phone\}>/],
+  ["hidden-sports.js", /data-sport="\$\{esc\(HS\)\}" data-start=/]]) assert.match(read(f), re, f);
+assert.equal((read("index.html").match(/data-sport="\$\{g\.sport === "NFL" \? "nfl" : "nba"\}" data-start=/g) || []).length, 2, "NBA / NFL app cards");
+
+// ---------------------------------------------------------------- wiring: no per-sport phone layouts
 const js = read("phone.js");
 assert.match(js, /P\.cardListHtml\(rows, \{ sort: "asc", greenFirst: true \}\)/, "/today");
-assert.match(js, /P\.cardListHtml\(top, \{ sort: "asc" \}\)/, "Home");
-assert.match(js, /gameLists\(sport, main, \{ mergeDays: sport !== "nfl" \}\)/, "sport pages");
-assert.match(js, /\\\/\(nba\|nfl\)\\\/today/, "/nba/today and /nfl/today");
-assert.match(js, /appLists\(\)/, "app lists");
+assert.match(js, /P\.cardListHtml\(top, \{ sort: "asc", by: "day" \}\)/, "Home");
+assert.match(js, /gameLists\(main\)/, "sport pages");
+assert.match(js, /gameLists\(\$\("main"\)\)/, "every other server page with game rows (/<sport>/today, team, game, record pages)");
+assert.match(js, /\$\$\("\[data-sport\]\[data-start\]", mainEl\)/, "app lists, every sport");
 assert.match(js, /closest\("\[data-pf-injtoggle\]"\)[\s\S]{0,80}P\.setInjuryOpen\(b\.closest\("\.pf-card"\)\)/, "chip / More toggle the note in their card");
 assert.ok(!/P\.cardHtml\(/.test(js), "phone.js draws cards only through the shared list");
-assert.match(js, /start: li\.getAttribute\("data-start"\)/);
-// the server rows carry their start time (attributes only: the desktop rows look the same)
-assert.match(read("functions/today.js"), /startAttrs\(g\)/);
-assert.match(read("functions/_shared/site.js"), /data-start="\$\{esc\(g\.start_utc\)\}"/);
-assert.match(read("functions/_shared/sport-hubs.js"), /data-start="\$\{esc\(g\.start_utc\)\}"\$\{g\.time_tbc \? ` data-tbc="1"` : ""\}/);
-assert.match(read("hidden-sports.js"), /data-start="\$\{esc\(g\.start_utc\)\}"/);
-assert.equal((read("index.html").match(/data-start="\$\{esc\(g\.start_utc\)\}"/g) || []).length, 2, "app card and no-pick card");
+const listCode = js.slice(js.indexOf("// ---- every game list → the shared game card".replace("---- ", "------------------------------------------------------------------ ")), js.indexOf("// ------------------------------------------------------------------ stacked lights keys"));
+assert.ok(listCode.length > 1000, "list code found");
+assert.ok(!/["'](nba|nfl|nhl|epl|championship|tennis)["']|nba\||\|nfl/.test(listCode), "no sport names in the list code");
+assert.ok(!/(nba|nfl|nhl|epl|championship|tennis)\|/.test(js.slice(js.indexOf("// Game lists find themselves"), js.indexOf("appLists(); //"))), "no sport list in the game-list wiring (the props pages list players, not games)");
 
 // desktop guard: every card / list rule sits inside the phone media query (the generic guard is in phone-first)
 const css = read("phone.css");
@@ -134,9 +175,3 @@ for (const sel of [".pf-cardlist {", ".pf-cardsrc {", ".pf-lpill {", ".pf-card-i
   assert.ok(i > mq, `${sel} sits inside the phone media query`);
 }
 
-(async () => {
-  const site = await import("../functions/_shared/site.js");
-  const li = site.gameRow({ path: "/nba/a-b-1", start_utc: "2026-11-18T08:30:00Z", away_name: "A", home_name: "B", pick: "B", pick_p: 0.7, light: "GREEN", status: "pre" });
-  assert.match(li, /^<li class=""\s*data-start="2026-11-18T08:30:00Z"><a href="\/nba\/a-b-1">/);
-  console.log("phone-cards tests passed");
-})().catch((e) => { console.error(e); process.exit(1); });

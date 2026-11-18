@@ -44,12 +44,14 @@
     if (/^\/props\/(nba|nfl|nhl)$/.test(location.pathname)) propsPage();
     if (/^\/props\/nba\/player\//.test(location.pathname)) playerPage();
     if (location.pathname === "/results") resultsPage();
-    var hub = location.pathname.match(/^\/(nba|nfl|nhl|epl|tennis)\/?$/);
-    if (hub && !window.HIDDEN_SPORT && $("main h1")) hubPage(hub[1]);
-    var week = location.pathname.match(/^\/(nba|nfl)\/today\/?$/);
-    if (week && !window.HIDDEN_SPORT && $("main h1")) { root.classList.add("pf-sportlist"); gameLists(week[1], $("main"), { mergeDays: true }); }
-    if (/^\/championship\/?$/.test(location.pathname) && window.HIDDEN_SPORT === "championship") appHubPage("championship");
-    if (document.getElementById("main")) appLists(); // the app's own game lists (NBA / NFL app, NHL / EPL / Championship app)
+    // Game lists find themselves by the phone data contract (data-sport on each row), never by sport name, so every
+    // sport, and any sport added later, gets the same card. A sport landing page (/<sport>) also gets the short intro.
+    var hub = location.pathname.match(/^\/([a-z0-9-]+)\/?$/);
+    var hasRows = !!$("main ul.games > li[data-sport]");
+    if (hub && hasRows && !window.HIDDEN_SPORT && $("main h1")) hubPage(hub[1]);
+    else if (hasRows && location.pathname !== "/today") { root.classList.add("pf-sportlist"); gameLists($("main")); }
+    if (window.HIDDEN_SPORT && /^\/[a-z0-9-]+\/?$/.test(location.pathname) && document.getElementById("spLede")) appHubPage(window.HIDDEN_SPORT);
+    if (document.getElementById("main")) appLists(); // the app's own game lists, every sport
     // Injury watch: the chip (or the card's More) opens the note inside the card; tap again to close
     document.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-pf-injtoggle]");
@@ -136,7 +138,8 @@
         var a = $(".d a", li) || $("a.row-rest", li);
         var chip = $(".chip", li), odds = $(".fp .odds", li), more = $(".injury-watch-more", li);
         out.push(P.rowFromParts({
-          sport: sec.id,
+          sport: li.getAttribute("data-sport") || sec.id,
+          group: li.getAttribute("data-group"), groupKey: li.getAttribute("data-group-key"),
           whenText: txt($(".d", li)),
           start: li.getAttribute("data-start"),
           tbc: li.getAttribute("data-tbc") === "1",
@@ -250,7 +253,7 @@
         var rows = rowsFromToday(new DOMParser().parseFromString(h, "text/html"));
         var top = P.topGreens(rows, 5);
         box.innerHTML = top.length
-          ? P.cardListHtml(top, { sort: "asc" })
+          ? P.cardListHtml(top, { sort: "asc", by: "day" }) // Home mixes sports: by day
           : '<div class="pf-empty"><b>No green picks in the next 24 hours yet.</b><span>New picks land as games come into range. Every game is on Today.</span></div>';
         relabel(box);
         wireCards(box, top);
@@ -750,54 +753,96 @@
     if (anchors.length) top.appendChild(linksLine(anchors));
     paras.forEach(function (p) { p.classList.add("pf-replaced"); });
 
-    // 2. game lists: the shared game card, one small header per day
-    gameLists(sport, main, { mergeDays: sport !== "nfl" }); // NFL hub panels are weeks, kept as headings
+    // 2. game lists: the shared game card, one small header per day (or per week, when the rows say so)
+    root.classList.add("pf-sportlist");
+    gameLists(main);
   }
 
-  // Server game lists (sport pages, /nba/today, /nfl/today): every row becomes the shared game card.
-  // Day panels (headed by a US date) are merged into one list with an AEDT day header per day; Recent results and
-  // NFL week panels keep their heading and get the day headers inside.
-  function hubRow(sport, li) {
-    var a = $("a", li), m = $(".m", li), mc = m ? m.cloneNode(true) : null;
-    if (mc) $$("small, br", mc).forEach(function (x) { x.remove(); });
-    var more = $(".injury-watch-more", li), chip = $(".chip", li);
+  // ------------------------------------------------------------------ every game list → the shared game card
+  // One parser for every game row on the site: server rows (sport pages, /<sport>/today, team, game and record pages)
+  // and the app's rows (NBA / NFL app, NHL / EPL / Championship app, tennis app). A row is any element carrying the
+  // phone data contract (data-sport + data-start, see functions/_shared/phone-row.js). Nothing here is per sport:
+  // a new sport whose rows carry the contract gets the same card, injury chip and day (or week) headers.
+  function ddIn(el, label) {
+    var dt = $$("dl.prices dt", el).filter(function (d) { return txt(d).toLowerCase() === label; })[0];
+    return dt && dt.nextElementSibling ? txt(dt.nextElementSibling) : "";
+  }
+  function rowFromEl(el, fallbackSport) {
+    var d = function (k) { var v = el.getAttribute("data-" + k); return v == null ? "" : v; };
+    var sport = d("sport") || fallbackSport || "";
+    // matchup: the contract, else the app card's team names, else the row's match text
+    var m = $(".m", el), mc = m ? m.cloneNode(true) : null;
+    if (mc) $$(".best-tag, .held-note, small, br", mc).forEach(function (x) { x.remove(); });
+    var names = $$(".teams .team .nm", el).map(txt).filter(function (n) { return n && n !== "Draw"; });
+    var matchText = d("match") || (names.length === 2 ? names.join($(".teams .at", el) ? " @ " : " v ") : txt(mc));
+    // pick + chance: the contract, else the app card's Pick / Chance, else the row's "Pick 62%"
+    var pickText = d("pick") ? "" : ddIn(el, "pick") ? ddIn(el, "pick") + " " + ddIn(el, "chance") : txt($(".p", el));
+    var mark = $(".mark", el), scores = $$(".teams .team .role b", el).map(txt);
+    var result = d("result") || txt($(".r", el)) ||
+      (mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "");
+    var link = $("a[href]:not(.team-link)", el) || (el.matches("a[href]") ? el : null);
+    var href = d("game") ? "#game-" + d("game") : link ? P.matchHref(sport, link.getAttribute("href")) : "";
+    var chip = $(".chip", el), more = $(".injury-watch-more", el);
     return P.hubRowFromParts({
       sport: sport,
-      start: li.getAttribute("data-start"),
-      tbc: li.getAttribute("data-tbc") === "1",
-      dayText: txt($(".d", li)),
-      matchText: txt(mc),
-      subText: txt(m && $("small", m)),
-      pickText: txt($(".p", li)),
+      id: d("game") || null,
+      start: d("start"), tbc: d("tbc") === "1",
+      group: d("group"), groupKey: d("group-key"),
+      dayText: txt($(".d", el)),
+      timeText: txt($(".card-top .time", el)),
+      matchText: matchText,
+      subText: d("sub") || txt(m && $("small", m)),
+      pickText: pickText,
+      side: d("pick") || null,
+      p: d("p") !== "" && isFinite(Number(d("p"))) ? Number(d("p")) : null,
       chipClass: chip ? chip.className : "",
-      bestValue: !!$(".bv-tag", li),
-      href: P.matchHref(sport, a ? a.getAttribute("href") : ""),
-      injury: !!$(".injury-watch", li),
-      injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", li)),
-      resultText: txt($(".r", li)),
+      bestValue: !!$(".bv-tag", el),
+      href: href,
+      injury: !!$(".injury-watch", el),
+      injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", el)),
+      resultText: result,
     });
   }
-  function gameLists(sport, main, opts) {
-    if (!main || $(".pf-cardlist", main)) return;
-    var light = (new URLSearchParams(location.search).get("light") || "green").toLowerCase();
-    var secs = $$("section.panel", main).filter(function (sec) { return $(":scope > ul.games", sec); });
-    var isResults = function (sec) { return /recent results/i.test(txt($(":scope > h2", sec))); };
-    var put = function (sec, rows, sort, hideH2) {
-      var ul = $(":scope > ul.games", sec), h2 = $(":scope > h2", sec);
+
+  var lightParam = function () { return (new URLSearchParams(location.search).get("light") || "green").toLowerCase(); };
+  // headings a card list makes redundant: a date or an NFL week (the list has its own day / week headers)
+  var DATE_H2 = /^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b|^(week \d+|wild card|divisional|conference|super bowl)/i;
+
+  // Server pages: every <ul class="games"> whose rows carry the contract. Upcoming panels on one page (one per US
+  // date, or per NFL week) merge into one list; "Recent results" style panels keep their heading, newest first.
+  function gameLists(main) {
+    if (!main) return;
+    var light = lightParam();
+    var uls = $$("ul.games", main).filter(function (ul) { return !ul.classList.contains("pf-cardsrc") && $(":scope > li[data-sport]", ul); });
+    if (!uls.length) return;
+    var fallback = (location.pathname.split("/")[1] || "").toLowerCase();
+    var secOf = function (ul) { return ul.closest("section") || ul.parentNode; };
+    var h2Of = function (ul) { return $(":scope > h2", secOf(ul)); };
+    var isResults = function (ul) { return /result|finished/i.test(txt(h2Of(ul))); };
+    var rowsOf = function (ul) { return $$(":scope > li[data-sport]", ul).map(function (li) { return rowFromEl(li, fallback); }); };
+    var put = function (ul, rows, sort) {
       var box = document.createElement("div");
       box.className = "pf-cardlist pf-only";
       box.innerHTML = P.cardListHtml(rows, { sort: sort, greenFirst: sort === "asc" && light === "all" });
       ul.parentNode.insertBefore(box, ul);
       ul.classList.add("pf-cardsrc");
-      if (hideH2 && h2) h2.classList.add("pf-cardsrc");
+      var fmt = ul.previousElementSibling && ul.previousElementSibling.previousElementSibling;
+      if (fmt && fmt.classList.contains("oddsfmt-bar")) fmt.classList.add("pf-cardsrc"); // odds format is for the desktop table
     };
-    var rowsOf = function (sec) { return $$(":scope > ul.games > li", sec).map(function (li) { return hubRow(sport, li); }); };
-    var days = secs.filter(function (s) { return !isResults(s); });
-    if (opts && opts.mergeDays && days.length) {
-      put(days[0], [].concat.apply([], days.map(rowsOf)), "asc", true);
-      days.slice(1).forEach(function (s) { s.classList.add("pf-cardsrc"); });
-    } else days.forEach(function (s) { put(s, rowsOf(s), "asc", false); });
-    secs.filter(isResults).forEach(function (s) { put(s, rowsOf(s), "desc", false); });
+    var up = uls.filter(function (ul) { return !isResults(ul); });
+    if (up.length > 1) {
+      put(up[0], [].concat.apply([], up.map(rowsOf)), "asc");
+      up.forEach(function (ul, i) {
+        var h2 = h2Of(ul);
+        if (h2 && DATE_H2.test(txt(h2))) h2.classList.add("pf-cardsrc");
+        if (i) { ul.classList.add("pf-cardsrc"); if (h2 && secOf(ul) !== secOf(up[0]) && h2.classList.contains("pf-cardsrc")) secOf(ul).classList.add("pf-cardsrc"); }
+      });
+    } else if (up.length) {
+      put(up[0], rowsOf(up[0]), "asc");
+      var h = h2Of(up[0]);
+      if (h && DATE_H2.test(txt(h))) h.classList.add("pf-cardsrc");
+    }
+    uls.filter(isResults).forEach(function (ul) { put(ul, rowsOf(ul), "desc"); });
   }
 
   // /championship: the app view (hidden-sports.js) repaints #main, so its intro is set once and the lists by appLists
@@ -812,53 +857,31 @@
     }
   }
 
-  // The app's game lists (#main: the NBA / NFL app, and the NHL / EPL / Championship app pages): day headers and
-  // app cards become the shared game card, rebuilt after every repaint.
+  // The app's game lists (#main): every row with the contract becomes the shared card, one list per container
+  // (the app's day list, or a tennis tournament box); the app's own day headings go. Rebuilt after every repaint.
   function appLists() {
     var mainEl = document.getElementById("main");
     if (!mainEl) return;
-    var sport = pageSport();
-    function ddAfterIn(card, label) {
-      var dt = $$("dl.prices dt", card).filter(function (d) { return txt(d).toLowerCase() === label; })[0];
-      return dt && dt.nextElementSibling ? txt(dt.nextElementSibling) : "";
-    }
-    var rowOf = function (card, day) {
-      var names = $$(".teams .team .nm", card).map(txt).filter(function (n) { return n && n !== "Draw"; });
-      var mark = $(".mark", card), scores = $$(".teams .team .role b", card).map(txt);
-      var chip = $(".card-top .chip", card), more = $(".injury-watch-more", card), id = card.getAttribute("data-game");
-      var pick = ddAfterIn(card, "pick");
-      return P.hubRowFromParts({
-        sport: sport,
-        id: id,
-        start: card.getAttribute("data-start"),
-        dayText: day,
-        timeText: txt($(".card-top .time", card)),
-        matchText: names.join($(".teams .at", card) ? " @ " : " v "),
-        pickText: pick ? pick + " " + ddAfterIn(card, "chance") : "",
-        chipClass: chip ? chip.className : "",
-        bestValue: !!$(".card-top .bv-tag", card),
-        href: id ? "#game-" + id : "#",
-        injury: !!$(".injury-watch", card),
-        injuryNote: more ? more.getAttribute("data-injury-note") : txt($(".injury-watch-note", card)),
-        resultText: mark ? (mark.classList.contains("W") ? "✓" : "✕") + (scores.length === 2 ? " " + scores[0] + "–" + scores[1] : "") : "",
-      });
-    };
     var run = function () {
-      if (!mq.matches || $(":scope > .pf-cardlist", mainEl)) return;
-      sport = pageSport(); // the NBA app switches between NBA and NFL in place
-      var rows = [], cards = [], heads = [], day = "";
-      Array.prototype.slice.call(mainEl.children).forEach(function (c) {
-        if (c.classList.contains("dayhead")) { day = txt(c); heads.push(c); return; }
-        if (c.matches("article.card")) { rows.push(rowOf(c, day)); cards.push(c); }
+      if (!mq.matches) return;
+      var rows = $$("[data-sport][data-start]", mainEl).filter(function (el) { return !el.closest(".pf-cardlist") && !el.classList.contains("pf-cardsrc"); });
+      var byParent = [];
+      rows.forEach(function (el) {
+        var g = byParent.filter(function (x) { return x.parent === el.parentNode; })[0];
+        if (!g) byParent.push(g = { parent: el.parentNode, els: [] });
+        g.els.push(el);
       });
-      if (!cards.length) return;
-      var box = document.createElement("div");
-      box.className = "pf-cardlist pf-only";
-      box.innerHTML = P.cardListHtml(rows, {});
-      (heads[0] || cards[0]).insertAdjacentElement("beforebegin", box);
-      heads.concat(cards).forEach(function (c) { c.classList.add("pf-cardsrc"); });
+      byParent.forEach(function (g) {
+        var box = document.createElement("div");
+        box.className = "pf-cardlist pf-only";
+        box.innerHTML = P.cardListHtml(g.els.map(function (el) { return rowFromEl(el, pageSport()); }), {});
+        var heads = $$(":scope > .dayhead", g.parent);
+        var first = heads.concat(g.els).sort(function (a, b) { return a.compareDocumentPosition(b) & 4 ? -1 : 1; })[0];
+        g.parent.insertBefore(box, first);
+        heads.concat(g.els).forEach(function (c) { c.classList.add("pf-cardsrc"); });
+      });
     };
-    new MutationObserver(debounce(run, 30)).observe(mainEl, { childList: true });
+    new MutationObserver(debounce(run, 30)).observe(mainEl, { childList: true, subtree: true });
     run();
   }
 

@@ -71,7 +71,7 @@ assert.equal((list.match(/Sat, 21 Nov/g) || []).length, 1, "date shown once per 
 
 // ---------------------------------------------------------------- page wiring + desktop guard
 const js = read("phone.js"), css = read("phone.css");
-assert.ok(/nba\|nfl\|nhl\|epl\|tennis/.test(js) && /championship/.test(js), "all six sport pages wired");
+assert.ok(js.includes(String.raw`var hub = location.pathname.match(/^\/([a-z0-9-]+)\/?$/);`), "sport pages found by URL shape + row contract, not a sport list");
 assert.ok(!/hubRowHtml|hubListHtml|injurySheet/.test(js), "old compact rows and the injury bottom sheet are gone");
 assert.ok(js.includes("Read more") && js.includes("pf-hublinks") && js.includes("pf-hub-green"));
 const mq = css.indexOf("@media (max-width: 767.98px)");

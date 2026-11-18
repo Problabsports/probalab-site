@@ -1082,7 +1082,7 @@ function card(g) {
   const pHome = pHomeOf(g), post = g.status === "post" && g.won !== null;
   const team = (code, name, role, p) => `<div class="team ${role === "Home" ? "r" : ""} ${code === g.pick ? "picked" : ""}">
       <div class="nm"><a class="team-link" href="/${g.sport === "NFL" ? "nfl" : "nba"}/team/${slugify(name)}">${esc(name)}</a></div><div class="role">${role}${post ? ` · <b style="color:var(--ink)">${role === "Home" ? g.home_score : g.away_score}</b>` : ""}</div><div class="pc">${pct(p)}</div></div>`;
-  return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" data-start="${esc(g.start_utc)}" tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
+  return `<article class="card ${isTip(g) ? "tip" : ""} ${g.light === "SUPER" ? "super" : ""} ${post ? "done" : ""}" data-game="${esc(g.game_id)}" data-sport="${g.sport === "NFL" ? "nfl" : "nba"}" data-start="${esc(g.start_utc)}"${g.sport === "NFL" && g.week != null ? ` data-group="${esc(wkLabel(g.week))}" data-group-key="${String(g.week).padStart(3, "0")}"` : ""} tabindex="0" role="link" aria-label="${esc(g.away_name)} at ${esc(g.home_name)}, details">
     <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span>${isTip(g) ? `<span class="tipflag">Top pick</span>` : ""}${chip(g.light)}${bvTag(g)}${injuryBtn(g) || noteBtn(g)}
       ${post ? `<span class="mark ${g.won ? "W" : "L"}" title="${g.won ? "Pick correct" : "Pick missed"}" aria-label="${g.won ? "Pick correct" : "Pick missed"}">${g.won ? "✓" : "✕"}</span>` : ""}</div>
     <div class="teams">${team(g.away, g.away_name, "Away", 1 - pHome)}<div class="at">@</div>${team(g.home, g.home_name, "Home", pHome)}</div>
@@ -1139,7 +1139,7 @@ function calHtml() {
 const curGames = () => DATA.games.filter((g) => g.season === CUR);
 function cardSoon(g) {
   const post = g.status === "post" && g.home_score != null;
-  return `<article class="card" data-start="${esc(g.start_utc)}">
+  return `<article class="card" data-sport="${g.sport === "NFL" ? "nfl" : "nba"}" data-start="${esc(g.start_utc)}"${g.sport === "NFL" && g.week != null ? ` data-group="${esc(wkLabel(g.week))}" data-group-key="${String(g.week).padStart(3, "0")}"` : ""}>
     <div class="card-top"><span class="time">${post ? "Final" : fmtTime.format(new Date(g.start_utc))}</span></div>
     <div class="teams"><div class="team"><div class="nm"><a class="team-link" href="/${g.sport === "NFL" ? "nfl" : "nba"}/team/${slugify(g.away_name)}">${esc(g.away_name)}</a></div><div class="role">Away${post ? ` · <b style="color:var(--ink)">${g.away_score}</b>` : ""}</div></div>
       <div class="at">@</div><div class="team r"><div class="nm"><a class="team-link" href="/${g.sport === "NFL" ? "nfl" : "nba"}/team/${slugify(g.home_name)}">${esc(g.home_name)}</a></div><div class="role">Home${post ? ` · <b style="color:var(--ink)">${g.home_score}</b>` : ""}</div></div></div>

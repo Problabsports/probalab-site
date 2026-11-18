@@ -105,7 +105,7 @@
     var clean = function (t) { var s = String(t == null ? "" : t).trim(); return s && s !== "—" ? s : ""; };
     var when = String(o.whenText || "").replace(/\s+/g, " ").trim();
     var start = validIso(o.start);
-    return {
+    return withGroup({
       sport: o.sport,
       sportName: SPORT_NAME[o.sport] || String(o.sport || "").toUpperCase(),
       id: gameIdFromHref(o.href),
@@ -128,7 +128,17 @@
       bestValue: light === "SUPER" || !!o.bestValue,
       injury: cleanInjury(o.injuryFull) || cleanInjury(o.injuryText),
       result: null,
-    };
+    }, o);
+  }
+
+  /** Group from the row's data (data-group, e.g. NFL "Week 12"): the list groups by it instead of the day, and the
+   *  card's time then carries the day ("Sun 23 Nov, 8:20am AEDT"). Same card, same list, only the data differs. */
+  function withGroup(row, o) {
+    var g = String(o.group == null ? "" : o.group).replace(/\s+/g, " ").trim();
+    row.group = g;
+    row.groupKey = g ? String(o.groupKey == null ? "" : o.groupKey) || g : "";
+    if (g && row.start) row.time = dayTitle(row.start, row.tbc) + ", " + row.time;
+    return row;
   }
 
   // ---------------------------------------------------------------- start day / time (Australia/Sydney, like /today)
@@ -151,6 +161,12 @@
     if (!validIso(iso)) return "";
     var p = dayParts(iso, tbc);
     return p.year + "-" + (MON[p.month] || "00") + "-" + ("0" + p.day).slice(-2);
+  }
+  /** "Wed 18 Nov" (the day inside a card's time when the list is grouped by week). */
+  function dayTitle(iso, tbc) {
+    if (!validIso(iso)) return "";
+    var p = dayParts(iso, tbc);
+    return (p.weekday + " " + p.day + " " + String(p.month).slice(0, 3)).replace(/\./g, "");
   }
   /** Day header, "WED 18 NOV". */
   function dayLabel(iso, tbc) {
@@ -217,6 +233,7 @@
     var lightCls = g.light ? " pf-l-" + g.light : " pf-l-none";
     var pickedA = !!g.side && g.side === g.a, pickedB = !!g.side && g.side === g.b;
     var time = g.time != null && g.time !== "" ? g.time : g.when;
+    var href = g.phoneHref || g.href || ""; // no match view to open (tennis app): the same card, not a link
     var top = '<span class="pf-card-top"><span class="pf-sport">' + esc(SPORT_SHORT[g.sport] || g.sportName || String(g.sport || "").toUpperCase()) + "</span>" +
       (time ? '<span class="pf-time">' + esc(time) + "</span>" : "") +
       '<span class="pf-lights">' + lightPill(g) + "</span></span>";
@@ -243,10 +260,10 @@
         '<span class="pf-inj-detail" id="' + id + '" role="note" hidden>' + esc(g.injury) + "</span>";
     }
     return '<article class="pf-card' + lightCls + (g.injury ? " pf-has-inj" : "") + '" data-pf-key="' + esc(g.sport + ":" + (g.id || "")) + '">' +
-      '<a class="pf-card-link" href="' + esc(g.phoneHref || g.href || "#") + '" aria-label="' + esc(aria) + '">' + top +
+      (href ? '<a class="pf-card-link" href="' + esc(href) + '" aria-label="' + esc(aria) + '">' : '<span class="pf-card-link" role="group" aria-label="' + esc(aria) + '">') + top +
       '<span class="pf-card-mid">' + teams + gaugeSvg(g.p, g.light, { size: opts.gauge || 76 }) + "</span>" +
       '<span class="pf-card-foot">' + pick + '<span class="pf-foot-r">' + res + lightChip(g.light) + "</span></span>" +
-      "</a>" + inj + "</article>";
+      (href ? "</a>" : "</span>") + inj + "</article>";
   }
 
   /** Open or close a card's injury note (tap the chip or More; tap again to close). card: the .pf-card element.
@@ -277,7 +294,7 @@
     var note = cleanInjury(o.injuryNote);
     var start = validIso(o.start);
     var light = lightOf(o.chipClass);
-    return {
+    return withGroup({
       sport: o.sport,
       sportName: SPORT_NAME[o.sport] || String(o.sport || "").toUpperCase(),
       id: o.id != null ? String(o.id) : gameIdFromHref(o.href),
@@ -293,11 +310,11 @@
       light: light,
       // green first: a green pick that also beats our fair price keeps a small Best value tag (counted as green)
       bestValue: light === "SUPER" || !!o.bestValue,
-      href: o.href || "#",
-      phoneHref: o.href || "#",
+      href: o.href || "",
+      phoneHref: o.href || "",
       injury: o.injury || note ? (note || "Key players are uncertain.") : "",
       result: res ? { won: /✓/.test(res), text: res.replace(/^[✓✕]\s*/, "") } : null,
-    };
+    }, o);
   }
 
   /** Which of the two teams a pick names. The NBA / NFL boards show a code ("NY", "LAC"), the others the full name.
@@ -322,14 +339,17 @@
     return s;
   }
 
-  /** Rows grouped by day (dayKey, else the day label), first-seen order; rows inside a group keep their order.
-   *  opts.sort: "asc" / "desc" orders the days by date (days without a key keep their place, after the dated ones). */
+  /** Rows grouped by their group (data-group, e.g. NFL weeks), else by day (dayKey, else the day label); first-seen
+   *  order, rows inside a group keep their order. opts.by: "day" ignores data groups (Home mixes sports).
+   *  opts.sort: "asc" / "desc" orders the groups (groups without a key keep their place, after the keyed ones). */
   function groupByDay(rows, opts) {
     opts = opts || {};
     var out = [], at = {};
     rows.forEach(function (g) {
-      var k = g.dayKey || g.day || "";
-      if (!(k in at)) { at[k] = out.length; out.push({ key: g.dayKey || "", day: g.day || "", rows: [] }); }
+      var grp = opts.by !== "day" && g.group;
+      var key = grp ? "g:" + g.groupKey : g.dayKey || "";
+      var k = key || g.day || "";
+      if (!(k in at)) { at[k] = out.length; out.push({ key: key, day: grp ? g.group : g.day || "", rows: [] }); }
       out[at[k]].rows.push(g);
     });
     if (opts.sort === "asc" || opts.sort === "desc") {
@@ -611,7 +631,7 @@
     splitPick: splitPick, splitMatch: splitMatch, gameIdFromHref: gameIdFromHref, matchHref: matchHref, rowFromParts: rowFromParts,
     gaugeSvg: gaugeSvg, lightChip: lightChip, cardHtml: cardHtml, classifyPanel: classifyPanel,
     hubRowFromParts: hubRowFromParts, resolveSide: resolveSide, groupByDay: groupByDay, cardListHtml: cardListHtml, setInjuryOpen: setInjuryOpen,
-    dayKey: dayKey, dayLabel: dayLabel, timeLabel: timeLabel,
+    dayKey: dayKey, dayLabel: dayLabel, dayTitle: dayTitle, timeLabel: timeLabel,
     sortProps: sortProps, propsGameMatches: propsGameMatches, propRowHtml: propRowHtml, activeTab: activeTab,
     GAME_SCALE: GAME_SCALE, PROPS_SCALE: PROPS_SCALE, TODAY_SPORTS: TODAY_SPORTS, NEXT_SOURCE: NEXT_SOURCE,
     todayCountLine: todayCountLine,
