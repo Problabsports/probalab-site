@@ -7,7 +7,7 @@ import { WRITTEN } from "./written.js";
 import { venueOf } from "./venues.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
-  renderFilterBar, emptyFilterMessage,
+  renderFilterBar, emptyFilterMessage, todayCachePlan,
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 import { labelLong, scaleText, shownLight, bestValueTag, isTip as isTipLight, chanceText } from "./lights.js";
@@ -597,17 +597,40 @@ export function notFound() {
 }
 
 // ------------------------------------------------------------------ sport route handler
-// Rendered pages are cached at the edge for 60s, so most hits skip the feed parse and render entirely.
+// Rendered pages are cached at the edge (caches.default) so most hits skip the feed parse and render entirely.
+// Hub and game pages ignore the query string, so their key is the path. /<sport>/today reads ?light= (and ?sport=),
+// so its key carries the canonical filter query and only the default view is kept (see todayCachePlan).
 const PAGE_TTL = 60;
+const ORIGINAL_CC = "x-pl-origin-cache-control";
+export function sportPageCachePlan(url) {
+  const u = new URL(url);
+  const rest = u.pathname.split("/").filter(Boolean).slice(1);
+  if (rest.length === 1 && rest[0] === "today") return todayCachePlan(u, { ignoreSport: true });
+  return { key: `${u.origin}${u.pathname}`, ttl: PAGE_TTL };
+}
+/** The edge copy carries an edge-only max-age; give the browser back the page's own cache-control (max-age=0). */
+function fromEdge(hit) {
+  const r = new Response(hit.body, hit);
+  const cc = r.headers.get(ORIGINAL_CC);
+  r.headers.delete(ORIGINAL_CC);
+  r.headers.set("cache-control", cc || "no-cache");
+  return r;
+}
 export async function handleSport(ctx, sport) {
-  const u = new URL(ctx.request.url);
-  const pkey = new Request(`${u.origin}${u.pathname}`, { method: "GET" });
-  const cache = typeof caches !== "undefined" ? caches.default : null;
-  if (cache) { const hit = await cache.match(pkey); if (hit) return hit; }
-  const res = await renderSport(ctx, sport);
+  const plan = sportPageCachePlan(ctx.request.url);
+  const cache = plan.ttl && typeof caches !== "undefined" ? caches.default : null;
+  const pkey = new Request(plan.key, { method: "GET" });
+  if (cache) { const hit = await cache.match(pkey); if (hit) return fromEdge(hit); }
+  let res = await renderSport(ctx, sport);
+  if (!plan.ttl && res.status === 200 && res.headers.get("content-type")?.startsWith("text/html")) {
+    // not page-cached, so no shared cache may keep it either: every filter view is current
+    res = new Response(res.body, res);
+    res.headers.set("cache-control", "no-cache");
+  }
   if (cache && res.status === 200) {
     const toCache = new Response(res.clone().body, res);
-    toCache.headers.set("cache-control", `public, max-age=${PAGE_TTL}`);
+    toCache.headers.set(ORIGINAL_CC, res.headers.get("cache-control") || "no-cache");
+    toCache.headers.set("cache-control", `public, max-age=${plan.ttl}`);
     ctx.waitUntil(cache.put(pkey, toCache));
   }
   return res;

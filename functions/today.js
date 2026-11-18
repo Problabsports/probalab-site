@@ -8,7 +8,7 @@ import { injuryBadge } from "./_shared/injury-warning.js";
 import { gameLight, shownLight, scaleText, labelLong, sportCfg, chanceText } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
 import {
-  parseGameFilters, matchesLightFilter, sortGreenFirst,
+  parseGameFilters, matchesLightFilter, sortGreenFirst, todayCachePlan,
   renderFilterBar, emptyFilterMessage,
 } from "./_shared/game-filters.js";
 
@@ -419,7 +419,7 @@ export async function onRequestGet(ctx) {
     description: "Win chances, fair prices and value % for every NBA, NFL, NHL, Premier League, Championship and tennis match starting in the next 24 hours.",
     path: "/today",
     body,
-  }), 200, 60);
+  }), 200, todayCachePlan(ctx.request.url).ttl); // default view: short shared cache; a filtered view: no-cache, always fresh
 }
 
 export const onRequestHead = (ctx) => asHead(onRequestGet, ctx);
