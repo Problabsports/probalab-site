@@ -1,5 +1,6 @@
 import { stClass, teamInjuries, getInjuries, INJ_CSS } from "./injuries.js";
 import { gameLight, shownLight, chanceText } from "./lights.js";
+import { phoneAttrs, matchText } from "./phone-row.js";
 export { getInjuries };
 // Team pages: /{sport}/team and /{sport}/team/{slug}
 // Built from the live feed (NBA/NFL) or /data JSON (NHL/EPL) plus season-result files.
@@ -547,7 +548,8 @@ export function renderTeamPage(sport, data, team) {
     const chance = teamWinChance(g, team);
     const href = g.path || `#`;
     const pickedThem = g.pick === (teamIsHome ? g.home : g.away) || g.pick_name === team.name || g.pick === team.abbr;
-    return `<li><a href="${esc(href)}">
+    const phone = phoneAttrs(g, sport, { "data-match": matchText(g, sport), "data-pick": g.pick ? (g.pick_name ?? g.pick) : "", "data-p": g.pick && g.pick_p != null ? g.pick_p : "" });
+    return `<li${phone}><a href="${esc(href)}">
       <span class="d">${esc(shortDay(g.start_utc))}</span>
       <span class="m">${teamIsHome ? "vs" : "@"} ${esc(opp)}</span>
       <span class="p">${chance == null ? "soon" : `${chanceText(chance)}${pickedThem ? " · our pick" : ""}`}</span>

@@ -103,11 +103,17 @@
     var light = lightOf(o.chipClass);
     var fair = o.fairDec != null && o.fairDec !== "" && isFinite(Number(o.fairDec)) ? Number(o.fairDec) : null;
     var clean = function (t) { var s = String(t == null ? "" : t).trim(); return s && s !== "—" ? s : ""; };
-    return {
+    var when = String(o.whenText || "").replace(/\s+/g, " ").trim();
+    var start = validIso(o.start);
+    return withGroup({
       sport: o.sport,
       sportName: SPORT_NAME[o.sport] || String(o.sport || "").toUpperCase(),
       id: gameIdFromHref(o.href),
-      when: String(o.whenText || "").replace(/\s+/g, " ").trim(),
+      when: when,
+      start: start, tbc: !!o.tbc,
+      time: start ? timeLabel(start, o.tbc) : when,
+      dayKey: start ? dayKey(start, o.tbc) : "",
+      day: start ? dayLabel(start, o.tbc) : "",
       a: teams.a, b: teams.b, sep: teams.sep,
       sub: clean(o.subText),
       side: pick.side, p: pick.p,
@@ -120,8 +126,65 @@
       valued: !!o.valued,
       // Best value tag: the Best value light, or a green pick that also beats our fair price (counted as green only)
       bestValue: light === "SUPER" || !!o.bestValue,
-      injury: clean(o.injuryText),
-    };
+      injury: cleanInjury(o.injuryFull) || cleanInjury(o.injuryText),
+      result: null,
+    }, o);
+  }
+
+  /** Group from the row's data (data-group, e.g. NFL "Week 12"): the list groups by it instead of the day, and the
+   *  card's time then carries the day ("Sun 23 Nov, 8:20am AEDT"). Same card, same list, only the data differs. */
+  function withGroup(row, o) {
+    var g = String(o.group == null ? "" : o.group).replace(/\s+/g, " ").trim();
+    var ab = abbrsOf(o.abbr, row.sep);
+    row.abbrA = ab.a; row.abbrB = ab.b;
+    row.group = g;
+    row.groupKey = g ? String(o.groupKey == null ? "" : o.groupKey) || g : "";
+    if (g && row.start) row.time = dayTitle(row.start, row.tbc) + ", " + row.time;
+    return row;
+  }
+
+  // ---------------------------------------------------------------- start day / time (Australia/Sydney, like /today)
+  var FMT = {};
+  function fmt(k, opts) { return FMT[k] || (FMT[k] = new Intl.DateTimeFormat("en-AU", opts)); }
+  function validIso(iso) { var t = iso ? Date.parse(iso) : NaN; return isFinite(t) ? String(iso) : ""; }
+  function partsOf(f, d) {
+    var out = {};
+    f.formatToParts(d).forEach(function (x) { out[x.type] = x.value; });
+    return out;
+  }
+  // A tennis start with no time yet (time_tbc) is a whole ET calendar day, so its day comes from ET (same as /today).
+  function dayParts(iso, tbc) {
+    var tz = tbc ? "America/New_York" : "Australia/Sydney";
+    return partsOf(fmt("day:" + tz, { timeZone: tz, weekday: "short", day: "numeric", month: "short", year: "numeric" }), new Date(iso));
+  }
+  var MON = { Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06", Jul: "07", Aug: "08", Sep: "09", Sept: "09", Oct: "10", Nov: "11", Dec: "12" };
+  /** Sortable day key, "2026-11-18". */
+  function dayKey(iso, tbc) {
+    if (!validIso(iso)) return "";
+    var p = dayParts(iso, tbc);
+    return p.year + "-" + (MON[p.month] || "00") + "-" + ("0" + p.day).slice(-2);
+  }
+  /** "Wed 18 Nov" (the day inside a card's time when the list is grouped by week). */
+  function dayTitle(iso, tbc) {
+    if (!validIso(iso)) return "";
+    var p = dayParts(iso, tbc);
+    return (p.weekday + " " + p.day + " " + String(p.month).slice(0, 3)).replace(/\./g, "");
+  }
+  /** Day header, "WED 18 NOV". */
+  function dayLabel(iso, tbc) {
+    if (!validIso(iso)) return "";
+    var p = dayParts(iso, tbc);
+    return (p.weekday + " " + p.day + " " + String(p.month).slice(0, 3)).replace(/\./g, "").toUpperCase();
+  }
+  /** Start time on a card, "7:30pm AEDT" (Sydney). "Time TBC" when the start time isn't known yet. */
+  function timeLabel(iso, tbc) {
+    if (!validIso(iso)) return "";
+    if (tbc) return "Time TBC";
+    var p = partsOf(fmt("time", { timeZone: "Australia/Sydney", hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" }), new Date(iso));
+    return p.hour + ":" + p.minute + String(p.dayPeriod || "").toLowerCase() + " " + p.timeZoneName;
+  }
+  function cleanInjury(t) {
+    return String(t == null ? "" : t).replace(/\s+/g, " ").trim().replace(/^⚠️\s*/, "").replace(/…$/, "").trim();
   }
 
   // ---------------------------------------------------------------- chance gauge
@@ -150,56 +213,123 @@
     return l ? '<span class="chip ' + l + ' pf-chip">' + esc(LIGHT_LABEL[l] || l) + "</span>" : "";
   }
 
-  // ---------------------------------------------------------------- match card
-  function teamLine(name, picked) {
-    return '<span class="pf-team' + (picked ? " pf-picked" : "") + '">' + esc(name) + (picked ? '<span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span>";
+  // ---------------------------------------------------------------- the game card (one design for every phone game list)
+  // Home, /today, /<sport>/today, the sport pages and the app lists all draw this card:
+  // sport tag + start time top left, light pill top right (green first: a green pick that also beats our fair price
+  // shows Green plus the small Best value tag), away @ home stacked with the picked team bold + dot, chance gauge on
+  // the right in the light colour, then "Our pick <team>" + light badge. Injury watch is a small chip that opens the
+  // note inline, inside the card (no note text shows until it is tapped).
+  // Team logo beside each name (every sport with team logos; tennis has players, so none). A missing file swaps itself
+  // for the round abbreviation badge (phone.js), so there is never a broken image.
+  var CARD_LOGO = 24;
+  function teamLine(sport, name, abbr, picked) {
+    var logo = logoSrc(sport, name) ? logoHtml(sport, name, abbr, CARD_LOGO) : "";
+    // the pick dot sits inside the name, so it follows the last word when a long name wraps
+    return '<span class="pf-team' + (picked ? " pf-picked" : "") + (logo ? " pf-has-logo" : "") + '">' + logo + '<span class="pf-tname">' + esc(name) +
+      (picked ? ' <span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span></span>";
   }
+  /** Team codes from the row's data-abbr ("away|home", e.g. "NY|TOR"): a/b order follows the matchup (a @ b is away @ home,
+   *  a v b is home v away). Only real codes (2-4 capitals / digits) are kept; otherwise the badge uses initials. */
+  var CODE = /^[A-Z0-9]{2,4}$/;
+  function abbrsOf(raw, sep) {
+    var p = String(raw || "").split("|"), away = CODE.test(p[0] || "") ? p[0] : "", home = CODE.test(p[1] || "") ? p[1] : "";
+    return sep === "@" ? { a: away, b: home } : { a: home, b: away };
+  }
+  function lightPill(g) {
+    if (!g.light) return "";
+    return '<span class="pf-lpill pf-l-' + g.light + '">' + esc(LIGHT_LABEL[g.light] || g.light) + "</span>" +
+      (g.bestValue && g.light !== "SUPER" ? '<span class="pf-bv">Best value</span>' : "");
+  }
+  var INJ_SEQ = 0;
 
-  /** One match card. g is a row from rowFromParts. */
+  /** One game card. g: a row from rowFromParts or hubRowFromParts. */
   function cardHtml(g, opts) {
     opts = opts || {};
     var lightCls = g.light ? " pf-l-" + g.light : " pf-l-none";
-    var pickedA = g.side && g.side === g.a, pickedB = g.side && g.side === g.b;
-    var top = '<span class="pf-sport">' + esc(SPORT_SHORT[g.sport] || g.sportName) + "</span>" +
-      '<span class="pf-time">' + esc(g.when) + "</span>" +
-      (g.light === "SUPER" || g.bestValue ? '<span class="pf-bv">Best value</span>' : "");
-    var teams = '<span class="pf-teams">' + teamLine(g.a, pickedA) +
-      (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + teamLine(g.b, pickedB) : "") +
+    var pickedA = !!g.side && g.side === g.a, pickedB = !!g.side && g.side === g.b;
+    var time = g.time != null && g.time !== "" ? g.time : g.when;
+    var href = g.phoneHref || g.href || ""; // no match view to open (tennis app): the same card, not a link
+    var top = '<span class="pf-card-top"><span class="pf-sport">' + esc(SPORT_SHORT[g.sport] || g.sportName || String(g.sport || "").toUpperCase()) + "</span>" +
+      (time ? '<span class="pf-time">' + esc(time) + "</span>" : "") +
+      '<span class="pf-lights">' + lightPill(g) + "</span></span>";
+    var teams = '<span class="pf-teams">' + teamLine(g.sport, g.a, g.abbrA, pickedA) +
+      (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + teamLine(g.sport, g.b, g.abbrB, pickedB) : "") +
       (g.sub ? '<span class="pf-sub">' + esc(g.sub) + "</span>" : "") + "</span>";
-    var pick = g.side
-      ? '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>' + esc(g.side) + "</b></span>"
-      : '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>Posted soon</b></span>';
-    var aria = (g.b ? g.a + (g.sep === "@" ? " at " : " v ") + g.b : g.a) + ". " + (g.side ? "Our pick " + g.side + ", " + (g.p != null ? L.shown(g.p) + "% chance" : "") : "") +
-      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") + (g.bestValue && g.light !== "SUPER" ? ", also Best value" : "");
-    return '<a class="pf-card' + lightCls + '" href="' + esc(g.phoneHref || g.href) + '" data-pf-key="' + esc(g.sport + ":" + (g.id || "")) + '" aria-label="' + esc(aria) + '">' +
-      '<span class="pf-card-top">' + top + "</span>" +
+    var pick = '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>' + esc(g.side || "Posted soon") + "</b></span>";
+    var res = g.result
+      ? '<span class="pf-res ' + (g.result.won ? "pf-win" : "pf-loss") + '">' + (g.result.won ? "✓" : "✕") + (g.result.text ? " " + esc(g.result.text) : "") + "</span>"
+      : "";
+    var matchTxt = g.b ? g.a + (g.sep === "@" ? " at " : " v ") + g.b : g.a;
+    var aria = matchTxt + (time ? ", " + time : "") + ". " +
+      (g.side ? "Our pick " + g.side + (g.p != null && isFinite(g.p) ? ", " + L.shown(g.p) + "% chance" : "") : "Pick posted soon") +
+      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") + (g.bestValue && g.light !== "SUPER" ? ", also Best value" : "") +
+      (g.result ? ", " + (g.result.won ? "won" : "lost") + (g.result.text ? " " + g.result.text : "") : "") +
+      (g.injury ? ", injury watch" : "");
+    var inj = "";
+    if (g.injury) {
+      var id = "pf-inj-" + String(g.sport || "x") + "-" + String(g.id || "").replace(/[^A-Za-z0-9_-]/g, "") + "-" + (++INJ_SEQ);
+      inj = '<span class="pf-card-inj">' +
+        '<button type="button" class="pf-injchip" data-pf-injtoggle aria-expanded="false" aria-controls="' + id + '">⚠️ Injury watch</button>' +
+        '<button type="button" class="pf-inj-more" data-pf-injtoggle aria-expanded="false" aria-controls="' + id + '" aria-label="More about the injury watch">More</button>' +
+        "</span>" +
+        '<span class="pf-inj-detail" id="' + id + '" role="note" hidden>' + esc(g.injury) + "</span>";
+    }
+    return '<article class="pf-card' + lightCls + (g.injury ? " pf-has-inj" : "") + '" data-pf-key="' + esc(g.sport + ":" + (g.id || "")) + '">' +
+      (href ? '<a class="pf-card-link" href="' + esc(href) + '" aria-label="' + esc(aria) + '">' : '<span class="pf-card-link" role="group" aria-label="' + esc(aria) + '">') + top +
       '<span class="pf-card-mid">' + teams + gaugeSvg(g.p, g.light, { size: opts.gauge || 76 }) + "</span>" +
-      '<span class="pf-card-foot">' + pick + lightChip(g.light) + "</span>" +
-      (g.injury ? '<span class="pf-inj">⚠️ Injury watch · ' + esc(g.injury) + "</span>" : "") +
-      "</a>";
+      '<span class="pf-card-foot">' + pick + '<span class="pf-foot-r">' + res + lightChip(g.light) + "</span></span>" +
+      (href ? "</a>" : "</span>") + inj + "</article>";
   }
 
-  // ---------------------------------------------------------------- sport page rows (/nba, /nfl, /nhl, /epl, /championship, /tennis)
-  /** One sport-page row as plain values. Parts are read out of the server-rendered (or app-rendered) row by phone.js. */
+  /** Open or close a card's injury note (tap the chip or More; tap again to close). card: the .pf-card element.
+   *  open: true / false, or leave it out to flip. Returns the new state. Only uses querySelector(All),
+   *  hidden, setAttribute, textContent and classList, so the tests can drive it without a browser. */
+  function setInjuryOpen(card, open) {
+    var detail = card && card.querySelector(".pf-inj-detail");
+    if (!detail) return false;
+    if (open == null) open = !!detail.hidden;
+    detail.hidden = !open;
+    var btns = card.querySelectorAll("[data-pf-injtoggle]");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-expanded", open ? "true" : "false");
+      if (btns[i].classList.contains("pf-inj-more")) btns[i].textContent = open ? "Less" : "More";
+    }
+    card.classList.toggle("pf-inj-open", open);
+    return open;
+  }
+
+  // ---------------------------------------------------------------- sport page and app list rows
+  /** One sport-page (or app list) row as plain values, ready for cardHtml. Parts are read out of the server-rendered
+   *  (or app-rendered) row by phone.js. start: the ISO start (data-start on the row) gives the AEDT time and day. */
   function hubRowFromParts(o) {
     var pick = splitPick(o.pickText);
     var clean = function (t) { return String(t == null ? "" : t).replace(/\s+/g, " ").trim(); };
     var m = splitMatch(o.matchText);
     var res = clean(o.resultText);
-    var note = clean(o.injuryNote).replace(/^⚠️\s*/, "").replace(/…$/, "");
-    return {
+    var note = cleanInjury(o.injuryNote);
+    var start = validIso(o.start);
+    var light = lightOf(o.chipClass);
+    return withGroup({
       sport: o.sport,
-      day: clean(o.dayText),
+      sportName: SPORT_NAME[o.sport] || String(o.sport || "").toUpperCase(),
+      id: o.id != null ? String(o.id) : gameIdFromHref(o.href),
+      start: start, tbc: !!o.tbc,
+      dayKey: start ? dayKey(start, o.tbc) : "",
+      day: start ? dayLabel(start, o.tbc) : clean(o.dayText),
+      time: start ? timeLabel(start, o.tbc) : clean(o.timeText),
+      when: clean(o.timeText),
       a: m.a, b: m.b, sep: m.sep,
+      sub: clean(o.subText),
       side: resolveSide(o.side != null ? clean(o.side) : pick.side, m.a, m.b),
       p: o.p != null ? o.p : pick.p,
-      light: lightOf(o.chipClass),
+      light: light,
       // green first: a green pick that also beats our fair price keeps a small Best value tag (counted as green)
-      bestValue: lightOf(o.chipClass) === "SUPER" || !!o.bestValue,
-      href: o.href || "#",
+      bestValue: light === "SUPER" || !!o.bestValue,
+      href: o.href || "",
+      phoneHref: o.href || "",
       injury: o.injury || note ? (note || "Key players are uncertain.") : "",
       result: res ? { won: /✓/.test(res), text: res.replace(/^[✓✕]\s*/, "") } : null,
-    };
+    }, o);
   }
 
   /** Which of the two teams a pick names. The NBA / NFL boards show a code ("NY", "LAC"), the others the full name.
@@ -224,50 +354,37 @@
     return s;
   }
 
-  /** Rows grouped by their day label, first-seen order (rows inside a group keep their order). */
-  function groupByDay(rows) {
+  /** Rows grouped by their group (data-group, e.g. NFL weeks), else by day (dayKey, else the day label); first-seen
+   *  order, rows inside a group keep their order. opts.by: "day" ignores data groups (Home mixes sports).
+   *  opts.sort: "asc" / "desc" orders the groups (groups without a key keep their place, after the keyed ones). */
+  function groupByDay(rows, opts) {
+    opts = opts || {};
     var out = [], at = {};
     rows.forEach(function (g) {
-      var k = g.day || "";
-      if (!(k in at)) { at[k] = out.length; out.push({ day: k, rows: [] }); }
+      var grp = opts.by !== "day" && g.group;
+      var key = grp ? "g:" + g.groupKey : g.dayKey || "";
+      var k = key || g.day || "";
+      if (!(k in at)) { at[k] = out.length; out.push({ key: key, day: grp ? g.group : g.day || "", rows: [] }); }
       out[at[k]].rows.push(g);
     });
+    if (opts.sort === "asc" || opts.sort === "desc") {
+      var dir = opts.sort === "asc" ? 1 : -1;
+      out = out.map(function (x, i) { return { x: x, i: i }; }).sort(function (p, q) {
+        if (!p.x.key || !q.x.key) return (!p.x.key) - (!q.x.key) || p.i - q.i;
+        return dir * p.x.key.localeCompare(q.x.key) || p.i - q.i;
+      }).map(function (y) { return y.x; });
+    }
     return out;
   }
 
-  /** One compact sport-page row: logos, matchup, our pick (+ Injury watch chip), chance and light on the right.
-      The injury note itself is never shown on the row; the chip opens it in the bottom sheet. */
-  function hubRowHtml(g) {
-    var hasLogos = !!logoSrc(g.sport, "x");
-    var logos = hasLogos
-      ? '<span class="pf-hr-logos" aria-hidden="true">' + logoHtml(g.sport, g.a, "", 26) + (g.b ? logoHtml(g.sport, g.b, "", 26) : "") + "</span>"
-      : "";
-    var team = function (n) { return '<span class="pf-hr-t' + (g.side && g.side === n ? " pf-picked" : "") + '">' + esc(n) + "</span>"; };
-    var matchTxt = g.b ? g.a + (g.sep === "@" ? " @ " : " v ") + g.b : g.a;
-    var pctTxt = g.p != null && isFinite(g.p) ? L.shown(g.p) + "%" : "";
-    var aria = matchTxt + ". " + (g.side ? "Our pick " + g.side + (pctTxt ? ", " + pctTxt + " chance" : "") : "Pick posted soon") +
-      (g.light ? ", " + (LIGHT_LABEL[g.light] || g.light) : "") + (g.bestValue && g.light !== "SUPER" ? ", also Best value" : "") +
-      (g.result ? ", " + (g.result.won ? "won" : "lost") + (g.result.text ? " " + g.result.text : "") : "");
-    var sub = '<span class="pf-hr-sub">' + (g.side ? "Our pick · <b>" + esc(g.side) + "</b>" : "Pick posted soon") +
-      (g.result ? ' <span class="pf-hr-res ' + (g.result.won ? "pf-win" : "pf-loss") + '">' + (g.result.won ? "✓" : "✕") + (g.result.text ? " " + esc(g.result.text) : "") + "</span>" : "") + "</span>";
-    var inj = g.injury
-      ? '<button type="button" class="pf-injchip" data-pf-inj="' + esc(g.injury) + '" data-pf-inj-title="' + esc(matchTxt) + '" aria-haspopup="dialog">⚠️ Injury watch</button>'
-      : "";
-    return '<li class="pf-hr pf-l-' + (g.light || "none") + (hasLogos ? "" : " pf-hr-nologo") + '">' + logos +
-      '<span class="pf-hr-mid"><a class="pf-hr-link" href="' + esc(g.href) + '" aria-label="' + esc(aria) + '"><span class="pf-hr-match">' +
-      team(g.a) + (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + team(g.b) : "") + "</span></a>" +
-      sub + inj + "</span>" +
-      '<span class="pf-hr-right" aria-hidden="true">' + (pctTxt ? '<b class="pf-hr-p">' + pctTxt + "</b>" : "") + lightChip(g.light) +
-      (g.bestValue && g.light !== "SUPER" ? '<span class="pf-hr-bv">Best value</span>' : "") + "</span></li>";
-  }
-
-  /** The rows of one list, with a small date header per day. skipHeader: the list already sits under that day's heading. */
-  function hubListHtml(rows, opts) {
+  /** A whole phone game list: one small header per day (e.g. WED 18 NOV), then that day's cards.
+   *  opts.sort: day order ("asc" upcoming, "desc" results); opts.greenFirst: green first inside each day. */
+  function cardListHtml(rows, opts) {
     opts = opts || {};
-    var groups = groupByDay(rows);
-    return groups.map(function (gr) {
-      var head = opts.skipHeader && groups.length === 1 ? "" : (gr.day ? '<p class="pf-dayhead">' + esc(gr.day) + "</p>" : "");
-      return head + '<ul class="pf-hrows">' + gr.rows.map(hubRowHtml).join("") + "</ul>";
+    return groupByDay(rows, opts).map(function (gr) {
+      var list = opts.greenFirst ? sortGreenFirst(gr.rows) : gr.rows;
+      return (gr.day ? '<p class="pf-dayhead">' + esc(gr.day) + "</p>" : "") +
+        '<div class="pf-cards">' + list.map(function (g) { return cardHtml(g, opts); }).join("") + "</div>";
     }).join("");
   }
 
@@ -528,12 +645,13 @@
     esc: esc, lightOf: lightOf, lightRank: lightRank, isGreen: isGreen, sortGreenFirst: sortGreenFirst, topGreens: topGreens,
     splitPick: splitPick, splitMatch: splitMatch, gameIdFromHref: gameIdFromHref, matchHref: matchHref, rowFromParts: rowFromParts,
     gaugeSvg: gaugeSvg, lightChip: lightChip, cardHtml: cardHtml, classifyPanel: classifyPanel,
-    hubRowFromParts: hubRowFromParts, resolveSide: resolveSide, groupByDay: groupByDay, hubRowHtml: hubRowHtml, hubListHtml: hubListHtml,
+    hubRowFromParts: hubRowFromParts, resolveSide: resolveSide, groupByDay: groupByDay, cardListHtml: cardListHtml, setInjuryOpen: setInjuryOpen,
+    dayKey: dayKey, dayLabel: dayLabel, dayTitle: dayTitle, timeLabel: timeLabel,
     sortProps: sortProps, propsGameMatches: propsGameMatches, propRowHtml: propRowHtml, activeTab: activeTab,
     GAME_SCALE: GAME_SCALE, PROPS_SCALE: PROPS_SCALE, TODAY_SPORTS: TODAY_SPORTS, NEXT_SOURCE: NEXT_SOURCE,
     todayCountLine: todayCountLine,
     gameKeyRows: gameKeyRows, propsKeyRows: propsKeyRows, stackedKeyHtml: stackedKeyHtml, matchesLight: matchesLight, todayHref: todayHref,
     sportCounts: sportCounts, sportChipsHtml: sportChipsHtml, noGamesText: noGamesText, nextStart: nextStart, sydneyWhen: sydneyWhen,
-    teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,
+    abbrsOf: abbrsOf, teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,
   };
 });

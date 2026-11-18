@@ -7,6 +7,7 @@ import { getFeed, gamesOf, shell, html, esc, chip, bvTag, slug, asHead } from ".
 import { injuryBadge } from "./_shared/injury-warning.js";
 import { gameLight, shownLight, scaleText, labelLong, sportCfg, chanceText } from "./_shared/lights.js";
 import { enrichGamesWithInjuries } from "./_shared/injury-enrich.js";
+import { phoneAttrs } from "./_shared/phone-row.js";
 import {
   parseGameFilters, matchesLightFilter, sortGreenFirst,
   renderFilterBar, emptyFilterMessage,
@@ -115,7 +116,7 @@ function todayRow(g, showMkt) {
       <span class="mk" title="Market chance for the same side">${pct(g.marketP)}</span>
       <span class="gap ${gapCls}" title="Model chance minus market chance">${esc(gapTxt)}</span>` : "";
   const warn = g.injuryBadgeHtml || "";
-  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
+  return `<li class="${valued ? "has-value" : ""}${warn ? " has-injury-watch" : ""}"${phoneAttrs(g, g.sport)}${valued ? ` title="Value: a green or Best value pick at least +3.0 vs the market"` : ""}>
     <span class="d"><a href="${esc(g.href)}">${esc(g.when)}</a></span>
     <span class="m">${matchHtml}${valued ? ` <span class="best-tag">Value</span>` : ""}${held}</span>
     <a class="row-rest" href="${esc(g.href)}">
@@ -176,6 +177,7 @@ export async function onRequestGet(ctx) {
       const modelP = g.pick_p;
       return {
         key: `${sport}:${g.game_id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: S,
         href: g.path,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -191,6 +193,7 @@ export async function onRequestGet(ctx) {
         heldNote: heldNoteOf(g),
         injuryBadgeHtml: injuryBadge(g),
         start_utc: g.start_utc,
+        week: g.week,
       };
     });
     sections.push({
@@ -231,6 +234,7 @@ export async function onRequestGet(ctx) {
       const marketP = marketPick(m, g.pickSide);
       return {
         key: `nhl:${g.id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: "NHL",
         href: `/nhl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -277,6 +281,7 @@ export async function onRequestGet(ctx) {
       const marketP = marketPick(m, g.pick);
       return {
         key: `epl:${g.id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: "Premier League",
         href: `/epl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -320,6 +325,7 @@ export async function onRequestGet(ctx) {
     try { await enrichGamesWithInjuries(ctx, "championship", chEnrich); } catch (e) {}
     const games = chEnrich.map((g) => ({
       key: `championship:${g.id}`,
+      away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
       sportName: "Championship",
       href: `/championship#game-${g.id}`,
       when: tAEDT(g.start_utc) + " AEDT",
@@ -361,6 +367,7 @@ export async function onRequestGet(ctx) {
         marketP: null,
         value: null,
         start_utc: m.start_utc,
+        tbc: !!m.time_tbc,
       };
     });
     sections.push({

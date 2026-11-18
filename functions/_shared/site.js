@@ -10,6 +10,7 @@ import {
   renderFilterBar, emptyFilterMessage,
 } from "./game-filters.js";
 import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
+import { phoneAttrs, weekLabel } from "./phone-row.js";
 import { labelLong, scaleText, shownLight, bestValueTag, isTip as isTipLight, chanceText } from "./lights.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
 import { discordJoin, discordNavLink, socialFooterStack, xFooterCta, X_PROFILE_URL } from "./discord.js";
@@ -128,7 +129,7 @@ function lightInfo(sport, l) {
 const isTip = (g) => isTipLight(g.light);
 const poss = (t) => `${esc(t)}${/s$/i.test(t) ? "'" : "'s"}`;
 const list = (xs) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
-const wkLabel = (w) => (w >= 22 ? "Super Bowl" : w === 21 ? "Conference Championships" : w === 20 ? "Divisional Round" : w === 19 ? "Wild Card Round" : `Week ${w}`);
+const wkLabel = weekLabel;
 
 // ------------------------------------------------------------------ written previews (built from our numbers)
 function nbaPreview(g, rec) {
@@ -445,7 +446,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
 export function gameRow(g) {
   const post = g.status === "post" && g.home_score != null;
   const warn = injuryBadge(g);
-  return `<li class="${warn ? "has-injury-watch" : ""}"><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
+  return `<li class="${warn ? "has-injury-watch" : ""}"${phoneAttrs(g, g.sport)}><a href="${esc(g.path)}"><span class="d">${esc(shortDay(g.start_utc))}</span><span class="m">${esc(g.away_name)} @ ${esc(g.home_name)}</span>
     <span class="p">${g.pick ? `${esc(g.pick)} ${chanceText(g.pick_p)}` : "soon"}</span><span class="chip-with-warn">${chip(g.light)}${bvTag(g)}</span>${post && g.pick ? `<span class="r ${g.won ? "pos" : "neg"}">${g.won ? "✓" : "✕"} ${g.away_score}–${g.home_score}</span>` : ""}${warn}</a></li>`;
 }
 

@@ -101,11 +101,11 @@ assert.equal(P.sportCounts(phoneRows, "green").nba.shown, 3);
 assert.equal(P.sportCounts(phoneRows, "super").nba.shown, 2);
 assert.match(P.cardHtml(phoneRows[0]), /pf-card pf-l-GREEN".*pf-bv">Best value/s);
 
-// phone sport pages (compact rows from the tidy layout): green light + small Best value pill
+// phone sport pages (the shared game card): green light + small Best value tag
 const hub = P.hubRowFromParts({ sport: "nba", dayText: "Wed 19 Nov", matchText: "Denver Nuggets @ LA Clippers", pickText: "LAC 77%", chipClass: "chip GREEN", bestValue: true });
 assert.equal(hub.light, "GREEN");
-assert.match(P.hubRowHtml(hub), /pf-hr pf-l-GREEN.*class="chip GREEN pf-chip">Green<\/span><span class="pf-hr-bv">Best value<\/span>/s);
-assert.doesNotMatch(P.hubRowHtml({ ...hub, bestValue: false }), /pf-hr-bv/);
-assert.doesNotMatch(P.hubRowHtml(P.hubRowFromParts({ sport: "nba", matchText: "A @ B", pickText: "A 61%", chipClass: "chip SUPER" })), /pf-hr-bv/, "the Best value light needs no pill");
+assert.match(P.cardHtml(hub), /pf-card pf-l-GREEN.*class="pf-lpill pf-l-GREEN">Green<\/span><span class="pf-bv">Best value<\/span>/s);
+assert.doesNotMatch(P.cardHtml({ ...hub, bestValue: false }), /pf-bv/);
+assert.doesNotMatch(P.cardHtml(P.hubRowFromParts({ sport: "nba", matchText: "A @ B", pickText: "A 61%", chipClass: "chip SUPER" })), /pf-bv/, "the Best value light needs no extra tag");
 
 console.log("green-first Best value tests passed");

@@ -54,16 +54,17 @@ assert.equal(P.rowFromParts({ sport: "nhl", marketText: "—", valueText: "—",
 // ---------------------------------------------------------------- match card
 const card = P.cardHtml(row);
 assert.match(card, /class="pf-card pf-l-SUPER"/);
-assert.match(card, /<span class="pf-bv">Best value<\/span>/);
+assert.match(card, /<span class="pf-lpill pf-l-SUPER">Best value<\/span>/, "the Best value light is the pill itself");
+assert.ok(!/pf-bv/.test(card), "the Best value light needs no extra tag");
 assert.match(card, /href="\/#game-401810123"/);
 assert.match(card, /Tue 11:00am AEDT/);
-assert.match(card, /pf-team pf-picked">Denver Nuggets/);
+assert.match(card, /pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img src="\/img\/logos\/nba\/denver-nuggets\.png"[^>]*><\/span><span class="pf-tname">Denver Nuggets <span class="pf-tick"/);
 assert.match(card, /aria-label="Chance 74%"/);
 assert.ok(!/fair|units?\b|edge/i.test(card.replace(/aria-label="[^"]*"/g, "")), "cards show no fair price, units or edge");
 for (const l of ["GREEN", "ORANGE", "RED"]) assert.match(P.cardHtml({ ...row, light: l }), new RegExp(`pf-card pf-l-${l}"`));
 assert.ok(!/pf-bv/.test(P.cardHtml({ ...row, light: "GREEN", bestValue: false })));
-// green first: a green pick that is also Best value keeps the green card and gets the small Best value pill
-assert.match(P.cardHtml({ ...row, light: "GREEN", bestValue: true }), /pf-card pf-l-GREEN".*<span class="pf-bv">Best value<\/span>/s);
+// green first: a green pick that is also Best value keeps the green card and pill, plus the small Best value tag
+assert.match(P.cardHtml({ ...row, light: "GREEN", bestValue: true }), /pf-card pf-l-GREEN".*<span class="pf-lpill pf-l-GREEN">Green<\/span><span class="pf-bv">Best value<\/span>/s);
 
 // ---------------------------------------------------------------- chance gauge
 const gauge = P.gaugeSvg(0.72, "GREEN", { size: 80 });
