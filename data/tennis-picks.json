@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-17T21:44:20Z",
+  "generated_at": "2026-11-18T03:39:06Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -31,30 +31,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "187375",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Group Stage",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-10T22:10:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Coco Gauff",
-      "player_b": "Linda Noskova",
-      "a_pct": 62.7,
-      "b_pct": 37.3,
-      "pick": "a",
-      "pick_pct": 62.7,
-      "light": "ORANGE",
-      "winner": "b",
-      "score": "3-6 3-6",
-      "retired": false,
-      "result": "lost"
-    },
     {
       "id": "186540",
       "tour": "ATP",
