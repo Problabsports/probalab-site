@@ -139,7 +139,7 @@
         var chip = $(".chip", li), odds = $(".fp .odds", li), more = $(".injury-watch-more", li);
         out.push(P.rowFromParts({
           sport: li.getAttribute("data-sport") || sec.id,
-          group: li.getAttribute("data-group"), groupKey: li.getAttribute("data-group-key"),
+          group: li.getAttribute("data-group"), groupKey: li.getAttribute("data-group-key"), abbr: li.getAttribute("data-abbr"),
           whenText: txt($(".d", li)),
           start: li.getAttribute("data-start"),
           tbc: li.getAttribute("data-tbc") === "1",
@@ -788,7 +788,7 @@
       sport: sport,
       id: d("game") || null,
       start: d("start"), tbc: d("tbc") === "1",
-      group: d("group"), groupKey: d("group-key"),
+      group: d("group"), groupKey: d("group-key"), abbr: d("abbr"),
       dayText: txt($(".d", el)),
       timeText: txt($(".card-top .time", el)),
       matchText: matchText,

@@ -32,7 +32,7 @@ const top = card.split('<span class="pf-card-top">')[1].split('<span class="pf-c
 assert.match(top, /^<span class="pf-sport">NBA<\/span><span class="pf-time">7:30pm AEDT<\/span><span class="pf-lights">/, "sport tag + start time top left");
 assert.match(top, /<span class="pf-lights"><span class="pf-lpill pf-l-GREEN">Green<\/span><span class="pf-bv">Best value<\/span><\/span>/, "light pill top right; green Best value shows Green + small tag");
 assert.ok(!/WED|18 NOV/.test(card), "no date on the card");
-assert.match(card, /<span class="pf-team">Utah Jazz<\/span><span class="pf-sep">@<\/span><span class="pf-team pf-picked">Denver Nuggets<span class="pf-tick" aria-hidden="true">●<\/span><\/span>/, "away @ home stacked, picked team bold + dot");
+assert.match(card, /<span class="pf-team pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Utah Jazz<\/span><\/span><span class="pf-sep">@<\/span><span class="pf-team pf-picked pf-has-logo"><span class="pf-logo"[^>]*><img [^>]*><\/span><span class="pf-tname">Denver Nuggets<\/span><span class="pf-tick" aria-hidden="true">●<\/span><\/span>/, "away @ home stacked with logos, picked team bold + dot");
 assert.match(card, /pf-gauge pf-g-GREEN[\s\S]*>74%</, "gauge on the right in the light colour");
 assert.match(card, /<span class="pf-card-foot"><span class="pf-pick"><span class="pf-pick-lab">Our pick<\/span><b>Denver Nuggets<\/b><\/span><span class="pf-foot-r"><span class="chip GREEN pf-chip">Green<\/span><\/span><\/span>/, "bottom row: Our pick + light badge");
 assert.match(card, /^<article class="pf-card pf-l-GREEN pf-has-inj"/, "border / glow in the light colour");
@@ -112,7 +112,8 @@ assert.equal(P.setInjuryOpen({ querySelector: () => null }), false, "a card with
 // ---------------------------------------------------------------- hard rule: one card, every sport, every list
 // The card's markup skeleton (tags + classes, text and attribute values removed) is identical for every sport,
 // for every kind of list row, and for a sport that doesn't exist yet.
-const skeleton = (h) => h.replace(/>[^<]+</g, "><").replace(/ (?:href|aria-label|aria-controls|id|data-pf-key|style|stroke-dasharray|width|height|d|viewBox|pathLength)="[^"]*"/g, "")
+// (Team logos are data: tennis has players, so no logo span; the logo is checked on its own below.)
+const skeleton = (h) => h.replace(/<span class="pf-logo"[^>]*><img [^>]*><\/span>/g, "").replace(/ pf-has-logo/g, "").replace(/>[^<]+</g, "><").replace(/ (?:href|aria-label|aria-controls|id|data-pf-key|style|stroke-dasharray|width|height|d|viewBox|pathLength)="[^"]*"/g, "")
   .replace(/pf-(?:l|g)-(?:GREEN|SUPER|ORANGE|RED|none)/g, "pf-L");
 const rowFor = (sport, extra = {}) => P.hubRowFromParts({ sport, start: "2026-11-18T08:30:00Z", matchText: sport === "epl" || sport === "championship" || sport === "tennis" ? "A v B" : "A @ B",
   pickText: "A 66%", chipClass: "chip GREEN", href: "/x#game-1", injury: true, injuryNote: "Key player uncertain.", ...extra });
@@ -120,6 +121,29 @@ const base = skeleton(P.cardHtml(rowFor("nba")));
 for (const sp of ["nfl", "nhl", "epl", "championship", "tennis", "cricket"]) assert.equal(skeleton(P.cardHtml(rowFor(sp))), base, `${sp}: same card as NBA`);
 assert.equal(skeleton(P.cardHtml({ ...todayRow, side: todayRow.a, bestValue: false })), base, "a /today row draws the same card");
 assert.match(P.cardHtml(rowFor("cricket")), /<span class="pf-sport">CRICKET<\/span>/, "a new sport gets the card with no code change");
+// team logos on the card, beside each name, for every sport with team logos; never for tennis (players)
+const fs2 = require("node:fs"), path2 = require("node:path");
+for (const [sp, a, b, abbr, want] of [["nba", "New York Knicks", "Toronto Raptors", "NY|TOR", ["NY", "TOR"]], ["nfl", "Kansas City Chiefs", "Buffalo Bills", "KC|BUF", ["KC", "BUF"]],
+  ["nhl", "Montréal Canadiens", "Boston Bruins", "MTL|BOS", ["MTL", "BOS"]], ["epl", "Arsenal", "Chelsea", "", ["", ""]], ["championship", "Southampton", "Derby County", "", ["", ""]]]) {
+  const sep = sp === "epl" || sp === "championship" ? " v " : " @ ";
+  const row = P.hubRowFromParts({ sport: sp, start: "2026-11-18T08:30:00Z", matchText: a + sep + b, pickText: a + " 66%", chipClass: "chip GREEN", href: "/x", abbr });
+  const h = P.cardHtml(row);
+  for (const [i, name] of [[0, a], [1, b]]) {
+    const src = `/img/logos/${sp}/${P.teamSlug(name)}.png`;
+    assert.ok(h.includes(`<span class="pf-logo" style="--pf-ls:24px"><img src="${src}" alt="" width="24" height="24" decoding="async" data-pf-logo="${sp}|${name}|${want[i]}"></span><span class="pf-tname">${name}</span>`), `${sp}: logo beside ${name}`);
+    assert.ok(fs2.existsSync(path2.join(__dirname, "..", src)), `${sp}: logo file for ${name}`);
+  }
+}
+assert.ok(!/pf-logo|pf-badge|<img/.test(P.cardHtml(rowFor("tennis"))), "tennis: no logos (players)");
+// codes follow the matchup order: a @ b is away @ home, a v b is home v away; only real codes are kept
+assert.deepEqual(P.abbrsOf("NY|TOR", "@"), { a: "NY", b: "TOR" });
+assert.deepEqual(P.abbrsOf("CHE|ARS", "v"), { a: "ARS", b: "CHE" });
+assert.deepEqual(P.abbrsOf("Ipswich Town|Nottingham Forest", "v"), { a: "", b: "" });
+// a missing logo file becomes the round abbreviation badge (phone.js swaps it on the image's error): no broken image
+assert.match(P.badgeHtml("nba", "New York Knicks", "NY", 24), /^<span class="pf-badge" style="--pf-tc:#1d428a;--pf-ls:24px" aria-hidden="true">NY<\/span>$/);
+assert.match(P.badgeHtml("epl", "Nottingham Forest", "", 24), />NF<\/span>$/, "no code on file: the team's initials");
+assert.match(read("phone.js"), /hasAttribute\("data-pf-logo"\)[\s\S]{0,200}box\.outerHTML = P\.badgeHtml\(d\[0\], d\[1\], d\[2\]/, "error swaps the logo for the badge");
+
 // only the data differs: NFL lists group by week (from data-group), everything else by day; same header element
 const wk = (start, w) => rowFor("nfl", { start, group: `Week ${w}`, groupKey: String(w).padStart(3, "0") });
 const nflList = P.cardListHtml([wk("2026-11-30T18:00:00Z", 13), wk("2026-11-23T18:00:00Z", 12), wk("2026-11-24T01:15:00Z", 12)], { sort: "asc" });
@@ -141,6 +165,8 @@ assert.equal(skeleton(noLink).replace('<span class="pf-card-link" role="group">'
   assert.equal(PR.phoneAttrs({ start_utc: "2026-11-18T08:30:00Z" }, "cricket"), ' data-sport="cricket" data-start="2026-11-18T08:30:00Z"', "a new sport works by default");
   assert.equal(PR.matchText({ home_name: "Arsenal", away_name: "Chelsea" }, "epl"), "Arsenal v Chelsea");
   assert.equal(PR.matchText({ home_name: "B", away_name: "A" }, "nhl"), "A @ B");
+  assert.equal(PR.phoneAttrs({ start_utc: "x", away: "NY", home: "TOR" }, "nba"), ' data-sport="nba" data-start="x" data-abbr="NY|TOR"', "team codes for the logo fallback");
+  assert.ok(!PR.phoneAttrs({ start_utc: "x", away: "Ipswich Town", home: "Arsenal" }, "epl").includes("data-abbr"), "names are not codes");
   const site = await import("../functions/_shared/site.js");
   const li = site.gameRow({ sport: "nfl", week: 12, path: "/nfl/a-b-1", start_utc: "2026-11-23T18:00:00Z", away_name: "A", home_name: "B", pick: "B", pick_p: 0.7, light: "GREEN", status: "pre" });
   assert.match(li, /^<li class=""\s*data-sport="nfl" data-start="2026-11-23T18:00:00Z" data-group="Week 12" data-group-key="012"><a href="\/nfl\/a-b-1">/);
@@ -150,8 +176,8 @@ assert.equal(skeleton(noLink).replace('<span class="pf-card-link" role="group">'
 // every game row renderer emits the contract (server rows and the app rows)
 for (const [f, re] of [["functions/_shared/site.js", /\$\{phoneAttrs\(g, g\.sport\)\}><a href/], ["functions/_shared/sport-hubs.js", /<li id="game-\$\{esc\(g\.game_id\)\}"\$\{phoneAttrs\(g, g\.sport\)\}>/],
   ["functions/today.js", /\$\{phoneAttrs\(g, g\.sport\)\}/], ["functions/_shared/teams.js", /<li\$\{phone\}><a href/], ["tennis.js", /<div class="tn-row"\$\{phone\}>/],
-  ["hidden-sports.js", /data-sport="\$\{esc\(HS\)\}" data-start=/]]) assert.match(read(f), re, f);
-assert.equal((read("index.html").match(/data-sport="\$\{g\.sport === "NFL" \? "nfl" : "nba"\}" data-start=/g) || []).length, 2, "NBA / NFL app cards");
+  ["hidden-sports.js", /data-sport="\$\{esc\(HS\)\}" data-abbr="\$\{esc\(g\.away\)\}\|\$\{esc\(g\.home\)\}" data-start=/]]) assert.match(read(f), re, f);
+assert.equal((read("index.html").match(/data-sport="\$\{g\.sport === "NFL" \? "nfl" : "nba"\}" data-abbr="\$\{esc\(g\.away\)\}\|\$\{esc\(g\.home\)\}" data-start=/g) || []).length, 2, "NBA / NFL app cards");
 
 // ---------------------------------------------------------------- wiring: no per-sport phone layouts
 const js = read("phone.js");

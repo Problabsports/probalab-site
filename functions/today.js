@@ -177,6 +177,7 @@ export async function onRequestGet(ctx) {
       const modelP = g.pick_p;
       return {
         key: `${sport}:${g.game_id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: S,
         href: g.path,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -233,6 +234,7 @@ export async function onRequestGet(ctx) {
       const marketP = marketPick(m, g.pickSide);
       return {
         key: `nhl:${g.id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: "NHL",
         href: `/nhl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -279,6 +281,7 @@ export async function onRequestGet(ctx) {
       const marketP = marketPick(m, g.pick);
       return {
         key: `epl:${g.id}`,
+        away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
         sportName: "Premier League",
         href: `/epl#game-${g.id}`,
         when: tAEDT(g.start_utc) + " AEDT",
@@ -322,6 +325,7 @@ export async function onRequestGet(ctx) {
     try { await enrichGamesWithInjuries(ctx, "championship", chEnrich); } catch (e) {}
     const games = chEnrich.map((g) => ({
       key: `championship:${g.id}`,
+      away: g.away, home: g.home, // team codes for the phone card's logo fallback (phoneAttrs keeps real codes only)
       sportName: "Championship",
       href: `/championship#game-${g.id}`,
       when: tAEDT(g.start_utc) + " AEDT",

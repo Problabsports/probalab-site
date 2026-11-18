@@ -8,6 +8,7 @@
 //   data-group       a group header instead of the day (NFL: "Week 12"), with data-group-key to order the groups
 //   data-match       optional "Away @ Home" / "Home v Away" when the row's own text isn't the matchup (team pages)
 //   data-pick, data-p optional pick name and chance (0-1) when the row's own text isn't "Pick 62%"
+//   data-abbr        "AWAY|HOME" team codes, for the logo fallback badge (only when the feed has real codes)
 import { sportCfg } from "./lights.js";
 
 const escA = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -34,6 +35,8 @@ export function phoneAttrs(g, sport, extra = {}) {
     a["data-group"] = weekLabel(Number(g.week));
     a["data-group-key"] = String(g.week).padStart(3, "0");
   }
+  const code = (x) => (/^[A-Z0-9]{2,4}$/.test(String(x ?? "")) ? String(x) : "");
+  if (code(g.away) || code(g.home)) a["data-abbr"] = `${code(g.away)}|${code(g.home)}`;
   Object.assign(a, extra);
   return Object.entries(a).filter(([, v]) => v != null && v !== "").map(([k, v]) => ` ${k}="${escA(v)}"`).join("");
 }

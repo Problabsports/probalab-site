@@ -125,6 +125,9 @@
   html.pf .pf-teams { flex: 1 1 auto; min-width: 0; display: grid; gap: 3px; }
   html.pf .pf-team { display: flex; align-items: center; gap: 7px; font-family: var(--f-display, sans-serif); font-weight: 600; font-size: 17px; line-height: 1.2; color: var(--pf-muted); overflow-wrap: anywhere; }
   html.pf .pf-team.pf-picked { color: var(--pf-ink); font-weight: 700; }
+  html.pf .pf-team .pf-logo, html.pf .pf-team .pf-badge { flex: none; }
+  html.pf .pf-team .pf-badge { font-size: 8px; }
+  html.pf .pf-tname { min-width: 0; }
   html.pf .pf-tick { color: var(--pf-lc); font-size: 9px; text-shadow: 0 0 8px var(--pf-lc); }
   html.pf .pf-sep { font-family: var(--f-mono, monospace); font-size: 11px; color: var(--pf-muted); padding-left: 1px; }
   html.pf .pf-sub { font-size: 12px; color: var(--pf-muted); }

@@ -135,6 +135,8 @@
    *  card's time then carries the day ("Sun 23 Nov, 8:20am AEDT"). Same card, same list, only the data differs. */
   function withGroup(row, o) {
     var g = String(o.group == null ? "" : o.group).replace(/\s+/g, " ").trim();
+    var ab = abbrsOf(o.abbr, row.sep);
+    row.abbrA = ab.a; row.abbrB = ab.b;
     row.group = g;
     row.groupKey = g ? String(o.groupKey == null ? "" : o.groupKey) || g : "";
     if (g && row.start) row.time = dayTitle(row.start, row.tbc) + ", " + row.time;
@@ -217,8 +219,20 @@
   // shows Green plus the small Best value tag), away @ home stacked with the picked team bold + dot, chance gauge on
   // the right in the light colour, then "Our pick <team>" + light badge. Injury watch is a small chip that opens the
   // note inline, inside the card (no note text shows until it is tapped).
-  function teamLine(name, picked) {
-    return '<span class="pf-team' + (picked ? " pf-picked" : "") + '">' + esc(name) + (picked ? '<span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span>";
+  // Team logo beside each name (every sport with team logos; tennis has players, so none). A missing file swaps itself
+  // for the round abbreviation badge (phone.js), so there is never a broken image.
+  var CARD_LOGO = 24;
+  function teamLine(sport, name, abbr, picked) {
+    var logo = logoSrc(sport, name) ? logoHtml(sport, name, abbr, CARD_LOGO) : "";
+    return '<span class="pf-team' + (picked ? " pf-picked" : "") + (logo ? " pf-has-logo" : "") + '">' + logo + '<span class="pf-tname">' + esc(name) + "</span>" +
+      (picked ? '<span class="pf-tick" aria-hidden="true">●</span>' : "") + "</span>";
+  }
+  /** Team codes from the row's data-abbr ("away|home", e.g. "NY|TOR"): a/b order follows the matchup (a @ b is away @ home,
+   *  a v b is home v away). Only real codes (2-4 capitals / digits) are kept; otherwise the badge uses initials. */
+  var CODE = /^[A-Z0-9]{2,4}$/;
+  function abbrsOf(raw, sep) {
+    var p = String(raw || "").split("|"), away = CODE.test(p[0] || "") ? p[0] : "", home = CODE.test(p[1] || "") ? p[1] : "";
+    return sep === "@" ? { a: away, b: home } : { a: home, b: away };
   }
   function lightPill(g) {
     if (!g.light) return "";
@@ -237,8 +251,8 @@
     var top = '<span class="pf-card-top"><span class="pf-sport">' + esc(SPORT_SHORT[g.sport] || g.sportName || String(g.sport || "").toUpperCase()) + "</span>" +
       (time ? '<span class="pf-time">' + esc(time) + "</span>" : "") +
       '<span class="pf-lights">' + lightPill(g) + "</span></span>";
-    var teams = '<span class="pf-teams">' + teamLine(g.a, pickedA) +
-      (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + teamLine(g.b, pickedB) : "") +
+    var teams = '<span class="pf-teams">' + teamLine(g.sport, g.a, g.abbrA, pickedA) +
+      (g.b ? '<span class="pf-sep">' + (g.sep === "@" ? "@" : "v") + "</span>" + teamLine(g.sport, g.b, g.abbrB, pickedB) : "") +
       (g.sub ? '<span class="pf-sub">' + esc(g.sub) + "</span>" : "") + "</span>";
     var pick = '<span class="pf-pick"><span class="pf-pick-lab">Our pick</span><b>' + esc(g.side || "Posted soon") + "</b></span>";
     var res = g.result
@@ -637,6 +651,6 @@
     todayCountLine: todayCountLine,
     gameKeyRows: gameKeyRows, propsKeyRows: propsKeyRows, stackedKeyHtml: stackedKeyHtml, matchesLight: matchesLight, todayHref: todayHref,
     sportCounts: sportCounts, sportChipsHtml: sportChipsHtml, noGamesText: noGamesText, nextStart: nextStart, sydneyWhen: sydneyWhen,
-    teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,
+    abbrsOf: abbrsOf, teamSlug: teamSlug, logoSrc: logoSrc, teamColor: teamColor, teamAbbr: teamAbbr, badgeHtml: badgeHtml, logoHtml: logoHtml,
   };
 });
