@@ -15,7 +15,7 @@
 // Older boards with proj_pts / primary_line still render for points (see statOf).
 import { esc, chip, slug, NBA_TEAMS } from "./site.js";
 import { LIGHTS as LIGHTS_CFG, propsLight, chanceText } from "./lights.js";
-import { itemFromNbaRow, cardHtml, pvScript, nbaLogValue, countHits } from "./prop-cards.js";
+import { itemFromNbaRow, cardHtml, pvScript, nbaLogValue, countHits, usCells } from "./prop-cards.js";
 import { chanceLight } from "./props-chance.js";
 import { supabaseAdmin } from "./membership.js";
 
@@ -147,6 +147,9 @@ const pct = (p) => `${Math.round(p * 100)}%`;
 // Colour follows the rounded % shown, so "55%" is never red and "60%" is always green.
 export const lightOf = (p) => (p == null ? "" : propsLight(p) || "");
 
+/** Book rows with at least one price (books = AU, books_us = US). */
+const priced = (list) => (Array.isArray(list) ? list.filter((b) => b && (num(b.over) != null || num(b.under) != null)) : []);
+
 /** One stat block for a player, normalised: { avg, line, proj, over, under, side, p } or null. */
 export function statOf(player, stat) {
   if (!player) return null;
@@ -162,8 +165,8 @@ export function statOf(player, stat) {
   if (over == null) over = 1 - under;
   if (under == null) under = 1 - over;
   const side = over >= under ? "Over" : "Under";
-  const books = Array.isArray(s.books) ? s.books.filter((b) => b && (num(b.over) != null || num(b.under) != null)) : [];
-  return { avg: num(s.season_avg), line, proj, over, under, side, p: Math.max(over, under), books };
+  const books = priced(s.books), books_us = priced(s.books_us);
+  return { avg: num(s.season_avg), line, proj, over, under, side, p: Math.max(over, under), books, books_us };
 }
 
 /** Players with this stat, strongest call first. Hidden statuses and players without the stat are dropped. */
@@ -252,14 +255,14 @@ const ALL_MARKETS = [...STATS.map(([id]) => id), ...DATA_STATS.map(([id]) => id)
 export function dataStatOf(p, stat) {
   if (!p || statOf(p, stat)) return null;
   const block = p.stats && p.stats[stat];
-  const books = block && Array.isArray(block.books) ? block.books.filter((b) => b && (num(b.over) != null || num(b.under) != null)) : [];
+  const books = priced(block && block.books), books_us = priced(block && block.books_us);
   const values = (Array.isArray(p.game_log) ? p.game_log : []).map((g) => nbaLogValue(g, stat)).filter((v) => v != null);
   const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
-  if (block && num(block.line) != null && books.length) {
-    return { line: num(block.line), line_source: "book", books, avg, side: "", p: null };
+  if (block && num(block.line) != null && (books.length || books_us.length)) {
+    return { line: num(block.line), line_source: "book", books, books_us, avg, side: "", p: null };
   }
   if (avg != null && avg >= (DATA_MIN_AVG[stat] ?? 1)) {
-    return { line: Math.floor(avg) + 0.5, line_source: "avg", books: [], avg, side: "", p: null };
+    return { line: Math.floor(avg) + 0.5, line_source: "avg", books: [], books_us: [], avg, side: "", p: null };
   }
   return null;
 }
@@ -348,16 +351,17 @@ export function bookCells(books) {
   const others = list.filter((b) => b.key !== "sportsbet");
   const best = (side) => others.reduce((a, b) => (num(b[side]) != null && (!a || b[side] > a[side]) ? b : a), null);
   const bo = best("over"), bu = best("under");
-  if (!list.length) return `<td class="num pp-price pp-noau">-<small>No AU price</small></td><td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
+  if (!list.length) return `<td class="num pp-price pp-noau rg-au">-<small>No AU price</small></td><td class="num pp-price pp-noau rg-au">-<small>No AU price</small></td>`;
   const names = bo && bu && bo !== bu ? `${bo.name} · ${bu.name}` : (bo || bu) ? (bo || bu).name : "";
-  return `<td class="num pp-price pp-ou"><span><b>${pr(sb && sb.over)}</b><b>${pr(sb && sb.under)}</b></span></td>
-      <td class="num pp-price pp-ou"><span><b>${pr(bo && bo.over)}</b><b>${pr(bu && bu.under)}</b></span>${names ? `<small>${esc(names)}</small>` : ""}</td>`;
+  return `<td class="num pp-price pp-ou rg-au"><span><b>${pr(sb && sb.over)}</b><b>${pr(sb && sb.under)}</b></span></td>
+      <td class="num pp-price pp-ou rg-au"><span><b>${pr(bo && bo.over)}</b><b>${pr(bu && bu.under)}</b></span>${names ? `<small>${esc(names)}</small>` : ""}</td>`;
 }
-const BOOK_HEADS = `<th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>`;
+const BOOK_HEADS = `<th scope="col" class="num rg-au">Sportsbet<small>Over · Under</small></th><th scope="col" class="num rg-au">Best other<small>Over · Under</small></th>` +
+  `<th scope="col" class="num rg-us">Best Over<small>US sportsbook</small></th><th scope="col" class="num rg-us">Best Under<small>US sportsbook</small></th>`;
 /** True when any player stat on the board carries bookie prices (the mini job adds stats.<stat>.books). */
 export function boardHasBooks(board) {
   return sortedGames(board || { games: [] }).some((g) => (g.players || []).some((p) =>
-    STATS.some(([id]) => { const x = statOf(p, id); return x && x.books.length; }) || DATA_STATS.some(([id]) => { const x = dataStatOf(p, id); return x && x.books.length; })));
+    STATS.some(([id]) => { const x = statOf(p, id); return x && (x.books.length || x.books_us.length); }) || DATA_STATS.some(([id]) => { const x = dataStatOf(p, id); return x && (x.books.length || x.books_us.length); })));
 }
 
 export function predictionRow(r, { link = true, name = true, books = false } = {}) {
@@ -372,7 +376,7 @@ export function predictionRow(r, { link = true, name = true, books = false } = {
       <td class="num">${one(s.line)}${s.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>
       <td class="call${data && r.light ? ` hl-${r.light}` : ""}">${shownP == null ? "—" : data ? s.chance.side : s.side}</td>
       <td class="num pct${data && r.light ? ` hl-${r.light}` : ""}">${shownP == null ? "—" : chanceText(shownP)}</td>
-      ${books ? bookCells(s.books) : ""}<td class="lt">${r.light ? chip(r.light) : ""}</td>
+      ${books ? bookCells(s.books) + usCells({ kind: "ou", books_us: s.books_us }) : ""}<td class="lt">${r.light ? chip(r.light) : ""}</td>
     </tr>`;
 }
 

@@ -10,6 +10,7 @@ const PT = propsText();
 import { startLabel, loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 import { propsSportNav } from "../_shared/sport-props.js";
+import { regionToggle } from "../_shared/prop-cards.js";
 
 /** "No props posted yet" with the next NBA game time, from the same feed the NBA pages use. */
 async function emptyWithNextGame(ctx) {
@@ -69,6 +70,8 @@ export async function onRequestGet(ctx) {
   <p class="note">Predictions only, not betting advice.</p>
   <p class="small pp-results-link"><a href="/props/results">See props results →</a></p>
   ${strip}
+  <script src="/props-region.js"></script>
+  ${regionToggle()}
   ${tabs}
   ${filters}
   ${st.games ? `<div id="ppMemberNote" class="pp-member-note"><p class="note">Free view shows ${FREE_PER_GAME} top players per market in each game. Members see every player.</p>${memberButtons("pp-cta-left")}</div>` : ""}
@@ -77,6 +80,7 @@ export async function onRequestGet(ctx) {
     <p id="ppNone" class="note" hidden>No predictions match these filters.</p>
   </div>
   ${heat ? `<div id="pp-view-hits" class="pp-view" role="tabpanel" aria-labelledby="pp-tab-hits" hidden><div id="propsHeatmap">${heat}</div></div>` : ""}
+  <p class="note small">Prices show for your country: Australian bookmakers (decimal) for everyone outside the US, US sportsbooks (American odds, e.g. −110, +150) in the US. Switch with AU / US.</p>
   <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Predictions only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

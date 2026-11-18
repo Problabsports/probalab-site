@@ -5,12 +5,33 @@
 // Every prop becomes one "item" (same shape for all three sports), rendered as a card on phones; the desktop
 // tables stay as they are. The player view (bottom sheet on phones, panel on desktop; props-cards.js) reads the
 // items of each game from one JSON block per game (only the rows the viewer can see: free view or members).
+//
+// Prices by country: every price cell is rendered twice, once for AU bookies (class rg-au, decimal) and once for US
+// bookies (class rg-us, American odds). props-region.js sets <html data-region> from the visitor's country (or the
+// AU / US toggle) and props.css hides the other region, so the page HTML (and its cache) is the same for everyone.
 import { esc, chip, slug } from "./site.js";
 import { propsLight, chanceText } from "./lights.js";
 import { chanceLight } from "./props-chance.js";
 
 const num = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null : Number(x));
 const pct0 = (x) => chanceText(x); // shown % rounded down (lights.json "display")
+
+/** Decimal price -> American odds text: 2.50 -> "+150", 1.91 -> "-110", 2.00 -> "+100". */
+export function american(dec) {
+  const d = num(dec);
+  if (d == null || d <= 1) return "—";
+  return d >= 2 ? `+${Math.round((d - 1) * 100)}` : `-${Math.round(100 / (d - 1))}`;
+}
+/** A price as each region shows it: AU decimal (1.91), US American (-110). */
+export const fmtPrice = (dec, region) => (num(dec) == null ? "—" : region === "us" ? american(dec) : Number(dec).toFixed(2));
+export const REGION_NAME = { au: "AU", us: "US" };
+/** A row's books for one region (books = AU, books_us = US; older boards have no books_us). */
+export const regionBooks = (src, region) => ((region === "us" ? src && src.books_us : src && src.books) || []);
+
+/** AU / US switch for the props pages (props-region.js wires it; AU pressed until the script says otherwise). */
+export const regionToggle = () => `<div class="pp-region game-filters" role="group" aria-label="Bookie prices"><span class="pp-region-lab small">Prices</span>` +
+  `<button type="button" class="gf-btn on" data-set-region="au" aria-pressed="true" title="Australian bookmakers, decimal prices">AU</button>` +
+  `<button type="button" class="gf-btn" data-set-region="us" aria-pressed="false" title="US sportsbooks, American odds">US</button></div>`;
 
 /** Highest price on one side across every bookie (Sportsbet wins ties). */
 export function bestBook(books, side) {
@@ -38,7 +59,7 @@ export function itemFromSportRow(sport, r, label, light, side, game = null) {
     sport, player: r.player, team: r.team || "", team_abbr: r.team_abbr || "", position: r.position || "",
     market: label, kind: r.kind, line: r.kind === "yes" ? null : num(r.line),
     light: (cl ? cl.light : light) || "", side: (cl ? cl.side : side) || "",
-    pred: null, chance: cl && cl.p != null ? { side: cl.side, p: cl.p } : null, books: r.books || [], log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
+    pred: null, chance: cl && cl.p != null ? { side: cl.side, p: cl.p } : null, books: r.books || [], books_us: r.books_us || [], no_us_price: !(r.books_us || []).length, log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
     season: r.season || null, hits: r.hits || null, rates: r.rates || null,
     line_source: r.line_source || "book", no_au_price: !(r.books || []).length,
     // when each price was pulled: opening = first pull with lines, closing = the last pull before the start
@@ -69,7 +90,7 @@ export function itemFromNbaRow(r, label, teamAbbr) {
     sport: "nba", player: r.player, team: r.team || "", team_abbr: teamAbbr || "", position: "",
     market: label, kind: "ou", line: s.line, light: r.light || "", side: s.side || "",
     pred: s.p != null ? { side: s.side, p: s.p } : null,
-    chance: s.p == null && s.chance ? { side: s.chance.side, p: s.chance.p } : null, books: s.books || [], log,
+    chance: s.p == null && s.chance ? { side: s.chance.side, p: s.chance.p } : null, books: s.books || [], books_us: s.books_us || [], no_us_price: !(s.books_us || []).length, log,
     season: { gp: values.length || null, avg: avg == null ? null : Math.round(avg * 10) / 10 },
     hits: values.length ? countHits(values, s.line) : null, rates: null,
     line_source: s.line_source || "book", no_au_price: !(s.books || []).length,
@@ -112,21 +133,43 @@ function hitCells(it) {
   return h ? cell("L5", h.l5) + cell("L10", h.l10) + cell("Season", h.season) : `<span><small>Form</small><b>—</b></span>`;
 }
 
-const NO_AU_CELLS = (a, b) => `<div class="ppc-prices ppc-noau"><div><small>${a}</small><b>-</b><span>No AU price</span></div><div><small>${b}</small><b>-</b><span>No AU price</span></div></div>`;
+const NO_CELLS = (rg, a, b) => { const t = `No ${REGION_NAME[rg]} price`;
+  return `<div class="ppc-prices ppc-noau rg-${rg}"><div><small>${a}</small><b>-</b><span>${t}</span></div><div><small>${b}</small><b>-</b><span>${t}</span></div></div>`; };
+
+/** Best Over / Under (or Yes) for one region, with the bookie name small underneath. Same layout for AU and US. */
+function regionPriceCells(it, rg) {
+  const books = regionBooks(it, rg);
+  const none = rg === "us" ? !books.length : it.no_au_price;
+  const blank = () => (it.kind === "yes" ? NO_CELLS(rg, "Best price", "Implied chance") : NO_CELLS(rg, "Over", "Under"));
+  if (none && (rg === "us" || it.sport !== "nba" || it.line_source === "avg")) return blank();
+  if (it.kind === "yes") {
+    const b = bestBook(books, "yes");
+    if (!b) return `<p class="ppc-noprice rg-${rg}">Prices appear once this market is posted.</p>`;
+    return `<div class="ppc-prices rg-${rg}"><div><small>Best price</small><b>${fmtPrice(b.yes, rg)}</b><span>${esc(b.name)}</span></div>
+      <div${rg === "au" && it.light ? ` class="hl-${it.light}"` : ""}><small>Implied chance</small><b>${pct0(1 / b.yes)}</b><span>margin included</span></div></div>`;
+  }
+  const o = bestBook(books, "over"), u = bestBook(books, "under");
+  if (!o && !u) return `<p class="ppc-noprice rg-${rg}">Prices appear once this line is posted.</p>`;
+  const cell = (lab, b, side) => `<div><small>${lab}</small><b>${b ? fmtPrice(b[side], rg) : "—"}</b><span>${b ? esc(b.name) : "&nbsp;"}</span></div>`;
+  return `<div class="ppc-prices rg-${rg}">${cell("Over", o, "over")}${cell("Under", u, "under")}</div>`;
+}
 
 function priceCells(it) {
-  if (it.no_au_price && it.sport !== "nba") return it.kind === "yes" ? NO_AU_CELLS("Best price", "Implied chance") : NO_AU_CELLS("Over", "Under");
-  if (it.no_au_price && it.line_source === "avg") return NO_AU_CELLS("Over", "Under");
-  if (it.kind === "yes") {
-    const b = bestBook(it.books, "yes");
-    if (!b) return `<p class="ppc-noprice">Prices appear once this market is posted.</p>`;
-    return `<div class="ppc-prices"><div><small>Best price</small><b>${Number(b.yes).toFixed(2)}</b><span>${esc(b.name)}</span></div>
-      <div${it.light ? ` class="hl-${it.light}"` : ""}><small>Implied chance</small><b>${pct0(1 / b.yes)}</b><span>margin included</span></div></div>`;
+  return regionPriceCells(it, "au") + regionPriceCells(it, "us");
+}
+
+/** US columns (rg-us): best Over and best Under across US sportsbooks, American odds, bookie underneath.
+    Shared by the NFL / NHL and NBA tables. Anytime markets: best Yes price + bookie, then the implied chance. */
+export function usCells(row) {
+  const books = row.books_us || [];
+  const NO_US = `<td class="num pp-price pp-noau rg-us">-<small>No US price</small></td>`;
+  if (!books.length) return NO_US + NO_US;
+  const cell = (b, side) => (b ? `<td class="num pp-price rg-us"><b>${fmtPrice(b[side], "us")}</b><small>${esc(b.name)}</small></td>` : `<td class="num pp-price rg-us">—</td>`);
+  if (row.kind === "yes") {
+    const b = bestBook(books, "yes");
+    return cell(b, "yes") + (b ? `<td class="num pp-price rg-us"><b>${pct0(1 / b.yes)}</b><small>implied</small></td>` : `<td class="num pp-price rg-us">—</td>`);
   }
-  const o = bestBook(it.books, "over"), u = bestBook(it.books, "under");
-  if (!o && !u) return `<p class="ppc-noprice">Prices appear once this line is posted.</p>`;
-  const cell = (lab, b, side) => `<div><small>${lab}</small><b>${b ? Number(b[side]).toFixed(2) : "—"}</b><span>${b ? esc(b.name) : "&nbsp;"}</span></div>`;
-  return `<div class="ppc-prices">${cell("Over", o, "over")}${cell("Under", u, "under")}</div>`;
+  return cell(bestBook(books, "over"), "over") + cell(bestBook(books, "under"), "under");
 }
 
 /** One phone card. pvId links it to the player view data. */
