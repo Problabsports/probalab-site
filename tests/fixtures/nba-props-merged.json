@@ -1,0 +1,7688 @@
+{
+ "sample": true,
+ "sport": "nba",
+ "schema": "per-stat v2: players[].stats.{points,rebounds,assists,threes} = { season_avg, line, proj, sigma, p_over, p_under }",
+ "stats_available": [
+  "points"
+ ],
+ "generated_at": "2026-11-15T09:00:00+11:00",
+ "games": [
+  {
+   "event_id": "sample-001",
+   "game": "Boston Celtics @ New York Knicks",
+   "home": "New York Knicks",
+   "away": "Boston Celtics",
+   "commence_syd": "2026-11-16T11:30:00+11:00",
+   "players": [
+    {
+     "player": "Marcus Vale",
+     "team": "Boston Celtics",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 25.1,
+       "line": 25.5,
+       "proj": 28.4,
+       "sigma": 6.1,
+       "p_over": 0.683,
+       "p_under": 0.317,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.65,
+         "under": 2.2
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.68,
+         "under": 2.17
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.69,
+         "under": 2.16
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.63,
+         "under": 2.22
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.7,
+         "under": 2.15
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.62,
+         "under": 2.23
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.67,
+         "under": 2.18
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.64,
+         "under": 2.21
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.69
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.22
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.7
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.23
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 41.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 33.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 33.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Devin Orr",
+     "team": "Boston Celtics",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 20.6,
+       "line": 20.5,
+       "proj": 18.1,
+       "sigma": 5.2,
+       "p_over": 0.322,
+       "p_under": 0.678,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.31,
+         "under": 1.6
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.34,
+         "under": 1.57
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.35,
+         "under": 1.56
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.29,
+         "under": 1.62
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.36,
+         "under": 1.55
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.28,
+         "under": 1.63
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.33,
+         "under": 1.58
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.3,
+         "under": 1.61
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.35
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.62
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.36
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.63
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 33.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 27.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 27.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Theo Brannigan",
+     "team": "Boston Celtics",
+     "status": "GTD",
+     "notes": "Left ankle soreness. Game-time decision.",
+     "stats": {
+      "points": {
+       "season_avg": 13.4,
+       "line": 13.5,
+       "proj": 11.2,
+       "sigma": 4.4,
+       "p_over": 0.301,
+       "p_under": 0.699,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.61,
+         "under": 1.48
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.64,
+         "under": 1.45
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.65,
+         "under": 1.44
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.59,
+         "under": 1.5
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.66,
+         "under": 1.43
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.58,
+         "under": 1.51
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.63,
+         "under": 1.46
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.6,
+         "under": 1.49
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.65
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.5
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.66
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.51
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 22.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 18.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 18.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Isaac Lund",
+     "team": "Boston Celtics",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 8.3,
+       "line": 8.5,
+       "proj": 8.9,
+       "sigma": 3.6,
+       "p_over": 0.544,
+       "p_under": 0.456,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.78,
+         "under": 2.01
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.81,
+         "under": 1.98
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.82,
+         "under": 1.97
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.76,
+         "under": 2.03
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.83,
+         "under": 1.96
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.75,
+         "under": 2.04
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.8,
+         "under": 1.99
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.77,
+         "under": 2.02
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.82
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.03
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.83
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.04
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 14.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 11.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 11.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Jalen Reyes",
+     "team": "New York Knicks",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 28.2,
+       "line": 28.5,
+       "proj": 29.6,
+       "sigma": 6.4,
+       "p_over": 0.568,
+       "p_under": 0.432,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.79,
+         "under": 1.99
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.82,
+         "under": 1.96
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.83,
+         "under": 1.95
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.77,
+         "under": 2.01
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.84,
+         "under": 1.94
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.76,
+         "under": 2.02
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.81,
+         "under": 1.97
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.78,
+         "under": 2.0
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.83
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.01
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.84
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.02
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 46.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 37.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 37.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Corey Whitfield",
+     "team": "New York Knicks",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 15,
+       "line": 15.5,
+       "proj": 17.9,
+       "sigma": 4.9,
+       "p_over": 0.688,
+       "p_under": 0.312,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.59,
+         "under": 2.31
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.62,
+         "under": 2.28
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.63,
+         "under": 2.27
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.57,
+         "under": 2.33
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.64,
+         "under": 2.26
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.56,
+         "under": 2.34
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.61,
+         "under": 2.29
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.58,
+         "under": 2.32
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.63
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.33
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.64
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.34
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 25.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Anton Mercer",
+     "team": "New York Knicks",
+     "status": "Questionable",
+     "notes": "Hamstring tightness.",
+     "stats": {
+      "points": {
+       "season_avg": 12.7,
+       "line": 12.5,
+       "proj": 10.1,
+       "sigma": 4.1,
+       "p_over": 0.279,
+       "p_under": 0.721,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.76,
+         "under": 1.43
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.79,
+         "under": 1.4
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.8,
+         "under": 1.39
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.74,
+         "under": 1.45
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.8
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.45
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Rashad Pell",
+     "team": "New York Knicks",
+     "status": "Out",
+     "notes": "Knee. Out for this game.",
+     "stats": {}
+    }
+   ]
+  },
+  {
+   "event_id": "sample-002",
+   "game": "Denver Nuggets @ Minnesota Timberwolves",
+   "home": "Minnesota Timberwolves",
+   "away": "Denver Nuggets",
+   "commence_syd": "2026-11-16T12:00:00+11:00",
+   "players": [
+    {
+     "player": "Niko Varga",
+     "team": "Denver Nuggets",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 26.4,
+       "line": 26.5,
+       "proj": 25.3,
+       "sigma": 5.8,
+       "p_over": 0.418,
+       "p_under": 0.582,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.02,
+         "under": 1.77
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.05,
+         "under": 1.74
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.06,
+         "under": 1.73
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.0,
+         "under": 1.79
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.07,
+         "under": 1.72
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.99,
+         "under": 1.8
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.04,
+         "under": 1.75
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.01,
+         "under": 1.78
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.06
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.79
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.07
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.8
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 42.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 34.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 34.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Tyrell Banks",
+     "team": "Denver Nuggets",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 16.2,
+       "line": 16.5,
+       "proj": 19,
+       "sigma": 5,
+       "p_over": 0.691,
+       "p_under": 0.309,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.6,
+         "under": 2.3
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.63,
+         "under": 2.27
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.64,
+         "under": 2.26
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.58,
+         "under": 2.32
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.65,
+         "under": 2.25
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.57,
+         "under": 2.33
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.62,
+         "under": 2.28
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.59,
+         "under": 2.31
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.64
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.32
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.65
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.33
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 26.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 21.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 21.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Owen Sato",
+     "team": "Denver Nuggets",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 11.3,
+       "line": 11.5,
+       "proj": 10.6,
+       "sigma": 3.9,
+       "p_over": 0.409,
+       "p_under": 0.591,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.13,
+         "under": 1.69
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.16,
+         "under": 1.66
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.17,
+         "under": 1.65
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.11,
+         "under": 1.71
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.18,
+         "under": 1.64
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.1,
+         "under": 1.72
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.15,
+         "under": 1.67
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.12,
+         "under": 1.7
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.17
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.71
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.18
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.72
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 18.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 15.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 15.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Graham Dunleavy",
+     "team": "Denver Nuggets",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 7.9,
+       "line": 7.5,
+       "proj": 6.4,
+       "sigma": 3.3,
+       "p_over": 0.369,
+       "p_under": 0.631,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.42,
+         "under": 1.55
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.45,
+         "under": 1.52
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.46,
+         "under": 1.51
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.4,
+         "under": 1.57
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.47,
+         "under": 1.5
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.39,
+         "under": 1.58
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.44,
+         "under": 1.53
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.41,
+         "under": 1.56
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.46
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.57
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.47
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.58
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 12.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 10.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 10.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Andre Kessler",
+     "team": "Minnesota Timberwolves",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 24.8,
+       "line": 24.5,
+       "proj": 27.9,
+       "sigma": 6,
+       "p_over": 0.715,
+       "p_under": 0.285,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.61,
+         "under": 2.27
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.64,
+         "under": 2.24
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.65,
+         "under": 2.23
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.59,
+         "under": 2.29
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.66,
+         "under": 2.22
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.58,
+         "under": 2.3
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.63,
+         "under": 2.25
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.6,
+         "under": 2.28
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.65
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.29
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.66
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.3
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 39.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 32.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 32.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Malik Treadwell",
+     "team": "Minnesota Timberwolves",
+     "status": "GTD",
+     "notes": "Illness. Listed as a game-time decision.",
+     "stats": {
+      "points": {
+       "season_avg": 15.6,
+       "line": 15.5,
+       "proj": 13,
+       "sigma": 4.7,
+       "p_over": 0.297,
+       "p_under": 0.703,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.55,
+         "under": 1.5
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.58,
+         "under": 1.47
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.59,
+         "under": 1.46
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.53,
+         "under": 1.52
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.6,
+         "under": 1.45
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.52,
+         "under": 1.53
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.57,
+         "under": 1.48
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.54,
+         "under": 1.51
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.59
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.52
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.6
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.53
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 25.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Luca Ferris",
+     "team": "Minnesota Timberwolves",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 12.2,
+       "line": 12.5,
+       "proj": 13.4,
+       "sigma": 4.3,
+       "p_over": 0.583,
+       "p_under": 0.417,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.73,
+         "under": 2.08
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.76,
+         "under": 2.05
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.77,
+         "under": 2.04
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.71,
+         "under": 2.1
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.77
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.1
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Ben Oyelaran",
+     "team": "Minnesota Timberwolves",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 9.1,
+       "line": 9.5,
+       "proj": 9.3,
+       "sigma": 3.7,
+       "p_over": 0.478,
+       "p_under": 0.522
+      }
+     }
+    }
+   ]
+  },
+  {
+   "event_id": "sample-003",
+   "game": "Phoenix Suns @ Los Angeles Lakers",
+   "home": "Los Angeles Lakers",
+   "away": "Phoenix Suns",
+   "commence_syd": "2026-11-16T14:30:00+11:00",
+   "players": [
+    {
+     "player": "Darius Quill",
+     "team": "Phoenix Suns",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 23,
+       "line": 23.5,
+       "proj": 24.6,
+       "sigma": 5.9,
+       "p_over": 0.574,
+       "p_under": 0.426,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.78,
+         "under": 2.01
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.81,
+         "under": 1.98
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.82,
+         "under": 1.97
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.76,
+         "under": 2.03
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.83,
+         "under": 1.96
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.75,
+         "under": 2.04
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.8,
+         "under": 1.99
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.77,
+         "under": 2.02
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.82
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.03
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.83
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.04
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 38.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 31.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 31.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Evan Holloway",
+     "team": "Phoenix Suns",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 22.9,
+       "line": 22.5,
+       "proj": 20.2,
+       "sigma": 5.5,
+       "p_over": 0.338,
+       "p_under": 0.662,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.24,
+         "under": 1.63
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.27,
+         "under": 1.6
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.28,
+         "under": 1.59
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.22,
+         "under": 1.65
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.29,
+         "under": 1.58
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.21,
+         "under": 1.66
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.26,
+         "under": 1.61
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.23,
+         "under": 1.64
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.28
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.65
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.29
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.66
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 36.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 29.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 29.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Felix Amari",
+     "team": "Phoenix Suns",
+     "status": "Questionable",
+     "notes": "Wrist. Minutes may be limited.",
+     "stats": {
+      "points": {
+       "season_avg": 10.8,
+       "line": 10.5,
+       "proj": 8.4,
+       "sigma": 3.8,
+       "p_over": 0.29,
+       "p_under": 0.71,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.81,
+         "under": 1.42
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.84,
+         "under": 1.39
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.85,
+         "under": 1.38
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 2.79,
+         "under": 1.44
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 2.86,
+         "under": 1.37
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 2.78,
+         "under": 1.45
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 2.83,
+         "under": 1.4
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 2.8,
+         "under": 1.43
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.85
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.44
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 2.86
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.45
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 17.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 14.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 14.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Simon Kraus",
+     "team": "Phoenix Suns",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 7.2,
+       "line": 7.5,
+       "proj": 7.9,
+       "sigma": 3.4,
+       "p_over": 0.547,
+       "p_under": 0.453,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.77,
+         "under": 2.02
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.8,
+         "under": 1.99
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.81,
+         "under": 1.98
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.75,
+         "under": 2.04
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.82,
+         "under": 1.97
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.74,
+         "under": 2.05
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.79,
+         "under": 2.0
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.76,
+         "under": 2.03
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.81
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.04
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.82
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.05
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 12.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 10.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 10.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Jordan Ashby",
+     "team": "Los Angeles Lakers",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 27.5,
+       "line": 27.5,
+       "proj": 28.1,
+       "sigma": 6.3,
+       "p_over": 0.538,
+       "p_under": 0.462,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.83,
+         "under": 1.94
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.86,
+         "under": 1.91
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.87,
+         "under": 1.9
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.81,
+         "under": 1.96
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.89
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.8,
+         "under": 1.97
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.85,
+         "under": 1.92
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.82,
+         "under": 1.95
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.87
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.96
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.88
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 1.97
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 3.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 44.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 36.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 36.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Kai Montrose",
+     "team": "Los Angeles Lakers",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 18.3,
+       "line": 18.5,
+       "proj": 21.6,
+       "sigma": 5.3,
+       "p_over": 0.721,
+       "p_under": 0.279,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.57,
+         "under": 2.35
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.6,
+         "under": 2.32
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 1.61,
+         "under": 2.31
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.55,
+         "under": 2.37
+        }
+       ],
+       "books_us": [
+        {
+         "key": "betmgm",
+         "name": "BetMGM",
+         "region": "us",
+         "over": 1.62,
+         "under": 2.3
+        },
+        {
+         "key": "williamhill_us",
+         "name": "Caesars",
+         "region": "us",
+         "over": 1.54,
+         "under": 2.38
+        },
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.59,
+         "under": 2.33
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.56,
+         "under": 2.36
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 1.61
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 2.37
+         }
+        },
+        "us": {
+         "over": {
+          "key": "betmgm",
+          "name": "BetMGM",
+          "dec": 1.62
+         },
+         "under": {
+          "key": "williamhill_us",
+          "name": "Caesars",
+          "dec": 2.38
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 2.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 30.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 24.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 24.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [
+        {
+         "key": "draftkings",
+         "name": "DraftKings",
+         "region": "us",
+         "over": 1.91,
+         "under": 1.87
+        },
+        {
+         "key": "fanduel",
+         "name": "FanDuel",
+         "region": "us",
+         "over": 1.88,
+         "under": 1.9
+        }
+       ],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {
+         "over": {
+          "key": "draftkings",
+          "name": "DraftKings",
+          "dec": 1.91
+         },
+         "under": {
+          "key": "fanduel",
+          "name": "FanDuel",
+          "dec": 1.9
+         }
+        }
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Reggie Talbot",
+     "team": "Los Angeles Lakers",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 12.9,
+       "line": 12.5,
+       "proj": 12,
+       "sigma": 4.2,
+       "p_over": 0.453,
+       "p_under": 0.547,
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 2.0,
+         "under": 1.79
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 2.03,
+         "under": 1.76
+        },
+        {
+         "key": "pointsbetau",
+         "name": "PointsBet",
+         "region": "au",
+         "over": 2.04,
+         "under": 1.75
+        },
+        {
+         "key": "tab",
+         "name": "TAB",
+         "region": "au",
+         "over": 1.98,
+         "under": 1.81
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "pointsbetau",
+          "name": "PointsBet",
+          "dec": 2.04
+         },
+         "under": {
+          "key": "tab",
+          "name": "TAB",
+          "dec": 1.81
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "threes": {
+       "line": 1.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pra": {
+       "line": 20.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pr": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      },
+      "pa": {
+       "line": 16.5,
+       "line_source": "book",
+       "books": [
+        {
+         "key": "sportsbet",
+         "name": "Sportsbet",
+         "region": "au",
+         "over": 1.89,
+         "under": 1.89
+        },
+        {
+         "key": "ladbrokes_au",
+         "name": "Ladbrokes",
+         "region": "au",
+         "over": 1.92,
+         "under": 1.86
+        },
+        {
+         "key": "neds",
+         "name": "Neds",
+         "region": "au",
+         "over": 1.91,
+         "under": 1.87
+        }
+       ],
+       "books_us": [],
+       "best": {
+        "au": {
+         "over": {
+          "key": "ladbrokes_au",
+          "name": "Ladbrokes",
+          "dec": 1.92
+         },
+         "under": {
+          "key": "sportsbet",
+          "name": "Sportsbet",
+          "dec": 1.89
+         }
+        },
+        "us": {}
+       },
+       "books_utc": "2026-11-15T22:00:00Z"
+      }
+     }
+    },
+    {
+     "player": "Victor Hale",
+     "team": "Los Angeles Lakers",
+     "status": "Active",
+     "notes": "",
+     "stats": {
+      "points": {
+       "season_avg": 6.1,
+       "line": 6.5,
+       "proj": 7.4,
+       "sigma": 3.2,
+       "p_over": 0.611,
+       "p_under": 0.389
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

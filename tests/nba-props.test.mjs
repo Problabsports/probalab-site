@@ -235,7 +235,9 @@ assert.equal(rp.status, 200);
 assert.ok(!rh.includes("Sample data"), "no sample badge on the real board");
 assert.ok(!rh.includes('content="noindex'), "real board is indexable");
 assert.ok(rh.includes("Updated 7:31 am AEDT"), "updated time in Sydney short zone");
-assert.ok(rh.includes("Sunday 15 November") && rh.includes(">2 games<") && rh.includes(">10 players<"), "strip counts from the real board");
+const rhPlayers = new Set([...rh.matchAll(/class="pp-pv"[^>]*>(.*?)<\/script>/gs)].flatMap((m) => Object.values(JSON.parse(m[1])).map((i) => i.player))).size;
+assert.ok(rhPlayers > 0 && rhPlayers < 10, "free view shows some of the 10 players");
+assert.ok(rh.includes("Sunday 15 November") && rh.includes(">2 games<") && rh.includes(`id="ppPlayers">${rhPlayers} players<`), "strip counts the players on the cards (free view), not the whole board");
 for (const g of realPayload.games.slice(0, 2)) {
   const shown = g.players.filter((p) => rh.includes(p.player));
   assert.equal(shown.length, 3, "exactly 3 real players per game in " + g.game);

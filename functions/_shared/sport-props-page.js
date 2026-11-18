@@ -17,7 +17,7 @@ export async function sportPropsPage(ctx, sport) {
     ${sample ? '<span class="pp-sample" title="Preview fixture: fictional players, invented numbers">Sample data</span>' : ""}
     ${st.day ? `<span>${esc(st.day)}</span>` : ""}
     <span>${st.games} game${st.games === 1 ? "" : "s"}</span>
-    <span>${st.players} player${st.players === 1 ? "" : "s"}</span>
+    <span id="ppPlayers">${st.players} player${st.players === 1 ? "" : "s"}</span>
     ${updated ? `<span>Updated ${esc(updated)}</span>` : ""}
   </div>`;
   const sel = (id, label, opts) => `<label class="pp-team-filter">${label}<select id="${id}">${opts}</select></label>`;
@@ -67,7 +67,7 @@ export async function sportPropsApi(ctx, sport) {
   const member = await verifyMember(ctx.request);
   if (!member) return json({ ok: false, error: "members only" }, 401);
   const board = await loadSportBoard(ctx, sport);
-  return json({ ok: true, html: renderSportBoard(sport, board, { full: true }) });
+  return json({ ok: true, html: renderSportBoard(sport, board, { full: true }), players: boardCounts(board, { full: true }).players });
 }
 
 /** Raw sample files are members-only, like the NBA fixture. */

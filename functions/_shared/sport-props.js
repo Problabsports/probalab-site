@@ -253,9 +253,17 @@ export function marketsOnBoard(sport, board) {
   const on = new Set(sortedGames(board).flatMap((g) => g.props.map((r) => r.market)));
   return SPORTS[sport].markets.filter(([k]) => on.has(k));
 }
-export function boardCounts(board) {
+/** Rows this view shows in one game (free view: freeRowKeys; members: every row). */
+export function visibleProps(g, { full = false } = {}) {
+  if (full) return g.props || [];
+  const keys = freeRowKeys(g);
+  return (g.props || []).filter((r) => keys.has(`${r.player}|${r.market}`));
+}
+
+/** Strip counts. players = players with a card in this view (free view or members), so the strip matches the cards. */
+export function boardCounts(board, { full = false } = {}) {
   const games = sortedGames(board);
-  return { games: games.length, players: new Set(games.flatMap((g) => g.props.map((r) => r.player))).size,
+  return { games: games.length, players: new Set(games.flatMap((g) => visibleProps(g, { full }).map((r) => r.player))).size,
     day: games.length ? dayLabel(games[0].commence_utc) : "" };
 }
 
@@ -266,9 +274,9 @@ export function renderSportBoard(sport, board, { full = false } = {}) {
   const games = board ? sortedGames(board) : [];
   if (!games.length) return emptyHtml(sport);
   return games.map((g) => {
-    const keys = full ? null : freeRowKeys(g);
     const all = orderRows(sport, g.props);
-    const rows = full ? all : all.filter((r) => keys.has(`${r.player}|${r.market}`));
+    const shown = new Set(visibleProps(g, { full }));
+    const rows = all.filter((r) => shown.has(r));
     const hidden = all.length - rows.length;
     const teams = [g.away, g.home].concat(g.props.map((r) => r.team)).filter(Boolean);
     const ids = rows.map((r, i) => `${g.event_id || "g"}-${i}`);

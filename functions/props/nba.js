@@ -7,7 +7,7 @@
 import { shell, html, esc, asHead, getFeed } from "../_shared/site.js";
 import { propsText } from "../_shared/lights.js";
 const PT = propsText();
-import { startLabel, loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay } from "../_shared/nba-props.js";
+import { startLabel, loadBoard, renderPanels, boardStats, updatedLabel, teamsOf, FREE_PER_GAME, memberButtons, sortedGames, marketsOn, shortDay, viewPlayerCount } from "../_shared/nba-props.js";
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 import { propsSportNav } from "../_shared/sport-props.js";
 import { regionToggle } from "../_shared/prop-cards.js";
@@ -28,7 +28,7 @@ export async function onRequestGet(ctx) {
   const board = await loadBoard(ctx);
   // board: the real Supabase board when fresh, else the sample fixture (sample:true). Only the
   // free view is rendered into this public HTML; members fetch the full board from /api/props-nba.
-  const st = board ? boardStats(board) : { games: 0, players: 0, day: "" };
+  const st = board ? { ...boardStats(board), players: viewPlayerCount(board, { full: false }) } : { games: 0, players: 0, day: "" };
   const updated = board && board.generated_at ? updatedLabel(board.generated_at) : "";
   const sample = !!(board && board.sample);
   const teams = board ? teamsOf(board) : [];
@@ -40,7 +40,7 @@ export async function onRequestGet(ctx) {
     ${sample ? '<span class="pp-sample" title="Preview fixture: fictional players, invented numbers">Sample data</span>' : ""}
     ${st.day ? `<span>${esc(st.day)}</span>` : ""}
     <span>${st.games} game${st.games === 1 ? "" : "s"}</span>
-    <span>${st.players} player${st.players === 1 ? "" : "s"}</span>
+    <span id="ppPlayers">${st.players} player${st.players === 1 ? "" : "s"}</span>
     ${updated ? `<span>Updated ${esc(updated)}</span>` : ""}
   </div>`;
 

@@ -390,17 +390,29 @@ export const EMPTY_HTML = `<section class="panel pp-empty"><p>No player props on
  * Predictions board grouped by game: one card per game, every player × market row, green first.
  * full=false keeps only the free-view rows; the rest are counted and shown as blurred placeholders.
  */
+/** One game's rows: every row (all) and the rows this view shows (free view or members). */
+export function gameRows(g, { full = false } = {}) {
+  const dataRows = gameDataRows(g);
+  const all = gamePredictions(g).concat(dataRows);
+  const keys = full ? null : new Set([...freeKeys(g), ...dataFreeKeys(dataRows)]);
+  return { all, rows: full ? all : all.filter((r) => keys.has(predKey(r, r.stat))) };
+}
+
+/** Players with at least one card in this view (free view or members): the strip count, so it matches the cards. */
+export function viewPlayerCount(board, { full = false } = {}) {
+  const ids = new Set();
+  for (const g of sortedGames(board)) for (const r of gameRows(g, { full }).rows) ids.add(playerId(r));
+  return ids.size;
+}
+
 export function renderCards(board, { full = false } = {}) {
   const games = sortedGames(board);
   if (!games.length || (!STATS.some(([id]) => hasStat(board, id)) && !games.some((g) => gameDataRows(g).length))) return EMPTY_HTML;
   const withBooks = boardHasBooks(board);
   return games.map((g) => {
-    const dataRows = gameDataRows(g);
-    const all = gamePredictions(g).concat(dataRows);
+    const { all, rows } = gameRows(g, { full });
     if (!all.length) return "";
     const teams = gameTeams(g);
-    const keys = full ? null : new Set([...freeKeys(g), ...dataFreeKeys(dataRows)]);
-    const rows = full ? all : all.filter((r) => keys.has(predKey(r, r.stat)));
     const hidden = all.length - rows.length;
     const locked = hidden > 0 ? `<tbody class="pp-locked" aria-hidden="true">${Array.from({ length: Math.min(hidden, LOCKED_SHOWN) }, lockedRow).join("")}</tbody>` : "";
     const gate = hidden > 0

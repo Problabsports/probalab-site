@@ -140,6 +140,8 @@
     boardEl.innerHTML = j.html;
     var hm = document.getElementById("propsHeatmap");
     if (hm && typeof j.heatmap === "string" && j.heatmap) { hm.innerHTML = j.heatmap; wireHeatmap(); }
+    var pc = document.getElementById("ppPlayers");
+    if (pc && typeof j.players === "number") pc.textContent = j.players + " player" + (j.players === 1 ? "" : "s");
     if (note) note.innerHTML = '<p class="note">Members view: every player on the board.</p>';
     applyAll();
   }
