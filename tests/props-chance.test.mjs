@@ -148,7 +148,10 @@ test("9. privacy: the book chance never reaches HTML or the pp-pv JSON", () => {
 test("10. column count: header == O/U row == Yes row == locked row", () => {
   const cells = (s) => (s.match(/<t[hd][\s>]/g) || []).length;
   const head = cells(HEAD);
-  assert.equal(head, 10);
+  assert.equal(head, 12, "10 visible columns per region: 2 AU price columns + 2 US price columns, CSS hides one pair");
+  const rg = (s, r) => (s.match(new RegExp("<t[hd][^>]*\\brg-" + r + "\\b", "g")) || []).length;
+  assert.equal(rg(HEAD, "au"), 2);
+  assert.equal(rg(HEAD, "us"), 2);
   assert.ok(HEAD.includes('<th scope="col" class="num pp-chance">Chance</th></tr>'), "Chance is the last column (no separate badge column)");
   assert.ok(HEAD.includes("Hit rate<small>Season</small>"));
   assert.equal(cells(propRow("nfl", ouRow, "x")), head);
@@ -158,6 +161,7 @@ test("10. column count: header == O/U row == Yes row == locked row", () => {
   const locked = html.match(/<tr class="pp-row pp-locked-row"[\s\S]*?<\/tr>/);
   assert.ok(locked, "locked rows present in the free view");
   assert.equal(cells(locked[0]), head);
+  for (const r of [propRow("nfl", ouRow, "x"), propRow("nhl", yesRow, "x"), locked[0]]) { assert.equal(rg(r, "au"), 2); assert.equal(rg(r, "us"), 2); }
 });
 
 test("wording: no Super / value / edge / units / model chance", () => {

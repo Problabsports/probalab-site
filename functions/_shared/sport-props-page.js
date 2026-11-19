@@ -4,6 +4,7 @@ import { shell, html, esc } from "./site.js";
 import { verifyMember } from "./member-session.js";
 import { SPORTS, loadSportBoard, renderSportBoard, boardCounts, teamsOfBoard, marketsOnBoard, sortedGames, propsSportNav, shortDay, FREE_PER_GAME } from "./sport-props.js";
 import { memberButtons, updatedLabel } from "./nba-props.js";
+import { regionToggle } from "./prop-cards.js";
 
 export async function sportPropsPage(ctx, sport) {
   const S = SPORTS[sport];
@@ -34,16 +35,18 @@ export async function sportPropsPage(ctx, sport) {
   <p class="eyebrow">// ${S.name} player props · Australia/Sydney</p>
   <h1>${S.name} player props</h1>
   ${propsSportNav(sport)}
-  <p>Every posted ${S.name} player prop with the line, Sportsbet's prices and the best price at another Australian bookmaker, next to the player's last 8 games against that line, how often he has cleared it and a Chance for each side. Bet your own way.</p>
+  <p>Every posted ${S.name} player prop with the line, <span class="rg-au">Sportsbet's prices and the best price at another Australian bookmaker</span><span class="rg-us">the best Over and Under price at a US sportsbook (American odds)</span>, next to the player's last 8 games against that line how often he has cleared it and a Chance for each side. Bet your own way.</p>
   <p class="note">Bookie prices and player stats only. No tips. Prices move; check them with the bookmaker.</p>
   ${strip}
+  <script src="/props-region.js"></script>
+  ${regionToggle()}
   ${filters}
   ${games.length ? `<div id="ppMemberNote" class="pp-member-note"><p class="note">Free view shows ${FREE_PER_GAME} players per market in each game. Members see every player.</p>${memberButtons("pp-cta-left")}</div>` : ""}
   <div id="pp-view-preds" class="pp-view">
     <div id="propsBoard" data-api="/api/props-${sport}">${renderSportBoard(sport, board, { full: false })}</div>
     <p id="ppNone" class="note" hidden>No props match these filters.</p>
   </div>
-  <p class="note">Prices are from our last pull before the ${S.start} (about a day out, then about 30 minutes out). Implied chance = 1 ÷ price, bookmaker margin included. Last 8 and hit rates are this season's games. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
+  <p class="note">Prices are from our last pull before the ${S.start} (about a day out, then about 30 minutes out). Implied chance = 1 ÷ price, bookmaker margin included. <span class="rg-us">US prices are American odds: −110 means you risk $110 to win $100, +150 means you win $150 on $100.</span> Prices show for your country (AU for everyone outside the US); switch with AU / US. Last 8 and hit rates are this season's games. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/props-nba.js"></script>

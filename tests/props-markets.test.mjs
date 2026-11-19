@@ -30,7 +30,12 @@ for (const [sport, board] of [["nfl", nfl], ["nhl", nhl]]) {
     const card = cardHtml(itemFromSportRow(sport, r, "M", "", ""), "x", "");
     assert.match(card, /ppc-noau/);
     assert.ok(!/<b>\d+\.\d\d<\/b>/.test(card));
-    if (r.kind === "ou") {
+    if ((r.books_us || []).length) {
+      // only US sportsbooks price it: the US line, AU cells blank, US cells priced (American odds)
+      assert.equal(r.line_source, "book");
+      assert.ok(!/No US price/.test(tr) && /class="num pp-price rg-us"><b>[+-]\d+<\/b>/.test(tr), "US cells carry American odds");
+      assert.match(card, /ppc-prices rg-us"><div><small>(Over|Best price)<\/small><b>[+-]\d+<\/b>/);
+    } else if (r.kind === "ou") {
       assert.equal(r.line_source, "avg");
       assert.equal(r.line % 1, 0.5);
       assert.match(tr, /Avg line/);
@@ -49,7 +54,7 @@ const player = (o) => ({ player: "Test Guard", team: "Boston Celtics", status: "
   game_log: [{ date: "2026-11-12", opp: "NY", home: true, points: 30, rebounds: 6, assists: 7, threes: 4 },
              { date: "2026-11-10", opp: "MIA", home: false, points: 20, rebounds: 4, assists: 5, threes: 2 }], ...o });
 const p1 = player({});
-assert.deepEqual(dataStatOf(p1, "pra"), { line: 36.5, line_source: "avg", books: [], avg: 36, side: "", p: null }, "pra avg (43 + 29) / 2 = 36 -> 36.5");
+assert.deepEqual(dataStatOf(p1, "pra"), { line: 36.5, line_source: "avg", books: [], books_us: [], avg: 36, side: "", p: null }, "pra avg (43 + 29) / 2 = 36 -> 36.5");
 assert.equal(dataStatOf(p1, "points"), null, "a stat with a prediction stays a prediction row");
 const p2 = player({ stats: { ...p1.stats, pr: { line: 31.5, line_source: "book", books: [{ key: "sportsbet", name: "Sportsbet", over: 1.87, under: 1.87 }] } } });
 assert.equal(dataStatOf(p2, "pr").line_source, "book");

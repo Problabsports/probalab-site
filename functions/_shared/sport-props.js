@@ -23,7 +23,7 @@ import { esc, slug } from "./site.js";
 import { propsLight, chanceText } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons, startLabel, updatedLabel, dayLabel, shortDay, FREE_PER_GAME } from "./nba-props.js";
-import { itemFromSportRow, cardHtml, pvScript, bestBook } from "./prop-cards.js";
+import { itemFromSportRow, cardHtml, pvScript, bestBook, usCells } from "./prop-cards.js";
 import { chanceLight, MIN_GAMES_FOR_LIGHT } from "./props-chance.js";
 
 export const SPORTS = {
@@ -77,10 +77,16 @@ export function dropStartedGames(board, now = Date.now()) {
   return { ...board, games: (board.games || []).filter((g) => { const t = Date.parse(g.commence_utc || ""); return !Number.isFinite(t) || now - t <= STARTED_HIDE_MS; }) };
 }
 
+/** Preview deployments only (*.pages.dev, never probalabsports.com): ?sample=1 shows the sample board (fictional
+    players, AU + US books) so the AU / US price switch can be checked before the mini sends US prices. */
+export function previewSample(ctx) {
+  try { const u = new URL(ctx.request.url); return u.hostname.endsWith(".pages.dev") && u.searchParams.get("sample") === "1"; } catch (_) { return false; }
+}
+
 export async function loadSportBoard(ctx, sport, opts = {}) {
   const S = SPORTS[sport];
   const now = opts.now ?? ctx.now ?? Date.now();
-  let board = realSportBoard(await readRow(ctx.env || {}, S.snapshot, now), now);
+  let board = previewSample(ctx) ? null : realSportBoard(await readRow(ctx.env || {}, S.snapshot, now), now);
   if (!board) {
     try {
       const r = await ctx.env.ASSETS.fetch(new URL(S.sample, ctx.request.url));
@@ -198,17 +204,18 @@ const rateCell = (c, side) => {
 };
 const chanceCell = (light, inner) => `<td class="num pp-chance${light ? ` hl-${light}` : ""}">${inner}</td>`;
 
-const NO_AU = `<td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
+const NO_AU = `<td class="num pp-price pp-noau rg-au">-<small>No AU price</small></td>`;
 const bookCell = (b, side) => (b && num(b[side]) != null
-  ? `<td class="num pp-price"><b>${price(b[side])}</b>${side === "yes" ? `<small>${pct0(1 / b.yes)} implied</small>` : ""}</td>`
-  : `<td class="num pp-price">—</td>`);
+  ? `<td class="num pp-price rg-au"><b>${price(b[side])}</b>${side === "yes" ? `<small>${pct0(1 / b.yes)} implied</small>` : ""}</td>`
+  : `<td class="num pp-price rg-au">—</td>`);
 const lineCell = (r) => `<td class="num">${lineTxt(r.line)}${r.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>`;
 const bestCell = (b, side) => (b && num(b[side]) != null
-  ? `<td class="num pp-price"><b>${price(b[side])}</b><small>${esc(b.name)}${side === "yes" ? ` · ${pct0(1 / b.yes)}` : ""}</small></td>`
-  : `<td class="num pp-price">—</td>`);
+  ? `<td class="num pp-price rg-au"><b>${price(b[side])}</b><small>${esc(b.name)}${side === "yes" ? ` · ${pct0(1 / b.yes)}` : ""}</small></td>`
+  : `<td class="num pp-price rg-au">—</td>`);
 
 export const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="mk">Market</th><th scope="col" class="num">Line</th>
-  <th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>
+  <th scope="col" class="num rg-au">Sportsbet<small>Over · Under</small></th><th scope="col" class="num rg-au">Best other<small>Over · Under</small></th>
+  <th scope="col" class="num rg-us">Best Over<small>US sportsbook</small></th><th scope="col" class="num rg-us">Best Under<small>US sportsbook</small></th>
   <th scope="col" class="pp-formh">Last 8</th><th scope="col" class="num">L5</th><th scope="col" class="num">L10</th><th scope="col" class="num">Hit rate<small>Season</small></th>
   <th scope="col" class="num pp-chance">Chance</th></tr></thead>`;
 
@@ -224,24 +231,24 @@ export function propRow(sport, r, pvId = "") {
     const yl = yesLight(r);
     const yb = bestBook(r.books, "yes");
     return `<tr class="pp-row pp-yes lt-${yl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${yl.light}">
-      ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}
+      ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}${usCells(r)}
       <td class="pp-formc">${formChart(r)}</td><td class="num pp-hit">—</td>${rt.l8 && rt.l8.n ? `<td class="num pp-hit"><b>${pct0(rt.l8.yes / rt.l8.n)}</b><small>${rt.l8.yes}/${rt.l8.n} last ${rt.l8.n}</small></td>` : `<td class="num pp-hit">—</td>`}${rateCell(rt.season, "yes")}
       ${chanceCell(yl.light, yb ? `<b>${pct0(1 / yb.yes)}</b><small>implied</small>` : "-")}</tr>`;
   }
   const hl = hitLight(r, sport);
   const side = hl.side || "Over";
   const sb = split.sb;
-  const two = (a, b) => `<td class="num pp-price pp-ou"><span><b>${price(a && a.over)}</b><b>${price(b && b.under)}</b></span>${a && b && a !== b ? `<small>${esc(a.name)} · ${esc(b.name)}</small>` : a ? `<small>${esc(a.name)}</small>` : ""}</td>`;
+  const two = (a, b) => `<td class="num pp-price pp-ou rg-au"><span><b>${price(a && a.over)}</b><b>${price(b && b.under)}</b></span>${a && b && a !== b ? `<small>${esc(a.name)} · ${esc(b.name)}</small>` : a ? `<small>${esc(a.name)}</small>` : ""}</td>`;
   const noAu = !(r.books || []).length;
   return `<tr class="pp-row lt-${hl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${hl.light}">
       ${who}${mk}${lineCell(r)}
-      ${noAu ? NO_AU + NO_AU : `<td class="num pp-price pp-ou"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
-      ${two(split.over, split.under)}`}
+      ${noAu ? NO_AU + NO_AU : `<td class="num pp-price pp-ou rg-au"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
+      ${two(split.over, split.under)}`}${usCells(r)}
       <td class="pp-formc">${formChart(r)}</td>${rateCell(r.hits && r.hits.l5, side)}${rateCell(r.hits && r.hits.l10, side)}${rateCell(r.hits && r.hits.season, side)}
       ${chanceCell(hl.light, hl.p == null ? "-" : `<b>${hl.side} ${pct0(hl.p)}</b>`)}</tr>`;
 }
 
-const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
+const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num rg-au">0.00</td><td class="num rg-au">0.00</td><td class="num rg-us">+000</td><td class="num rg-us">+000</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
 
 export function teamsOfBoard(board) {
   const set = new Set();
