@@ -638,5 +638,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401879225",
+    "round": 12,
+    "start_utc": "2026-11-27T20:00:00Z",
+    "home": "Nottingham Forest",
+    "away": "Chelsea",
+    "p_home": 0.414,
+    "p_draw": 0.256,
+    "p_away": 0.329,
+    "pick": "home",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
