@@ -45,10 +45,11 @@ assert.deepEqual(Object.keys(merged.sports).sort(), ["nba", "nfl", "nhl"]);
 
 // ---- page: NFL first when it is the first sport with rows; data wording; period tabs
 const html = renderBody(res, { now: Date.parse("2026-11-17T01:00:00Z") });
-for (const s of ["Season", "Last 30 days", "Last 7 days", "By market and side", "Settled rows", "All markets", "Passing yards", "Anytime TD", "Season rate", ">Side<"]) {
+for (const s of ["Season", "Last 30 days", "Last 7 days", "By market and side", "Settled rows", "All markets", "Passing yards", "Anytime TD", ">Chance<", ">Side<", "the higher Chance"]) {
   assert.ok(html.includes(s), s);
 }
 assert.ok(!html.includes(">Our call<"), "NFL rows are data, not calls");
+assert.ok(html.includes('<small class="pr-basis">season rate</small>') && !html.includes("Season rate"), "rows settled before the switch (no basis) are marked season rate");
 const text = html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
 for (const w of [/\bunits?\b/i, /\bstakes?\b/i, /\bedge\b/i, /fair price/i, /\bvalue\b/i, /\btips?\b(?! )/i]) {
   assert.ok(!w.test(text.replace(/Data, not tips/g, "")), String(w));
@@ -68,7 +69,7 @@ assert.match(hero, /Green rows/);
 // ---- breakdown by market (NHL markets, sides that occur)
 const bk = breakdownHtml(filterRows(res.sports.nhl, { lights: ["GREEN"] }), { sport: "nhl" });
 for (const s of ["Shots on goal", "Assists", "Anytime goal", "Goalie saves", "By market", "By side"]) assert.ok(bk.includes(s), s);
-assert.match(headHtml(false, true, "nhl"), /<th>Side<\/th><th class="n">Season rate<\/th>/);
+assert.match(headHtml(false, true, "nhl"), /<th>Side<\/th><th class="n">Chance<\/th>/);
 assert.match(headHtml(false, false, "nba"), /<th>Our call<\/th><th class="n">Chance<\/th>/);
 assert.match(renderPropsCsv(res), /^nfl,/m);
 

@@ -43,7 +43,7 @@ const html = renderSportBoard("nhl", nhl, { full: true });
 assert.match(html, /Goalie saves/);
 assert.ok(/No AU price/.test(html) && /Avg line/.test(html));
 
-// NBA: threes + combos as data-only rows (no prediction, no light): bookie line when priced, else Avg line from game_log
+// NBA: threes + combos as data-only rows (no model prediction; Chance from the book + game_log): bookie line when priced, else Avg line
 const player = (o) => ({ player: "Test Guard", team: "Boston Celtics", status: "Active",
   stats: { points: { season_avg: 24, line: 24.5, proj: 26, p_over: 0.62, p_under: 0.38 } },
   game_log: [{ date: "2026-11-12", opp: "NY", home: true, points: 30, rebounds: 6, assists: 7, threes: 4 },
@@ -56,7 +56,12 @@ assert.equal(dataStatOf(p2, "pr").line_source, "book");
 const g = { event_id: "t1", away: "Boston Celtics", home: "New York Knicks", commence_utc: "2099-01-01T00:00:00Z", players: [p1, p2] };
 const rows = gameDataRows(g);
 assert.deepEqual([...new Set(rows.map((r) => r.stat))].sort(), ["pa", "pr", "pra", "threes"]);
-assert.ok(rows.every((r) => r.light === "" && r.s.p == null), "data-only: no light, no chance");
+// data-only rows: no model (s.p null) but a Chance on every row; no light here (2 games in the log, Avg lines)
+assert.ok(rows.every((r) => r.s.p == null && r.s.chance && ["Over", "Under"].includes(r.s.chance.side) && r.s.chance.p >= 0.05 && r.s.chance.p <= 0.95), "data-only: Chance on every row");
+assert.ok(rows.every((r) => r.light === ""), "data-only: under 5 games or an Avg line -> no light");
+const prRow = rows.find((r) => r.stat === "pr" && r.s.line_source === "book");
+// pr 31.5 on Sportsbet 1.87 / 1.87 (0.5 with the margin out), log 36 and 24: 1 over / 1 under of 2 -> (1 + 5) / 12 = 50% Over
+assert.deepEqual(prRow.s.chance, { side: "Over", p: 0.5 });
 const board = { games: [g] };
 assert.deepEqual(marketsOn(board).map(([, l]) => l), ["Points", "Threes", "Pts + Reb + Ast", "Pts + Reb", "Pts + Ast"]);
 assert.equal(MARKET_LABEL.pra, "Pts + Reb + Ast");

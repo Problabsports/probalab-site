@@ -15,8 +15,9 @@ export const STATS = [
   ["assists", "Assists"],
   ["threes", "Threes"],
 ];
-// NFL / NHL rows are data, not calls: the side is the one that cleared the line more often this season (or Yes / No
-// by scoring rate), lit on the props scale. Their markets:
+// NFL / NHL rows are data, not calls: the side is the one with the higher Chance (rows with basis "chance-v1"; older rows
+// without a basis used the season hit rate and are marked "season rate"), or Yes / No by scoring rate, lit on the props
+// scale. Their markets:
 export const SPORT_STATS = {
   nba: STATS,
   nfl: [["pass_yds", "Passing yards"], ["pass_tds", "Passing TDs"], ["completions", "Pass completions"], ["rush_yds", "Rushing yards"],
@@ -30,7 +31,7 @@ export const STAT_LABEL = Object.fromEntries(Object.values(SPORT_STATS).flat());
 export const statLabel = (sport, stat) => (Object.fromEntries(statsFor(sport))[stat] || STAT_LABEL[stat] || stat);
 /** Words that differ between NBA (model calls) and NFL / NHL (data rows). */
 export const words = (sport) => (isDataSport(sport)
-  ? { call: "Side", calls: "rows", Calls: "Rows", chance: "Season rate", byStat: "By market", allStats: "All markets", allCalls: "Every side" }
+  ? { call: "Side", calls: "rows", Calls: "Rows", chance: "Chance", byStat: "By market", allStats: "All markets", allCalls: "Every side" }
   : { call: "Our call", calls: "calls", Calls: "Calls", chance: "Chance", byStat: "By stat", allStats: "All stats", allCalls: "Over + Under" });
 // Props lights (green / orange / red; no Best value), names from /lights.json via /lights.mjs.
 export const LIGHTS = ["GREEN", "ORANGE", "RED"].map((l) => [l, LT.label(l)]);
@@ -173,7 +174,7 @@ export function heroHtml(sportRows, sportName, sport = "nba", periodName = "") {
   }).join("");
   const right = isDataSport(sport) ? "green rows where the side hit" : "green calls right";
   return `<h2>${esc(sportName)} player props record${periodName ? ` <span class="pr-period-name">· ${esc(periodName)}</span>` : ""}</h2>
-    ${isDataSport(sport) ? `<p class="small pr-data-note">Data, not tips: each row's side is the one that cleared the line more often this season (Yes / No by scoring rate), lit on the props scale. Hit = that side came in.</p>` : ""}
+    ${isDataSport(sport) ? `<p class="small pr-data-note">Data, not tips: each row's side is the one with the higher Chance (Yes / No by scoring rate), lit on the props scale. Hit = that side came in.</p>` : ""}
     <div class="pr-hero-main">
       <div class="pr-hero-block pr-hero-green" data-hero="green">
         <p class="pr-hero-k"><span class="chip GREEN">Green</span> Green ${W.calls}</p>
@@ -348,7 +349,7 @@ export function rowHtml(r, showGame, showAvg = false) {
       <td class="n mono">${esc(numText(r.line))}</td>
       ${showAvg ? `<td class="n mono pr-avg">${esc(numText(r.season_avg))}</td>` : ""}
       <td class="pr-call mono">${r.call}</td>
-      <td class="n mono">${r.p == null ? "—" : LT.chanceText(r.p)}</td>
+      <td class="n mono">${r.p == null ? "—" : LT.chanceText(r.p)}${isDataSport(r.sport) && !r.basis && (r.call === "Over" || r.call === "Under") ? '<small class="pr-basis">season rate</small>' : ""}</td>
       <td><span class="chip ${r.light}">${LIGHT_LABEL[r.light]}</span></td>
       <td class="n mono pr-actual">${r.result === "V" ? "-" : esc(numText(r.actual))}</td>
       <td class="pr-res"><span class="pr-badge ${r.result}" title="${title}">${b}</span></td>

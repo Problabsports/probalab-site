@@ -1,0 +1,117 @@
+{
+  "version": "chance-v1",
+  "about": "Props Chance test vectors shared by the site (tests/props-chance.test.mjs) and the mini pipeline tests. p is the clamped Chance of the shown side to 4 dp; shown is the whole % rounded down; light is GREEN / ORANGE / RED or empty (no light: under 5 season games or an Avg line). m = 10 for every sport.",
+  "cases": [
+    {
+      "id": "1-worked-example",
+      "name": "C.J. Stroud, NFL Passing yards 257.5",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 257.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.88, "under": 1.88 }],
+        "hits": { "season": { "n": 9, "over": 6, "under": 3 } } },
+      "expected": { "side": "Over", "p": 0.5789, "shown": "Over 57%", "light": "ORANGE" }
+    },
+    {
+      "id": "2a-boundary-green-60",
+      "name": "Jonathan Taylor, Rushing yards 51.5",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 51.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.88, "under": 1.88 }],
+        "hits": { "season": { "n": 10, "over": 7, "under": 3 } } },
+      "expected": { "side": "Over", "p": 0.6, "shown": "Over 60%", "light": "GREEN" }
+    },
+    {
+      "id": "2b-boundary-orange-55",
+      "name": "Daniel Jones, Passing yards 180.5",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 180.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.88, "under": 1.88 }],
+        "hits": { "season": { "n": 10, "over": 4, "under": 6 } } },
+      "expected": { "side": "Under", "p": 0.55, "shown": "Under 55%", "light": "ORANGE" }
+    },
+    {
+      "id": "2c-boundary-green-60-under",
+      "name": "David Montgomery, Rushing yards 55.5",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 55.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.88, "under": 1.88 }],
+        "hits": { "season": { "n": 5, "over": 1, "under": 4 } } },
+      "expected": { "side": "Under", "p": 0.6, "shown": "Under 60%", "light": "GREEN" }
+    },
+    {
+      "id": "3-side-flip",
+      "name": "Daniel Jones, Pass completions 19.5",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 19.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.98, "under": 1.80 }],
+        "hits": { "season": { "n": 10, "over": 5, "under": 5 } } },
+      "expected": { "side": "Under", "p": 0.5119, "shown": "Under 51%", "light": "RED" }
+    },
+    {
+      "id": "4-uneven-book",
+      "name": "Margin removal, Sportsbet 1.44 / 2.73",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 24.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.44, "under": 2.73 }],
+        "hits": { "season": { "n": 9, "over": 6, "under": 3 } } },
+      "expected": { "side": "Over", "p": 0.6604, "shown": "Over 66%", "light": "GREEN" }
+    },
+    {
+      "id": "5a-fallback-lowest-overround",
+      "name": "Sportsbet one-sided: Neds (lowest overround of the AU books with both sides) is used; the US book never",
+      "sport": "nhl",
+      "row": { "kind": "ou", "line": 2.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.70, "under": null },
+                  { "key": "tab", "name": "TAB", "over": 1.95, "under": 1.80 },
+                  { "key": "neds", "name": "Neds", "over": 1.80, "under": 2.00 },
+                  { "key": "fanduel", "name": "FanDuel", "region": "us", "over": 1.98, "under": 1.98 }],
+        "hits": { "season": { "n": 10, "over": 6, "under": 4 } } },
+      "expected": { "side": "Over", "p": 0.5632, "shown": "Over 56%", "light": "ORANGE", "src": "neds" }
+    },
+    {
+      "id": "5b-fallback-prior",
+      "name": "No AU book with both sides (US book ignored): 0.5 prior",
+      "sport": "nhl",
+      "row": { "kind": "ou", "line": 2.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.70, "under": null },
+                  { "key": "fanduel", "name": "FanDuel", "region": "us", "over": 1.50, "under": 2.60 }],
+        "hits": { "season": { "n": 10, "over": 7, "under": 3 } } },
+      "expected": { "side": "Over", "p": 0.6, "shown": "Over 60%", "light": "GREEN", "src": "prior" }
+    },
+    {
+      "id": "6a-no-hits",
+      "name": "No season games: pure book chance, no light",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 24.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.44, "under": 2.73 }],
+        "hits": null },
+      "expected": { "side": "Over", "p": 0.6547, "shown": "Over 65%", "light": "" }
+    },
+    {
+      "id": "6b-under-5-games",
+      "name": "4 season games: Chance shown, no light",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 24.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.88, "under": 1.88 }],
+        "hits": { "season": { "n": 4, "over": 3, "under": 1 } } },
+      "expected": { "side": "Over", "p": 0.5714, "shown": "Over 57%", "light": "" }
+    },
+    {
+      "id": "6c-avg-line",
+      "name": "Avg line, no price: Chance from the prior, no light",
+      "sport": "nhl",
+      "row": { "kind": "ou", "line": 27.5, "line_source": "avg", "books": [],
+        "hits": { "season": { "n": 10, "over": 7, "under": 3 } } },
+      "expected": { "side": "Over", "p": 0.6, "shown": "Over 60%", "light": "" }
+    },
+    {
+      "id": "7-clamp",
+      "name": "30 of 30 with Sportsbet 1.05 / 12.00: clamped to 95%",
+      "sport": "nfl",
+      "row": { "kind": "ou", "line": 0.5, "line_source": "book",
+        "books": [{ "key": "sportsbet", "name": "Sportsbet", "over": 1.05, "under": 12.00 }],
+        "hits": { "season": { "n": 30, "over": 30, "under": 0 } } },
+      "expected": { "side": "Over", "p": 0.95, "shown": "Over 95%", "light": "GREEN" }
+    }
+  ]
+}

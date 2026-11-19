@@ -15,7 +15,8 @@
 // Older boards with proj_pts / primary_line still render for points (see statOf).
 import { esc, chip, slug, NBA_TEAMS } from "./site.js";
 import { LIGHTS as LIGHTS_CFG, propsLight, chanceText } from "./lights.js";
-import { itemFromNbaRow, cardHtml, pvScript, nbaLogValue } from "./prop-cards.js";
+import { itemFromNbaRow, cardHtml, pvScript, nbaLogValue, countHits } from "./prop-cards.js";
+import { chanceLight } from "./props-chance.js";
 import { supabaseAdmin } from "./membership.js";
 
 export const BOARD_PATH = "/data/nba_points_props/board.json";
@@ -31,7 +32,8 @@ export const STATS = [
   ["assists", "Assists"],
   ["threes", "Threes"],
 ];
-// Data-only NBA markets: no prediction, just the line, AU prices (when posted) and form. Threes only when the board has
+// Data-only NBA markets: no model prediction, just the line, AU prices (when posted), form and a Chance (props-chance.js:
+// the bookie's price with the margin removed, moved toward his hit rate on the line over the game_log; 0.5 with no price). Threes only when the board has
 // no prediction for it. Line = the bookie's (from the prices patch) or, with no AU price, the season average to the
 // nearest .5 ("Avg line"), only for a meaningful season average.
 export const DATA_STATS = [["threes", "Threes"], ["pra", "Pts + Reb + Ast"], ["pr", "Pts + Reb"], ["pa", "Pts + Ast"]];
@@ -262,14 +264,22 @@ export function dataStatOf(p, stat) {
   return null;
 }
 
-/** Data-only rows in one game (players with a hidden status left off). */
+/** Chance + light for a data-only stat: hits from game_log on the line, books as posted (light needs 5+ games, no Avg line). */
+export function dataChance(p, stat, s) {
+  const values = (Array.isArray(p.game_log) ? p.game_log : []).map((g) => nbaLogValue(g, stat)).filter((v) => v != null);
+  return chanceLight({ kind: "ou", line: s.line, line_source: s.line_source, books: s.books, hits: countHits(values, s.line) }, "nba");
+}
+
+/** Data-only rows in one game (players with a hidden status left off). s.p stays null (no model); s.chance carries the Chance. */
 export function gameDataRows(g) {
   const out = [];
   for (const [stat] of DATA_STATS) {
     for (const p of g.players || []) {
       if (isHiddenStatus(p)) continue;
       const s = dataStatOf(p, stat);
-      if (s) out.push({ ...p, stat, s, light: "" });
+      if (!s) continue;
+      const c = dataChance(p, stat, s);
+      out.push({ ...p, stat, s: { ...s, side: c.side, chance: { side: c.side, p: c.p } }, light: c.light });
     }
   }
   return out;
@@ -355,13 +365,14 @@ export function predictionRow(r, { link = true, name = true, books = false } = {
   const who = name
     ? `<th scope="row" class="pl">${link ? `<a class="pp-name" href="${esc(playerPath(r))}">${esc(r.player)}</a>` : `<span class="pp-name">${esc(r.player)}</span>`} <span class="pp-tm">${esc(nick(r.team))}</span>${warnHtml(r)}</th>`
     : "";
-  const data = s.p == null; // data-only row: no prediction, no light
-  return `<tr class="pp-row lt-${r.light || "none"}${data ? " pp-data-row" : ""}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light || ""}" data-p="${data ? "" : s.p.toFixed(3)}">
+  const data = s.p == null; // data-only row: no model prediction; side / % from the Chance (s.chance) when there is one
+  const shownP = data ? (s.chance ? s.chance.p : null) : s.p;
+  return `<tr class="pp-row lt-${r.light || "none"}${data ? " pp-data-row" : ""}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light || ""}" data-p="${shownP == null ? "" : shownP.toFixed(3)}">
       ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
       <td class="num">${one(s.line)}${s.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>
-      <td class="call">${data ? "—" : s.side}</td>
-      <td class="num pct">${data ? "—" : chanceText(s.p)}</td>
-      ${books ? bookCells(s.books) : ""}<td class="lt">${data ? "" : chip(r.light)}</td>
+      <td class="call">${shownP == null ? "—" : data ? s.chance.side : s.side}</td>
+      <td class="num pct">${shownP == null ? "—" : chanceText(shownP)}</td>
+      ${books ? bookCells(s.books) : ""}<td class="lt">${r.light ? chip(r.light) : ""}</td>
     </tr>`;
 }
 

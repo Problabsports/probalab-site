@@ -48,7 +48,7 @@ for (const [sport, page] of [["nfl", nflPage], ["nhl", nhlPage]]) {
   assert.ok(m.includes("Sample data") && h.includes('content="noindex"'), `${sport} sample is marked and noindex`);
   assert.ok(m.includes(`<h1>${SPORTS[sport].name} player props</h1>`));
   for (const id of ["ppGame", "ppTeam", "ppMarket", "ppLights", "ppLegend"]) assert.ok(m.includes(`id="${id}"`), `${sport} filter ${id}`);
-  assert.ok(m.includes('data-basis="hit"') && m.includes("60%+") && m.includes("55–59%"), "props scale key on hit rates");
+  assert.ok(m.includes('data-basis="chance"') && m.includes("Lights use the Chance") && m.includes("60%+") && m.includes("55–59%"), "props scale key on the Chance");
   assert.ok(m.includes(`data-api="/api/props-${sport}"`), "member swap endpoint");
   assert.ok(m.includes('class="pp-sports') && m.includes('href="/props/nba"') && m.includes('href="/props/nhl"'), "sport switch");
   assert.ok(m.includes("<th scope=\"col\" class=\"num\">Sportsbet") && m.includes("Best other"), "price columns");
@@ -75,18 +75,20 @@ assert.ok(/<small>[A-Za-z0-9 ]+ · \d+%<\/small>/.test(yesHtml), "best other boo
 assert.ok(/last \d+<\/small>/.test(yesHtml) && (yesHtml.includes("Scored") || /class="chip (GREEN|ORANGE|RED)">[^<]+<\/span><span class="pp-ratelab">(Yes|No)</.test(yesHtml)), "scoring rate last 8; light with its Yes / No side once lit");
 assert.match(formChart(nhlYes), /<circle/);
 
-// ---- O/U: Sportsbet first, best other per side, hit-rate light on the season
+// ---- O/U: Sportsbet first, best other per side, light on the Chance
 const row = { kind: "ou", line: 24.5, books: [{ key: "tab", name: "TAB", over: 1.95, under: 1.8 }, { key: "sportsbet", name: "Sportsbet", over: 1.87, under: 1.87 }, { key: "neds", name: "Neds", over: 1.9, under: 1.91 }],
   hits: { l5: { n: 5, over: 4, under: 1 }, l10: { n: 10, over: 6, under: 4 }, season: { n: 12, over: 4, under: 8 } }, log: [{ v: 30 }, { v: 10 }, { v: 24.5 }], season: { gp: 12, avg: 22 } };
 const sp = bookSplit(row);
 assert.equal(sp.sb.key, "sportsbet");
 assert.equal(sp.over.key, "tab", "best other Over");
 assert.equal(sp.under.key, "neds", "best other Under");
-assert.deepEqual(hitLight(row), { light: "GREEN", side: "Under", rate: 8 / 12 });
+// Chance: Sportsbet 1.87 / 1.87 -> 0.5 with the margin out; Under (8 + 10 * 0.5) / (12 + 10) = 59% -> ORANGE (season rate alone: 66% green)
+assert.deepEqual(hitLight(row, "nfl"), { light: "ORANGE", side: "Under", p: 13 / 22 });
 assert.equal(hitLight({ hits: { season: { n: 4, over: 4, under: 0 } } }).light, "", "under 5 games: no light");
 // lights.json: the shown % is rounded down and decides the light (59.5% shows 59%, orange)
 assert.deepEqual([rateLight(0.6), rateLight(0.595), rateLight(0.55), rateLight(0.544)], ["GREEN", "ORANGE", "ORANGE", "RED"]);
 const cells = propRow("nfl", { ...row, player: "P", market: "player_pass_yds" });
+assert.ok(cells.includes('<td class="num pp-chance"><b>Under 59%</b></td>'), "Chance cell: side + shown %");
 assert.ok(cells.includes('pp-hit hl-GREEN"><b>80%</b><small>4/5') === false && cells.includes('class="num pp-hit hl-RED"><b>20%</b><small>1/5</small>'), "hit cells coloured by their own rate (Under side: 1 of 5 = 20%, red)");
 assert.ok(cells.includes('class="num pp-hit hl-GREEN"><b>66%</b><small>8/12</small>'), "season Under 8/12 green (shown rounded down)");
 const ch = formChart(row);

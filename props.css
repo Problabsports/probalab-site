@@ -303,6 +303,7 @@ table.pr-table tr.RED { --lt: var(--red); }
 .pr-badge.V { width: auto; padding: 0 6px; font-size: 10.5px; letter-spacing: .06em; color: var(--muted); background: rgba(138,150,171,.1); border-color: rgba(138,150,171,.55); }
 .pr-table .pr-opp { display: block; font: 400 12px var(--f-body); color: var(--muted); margin-top: 1px; }
 .pr-table .pr-avg { color: var(--muted); }
+.pr-table .pr-basis { display: block; font: 400 11px var(--f-body); color: var(--muted); margin-top: 1px; }
 .pr-more-wrap { text-align: center; margin: 14px 0 0; }
 .pr-more-wrap .btn[hidden] { display: none; }
 #picks[hidden], #prSportBody[hidden] { display: none; }

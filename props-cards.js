@@ -159,7 +159,8 @@
       '<div class="ppv-body">' +
       '<p class="ppv-prop"><span>' + esc(it.market) + (it.line != null ? ' <b>' + Number(it.line).toFixed(1) + '</b>' + (it.line_source === "avg" ? ' <small class="ppv-avg">Avg line</small>' : "") : "") + '</span><span class="ppv-badge">' + badge + '</span></p>' +
       (it.line_source === "avg" ? '<p class="ppv-muted ppv-small">Avg line: no bookie has a line for this prop, so the reference line is his season average rounded to the nearest .5.</p>' : "") +
-      (it.pred ? '<p class="ppv-pred">Prediction <b>' + esc(it.pred.side) + '</b> · <b>' + pct(it.pred.p) + '</b></p>' : "") +
+      (it.pred ? '<p class="ppv-pred">Prediction <b>' + esc(it.pred.side) + '</b> · <b>' + pct(it.pred.p) + '</b></p>'
+        : it.chance ? '<p class="ppv-pred">Chance <b>' + esc(it.chance.side) + '</b> · <b>' + pct(it.chance.p) + '</b></p>' : "") +
       '<h3>Last ' + Math.min(8, it.log.length || 8) + (it.kind === "yes" ? " games" : it.line_source === "avg" ? " against the avg line" : " against the line") + '</h3>' + bigChart(it) +
       stats(it) +
       '<h3>Prices</h3>' + prices(it) +
