@@ -26,12 +26,17 @@ assert.match(card, /<small>Under<\/small><b>1\.92<\/b><span>Neds<\/span>/, "best
 assert.ok(!/Best other|Sportsbet<\/th>|class="pp-price/.test(card), "no Sportsbet column or best-other block on the card");
 assert.match(card, /<small>L5<\/small><b>60%<\/b>/);
 assert.match(card, /class="ppc-chart"/);
-assert.match(card, /chip ORANGE/);
+// Chance: SB 1.90 / 1.85 with the margin out = 0.4933 Over, moved toward 5 of 9: (5 + 4.933) / 19 = 52% -> RED (season rate alone was 55% ORANGE)
+assert.match(card, /chip RED/);
+assert.match(card, /<span class="ppc-pred ppc-chance hl-RED">Chance <b>Over<\/b> · <b>52%<\/b><\/span>/, "one Chance line on the card");
+assert.deepEqual(Object.keys(ou.chance).sort(), ["p", "side"], "item.chance carries only side and p");
 
 const yes = itemFromSportRow("nhl", { player: "Jared Mann", team: "Seattle Kraken", team_abbr: "SEA", position: "C", kind: "yes", line: null,
   books: [{ key: "sportsbet", name: "Sportsbet", yes: 2.98 }, { key: "pointsbetau", name: "PointsBet", yes: 3.1 }],
   log: [{ v: 1 }, { v: 0 }], rates: { l8: { n: 8, yes: 5 }, season: { n: 20, yes: 9 } } }, "Anytime goal scorer", "", "");
 const ycard = cardHtml(yes, "g2-0", "");
+assert.equal(yes.chance, null, "anytime rows have no Chance");
+assert.ok(!/ppc-pred/.test(ycard), "no Chance line on anytime cards");
 assert.match(ycard, /<small>Best price<\/small><b>3\.10<\/b><span>PointsBet<\/span>/);
 assert.match(ycard, /<small>Implied chance<\/small><b>32%<\/b>/);
 assert.match(ycard, /Scored L8<\/small><b>62%<\/b>/);

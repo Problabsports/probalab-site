@@ -28,13 +28,13 @@ export async function sportPropsPage(ctx, sport) {
     </div>
     <nav class="game-filters lights" id="ppLights" aria-label="Filter by light">${[["GREEN", "Green"], ["ORANGE", "Orange"], ["RED", "Red"]].map(([c, l]) =>
       `<button type="button" class="gf-btn ${c} on" data-light="${c}" aria-pressed="true">${l}</button>`).join("")}</nav>
-    <p class="small filter-note" id="ppLegend" data-basis="hit">Lights: how often the player cleared today's line this season. <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
+    <p class="small filter-note" id="ppLegend" data-basis="chance">Chance: the bookie's price with its margin taken out, moved toward how often the player has cleared today's line this season (the more games, the more it moves). Lights use the Chance: <span class="chip GREEN">Green</span> 60%+ · <span class="chip ORANGE">Orange</span> 55–59% · <span class="chip RED">Red</span> under 55%</p>
   </div>` : "";
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/${sport}">${S.name} predictions</a> › <span>Player props</span></nav>
   <p class="eyebrow">// ${S.name} player props · Australia/Sydney</p>
   <h1>${S.name} player props</h1>
   ${propsSportNav(sport)}
-  <p>Every posted ${S.name} player prop with the line, Sportsbet's prices and the best price at another Australian bookmaker, next to the player's last 8 games against that line and how often he has cleared it. Bet your own way.</p>
+  <p>Every posted ${S.name} player prop with the line, Sportsbet's prices and the best price at another Australian bookmaker, next to the player's last 8 games against that line, how often he has cleared it and a Chance for each side. Bet your own way.</p>
   <p class="note">Bookie prices and player stats only. No tips. Prices move; check them with the bookmaker.</p>
   ${strip}
   ${filters}

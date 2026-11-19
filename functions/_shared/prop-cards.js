@@ -1,11 +1,13 @@
 // Phone cards and the player view for the props pages (/props/nba, /props/nfl, /props/nhl). Data only:
-// best bookie price per side, player form against the line, hit rates. No tips, units, edge or fair price.
+// best bookie price per side, player form against the line, hit rates and a Chance (props-chance.js) on O/U rows
+// without a model prediction. No tips, units, edge or fair price.
 //
 // Every prop becomes one "item" (same shape for all three sports), rendered as a card on phones; the desktop
 // tables stay as they are. The player view (bottom sheet on phones, panel on desktop; props-cards.js) reads the
 // items of each game from one JSON block per game (only the rows the viewer can see: free view or members).
 import { esc, chip, slug } from "./site.js";
 import { propsLight, chanceText } from "./lights.js";
+import { chanceLight } from "./props-chance.js";
 
 const num = (x) => (x == null || x === "" || !Number.isFinite(Number(x)) ? null : Number(x));
 const pct0 = (x) => chanceText(x); // shown % rounded down (lights.json "display")
@@ -29,12 +31,14 @@ export function countHits(values, line) {
 /** Props-scale light for a rate, from lights.json on the shown (rounded-down) %. */
 export const rateLight = (r) => (r == null ? "" : propsLight(r) || "");
 
-/** Item from an NFL / NHL board row (props-board-v1). */
+/** Item from an NFL / NHL board row (props-board-v1). O/U rows: light / side from the Chance; Yes rows: as passed. */
 export function itemFromSportRow(sport, r, label, light, side, game = null) {
+  const cl = r.kind === "yes" ? null : chanceLight(r, sport);
   return {
     sport, player: r.player, team: r.team || "", team_abbr: r.team_abbr || "", position: r.position || "",
-    market: label, kind: r.kind, line: r.kind === "yes" ? null : num(r.line), light: light || "", side: side || "",
-    pred: null, books: r.books || [], log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
+    market: label, kind: r.kind, line: r.kind === "yes" ? null : num(r.line),
+    light: (cl ? cl.light : light) || "", side: (cl ? cl.side : side) || "",
+    pred: null, chance: cl && cl.p != null ? { side: cl.side, p: cl.p } : null, books: r.books || [], log: (r.log || []).map((g) => ({ date: g.date, opp: g.opp, ha: g.ha, v: num(g.v) })).filter((g) => g.v != null),
     season: r.season || null, hits: r.hits || null, rates: r.rates || null,
     line_source: r.line_source || "book", no_au_price: !(r.books || []).length,
     // when each price was pulled: opening = first pull with lines, closing = the last pull before the start
@@ -52,7 +56,7 @@ export function nbaLogValue(g, stat) {
   return v(stat);
 }
 
-/** Item from an NBA board prediction row (players[] + stats.<stat>, game_log for form). */
+/** Item from an NBA board row (players[] + stats.<stat>, game_log for form). Data-only rows carry s.chance. */
 export function itemFromNbaRow(r, label, teamAbbr) {
   const s = r.s;
   const log = (Array.isArray(r.game_log) ? r.game_log : [])
@@ -64,7 +68,8 @@ export function itemFromNbaRow(r, label, teamAbbr) {
   return {
     sport: "nba", player: r.player, team: r.team || "", team_abbr: teamAbbr || "", position: "",
     market: label, kind: "ou", line: s.line, light: r.light || "", side: s.side || "",
-    pred: s.p != null ? { side: s.side, p: s.p } : null, books: s.books || [], log,
+    pred: s.p != null ? { side: s.side, p: s.p } : null,
+    chance: s.p == null && s.chance ? { side: s.chance.side, p: s.chance.p } : null, books: s.books || [], log,
     season: { gp: values.length || null, avg: avg == null ? null : Math.round(avg * 10) / 10 },
     hits: values.length ? countHits(values, s.line) : null, rates: null,
     line_source: s.line_source || "book", no_au_price: !(s.books || []).length,
@@ -89,7 +94,8 @@ export function miniChart(it, W = 104, H = 34) {
   return `<svg class="ppc-chart" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Last ${log.length} against ${lineTxt(line)}: ${log.map((g) => g.v).join(", ")}">${bars}<line x1="0" x2="${W}" y1="${y(line).toFixed(1)}" y2="${y(line).toFixed(1)}" class="pf-line"/></svg>`;
 }
 
-/** Hit rates shown on the card: the side the light describes (NFL/NHL: the season's stronger side; NBA: the prediction). */
+/** Hit rates shown on the card: the side the light describes (Chance side, or the NBA prediction). Neutral numbers,
+    except NBA model rows (it.pred), which keep their per-rate colours. */
 function hitCells(it) {
   if (it.kind === "yes") {
     const r = it.rates || {};
@@ -101,7 +107,7 @@ function hitCells(it) {
   const cell = (lab, c) => {
     if (!c || !c.n) return `<span><small>${lab}</small><b>—</b></span>`;
     const r = c[side] / c.n;
-    return `<span class="hl-${rateLight(r)}"><small>${lab}</small><b>${pct0(r)}</b></span>`;
+    return `<span${it.pred ? ` class="hl-${rateLight(r)}"` : ""}><small>${lab}</small><b>${pct0(r)}</b></span>`;
   };
   return h ? cell("L5", h.l5) + cell("L10", h.l10) + cell("Season", h.season) : `<span><small>Form</small><b>—</b></span>`;
 }
@@ -115,7 +121,7 @@ function priceCells(it) {
     const b = bestBook(it.books, "yes");
     if (!b) return `<p class="ppc-noprice">Prices appear once this market is posted.</p>`;
     return `<div class="ppc-prices"><div><small>Best price</small><b>${Number(b.yes).toFixed(2)}</b><span>${esc(b.name)}</span></div>
-      <div><small>Implied chance</small><b>${pct0(1 / b.yes)}</b><span>margin included</span></div></div>`;
+      <div${it.light ? ` class="hl-${it.light}"` : ""}><small>Implied chance</small><b>${pct0(1 / b.yes)}</b><span>margin included</span></div></div>`;
   }
   const o = bestBook(it.books, "over"), u = bestBook(it.books, "under");
   if (!o && !u) return `<p class="ppc-noprice">Prices appear once this line is posted.</p>`;
@@ -130,7 +136,7 @@ export function cardHtml(it, pvId, attrs) {
     : it.kind === "yes" ? `<span class="ppc-side">Anytime</span>` : "";
   return `<article class="ppc lt-${it.light || "none"}" ${attrs}>
     <header class="ppc-top"><button type="button" class="ppc-who" data-pv-open="${esc(pvId)}" aria-haspopup="dialog">${logo(it)}<span><b>${esc(it.player)}</b><small>${who}</small></span></button><span class="ppc-badge">${badge}</span></header>
-    <p class="ppc-mk">${esc(it.market)}${it.line != null ? ` <b>${lineTxt(it.line)}</b>${it.line_source === "avg" ? `<small class="ppc-avg">Avg line</small>` : ""}` : ""}${it.pred ? `<span class="ppc-pred">Prediction <b>${esc(it.pred.side)}</b> · <b>${pct0(it.pred.p)}</b></span>` : ""}</p>
+    <p class="ppc-mk">${esc(it.market)}${it.line != null ? ` <b>${lineTxt(it.line)}</b>${it.line_source === "avg" ? `<small class="ppc-avg">Avg line</small>` : ""}` : ""}${it.pred ? `<span class="ppc-pred">Prediction <b>${esc(it.pred.side)}</b> · <b>${pct0(it.pred.p)}</b></span>` : it.chance ? `<span class="ppc-pred ppc-chance${it.light ? ` hl-${it.light}` : ""}">Chance <b>${esc(it.chance.side)}</b> · <b>${pct0(it.chance.p)}</b></span>` : ""}</p>
     ${priceCells(it)}
     <div class="ppc-form">${miniChart(it)}<div class="ppc-hits">${hitCells(it)}</div></div>
   </article>`;

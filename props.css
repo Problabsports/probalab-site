@@ -303,6 +303,7 @@ table.pr-table tr.RED { --lt: var(--red); }
 .pr-badge.V { width: auto; padding: 0 6px; font-size: 10.5px; letter-spacing: .06em; color: var(--muted); background: rgba(138,150,171,.1); border-color: rgba(138,150,171,.55); }
 .pr-table .pr-opp { display: block; font: 400 12px var(--f-body); color: var(--muted); margin-top: 1px; }
 .pr-table .pr-avg { color: var(--muted); }
+.pr-table .pr-basis { display: block; font: 400 11px var(--f-body); color: var(--muted); margin-top: 1px; }
 .pr-more-wrap { text-align: center; margin: 14px 0 0; }
 .pr-more-wrap .btn[hidden] { display: none; }
 #picks[hidden], #prSportBody[hidden] { display: none; }
@@ -406,8 +407,9 @@ table.pr-table tr.RED { --lt: var(--red); }
 .ppc-list { display: none; }
 .pp-pv-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; border-bottom: 1px dotted var(--line-hi); }
 .pp-pv-btn:hover, .pp-pv-btn:focus-visible { color: var(--cyan); border-bottom-color: var(--cyan); outline: none; }
+/* Cards (not the table) up to 960px: phones and upright tablets, where the full table does not fit */
 
-@media (max-width: 767.98px) {
+@media (max-width: 959.98px) {
   .pp-game .pp-scroll { display: none; }
   .pp-game .ppc-list { display: grid; gap: 12px; margin-top: 4px; }
   .ppc[hidden] { display: none; }
@@ -518,7 +520,7 @@ table.pr-table tr.RED { --lt: var(--red); }
 .ppc-avg { display: inline-block; margin: 0 0 0 4px; vertical-align: middle; }
 .pp-noau { color: var(--muted); }
 .pp-noau small { display: block; font: 10px var(--f-mono); color: var(--muted); white-space: nowrap; }
-@media (max-width: 767.98px) {
+@media (max-width: 959.98px) {
   .ppc-noau b { color: var(--muted); }
   .ppc-noau span { font: 600 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
 }
@@ -541,4 +543,18 @@ table.pr-table tr.RED { --lt: var(--red); }
   .record-hero.pr-big b, .record-hero.pr-big > span { white-space: nowrap; }
   .record-hero.pr-big .pr-aside { display: inline-block; margin-left: 0; vertical-align: baseline; }
   .record-hero.pr-big b + span + .pr-aside { margin-left: 8px; }
+}
+
+/* Props Chance: the Chance text carries the light colour (NFL / NHL table + cards, NBA data-only rows, player view) */
+.pp-data .pp-chance { font-weight: 700; }
+.pp-data .pp-chance small { display: block; font: 10.5px var(--f-mono); color: var(--muted); font-weight: 400; }
+.pp-chance.hl-GREEN b, .ppc-chance.hl-GREEN b, .ppv-pred.hl-GREEN b, .ppc-prices .hl-GREEN b, .pp-table tr.pp-data-row td.hl-GREEN { color: var(--green); }
+.pp-chance.hl-ORANGE b, .ppc-chance.hl-ORANGE b, .ppv-pred.hl-ORANGE b, .ppc-prices .hl-ORANGE b, .pp-table tr.pp-data-row td.hl-ORANGE { color: var(--orange); }
+.pp-chance.hl-RED b, .ppc-chance.hl-RED b, .ppv-pred.hl-RED b, .ppc-prices .hl-RED b, .pp-table tr.pp-data-row td.hl-RED { color: var(--red); }
+/* 960-1099px: use the full width and tighter cell padding so the NFL / NHL table fits inside the card without scrolling */
+@media (min-width: 960px) and (max-width: 1099.98px) {
+  main.wrap:has(.pp-data) { max-width: none; }
+  .pp-data th, .pp-data td, .pp-data .num, .pp-data .mk, .pp-data .pp-formh, .pp-data .pp-formc { padding-left: 5px; padding-right: 5px; }
+  .pp-data tbody th.pl { min-width: 0; }
+  .pp-data { min-width: 0; }
 }

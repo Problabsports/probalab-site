@@ -6,8 +6,9 @@
 //                             nfl: {...}, nhl: {...} } }
 // NFL / NHL settled rows come from their own rows, ids nfl-props-results / nhl-props-results (props-results-v1:
 //   { schema, sport, generated_at, rows: [ { date, game, player, team, opp, home, market, stat, line, line_source,
-//     season_avg, call (the data side: Over / Under / Yes / No), pct (that side's season rate), light, actual, hit, result } ] }),
-// uploaded by the mini's settle step. Those are data, not tips: the page says "side" and "season rate" for them.
+//     season_avg, call (the data side: Over / Under / Yes / No), pct (that side's Chance, or season rate before the
+//     switch), basis ("chance-v1" once the Chance is used; missing on older rows), light, actual, hit, result } ] }),
+// uploaded by the mini's settle step. Those are data, not tips: the page says "side" and "Chance" for them.
 // Only settled rows (result W / L / P / V) are ever rendered; open calls never are.
 // V = void (the player did not play, actual null). Only W and L count in any record or rate. The raw row and the
 // service key never reach the browser: the page embeds only the normalised public fields below.
@@ -108,6 +109,7 @@ export function normaliseRow(r, sport) {
   return {
     sport, date, game: text(r.game), player: String(r.player || ""), stat, line: num(r.line), call, p, light, actual, result,
     team: text(r.team), opp: text(r.opp), home: bool(r.home), season_avg: num(r.season_avg),
+    basis: isDataSport(sport) && r.basis === "chance-v1" ? "chance-v1" : "",
   };
 }
 
@@ -177,6 +179,7 @@ export function publicRows(results) {
     out[id] = rows.map((r) => ({
       sport: r.sport, date: r.date, game: keepGame ? r.game : "", player: r.player, stat: r.stat, line: r.line, call: r.call,
       p: r.p, light: r.light, actual: r.actual, result: r.result, team: r.team, opp: r.opp, home: r.home, season_avg: r.season_avg,
+      basis: r.basis || "",
     }));
   }
   return out;

@@ -179,7 +179,7 @@ assert.match(body, /id="prMore" hidden/);
 // ------------------------------------------------------------------ public data only
 const json = JSON.parse(body.match(/<script type="application\/json" id="prData">([\s\S]*?)<\/script>/)[1]);
 const keys = new Set(Object.values(json.sports).flat().flatMap((r) => Object.keys(r)));
-assert.deepEqual([...keys].sort(), ["actual", "call", "date", "game", "home", "light", "line", "opp", "p", "player", "result", "season_avg", "sport", "stat", "team"]);
+assert.deepEqual([...keys].sort(), ["actual", "basis", "call", "date", "game", "home", "light", "line", "opp", "p", "player", "result", "season_avg", "sport", "stat", "team"]);
 assert.ok(!json.sports.nba.some((r) => /Open/.test(r.player)), "open calls never sent");
 const leak = renderBody(resultsFrom({ payload: { sports: { nba: { rows: [row({ proj: 31.4, sigma: 4.2, p_over: 0.7, minutes: 33, event_id: "e1", player: "</script><b>x" })] } } } }));
 assert.ok(!/31\.4|sigma|p_over|event_id/.test(leak), "private fields never reach the page");

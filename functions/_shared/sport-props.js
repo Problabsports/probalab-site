@@ -1,5 +1,5 @@
-// NFL and NHL player props boards (/props/nfl, /props/nhl). DATA ONLY: bookie prices and player form.
-// No tips, no units, no edge, no fair price, no model chance.
+// NFL and NHL player props boards (/props/nfl, /props/nhl). DATA ONLY: bookie prices, player form and a Chance per row.
+// No tips, no units, no edge, no fair price.
 //
 // Data: Supabase public.tips_page_snapshot id "nfl-props" / "nhl-props", uploaded by the mini PC jobs
 // (ClosingLine\nfl_props, \nhl_props: schema "props-board-v1") through the members-auth-admin edge function
@@ -13,13 +13,18 @@
 //     log: [{date, opp, ha, v}] (last 8, newest first), season: {gp, avg},
 //     hits: {l5|l10|season: {n, over, under}}   (ou)   |   rates: {l8|season: {n, yes}}   (yes) }
 //
-// Lights here are the player's SEASON hit rate against today's line, on the props scale (60%+ green, 55-59% orange,
-// under 55% red), shown with the side (Over / Under). They describe what happened, not what will happen.
-import { esc, chip, slug } from "./site.js";
+// Chance (O/U rows, props-chance.js): the bookie's price with the margin removed, moved toward the player's season hit
+// rate on today's line (more games, more weight). Lights use the shown Chance on the props scale (60%+ green, 55-59%
+// orange, under 55% red); no light under 5 season games or on an Avg line; no AU price at all -> Chance "-", no light.
+// Anytime (Yes) rows keep the season scoring rate light (a one-sided price has no margin to remove) and show the implied
+// % of the best price in the Chance column. The Chance text carries the light colour (no separate badge column); L5 /
+// L10 / Hit rate numbers are neutral. Data only.
+import { esc, slug } from "./site.js";
 import { propsLight, chanceText } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons, startLabel, updatedLabel, dayLabel, shortDay, FREE_PER_GAME } from "./nba-props.js";
-import { itemFromSportRow, cardHtml, pvScript } from "./prop-cards.js";
+import { itemFromSportRow, cardHtml, pvScript, bestBook } from "./prop-cards.js";
+import { chanceLight, MIN_GAMES_FOR_LIGHT } from "./props-chance.js";
 
 export const SPORTS = {
   nfl: {
@@ -37,7 +42,7 @@ export const SPORTS = {
 };
 export const MAX_AGE_MS = 36 * 3600 * 1000;
 export const STARTED_HIDE_MS = 3 * 3600 * 1000;
-export const MIN_GAMES_FOR_LIGHT = 5;
+export { MIN_GAMES_FOR_LIGHT };
 const CACHE_MS = 60 * 1000;
 
 // ------------------------------------------------------------------ loading
@@ -97,25 +102,22 @@ export function rateLight(rate) {
   return rate == null ? "" : propsLight(rate) || "";
 }
 
-/** Season light for an anytime (Yes-only) row: Yes or No by season scoring rate (same rule the settle step uses). */
+/** Season light for an anytime (Yes-only) row: Yes or No by season scoring rate (same rule the settle step uses).
+    No light without an AU price. */
 export function yesLight(row) {
   const s = row && row.rates && row.rates.season;
-  if (!s || s.n < MIN_GAMES_FOR_LIGHT) return { light: "", side: "", rate: null };
+  const au = ((row && row.books) || []).some((b) => b && b.region !== "us" && num(b.yes) > 1);
+  if (!s || s.n < MIN_GAMES_FOR_LIGHT || !au) return { light: "", side: "", rate: null };
   const no = s.n - s.yes;
   const side = s.yes >= no ? "Yes" : "No";
   const rate = (side === "Yes" ? s.yes : no) / s.n;
   return { light: rateLight(rate), side, rate };
 }
 
-/** Season hit-rate light for an O/U row: the side that cleared today's line more often, and how often. */
-export function hitLight(row) {
+/** Light for a row: O/U -> the Chance side and its light (props-chance.js); Yes -> the season scoring rate. */
+export function hitLight(row, sport) {
   if (row && row.kind === "yes") return yesLight(row);
-  const s = row && row.hits && row.hits.season;
-  // no light against an "Avg line": a line made from the player's own average says nothing on its own
-  if (!s || s.n < MIN_GAMES_FOR_LIGHT || (row && row.line_source === "avg")) return { light: "", side: "", rate: null };
-  const side = s.over >= s.under ? "Over" : "Under";
-  const rate = (side === "Over" ? s.over : s.under) / s.n;
-  return { light: rateLight(rate), side, rate };
+  return chanceLight(row, sport);
 }
 
 /** Sportsbet's prices, and the best other book's (highest price per side, may be two different books). */
@@ -149,11 +151,14 @@ export function freeRowKeys(g, n = FREE_PER_GAME) {
   return keys;
 }
 
-/** Rows for display: market order, then lit rows first (green, orange, red), then by season average. */
+/** Rows for display: market order, then lit rows first (green, orange, red), then Chance high to low, then season average. */
 function orderRows(sport, rows) {
   const lr = { GREEN: 0, ORANGE: 1, RED: 2, "": 3 };
+  const hl = new Map(rows.map((r) => [r, hitLight(r, sport)]));
+  const ch = (r) => (r.kind === "yes" ? -1 : hl.get(r).p ?? -1);
   return rows.slice().sort((a, b) => marketRank(sport, a.market) - marketRank(sport, b.market)
-    || lr[hitLight(a).light] - lr[hitLight(b).light]
+    || lr[hl.get(a).light] - lr[hl.get(b).light]
+    || ch(b) - ch(a)
     || (num(b.season && b.season.avg) ?? -1) - (num(a.season && a.season.avg) ?? -1)
     || String(a.player).localeCompare(String(b.player)));
 }
@@ -189,9 +194,9 @@ export function formChart(row) {
 const rateCell = (c, side) => {
   if (!c || !c.n) return `<td class="num pp-hit">—</td>`;
   const k = side === "Under" ? c.under : side === "yes" ? c.yes : c.over;
-  const lt = side === "yes" ? "" : rateLight(k / c.n);   // each cell coloured by its own rate; scoring rates stay neutral
-  return `<td class="num pp-hit${lt ? ` hl-${lt}` : ""}"><b>${pct0(k / c.n)}</b><small>${k}/${c.n}</small></td>`;
+  return `<td class="num pp-hit"><b>${pct0(k / c.n)}</b><small>${k}/${c.n}</small></td>`; // neutral: only the Chance is coloured
 };
+const chanceCell = (light, inner) => `<td class="num pp-chance${light ? ` hl-${light}` : ""}">${inner}</td>`;
 
 const NO_AU = `<td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
 const bookCell = (b, side) => (b && num(b[side]) != null
@@ -204,10 +209,10 @@ const bestCell = (b, side) => (b && num(b[side]) != null
 
 export const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="mk">Market</th><th scope="col" class="num">Line</th>
   <th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>
-  <th scope="col" class="pp-formh">Last 8</th><th scope="col" class="num">L5</th><th scope="col" class="num">L10</th><th scope="col" class="num">Season</th>
-  <th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
+  <th scope="col" class="pp-formh">Last 8</th><th scope="col" class="num">L5</th><th scope="col" class="num">L10</th><th scope="col" class="num">Hit rate<small>Season</small></th>
+  <th scope="col" class="num pp-chance">Chance</th></tr></thead>`;
 
-/** One row. O/U rows take two lines (Over, Under) in the price cells; hit rates show the season's stronger side. */
+/** One row. O/U rows take two lines (Over, Under) in the price cells; hit rates show the Chance side. */
 export function propRow(sport, r, pvId = "") {
   const name = pvId ? `<button type="button" class="pp-name pp-pv-btn" data-pv-open="${esc(pvId)}" aria-haspopup="dialog">${esc(r.player)}</button>` : `<span class="pp-name">${esc(r.player)}</span>`;
   const who = `<th scope="row" class="pl">${teamLogo(sport, r.team, r.team_abbr)}${name} <span class="pp-tm">${esc(r.team_abbr || "")}${r.position ? ` · ${esc(r.position)}` : ""}</span></th>`;
@@ -217,12 +222,13 @@ export function propRow(sport, r, pvId = "") {
     const rt = r.rates || {};
     const noAu = !(r.books || []).length;
     const yl = yesLight(r);
+    const yb = bestBook(r.books, "yes");
     return `<tr class="pp-row pp-yes lt-${yl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${yl.light}">
       ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}
       <td class="pp-formc">${formChart(r)}</td><td class="num pp-hit">—</td>${rt.l8 && rt.l8.n ? `<td class="num pp-hit"><b>${pct0(rt.l8.yes / rt.l8.n)}</b><small>${rt.l8.yes}/${rt.l8.n} last ${rt.l8.n}</small></td>` : `<td class="num pp-hit">—</td>`}${rateCell(rt.season, "yes")}
-      <td class="lt">${yl.light ? `${chip(yl.light)}<span class="pp-ratelab">${yl.side}</span>` : `<span class="pp-ratelab">Scored</span>`}</td></tr>`;
+      ${chanceCell(yl.light, yb ? `<b>${pct0(1 / yb.yes)}</b><small>implied</small>` : "-")}</tr>`;
   }
-  const hl = hitLight(r);
+  const hl = hitLight(r, sport);
   const side = hl.side || "Over";
   const sb = split.sb;
   const two = (a, b) => `<td class="num pp-price pp-ou"><span><b>${price(a && a.over)}</b><b>${price(b && b.under)}</b></span>${a && b && a !== b ? `<small>${esc(a.name)} · ${esc(b.name)}</small>` : a ? `<small>${esc(a.name)}</small>` : ""}</td>`;
@@ -232,10 +238,10 @@ export function propRow(sport, r, pvId = "") {
       ${noAu ? NO_AU + NO_AU : `<td class="num pp-price pp-ou"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
       ${two(split.over, split.under)}`}
       <td class="pp-formc">${formChart(r)}</td>${rateCell(r.hits && r.hits.l5, side)}${rateCell(r.hits && r.hits.l10, side)}${rateCell(r.hits && r.hits.season, side)}
-      <td class="lt">${hl.light ? `${chip(hl.light)}<span class="pp-ratelab">${side}</span>` : `<span class="pp-ratelab">${hl.side || "—"}</span>`}</td></tr>`;
+      ${chanceCell(hl.light, hl.p == null ? "-" : `<b>${hl.side} ${pct0(hl.p)}</b>`)}</tr>`;
 }
 
-const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="lt"></td></tr>`;
+const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
 
 export function teamsOfBoard(board) {
   const set = new Set();
@@ -265,7 +271,7 @@ export function renderSportBoard(sport, board, { full = false } = {}) {
     const hidden = all.length - rows.length;
     const teams = [g.away, g.home].concat(g.props.map((r) => r.team)).filter(Boolean);
     const ids = rows.map((r, i) => `${g.event_id || "g"}-${i}`);
-    const items = rows.map((r, i) => { const hl = hitLight(r); return [ids[i], itemFromSportRow(sport, r, marketLabel(sport, r.market), hl.light, hl.side, g)]; });
+    const items = rows.map((r, i) => { const hl = hitLight(r, sport); return [ids[i], itemFromSportRow(sport, r, marketLabel(sport, r.market), hl.light, hl.side, g)]; });
     const cards = items.map(([id, it], i) => cardHtml(it, id, `data-team="${esc(rows[i].team || "")}" data-market="${esc(rows[i].market)}" data-light="${esc(it.light)}"`)).join("");
     return `<section class="panel pp-game" data-game="${esc(g.event_id || "")}" data-teams="${esc([...new Set(teams)].join("|"))}">
     <header class="pp-head"><h2>${teamLogo(sport, g.away, g.away_abbr)}${esc(g.away || "")} @ ${teamLogo(sport, g.home, g.home_abbr)}${esc(g.home || "")}</h2>
