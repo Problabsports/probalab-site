@@ -248,7 +248,7 @@ export function propRow(sport, r, pvId = "") {
       ${chanceCell(hl.light, hl.p == null ? "-" : `<b>${hl.side} ${pct0(hl.p)}</b>`)}</tr>`;
 }
 
-const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
+const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num rg-au">0.00</td><td class="num rg-au">0.00</td><td class="num rg-us">+000</td><td class="num rg-us">+000</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
 
 export function teamsOfBoard(board) {
   const set = new Set();

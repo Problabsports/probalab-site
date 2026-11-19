@@ -44,7 +44,20 @@ assert.match(card, /<div class="ppc-prices rg-us"><div><small>Over<\/small><b>\+
 assert.equal((card.match(/class="ppc-prices/g) || []).length, 2, "one price block per region, nothing else added");
 assert.match(card, /Passing yards <b>267\.5<\/b>/);
 assert.match(card, /<small>L5<\/small><b>60%<\/b>/, "form row unchanged");
-assert.match(card, /chip ORANGE/);
+// Chance (PR #44) comes from AU prices only: the passed light is replaced by the Chance light, and US prices never move it
+const it0 = itemFromSportRow("nfl", row, "Passing yards", "ORANGE", "Over");
+const itNoUs = itemFromSportRow("nfl", { ...row, books_us: [] }, "Passing yards", "ORANGE", "Over");
+const itOtherUs = itemFromSportRow("nfl", { ...row, books_us: [{ key: "fanduel", name: "FanDuel", region: "us", over: 1.2, under: 4.5 }] }, "Passing yards", "ORANGE", "Over");
+assert.deepEqual(it0.chance, { side: "Over", p: (5 + 10 * ((1 / 1.9) / (1 / 1.9 + 1 / 1.85))) / 19 }, "Sportsbet AU price, margin removed, moved toward 5/9");
+assert.deepEqual(itNoUs.chance, it0.chance);
+assert.deepEqual(itOtherUs.chance, it0.chance, "US prices do not change the Chance");
+assert.equal(it0.light, itNoUs.light);
+assert.equal(itOtherUs.light, itNoUs.light);
+assert.match(card, /ppc-chance hl-RED">Chance <b>Over<\/b> · <b>52%<\/b>/);
+assert.match(card, /chip RED/);
+const usOnlyIt = itemFromSportRow("nfl", { ...row, books: [] }, "Passing yards", "", "");
+assert.equal(usOnlyIt.chance, null, "US price only: no Chance");
+assert.equal(usOnlyIt.light, "", "US price only: no light");
 
 // no US price -> blank US cells; no AU price -> blank AU cells
 const noUs = cardHtml(itemFromSportRow("nfl", { ...row, books_us: [] }, "Passing yards", "", ""), "x", "");
