@@ -407,8 +407,9 @@ table.pr-table tr.RED { --lt: var(--red); }
 .ppc-list { display: none; }
 .pp-pv-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; text-align: left; border-bottom: 1px dotted var(--line-hi); }
 .pp-pv-btn:hover, .pp-pv-btn:focus-visible { color: var(--cyan); border-bottom-color: var(--cyan); outline: none; }
+/* Cards (not the table) up to 960px: phones and upright tablets, where the full table does not fit */
 
-@media (max-width: 767.98px) {
+@media (max-width: 959.98px) {
   .pp-game .pp-scroll { display: none; }
   .pp-game .ppc-list { display: grid; gap: 12px; margin-top: 4px; }
   .ppc[hidden] { display: none; }
@@ -519,7 +520,7 @@ table.pr-table tr.RED { --lt: var(--red); }
 .ppc-avg { display: inline-block; margin: 0 0 0 4px; vertical-align: middle; }
 .pp-noau { color: var(--muted); }
 .pp-noau small { display: block; font: 10px var(--f-mono); color: var(--muted); white-space: nowrap; }
-@media (max-width: 767.98px) {
+@media (max-width: 959.98px) {
   .ppc-noau b { color: var(--muted); }
   .ppc-noau span { font: 600 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
 }
@@ -550,8 +551,8 @@ table.pr-table tr.RED { --lt: var(--red); }
 .pp-chance.hl-GREEN b, .ppc-chance.hl-GREEN b, .ppv-pred.hl-GREEN b, .ppc-prices .hl-GREEN b, .pp-table tr.pp-data-row td.hl-GREEN { color: var(--green); }
 .pp-chance.hl-ORANGE b, .ppc-chance.hl-ORANGE b, .ppv-pred.hl-ORANGE b, .ppc-prices .hl-ORANGE b, .pp-table tr.pp-data-row td.hl-ORANGE { color: var(--orange); }
 .pp-chance.hl-RED b, .ppc-chance.hl-RED b, .ppv-pred.hl-RED b, .ppc-prices .hl-RED b, .pp-table tr.pp-data-row td.hl-RED { color: var(--red); }
-/* 768-1099px: use the full width and tighter cell padding so the NFL / NHL table fits inside the card without scrolling */
-@media (min-width: 768px) and (max-width: 1099.98px) {
+/* 960-1099px: use the full width and tighter cell padding so the NFL / NHL table fits inside the card without scrolling */
+@media (min-width: 960px) and (max-width: 1099.98px) {
   main.wrap:has(.pp-data) { max-width: none; }
   .pp-data th, .pp-data td, .pp-data .num, .pp-data .mk, .pp-data .pp-formh, .pp-data .pp-formc { padding-left: 5px; padding-right: 5px; }
   .pp-data tbody th.pl { min-width: 0; }
