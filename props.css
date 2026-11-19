@@ -550,3 +550,10 @@ table.pr-table tr.RED { --lt: var(--red); }
 .pp-chance.hl-GREEN b, .ppc-chance.hl-GREEN b, .ppv-pred.hl-GREEN b, .ppc-prices .hl-GREEN b, .pp-table tr.pp-data-row td.hl-GREEN { color: var(--green); }
 .pp-chance.hl-ORANGE b, .ppc-chance.hl-ORANGE b, .ppv-pred.hl-ORANGE b, .ppc-prices .hl-ORANGE b, .pp-table tr.pp-data-row td.hl-ORANGE { color: var(--orange); }
 .pp-chance.hl-RED b, .ppc-chance.hl-RED b, .ppv-pred.hl-RED b, .ppc-prices .hl-RED b, .pp-table tr.pp-data-row td.hl-RED { color: var(--red); }
+/* 768-1099px: use the full width and tighter cell padding so the NFL / NHL table fits inside the card without scrolling */
+@media (min-width: 768px) and (max-width: 1099.98px) {
+  main.wrap:has(.pp-data) { max-width: none; }
+  .pp-data th, .pp-data td, .pp-data .num, .pp-data .mk, .pp-data .pp-formh, .pp-data .pp-formc { padding-left: 5px; padding-right: 5px; }
+  .pp-data tbody th.pl { min-width: 0; }
+  .pp-data { min-width: 0; }
+}
