@@ -83,3 +83,25 @@ export function discordJoin(source = "page", { id = "" } = {}) {
   <p class="discord-join-age">18+ only.</p>
 </div>`;
 }
+
+// "Join the free Discord" call to action: one line plus the Join button, no popup.
+// One component for props pages, game pages and the results pages; the line changes per spot.
+export const DISCORD_CTA_LABEL = "Join the free Discord";
+export const DISCORD_CTA_LINES = {
+  props: "Chat props and get the daily player of the day in Discord",
+  game: "Talk about this game in the Discord game thread",
+  results: "Get every pick live in Discord - free",
+};
+
+/** `kind` is "props" | "game" | "results" (or pass `line` for custom text). Styled like the Join our Discord button. */
+export function discordCta(kind, { line = "" } = {}) {
+  if (!discordInviteConfigured()) return "";
+  const text = line || DISCORD_CTA_LINES[kind] || "";
+  if (!text) return "";
+  const src = String(kind).replace(/[^a-z0-9:_-]/gi, "");
+  const safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<div class="discord-cta-line" data-discord-cta="${src}">
+  <p class="discord-cta-line-text">${safe}</p>
+  <a class="discord-join-btn" href="${hrefAttr()}" target="_blank" rel="noopener noreferrer">${DISCORD_ICON}<span>${DISCORD_CTA_LABEL}</span></a>
+</div>`;
+}

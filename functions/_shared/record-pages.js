@@ -3,6 +3,7 @@
 // Units are not invented: the public record is wins and losses, not a staking record.
 import { getFeed, gamesOf, shell, html, esc, chip, bvTag, sportName, ORIGIN } from "./site.js";
 import { greenViewLabel } from "./game-filters.js";
+import { discordCta } from "./discord.js";
 import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameSports, labelLong, greenSummary, bestValueSports, bestValueMinP, chanceText } from "./lights.js";
 
 export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
@@ -618,6 +619,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   <h1>Results</h1>
   <p>One results page for every sport we cover. Green leads, because that is the model's stronger calls. You can still open every pick, and the CSV always includes them all. These are the live, timestamped results only. Past-season tests are on the <a href="/backtest">backtest page</a>, kept separate, and the method is on <a href="/how-it-works">How it works</a>.</p>
   ${overall}
+  ${allRows.length ? discordCta("results") : ""}
   ${trustStrip()}
   ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>

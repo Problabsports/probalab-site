@@ -726,6 +726,13 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 .discord-join-line { margin: 10px 0 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
 .discord-join-age { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
 @media (min-width: 768px) { .discord-join-btn { display: inline-flex; width: auto; } }
+/* Join the free Discord line + button (app game view, under the pre-game preview). Same rules as page.css. */
+.discord-cta-line { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 18px; padding: 12px 14px; border: 1px solid rgba(25, 227, 255, 0.4); border-radius: 12px; background: rgba(25, 227, 255, 0.06); color: var(--ink); }
+.discord-cta-line-text { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
+@media (min-width: 768px) {
+  .discord-cta-line { flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; }
+  .discord-cta-line .discord-join-btn { flex: 0 0 auto; }
+}
 
 
 

@@ -18,6 +18,7 @@ import { esc } from "./site.js";
 import { propsLight } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons } from "./nba-props.js";
+import { discordCta } from "./discord.js";
 import {
   STATS, STAT_LABEL, LIGHTS, CALLS, tally, dateLabel, datesOf, gameLabels, gameLabelsVary, hasSeasonAvg, filterRows,
   heroHtml, chartBlockHtml, breakdownHtml, headHtml, rowHtml, listSummary, sportEmptyText, lightsLabel,
@@ -238,6 +239,7 @@ export function renderBody(results, { now = Date.now() } = {}) {
   <div class="panel pr-empty" id="prSportEmpty" hidden><p></p></div>
   <div id="prSportBody">
     <section class="panel green-lead pr-hero" id="prHero" aria-label="Headline record">${heroHtml(rows, sportLabel(first), first)}</section>
+    ${discordCta("results")}
     <div class="game-filter-bar pr-filters" role="region" aria-label="Light filter">
       ${lights}
       <p class="small pr-filter-note">Lights change the chart, breakdowns and list. The record above counts every settled ${W.calls.replace(/s$/, "")} in the period.</p>

@@ -13,7 +13,7 @@ import { injuryBadge, applyInjuryPreviewDemo } from "./injury-warning.js";
 import { phoneAttrs, weekLabel } from "./phone-row.js";
 import { labelLong, scaleText, shownLight, bestValueTag, isTip as isTipLight, chanceText } from "./lights.js";
 import { enrichGamesWithInjuries } from "./injury-enrich.js";
-import { discordJoin, discordNavLink, socialFooterStack, xFooterCta, X_PROFILE_URL } from "./discord.js";
+import { discordJoin, discordNavLink, socialFooterStack, xFooterCta, X_PROFILE_URL, discordCta } from "./discord.js";
 export const ORIGIN = "https://probalabsports.com";
 const FEED = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-feed";
 const TTL = 90;
@@ -417,6 +417,7 @@ export function renderGame(g, all, rec, review = null, inj = null) {
   ${g.sport === "nba" ? trendsHtml(g, all) : ""}
   ${!post && WRITTEN[g.game_id] ? `<section class="panel prose"><h2>Game preview</h2>${WRITTEN[g.game_id].map((t) => `<p>${esc(t)}</p>`).join("\n")}</section>` : ""}
   ${previewSection(g, all)}
+  ${discordCta("game")}
   ${post ? "" : signupMain("game")}
   ${post && review ? reviewHtml(review) : ""}
   ${same.length ? `<section class="panel"><h2>More ${S} predictions that day</h2><ul class="games">${same.map(gameRow).join("")}</ul></section>` : ""}

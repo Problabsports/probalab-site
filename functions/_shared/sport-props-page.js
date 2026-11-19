@@ -5,6 +5,7 @@ import { verifyMember } from "./member-session.js";
 import { SPORTS, loadSportBoard, renderSportBoard, boardCounts, teamsOfBoard, marketsOnBoard, sortedGames, propsSportNav, shortDay, FREE_PER_GAME } from "./sport-props.js";
 import { memberButtons, updatedLabel } from "./nba-props.js";
 import { regionToggle } from "./prop-cards.js";
+import { discordCta } from "./discord.js";
 
 export async function sportPropsPage(ctx, sport) {
   const S = SPORTS[sport];
@@ -46,6 +47,7 @@ export async function sportPropsPage(ctx, sport) {
     <div id="propsBoard" data-api="/api/props-${sport}">${renderSportBoard(sport, board, { full: false })}</div>
     <p id="ppNone" class="note" hidden>No props match these filters.</p>
   </div>
+  ${discordCta("props")}
   <p class="note">Prices are from our last pull before the ${S.start} (about a day out, then about 30 minutes out). Implied chance = 1 ÷ price, bookmaker margin included. <span class="rg-us">US prices are American odds: −110 means you risk $110 to win $100, +150 means you win $150 on $100.</span> Prices show for your country (AU for everyone outside the US); switch with AU / US. Last 8 and hit rates are this season's games. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

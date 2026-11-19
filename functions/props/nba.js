@@ -11,6 +11,7 @@ import { startLabel, loadBoard, renderPanels, boardStats, updatedLabel, teamsOf,
 import { renderHeatmapSection, publicIds, boardHasLogs } from "../_shared/nba-player-props.js";
 import { propsSportNav } from "../_shared/sport-props.js";
 import { regionToggle } from "../_shared/prop-cards.js";
+import { discordCta } from "../_shared/discord.js";
 
 /** "No props posted yet" with the next NBA game time, from the same feed the NBA pages use. */
 async function emptyWithNextGame(ctx) {
@@ -80,6 +81,7 @@ export async function onRequestGet(ctx) {
     <p id="ppNone" class="note" hidden>No predictions match these filters.</p>
   </div>
   ${heat ? `<div id="pp-view-hits" class="pp-view" role="tabpanel" aria-labelledby="pp-tab-hits" hidden><div id="propsHeatmap">${heat}</div></div>` : ""}
+  ${discordCta("props")}
   <p class="note small">Prices show for your country: Australian bookmakers (decimal) for everyone outside the US, US sportsbooks (American odds, e.g. −110, +150) in the US. Switch with AU / US.</p>
   <p class="note">⚠️ Day-to-day or Questionable: minutes uncertain. Players listed Doubtful or Out are left off. Predictions only, not betting advice. 18+. <a href="/responsible-gambling">Gamble responsibly</a>.</p>
   <link rel="stylesheet" href="/props.css">
