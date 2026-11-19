@@ -543,3 +543,10 @@ table.pr-table tr.RED { --lt: var(--red); }
   .record-hero.pr-big .pr-aside { display: inline-block; margin-left: 0; vertical-align: baseline; }
   .record-hero.pr-big b + span + .pr-aside { margin-left: 8px; }
 }
+
+/* Props Chance: the Chance text carries the light colour (NFL / NHL table + cards, NBA data-only rows, player view) */
+.pp-data .pp-chance { font-weight: 700; }
+.pp-data .pp-chance small { display: block; font: 10.5px var(--f-mono); color: var(--muted); font-weight: 400; }
+.pp-chance.hl-GREEN b, .ppc-chance.hl-GREEN b, .ppv-pred.hl-GREEN b, .ppc-prices .hl-GREEN b, .pp-table tr.pp-data-row td.hl-GREEN { color: var(--green); }
+.pp-chance.hl-ORANGE b, .ppc-chance.hl-ORANGE b, .ppv-pred.hl-ORANGE b, .ppc-prices .hl-ORANGE b, .pp-table tr.pp-data-row td.hl-ORANGE { color: var(--orange); }
+.pp-chance.hl-RED b, .ppc-chance.hl-RED b, .ppv-pred.hl-RED b, .ppc-prices .hl-RED b, .pp-table tr.pp-data-row td.hl-RED { color: var(--red); }

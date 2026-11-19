@@ -15,13 +15,15 @@
 //
 // Chance (O/U rows, props-chance.js): the bookie's price with the margin removed, moved toward the player's season hit
 // rate on today's line (more games, more weight). Lights use the shown Chance on the props scale (60%+ green, 55-59%
-// orange, under 55% red); no light under 5 season games or on an Avg line. Anytime (Yes) rows keep the season scoring
-// rate light (a one-sided price has no margin to remove) and show "-" for Chance. Data only.
-import { esc, chip, slug } from "./site.js";
+// orange, under 55% red); no light under 5 season games or on an Avg line; no AU price at all -> Chance "-", no light.
+// Anytime (Yes) rows keep the season scoring rate light (a one-sided price has no margin to remove) and show the implied
+// % of the best price in the Chance column. The Chance text carries the light colour (no separate badge column); L5 /
+// L10 / Hit rate numbers are neutral. Data only.
+import { esc, slug } from "./site.js";
 import { propsLight, chanceText } from "./lights.js";
 import { supabaseAdmin } from "./membership.js";
 import { memberButtons, startLabel, updatedLabel, dayLabel, shortDay, FREE_PER_GAME } from "./nba-props.js";
-import { itemFromSportRow, cardHtml, pvScript } from "./prop-cards.js";
+import { itemFromSportRow, cardHtml, pvScript, bestBook } from "./prop-cards.js";
 import { chanceLight, MIN_GAMES_FOR_LIGHT } from "./props-chance.js";
 
 export const SPORTS = {
@@ -100,10 +102,12 @@ export function rateLight(rate) {
   return rate == null ? "" : propsLight(rate) || "";
 }
 
-/** Season light for an anytime (Yes-only) row: Yes or No by season scoring rate (same rule the settle step uses). */
+/** Season light for an anytime (Yes-only) row: Yes or No by season scoring rate (same rule the settle step uses).
+    No light without an AU price. */
 export function yesLight(row) {
   const s = row && row.rates && row.rates.season;
-  if (!s || s.n < MIN_GAMES_FOR_LIGHT) return { light: "", side: "", rate: null };
+  const au = ((row && row.books) || []).some((b) => b && b.region !== "us" && num(b.yes) > 1);
+  if (!s || s.n < MIN_GAMES_FOR_LIGHT || !au) return { light: "", side: "", rate: null };
   const no = s.n - s.yes;
   const side = s.yes >= no ? "Yes" : "No";
   const rate = (side === "Yes" ? s.yes : no) / s.n;
@@ -190,9 +194,9 @@ export function formChart(row) {
 const rateCell = (c, side) => {
   if (!c || !c.n) return `<td class="num pp-hit">—</td>`;
   const k = side === "Under" ? c.under : side === "yes" ? c.yes : c.over;
-  const lt = side === "yes" ? "" : rateLight(k / c.n);   // each cell coloured by its own rate; scoring rates stay neutral
-  return `<td class="num pp-hit${lt ? ` hl-${lt}` : ""}"><b>${pct0(k / c.n)}</b><small>${k}/${c.n}</small></td>`;
+  return `<td class="num pp-hit"><b>${pct0(k / c.n)}</b><small>${k}/${c.n}</small></td>`; // neutral: only the Chance is coloured
 };
+const chanceCell = (light, inner) => `<td class="num pp-chance${light ? ` hl-${light}` : ""}">${inner}</td>`;
 
 const NO_AU = `<td class="num pp-price pp-noau">-<small>No AU price</small></td>`;
 const bookCell = (b, side) => (b && num(b[side]) != null
@@ -206,7 +210,7 @@ const bestCell = (b, side) => (b && num(b[side]) != null
 export const HEAD = `<thead><tr><th scope="col" class="pl">Player</th><th scope="col" class="mk">Market</th><th scope="col" class="num">Line</th>
   <th scope="col" class="num">Sportsbet<small>Over · Under</small></th><th scope="col" class="num">Best other<small>Over · Under</small></th>
   <th scope="col" class="pp-formh">Last 8</th><th scope="col" class="num">L5</th><th scope="col" class="num">L10</th><th scope="col" class="num">Hit rate<small>Season</small></th>
-  <th scope="col" class="num pp-chance">Chance</th><th scope="col" class="lt"><span class="sr-only">Light</span></th></tr></thead>`;
+  <th scope="col" class="num pp-chance">Chance</th></tr></thead>`;
 
 /** One row. O/U rows take two lines (Over, Under) in the price cells; hit rates show the Chance side. */
 export function propRow(sport, r, pvId = "") {
@@ -218,10 +222,11 @@ export function propRow(sport, r, pvId = "") {
     const rt = r.rates || {};
     const noAu = !(r.books || []).length;
     const yl = yesLight(r);
+    const yb = bestBook(r.books, "yes");
     return `<tr class="pp-row pp-yes lt-${yl.light || "none"}" data-team="${esc(r.team || "")}" data-market="${esc(r.market)}" data-light="${yl.light}">
       ${who}${mk}<td class="num">Anytime</td>${noAu ? NO_AU + NO_AU : bookCell(split.sb, "yes") + bestCell(split.yes, "yes")}
       <td class="pp-formc">${formChart(r)}</td><td class="num pp-hit">—</td>${rt.l8 && rt.l8.n ? `<td class="num pp-hit"><b>${pct0(rt.l8.yes / rt.l8.n)}</b><small>${rt.l8.yes}/${rt.l8.n} last ${rt.l8.n}</small></td>` : `<td class="num pp-hit">—</td>`}${rateCell(rt.season, "yes")}
-      <td class="num pp-chance">-</td><td class="lt">${yl.light ? `${chip(yl.light)}<span class="pp-ratelab">${yl.side}</span>` : `<span class="pp-ratelab">Scored</span>`}</td></tr>`;
+      ${chanceCell(yl.light, yb ? `<b>${pct0(1 / yb.yes)}</b><small>implied</small>` : "-")}</tr>`;
   }
   const hl = hitLight(r, sport);
   const side = hl.side || "Over";
@@ -233,11 +238,10 @@ export function propRow(sport, r, pvId = "") {
       ${noAu ? NO_AU + NO_AU : `<td class="num pp-price pp-ou"><span><b>${price(sb && sb.over)}</b><b>${price(sb && sb.under)}</b></span></td>
       ${two(split.over, split.under)}`}
       <td class="pp-formc">${formChart(r)}</td>${rateCell(r.hits && r.hits.l5, side)}${rateCell(r.hits && r.hits.l10, side)}${rateCell(r.hits && r.hits.season, side)}
-      <td class="num pp-chance">${hl.p == null ? "-" : `<b>${hl.side} ${pct0(hl.p)}</b>`}</td>
-      <td class="lt">${hl.light ? chip(hl.light) : `<span class="pp-ratelab">—</span>`}</td></tr>`;
+      ${chanceCell(hl.light, hl.p == null ? "-" : `<b>${hl.side} ${pct0(hl.p)}</b>`)}</tr>`;
 }
 
-const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td><td class="lt"></td></tr>`;
+const lockedRow = () => `<tr class="pp-row pp-locked-row" aria-hidden="true"><th scope="row" class="pl"><span class="pp-name">Member player</span></th><td class="mk">Market</td><td class="num">00.5</td><td class="num">0.00</td><td class="num">0.00</td><td></td><td class="num">00%</td><td class="num">00%</td><td class="num">00%</td><td class="num pp-chance">00%</td></tr>`;
 
 export function teamsOfBoard(board) {
   const set = new Set();

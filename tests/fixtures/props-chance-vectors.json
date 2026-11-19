@@ -1,6 +1,6 @@
 {
   "version": "chance-v1",
-  "about": "Props Chance test vectors shared by the site (tests/props-chance.test.mjs) and the mini pipeline tests. p is the clamped Chance of the shown side to 4 dp; shown is the whole % rounded down; light is GREEN / ORANGE / RED or empty (no light: under 5 season games or an Avg line). m = 10 for every sport.",
+  "about": "Props Chance test vectors shared by the site (tests/props-chance.test.mjs) and the mini pipeline tests. p is the clamped Chance of the shown side to 4 dp; shown is the whole % rounded down; light is GREEN / ORANGE / RED or empty (no light: under 5 season games or an Avg line). A row with no AU price at all has no Chance: side empty, p null, shown as a dash. m = 10 for every sport.",
   "cases": [
     {
       "id": "1-worked-example",
@@ -98,11 +98,20 @@
     },
     {
       "id": "6c-avg-line",
-      "name": "Avg line, no price: Chance from the prior, no light",
+      "name": "Avg line, no AU price at all: no Chance (shown -), no light",
       "sport": "nhl",
       "row": { "kind": "ou", "line": 27.5, "line_source": "avg", "books": [],
         "hits": { "season": { "n": 10, "over": 7, "under": 3 } } },
-      "expected": { "side": "Over", "p": 0.6, "shown": "Over 60%", "light": "" }
+      "expected": { "side": "", "p": null, "shown": "-", "light": "" }
+    },
+    {
+      "id": "6d-us-book-only",
+      "name": "Only a US-region book: counts as no AU price, no Chance, no light",
+      "sport": "nhl",
+      "row": { "kind": "ou", "line": 2.5, "line_source": "book",
+        "books": [{ "key": "fanduel", "name": "FanDuel", "region": "us", "over": 1.50, "under": 2.60 }],
+        "hits": { "season": { "n": 10, "over": 7, "under": 3 } } },
+      "expected": { "side": "", "p": null, "shown": "-", "light": "" }
     },
     {
       "id": "7-clamp",

@@ -56,8 +56,10 @@ assert.equal(dataStatOf(p2, "pr").line_source, "book");
 const g = { event_id: "t1", away: "Boston Celtics", home: "New York Knicks", commence_utc: "2099-01-01T00:00:00Z", players: [p1, p2] };
 const rows = gameDataRows(g);
 assert.deepEqual([...new Set(rows.map((r) => r.stat))].sort(), ["pa", "pr", "pra", "threes"]);
-// data-only rows: no model (s.p null) but a Chance on every row; no light here (2 games in the log, Avg lines)
-assert.ok(rows.every((r) => r.s.p == null && r.s.chance && ["Over", "Under"].includes(r.s.chance.side) && r.s.chance.p >= 0.05 && r.s.chance.p <= 0.95), "data-only: Chance on every row");
+// data-only rows: no model (s.p null); a Chance on every row with an AU price, none on Avg lines (no AU price at all)
+assert.ok(rows.every((r) => r.s.p == null), "data-only: no model");
+assert.ok(rows.filter((r) => r.s.line_source === "book").every((r) => r.s.chance && ["Over", "Under"].includes(r.s.chance.side) && r.s.chance.p >= 0.05 && r.s.chance.p <= 0.95), "priced rows: Chance");
+assert.ok(rows.filter((r) => r.s.line_source === "avg").every((r) => r.s.chance === null), "Avg line rows: no Chance");
 assert.ok(rows.every((r) => r.light === ""), "data-only: under 5 games or an Avg line -> no light");
 const prRow = rows.find((r) => r.stat === "pr" && r.s.line_source === "book");
 // pr 31.5 on Sportsbet 1.87 / 1.87 (0.5 with the margin out), log 36 and 24: 1 over / 1 under of 2 -> (1 + 5) / 12 = 50% Over

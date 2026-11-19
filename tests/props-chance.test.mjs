@@ -20,12 +20,12 @@ test("constants", () => {
 });
 
 test("shared vectors (cases 1-7)", () => {
-  assert.ok(V.cases.length >= 12);
+  assert.ok(V.cases.length >= 13);
   for (const c of V.cases) {
     const got = chanceLight(c.row, c.sport);
     assert.equal(got.side, c.expected.side, `${c.id} side`);
-    assert.equal(r4(got.p), c.expected.p, `${c.id} p`);
-    assert.equal(`${got.side} ${chanceText(got.p)}`, c.expected.shown, `${c.id} shown`);
+    assert.equal(got.p == null ? null : r4(got.p), c.expected.p, `${c.id} p`);
+    assert.equal(got.p == null ? "-" : `${got.side} ${chanceText(got.p)}`, c.expected.shown, `${c.id} shown`);
     assert.equal(got.light, c.expected.light, `${c.id} light`);
     if (c.expected.src) assert.equal(propChance(c.row, c.sport).src, c.expected.src, `${c.id} src`);
   }
@@ -90,9 +90,12 @@ test("6. no hits, under 5 games, Avg line", () => {
   const few = chanceLight({ kind: "ou", line: 1.5, books: SB(1.88, 1.88), hits: { season: { n: 4, over: 4, under: 0 } } }, "nfl");
   assert.ok(few.p > 0.6 && few.light === "");
   const avg = chanceLight({ kind: "ou", line: 1.5, line_source: "avg", books: [], hits: { season: { n: 20, over: 18, under: 2 } } }, "nhl");
-  assert.ok(avg.p > 0.6 && avg.light === "" && avg.side === "Over");
-  const html = propRow("nhl", { kind: "ou", line: 1.5, line_source: "avg", books: [], hits: { season: { n: 20, over: 18, under: 2 } }, player: "P", market: "player_shots_on_goal", log: [] });
-  assert.ok(html.includes("No AU price") && /pp-chance"><b>Over \d+%<\/b>/.test(html) && html.includes('data-light=""'), "no-price row: Chance from the prior, no light");
+  assert.deepEqual(avg, { light: "", side: "", p: null }, "no AU price: no Chance, no light");
+  const avgRow = { kind: "ou", line: 1.5, line_source: "avg", books: [], hits: { season: { n: 20, over: 18, under: 2 } }, player: "P", market: "player_shots_on_goal", log: [] };
+  const html = propRow("nhl", avgRow);
+  assert.ok(html.includes("No AU price") && html.includes('<td class="num pp-chance">-</td>') && html.includes('data-light=""'), "no-price row: Chance -, no light");
+  assert.equal(itemFromSportRow("nhl", avgRow, "Shots", "", "").chance, null);
+  assert.ok(!/ppc-chance/.test(cardHtml(itemFromSportRow("nhl", avgRow, "Shots", "", ""), "x", "")), "no Chance line on a no-price card");
 });
 
 test("7. clamp to 95%", () => {
@@ -108,11 +111,13 @@ test("7. clamp to 95%", () => {
 const yesRow = { player: "Jared Mann", team: "Seattle Kraken", team_abbr: "SEA", kind: "yes", line: null, market: "player_goal_scorer_anytime",
   books: [{ key: "sportsbet", name: "Sportsbet", yes: 2.98 }], log: [{ v: 1 }, { v: 0 }], rates: { l8: { n: 8, yes: 5 }, season: { n: 20, yes: 9 } } };
 
-test("8. Yes rows: no Chance, scoring-rate light kept", () => {
+test("8. Yes rows: implied % in the Chance column, coloured by the scoring-rate light", () => {
   assert.equal(propChance(yesRow, "nhl"), null);
   const html = propRow("nhl", yesRow, "x");
-  assert.ok(html.includes('<td class="num pp-chance">-</td>'));
-  assert.ok(html.includes("chip ORANGE") && html.includes(">No<"), "scoring rate light: No 11 of 20 = 55% -> ORANGE, shown with its side");
+  // best price 2.98 -> 33% implied; scoring rate No 11 of 20 = 55% -> ORANGE
+  assert.ok(html.includes('<td class="num pp-chance hl-ORANGE"><b>33%</b><small>implied</small></td>'), "implied % coloured orange");
+  assert.ok(html.includes('data-light="ORANGE"'));
+  assert.ok(propRow("nhl", { ...yesRow, books: [] }, "x").includes('<td class="num pp-chance">-</td>'), "no AU price: -");
 });
 
 const ouRow = { player: "C.J. Stroud", team: "Houston Texans", team_abbr: "HOU", position: "QB", kind: "ou", market: "player_pass_yds", line: 257.5,
@@ -137,14 +142,14 @@ test("9. privacy: the book chance never reaches HTML or the pp-pv JSON", () => {
   const it = itemFromSportRow("nfl", ouRow, "Passing yards", "", "");
   assert.deepEqual(it.chance, { side: "Over", p: 11 / 19 });
   assert.equal(it.light, "ORANGE");
-  assert.match(cardHtml(it, "x", ""), /<span class="ppc-pred">Chance <b>Over<\/b> · <b>57%<\/b><\/span>/);
+  assert.match(cardHtml(it, "x", ""), /<span class="ppc-pred ppc-chance hl-ORANGE">Chance <b>Over<\/b> · <b>57%<\/b><\/span>/);
 });
 
 test("10. column count: header == O/U row == Yes row == locked row", () => {
   const cells = (s) => (s.match(/<t[hd][\s>]/g) || []).length;
   const head = cells(HEAD);
-  assert.equal(head, 11);
-  assert.ok(HEAD.includes('<th scope="col" class="num pp-chance">Chance</th><th scope="col" class="lt">'), "Chance sits next to the light");
+  assert.equal(head, 10);
+  assert.ok(HEAD.includes('<th scope="col" class="num pp-chance">Chance</th></tr>'), "Chance is the last column (no separate badge column)");
   assert.ok(HEAD.includes("Hit rate<small>Season</small>"));
   assert.equal(cells(propRow("nfl", ouRow, "x")), head);
   assert.equal(cells(propRow("nhl", yesRow, "x")), head);
@@ -160,4 +165,15 @@ test("wording: no Super / value / edge / units / model chance", () => {
   const text = html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
   for (const w of [/super/i, /\bvalue\b/i, /\bedge\b/i, /fair price/i, /\bunits?\b/i, /\btips?\b/i, /\bstake\b/i, /model chance/i]) assert.ok(!w.test(text), String(w));
   assert.ok(!/super|model chance|\bedge\b/i.test(html));
+});
+
+test("colours: Chance coloured by its light, hit-rate numbers neutral (NBA model cards unchanged)", () => {
+  const html = propRow("nfl", ouRow, "x");
+  assert.ok(html.includes('<td class="num pp-chance hl-ORANGE"><b>Over 57%</b></td>'));
+  assert.ok(!/pp-hit hl-/.test(html), "L5 / L10 / Hit rate cells carry no light colour");
+  const card = cardHtml(itemFromSportRow("nfl", ouRow, "Passing yards", "", ""), "x", "");
+  assert.ok(!/ppc-hits[\s\S]*class="hl-/.test(card), "card hit numbers neutral");
+  const nbaModel = { sport: "nba", player: "P", team: "", team_abbr: "", position: "", market: "Points", kind: "ou", line: 20.5, light: "GREEN", side: "Over",
+    pred: { side: "Over", p: 0.62 }, chance: null, books: [], log: [], season: null, hits: { l5: { n: 5, over: 4, under: 1 }, l10: { n: 5, over: 4, under: 1 }, season: { n: 5, over: 4, under: 1 } }, rates: null, line_source: "book", no_au_price: true };
+  assert.ok(/ppc-hits[\s\S]*class="hl-GREEN"/.test(cardHtml(nbaModel, "x", "")), "NBA model cards keep their hit colours");
 });

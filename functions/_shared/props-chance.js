@@ -6,7 +6,8 @@
 //             else 0.5 when nothing has both sides)
 //   p_over  = (season overs  + m * pb)       / (season games + m)
 //   p_under = (season unders + m * (1 - pb)) / (season games + m)
-// side = the higher of the two (tie -> Over), clamped to 5-95%. Data only.
+// side = the higher of the two (tie -> Over), clamped to 5-95%. No AU price at all (incl. Avg lines) -> no Chance ("-"),
+// no light. Data only.
 //
 // pb is internal: it never goes on the returned objects, so it never reaches HTML, data-* attributes or pp-pv JSON.
 import { propsLight } from "./lights.js";
@@ -41,6 +42,11 @@ export function bookProb(books) {
   return { p_over: 0.5, src: "prior" };
 }
 
+/** True when at least one AU book (not region "us") has a price on either side. */
+export function hasAuPrice(books) {
+  return (Array.isArray(books) ? books : []).some((b) => b && b.region !== "us" && (num(b.over) > 1 || num(b.under) > 1));
+}
+
 const clamp = (p) => Math.min(CLAMP[1], Math.max(CLAMP[0], p));
 
 /** Internal: both sides before clamping, with the book chance (tests only; never rendered). */
@@ -54,15 +60,17 @@ export function _chanceParts(row, sport) {
   return { p_over: (over + m * pb) / (n + m), p_under: (under + m * (1 - pb)) / (n + m), pb, src, n, over, under, m };
 }
 
-/** Chance for an O/U row: { side, p, src, n, k, m }; null for Yes rows. */
+/** Chance for an O/U row: { side, p, src, n, k, m }; null for Yes rows and for rows with no AU price at all. */
 export function propChance(row, sport) {
+  if (!row || !hasAuPrice(row.books)) return null;
   const c = _chanceParts(row, sport);
   if (!c) return null;
   const side = c.p_over >= c.p_under ? "Over" : "Under";
   return { side, p: clamp(side === "Over" ? c.p_over : c.p_under), src: c.src, n: c.n, k: side === "Over" ? c.over : c.under, m: c.m };
 }
 
-/** Light for display, on the props scale of the shown (rounded-down) Chance. No light under 5 season games or on an Avg line. */
+/** Light for display, on the props scale of the shown (rounded-down) Chance. No light under 5 season games, on an Avg
+    line or with no AU price ({ light: "", side: "", p: null }). */
 export function chanceLight(row, sport) {
   const c = propChance(row, sport);
   if (!c) return { light: "", side: "", p: null };

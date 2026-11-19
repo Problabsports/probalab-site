@@ -28,7 +28,7 @@ assert.match(card, /<small>L5<\/small><b>60%<\/b>/);
 assert.match(card, /class="ppc-chart"/);
 // Chance: SB 1.90 / 1.85 with the margin out = 0.4933 Over, moved toward 5 of 9: (5 + 4.933) / 19 = 52% -> RED (season rate alone was 55% ORANGE)
 assert.match(card, /chip RED/);
-assert.match(card, /<span class="ppc-pred">Chance <b>Over<\/b> · <b>52%<\/b><\/span>/, "one Chance line on the card");
+assert.match(card, /<span class="ppc-pred ppc-chance hl-RED">Chance <b>Over<\/b> · <b>52%<\/b><\/span>/, "one Chance line on the card");
 assert.deepEqual(Object.keys(ou.chance).sort(), ["p", "side"], "item.chance carries only side and p");
 
 const yes = itemFromSportRow("nhl", { player: "Jared Mann", team: "Seattle Kraken", team_abbr: "SEA", position: "C", kind: "yes", line: null,

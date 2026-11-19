@@ -279,7 +279,7 @@ export function gameDataRows(g) {
       const s = dataStatOf(p, stat);
       if (!s) continue;
       const c = dataChance(p, stat, s);
-      out.push({ ...p, stat, s: { ...s, side: c.side, chance: { side: c.side, p: c.p } }, light: c.light });
+      out.push({ ...p, stat, s: { ...s, side: c.side, chance: c.p == null ? null : { side: c.side, p: c.p } }, light: c.light });
     }
   }
   return out;
@@ -370,8 +370,8 @@ export function predictionRow(r, { link = true, name = true, books = false } = {
   return `<tr class="pp-row lt-${r.light || "none"}${data ? " pp-data-row" : ""}" data-team="${esc(r.team || "")}" data-market="${r.stat}" data-light="${r.light || ""}" data-p="${shownP == null ? "" : shownP.toFixed(3)}">
       ${who}<td class="mk">${esc(MARKET_LABEL[r.stat])}</td>
       <td class="num">${one(s.line)}${s.line_source === "avg" ? `<small class="pp-avgline">Avg line</small>` : ""}</td>
-      <td class="call">${shownP == null ? "—" : data ? s.chance.side : s.side}</td>
-      <td class="num pct">${shownP == null ? "—" : chanceText(shownP)}</td>
+      <td class="call${data && r.light ? ` hl-${r.light}` : ""}">${shownP == null ? "—" : data ? s.chance.side : s.side}</td>
+      <td class="num pct${data && r.light ? ` hl-${r.light}` : ""}">${shownP == null ? "—" : chanceText(shownP)}</td>
       ${books ? bookCells(s.books) : ""}<td class="lt">${r.light ? chip(r.light) : ""}</td>
     </tr>`;
 }

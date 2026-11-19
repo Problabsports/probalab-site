@@ -72,7 +72,7 @@ const nhlYes = boards.nhl.games[0].props.find((r) => r.kind === "yes");
 const yesHtml = propRow("nhl", nhlYes);
 assert.ok(/<b>\d+\.\d\d<\/b><small>\d+% implied<\/small>/.test(yesHtml), "Sportsbet price + implied chance");
 assert.ok(/<small>[A-Za-z0-9 ]+ · \d+%<\/small>/.test(yesHtml), "best other book + implied chance");
-assert.ok(/last \d+<\/small>/.test(yesHtml) && (yesHtml.includes("Scored") || /class="chip (GREEN|ORANGE|RED)">[^<]+<\/span><span class="pp-ratelab">(Yes|No)</.test(yesHtml)), "scoring rate last 8; light with its Yes / No side once lit");
+assert.ok(/last \d+<\/small>/.test(yesHtml) && /<td class="num pp-chance( hl-(GREEN|ORANGE|RED))?"><b>\d+%<\/b><small>implied<\/small><\/td>/.test(yesHtml), "scoring rate last 8; implied % in the Chance column, coloured by the scoring-rate light");
 assert.match(formChart(nhlYes), /<circle/);
 
 // ---- O/U: Sportsbet first, best other per side, light on the Chance
@@ -88,9 +88,9 @@ assert.equal(hitLight({ hits: { season: { n: 4, over: 4, under: 0 } } }).light, 
 // lights.json: the shown % is rounded down and decides the light (59.5% shows 59%, orange)
 assert.deepEqual([rateLight(0.6), rateLight(0.595), rateLight(0.55), rateLight(0.544)], ["GREEN", "ORANGE", "ORANGE", "RED"]);
 const cells = propRow("nfl", { ...row, player: "P", market: "player_pass_yds" });
-assert.ok(cells.includes('<td class="num pp-chance"><b>Under 59%</b></td>'), "Chance cell: side + shown %");
-assert.ok(cells.includes('pp-hit hl-GREEN"><b>80%</b><small>4/5') === false && cells.includes('class="num pp-hit hl-RED"><b>20%</b><small>1/5</small>'), "hit cells coloured by their own rate (Under side: 1 of 5 = 20%, red)");
-assert.ok(cells.includes('class="num pp-hit hl-GREEN"><b>66%</b><small>8/12</small>'), "season Under 8/12 green (shown rounded down)");
+assert.ok(cells.includes('<td class="num pp-chance hl-ORANGE"><b>Under 59%</b></td>'), "Chance cell: side + shown %");
+assert.ok(cells.includes('<td class="num pp-hit"><b>20%</b><small>1/5</small>'), "hit cells follow the Chance side (Under: 1 of 5 = 20%) and are neutral");
+assert.ok(cells.includes('<td class="num pp-hit"><b>66%</b><small>8/12</small>') && !/pp-hit hl-/.test(cells), "season Under 8/12, no light colour on hit numbers");
 const ch = formChart(row);
 assert.ok(ch.includes('class="pf-over"') && ch.includes('class="pf-under"') && ch.includes('class="pf-push"') && ch.includes('class="pf-line"'));
 
