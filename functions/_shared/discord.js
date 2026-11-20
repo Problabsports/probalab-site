@@ -89,7 +89,7 @@ export function discordJoin(source = "page", { id = "" } = {}) {
 export const DISCORD_CTA_LABEL = "Join the free Discord";
 export const DISCORD_CTA_LINES = {
   props: "Chat props and get the daily player of the day in Discord",
-  game: "Talk about this game in the Discord game thread",
+  game: "Talk about this game in Discord",
   results: "Get every pick live in Discord - free",
 };
 

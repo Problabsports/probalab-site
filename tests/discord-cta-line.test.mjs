@@ -14,7 +14,7 @@ import { onRequestGet as nhlPage } from "../functions/props/nhl.js";
 const INVITE = "https://discord.gg/B8Q2hH26hV";
 const LINES = {
   props: "Chat props and get the daily player of the day in Discord",
-  game: "Talk about this game in the Discord game thread",
+  game: "Talk about this game in Discord",
   results: "Get every pick live in Discord - free",
 };
 assert.equal(DISCORD_INVITE_URL, INVITE);
