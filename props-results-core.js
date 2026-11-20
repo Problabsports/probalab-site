@@ -154,11 +154,11 @@ export function lightsLabel(lights) {
 // ------------------------------------------------------------------ headline record (whole sport)
 const miniTile = (cls, label, t) =>
   `<div class="pr-tile ${cls}"><span class="ut-k">${label}</span><b>${pctText(t)}</b><span class="pr-tile-r mono">${recText(t)}</span></div>`;
-const aside = (t) => (asideText(t) ? ` <em class="pr-aside">${asideText(t)}</em>` : "");
+const aside = (t) => (asideText(t) ? ` · <em class="pr-aside">${asideText(t)}</em>` : "");
 
 /**
  * Headline record for one sport. Always the full settled record: it never follows the light,
- * stat, Over/Under or date filters. Green first and in green (W–L, hit %, "N void" beside it);
+ * stat, Over/Under or date filters. Green first and in green (W–L, hit %, "N void" on the sub-line);
  * the all-settled hit rate beside it at the same size; then smaller Orange, Red, Over, Under and
  * a Void tile. Voids and pushes never enter a record or rate.
  */
@@ -178,13 +178,13 @@ export function heroHtml(sportRows, sportName, sport = "nba", periodName = "") {
     <div class="pr-hero-main">
       <div class="pr-hero-block pr-hero-green" data-hero="green">
         <p class="pr-hero-k"><span class="chip GREEN">Green</span> Green ${W.calls}</p>
-        <p class="record-hero green-hero pr-big"><b>${g.n ? recText(g) : "—"}</b> <span>${pctText(g)}</span>${aside(g)}</p>
-        <p class="pr-hero-sub">${g.n ? `${ofText(g)} ${right}` : `No settled green ${W.calls} yet`}</p>
+        <p class="record-hero green-hero pr-big"><b>${g.n ? recText(g) : "—"}</b> <span>${pctText(g)}</span></p>
+        <p class="pr-hero-sub">${g.n ? `${ofText(g)} ${right}` : `No settled green ${W.calls} yet`}${aside(g)}</p>
       </div>
       <div class="pr-hero-block pr-hero-all" data-hero="all">
         <p class="pr-hero-k">All settled ${W.calls}</p>
-        <p class="record-hero pr-big"><b>${ofText(all)}</b> <span>${pctText(all)}</span>${aside(all)}</p>
-        <p class="pr-hero-sub mono">${recText(all)} · every light</p>
+        <p class="record-hero pr-big"><b>${ofText(all)}</b> <span>${pctText(all)}</span></p>
+        <p class="pr-hero-sub mono">${recText(all)} · every light${aside(all)}</p>
       </div>
     </div>
     <div class="pr-tiles" aria-label="More records">
