@@ -1,23 +1,12 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-20T23:56:41Z",
+  "generated_at": "2026-11-21T15:15:47Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
     "RED": "under 60%"
   },
   "tournaments": [
-    {
-      "id": "ATP-148-2026",
-      "tour": "ATP",
-      "name": "Bybit Stockholm Open",
-      "city": "Stockholm",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-11-07T05:00:00Z",
-      "end_utc": "2026-11-15T04:59:00Z",
-      "live": false
-    },
     {
       "id": "WTA-382-2026",
       "tour": "WTA",
@@ -31,30 +20,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "186552",
-      "tour": "ATP",
-      "tournament_id": "ATP-148-2026",
-      "tournament": "Bybit Stockholm Open",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Final",
-      "court": "Center Court",
-      "start_utc": "2026-11-14T12:10:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Taylor Fritz",
-      "player_b": "Thiago Agustin Tirante",
-      "a_pct": 72.6,
-      "b_pct": 27.4,
-      "pick": "a",
-      "pick_pct": 72.6,
-      "light": "GREEN",
-      "winner": "a",
-      "score": "6-2 4-6 7-6",
-      "retired": false,
-      "result": "won"
-    },
     {
       "id": "187441",
       "tour": "WTA",
