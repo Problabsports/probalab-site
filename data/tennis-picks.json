@@ -1,6 +1,6 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-21T15:15:47Z",
+  "generated_at": "2026-11-21T21:03:51Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
@@ -20,30 +20,6 @@
     }
   ],
   "matches": [
-    {
-      "id": "187441",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Semifinal",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-14T20:10:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Jessica Pegula",
-      "player_b": "Mirra Andreeva",
-      "a_pct": 54.6,
-      "b_pct": 45.4,
-      "pick": "a",
-      "pick_pct": 54.6,
-      "light": "RED",
-      "winner": "b",
-      "score": "3-6 4-6",
-      "retired": false,
-      "result": "lost"
-    },
     {
       "id": "187440",
       "tour": "WTA",
