@@ -734,5 +734,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401880128",
+    "round": 18,
+    "start_utc": "2026-11-29T12:00:00Z",
+    "home": "Swansea City",
+    "away": "Cardiff City",
+    "p_home": 0.553,
+    "p_draw": 0.209,
+    "p_away": 0.238,
+    "pick": "home",
+    "light": "GREEN",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
