@@ -1,50 +1,13 @@
 {
   "sport": "TENNIS",
-  "generated_at": "2026-11-22T01:09:36Z",
+  "generated_at": "2026-11-22T22:24:41Z",
   "lights": {
     "GREEN": "70%+",
     "ORANGE": "60-70%",
     "RED": "under 60%"
   },
-  "tournaments": [
-    {
-      "id": "WTA-382-2026",
-      "tour": "WTA",
-      "name": "FAGE WTA Finals Indian Wells",
-      "city": "Indian Wells Tennis Garden",
-      "surface": "Hard",
-      "best_of": 3,
-      "start_utc": "2026-11-08T05:00:00Z",
-      "end_utc": "2026-11-16T04:59:00Z",
-      "live": false
-    }
-  ],
-  "matches": [
-    {
-      "id": "187442",
-      "tour": "WTA",
-      "tournament_id": "WTA-382-2026",
-      "tournament": "FAGE WTA Finals Indian Wells",
-      "surface": "Hard",
-      "best_of": 3,
-      "round": "Final",
-      "court": "Indian Wells Tennis Garden",
-      "start_utc": "2026-11-15T20:10:00Z",
-      "time_tbc": false,
-      "status": "post",
-      "player_a": "Elina Svitolina",
-      "player_b": "Mirra Andreeva",
-      "a_pct": 47.1,
-      "b_pct": 52.9,
-      "pick": "b",
-      "pick_pct": 52.9,
-      "light": "RED",
-      "winner": "b",
-      "score": "5-7 3-6",
-      "retired": false,
-      "result": "won"
-    }
-  ],
+  "tournaments": [],
+  "matches": [],
   "record": {
     "ALL": {
       "won": 30,
