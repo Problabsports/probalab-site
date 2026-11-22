@@ -1,6 +1,6 @@
 {
  "note": "NHL pre-puck-drop records. Pick and chance as frozen at puck drop (same values as pretip_snapshots), lights GREEN 65%+, ORANGE 55-65%, RED under 55%; result from the official NHL API. Auto-updated hourly by the box job export_nhl_pretip.py; rows are locked once written.",
- "exported_utc": "2026-11-22T02:01:32Z",
+ "exported_utc": "2026-11-22T03:23:15Z",
  "games": {
   "2026020154": {
    "pick": "BOS",
@@ -1260,48 +1260,60 @@
    "pick": "BOS",
    "pick_p": 0.5468,
    "light": "RED",
-   "won": null
+   "won": true
   },
   "2026020364": {
    "pick": "CBJ",
    "pick_p": 0.5426,
    "light": "RED",
-   "won": null
+   "won": true
   },
   "2026020365": {
    "pick": "MTL",
    "pick_p": 0.5466,
    "light": "RED",
-   "won": null
+   "won": false
   },
   "2026020366": {
    "pick": "OTT",
    "pick_p": 0.6071,
    "light": "ORANGE",
-   "won": null
+   "won": true
   },
   "2026020367": {
    "pick": "NYI",
    "pick_p": 0.5261,
    "light": "RED",
-   "won": null
+   "won": true
   },
   "2026020368": {
    "pick": "NJD",
    "pick_p": 0.5806,
    "light": "ORANGE",
-   "won": null
+   "won": false
   },
   "2026020369": {
    "pick": "VGK",
    "pick_p": 0.5844,
    "light": "ORANGE",
-   "won": null
+   "won": true
   },
   "2026020370": {
    "pick": "UTA",
    "pick_p": 0.5584,
    "light": "ORANGE",
+   "won": null
+  },
+  "2026020371": {
+   "pick": "MIN",
+   "pick_p": 0.7772,
+   "light": "GREEN",
+   "won": null
+  },
+  "2026020372": {
+   "pick": "SEA",
+   "pick_p": 0.5097,
+   "light": "RED",
    "won": null
   }
  }
