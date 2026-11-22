@@ -1435,6 +1435,209 @@
       "right": "The model had Denver stronger (97.2 to 88.4) and in better form (about +3.4 a game against about −4.3), and those reasons are fair. Phoenix was without Mark Williams and Denver without Julian Strawther.",
       "missed": "We picked Denver at 77% and that was wrong. Phoenix hit far more threes and won the rebounding by 16, and Denver's outside shooting never showed up.",
       "why": "This is one of the roughly 1-in-4 games a 77% pick loses. The model does not know about a bad shooting night in advance."
+    },
+    "401910002": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Knicks beat the Raptors 111–102 on the road. Knicks made 41 of 78 shots and 12 of 35 threes; Raptors made 39 of 78 shots and 14 of 35 threes. The Knicks won the rebounding 44 to 23. Jalen Brunson led all scorers with 31 points for the Knicks.",
+      "right": "The model had the Knicks about level with the Raptors on team strength (90.7 to 90.9) and in better form (about +7.8 a game against 0.0). With strength level, form and the rest of the model decided it and the pick came through.",
+      "missed": "The pick was right and the 9-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 62% chance means the pick should lose roughly 38 times in 100, and this was one of the games where it held."
+    },
+    "401910003": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Timberwolves beat the Trail Blazers 106–105 at home. Timberwolves made 38 of 82 shots and 18 of 40 threes; Trail Blazers made 38 of 96 shots and 16 of 44 threes. Ayo Dosunmu led all scorers with 30 points for the Timberwolves.",
+      "right": "The model had the Timberwolves stronger on team strength (86.9 to 81.7) and in better form (about +6.8 a game against +4.5). Those reasons held up on the night.",
+      "missed": "The pick was right, but it was close: 1 point separated the teams, so it was nearer than the 69% chance suggests. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 69% chance means the pick should lose roughly 31 times in 100, and this was one of the games where it held."
+    },
+    "401910004": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Pistons beat the Spurs 105–93 on the road. Pistons made 45 of 91 shots and 6 of 25 threes; Spurs made 37 of 89 shots and 9 of 40 threes. Cade Cunningham led all scorers with 27 points for the Pistons.",
+      "right": "The model had the Spurs stronger on team strength (97.4 to 86.3) and in better form (about +12.9 a game against +4.3). Those reasons were sensible on paper but did not show up in this game.",
+      "missed": "We picked the Spurs at 78% and that was wrong. The Spurs made more threes (9 to 6) but still lost the game, so shooting from deep does not explain this one.",
+      "why": "A 78% pick still loses roughly 22 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910006": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Jazz beat the Clippers 132–107 on the road. Jazz made 49 of 84 shots and 20 of 38 threes; Clippers made 36 of 83 shots and 14 of 37 threes. The Jazz won the rebounding 46 to 31. Brice Sensabaugh led all scorers with 40 points for the Jazz.",
+      "right": "The model had the Clippers stronger on team strength (86 to 80.7) and in better form (about −2.7 a game against −10.9). Those reasons were sensible on paper but did not show up in this game.",
+      "missed": "We picked the Clippers at 78% and that was wrong. The Jazz had the edge on the boards (46 to 31).",
+      "why": "A 78% pick still loses roughly 22 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910005": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Lakers beat the Hornets 118–114 at home. Lakers made 41 of 99 shots and 18 of 50 threes; Hornets made 40 of 87 shots and 18 of 54 threes. The Hornets won the rebounding 51 to 50. Quentin Grimes led all scorers with 47 points for the Lakers.",
+      "right": "The model had the Lakers stronger on team strength (89.2 to 80.3) and in better form (about +6.5 a game against −6.0). Those reasons held up on the night.",
+      "missed": "The pick was right and the 4-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 77% chance means the pick should lose roughly 23 times in 100, and this was one of the games where it held."
+    },
+    "401910007": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Grizzlies beat the Cavaliers 124–121 on the road. Grizzlies made 42 of 78 shots and 16 of 39 threes; Cavaliers made 44 of 95 shots and 15 of 41 threes. The Cavaliers won the rebounding 45 to 34. Donovan Mitchell led all scorers with 34 points for the Cavaliers.",
+      "right": "The model had the Cavaliers stronger on team strength (94.9 to 90) and in worse form (about +1.2 a game against +4.0). Those reasons were sensible on paper but did not show up in this game.",
+      "missed": "We picked the Cavaliers at 69% and that was wrong. The Grizzlies won despite 45 to 34 on the boards, so rebounding alone does not explain it.",
+      "why": "A 69% pick still loses roughly 31 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910008": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Rockets beat the Pacers 119–104 on the road. Rockets made 44 of 89 shots and 19 of 35 threes; Pacers made 43 of 87 shots and 10 of 34 threes. Pascal Siakam led all scorers with 24 points for the Pacers.",
+      "right": "The model had the Rockets stronger on team strength (95 to 89.7) and in better form (about +6.4 a game against −3.3). Those reasons held up on the night.",
+      "missed": "The pick was right and the 15-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 74% chance means the pick should lose roughly 26 times in 100, and this was one of the games where it held."
+    },
+    "401910009": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The Heat beat the Bucks 137–130 at home. Heat made 40 of 80 shots and 22 of 48 threes; Bucks made 43 of 86 shots and 14 of 41 threes. Giannis Antetokounmpo led all scorers with 27 points for the Heat.",
+      "right": "The model had the Heat stronger on team strength (100 to 82.7) and in better form (about +2.5 a game against −13.2). Those reasons held up on the night.",
+      "missed": "The pick was right and the 7-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "An 86% chance means the pick should lose roughly 14 times in 100, and this was one of the games where it held."
+    },
+    "401910010": {
+      "updated_utc": "2026-11-22T06:15:17Z",
+      "happened": "The 76ers beat the Magic 121–116 on the road. 76ers made 42 of 81 shots and 14 of 35 threes; Magic made 44 of 84 shots and 19 of 37 threes. Franz Wagner led all scorers with 27 points for the Magic.",
+      "right": "This was close to a coin flip: the model leaned Magic at 52%, with team strength 84.5 to 84.4 and recent form about −0.8 against +0.9 a game.",
+      "missed": "We picked the Magic at 52% and that was wrong. The Magic made more threes (19 to 14) but still lost the game, so shooting from deep does not explain this one.",
+      "why": "A 52% pick still loses roughly 48 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910012": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Wizards beat the Raptors 103–99 on the road. Wizards made 36 of 79 shots and 11 of 30 threes; Raptors made 39 of 92 shots and 14 of 36 threes. The Wizards won the rebounding 51 to 41. Anthony Davis led all scorers with 25 points for the Wizards.",
+      "right": "The model had the Raptors weaker on team strength (77.9 to 89.9) and in better form (about −1.0 a game against −11.2).",
+      "missed": "We picked the Raptors at 67% and that was wrong. The Wizards had the edge on the boards (51 to 41).",
+      "why": "A 67% pick still loses roughly 33 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910011": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Bulls beat the Nets 137–107 on the road. Bulls made 53 of 99 shots and 21 of 46 threes; Nets made 39 of 81 shots and 15 of 41 threes. The Bulls won the rebounding 46 to 29. Matas Buzelis led all scorers with 25 points for the Bulls.",
+      "right": "This was close to a coin flip: the model leaned Nets at 52%, with team strength 85.8 to 90 and recent form about −7.9 against −8.7 a game.",
+      "missed": "We picked the Nets at 52% and that was wrong. The Bulls had the edge on the boards (46 to 29).",
+      "why": "A 52% pick still loses roughly 48 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910014": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Hawks beat the Thunder 117–112 on the road. Hawks made 44 of 99 shots and 20 of 50 threes; Thunder made 46 of 90 shots and 9 of 26 threes. Shai Gilgeous-Alexander led all scorers with 34 points for the Thunder.",
+      "right": "The model had the Thunder about level with the Hawks on team strength (88.6 to 88) and in better form (about +6.2 a game against +0.4).",
+      "missed": "We picked the Thunder at 69% and that was wrong. The Hawks made 20 threes to 9 for the Thunder, and the model has no way to see a shooting night like that coming.",
+      "why": "A 69% pick still loses roughly 31 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910016": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Mavericks beat the Warriors 116–94 at home. Mavericks made 42 of 83 shots and 17 of 41 threes; Warriors made 38 of 89 shots and 9 of 38 threes. Cooper Flagg led all scorers with 33 points for the Mavericks.",
+      "right": "The model had the Mavericks stronger on team strength (92.1 to 81.7) and in worse form (about −5.1 a game against +0.2). Those reasons held up on the night.",
+      "missed": "The pick was right and the 22-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 60% chance means the pick should lose roughly 40 times in 100, and this was one of the games where it held."
+    },
+    "401910013": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Pistons beat the Pelicans 122–109 on the road. Pistons made 41 of 77 shots and 17 of 32 threes; Pelicans made 37 of 81 shots and 11 of 28 threes. Zion Williamson led all scorers with 24 points for the Pelicans.",
+      "right": "This was close to a coin flip: the model leaned Pelicans at 51%, with team strength 91.7 to 75.7 and recent form about −8.4 against +5.2 a game.",
+      "missed": "We picked the Pelicans at 51% and that was wrong. The Pistons made 17 threes to 11 for the Pelicans, and the model has no way to see a shooting night like that coming.",
+      "why": "A 51% pick still loses roughly 49 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910015": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Nuggets beat the Celtics 105–101 at home. Nuggets made 37 of 85 shots and 7 of 31 threes; Celtics made 40 of 98 shots and 11 of 44 threes. Jayson Tatum led all scorers with 24 points for the Celtics.",
+      "right": "This was close to a coin flip: the model leaned Celtics at 52%, with team strength 92.3 to 96.2 and recent form about +10.9 against +1.8 a game.",
+      "missed": "We picked the Celtics at 52% and that was wrong. The Celtics made more threes (11 to 7) but still lost the game, so shooting from deep does not explain this one.",
+      "why": "A 52% pick still loses roughly 48 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910018": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Suns beat the Kings 128–107 on the road. Suns made 48 of 84 shots and 15 of 34 threes; Kings made 41 of 88 shots and 14 of 40 threes. Darius Acuff Jr. led all scorers with 36 points for the Kings.",
+      "right": "The model had the Suns stronger on team strength (88.5 to 83.5) and in better form (about −2.6 a game against −12.7). Those reasons held up on the night.",
+      "missed": "The pick was right and the 21-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 67% chance means the pick should lose roughly 33 times in 100, and this was one of the games where it held."
+    },
+    "401910017": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Jazz beat the Lakers 109–97 on the road. Jazz made 37 of 77 shots and 14 of 37 threes; Lakers made 34 of 89 shots and 9 of 33 threes. Keyonte George led all scorers with 30 points for the Jazz.",
+      "right": "The model had the Lakers stronger on team strength (96.7 to 86.7) and in better form (about +6.1 a game against −7.6). Those reasons were sensible on paper but did not show up in this game.",
+      "missed": "We picked the Lakers at 87% and that was wrong. The Jazz made 14 threes to 9 for the Lakers, and the model has no way to see a shooting night like that coming.",
+      "why": "An 87% pick still loses roughly 13 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910019": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Grizzlies beat the Warriors 126–98 at home. Grizzlies made 47 of 90 shots and 15 of 35 threes; Warriors made 33 of 80 shots and 5 of 29 threes. Jaylen Wells led all scorers with 22 points for the Grizzlies.",
+      "right": "The model had the Grizzlies stronger on team strength (91.1 to 82.8) and in better form (about +4.1 a game against −1.5). Those reasons held up on the night.",
+      "missed": "The pick was right and the 28-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 68% chance means the pick should lose roughly 32 times in 100, and this was one of the games where it held."
+    },
+    "401910022": {
+      "updated_utc": "2026-11-22T06:15:18Z",
+      "happened": "The Spurs beat the Clippers 124–112 at home. Spurs made 46 of 87 shots and 11 of 31 threes; Clippers made 40 of 81 shots and 17 of 42 threes. Victor Wembanyama led all scorers with 32 points for the Spurs.",
+      "right": "The model had the Spurs stronger on team strength (90.2 to 86.2) and in better form (about +10.6 a game against −4.9). Those reasons held up on the night.",
+      "missed": "The pick was right and the 12-point margin was comfortable. The Clippers actually made more threes (17 to 11), a sign the model's view of this matchup is not the whole story. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "An 83% chance means the pick should lose roughly 17 times in 100, and this was one of the games where it held."
+    },
+    "401910021": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Knicks beat the Timberwolves 102–99 on the road. Knicks made 38 of 85 shots and 15 of 34 threes; Timberwolves made 35 of 79 shots and 14 of 31 threes. Jonathan Kuminga led all scorers with 23 points for the Timberwolves.",
+      "right": "This was close to a coin flip: the model leaned Timberwolves at 51%, with team strength 90.7 to 90.7 and recent form about +6.1 against +8.2 a game.",
+      "missed": "We picked the Timberwolves at 51% and that was wrong. The Knicks made 15 threes to 14 for the Timberwolves, and the model has no way to see a shooting night like that coming.",
+      "why": "A 51% pick still loses roughly 49 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401910020": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Trail Blazers beat the Bucks 124–114 on the road. Trail Blazers made 41 of 77 shots and 17 of 43 threes; Bucks made 40 of 91 shots and 16 of 41 threes. The Trail Blazers won the rebounding 45 to 35. Damian Lillard led all scorers with 33 points for the Trail Blazers.",
+      "right": "The model had the Trail Blazers weaker on team strength (78 to 82.1) and in better form (about +4.3 a game against −12.5). Team strength pointed the other way, so this win rested on form and the rest of the model.",
+      "missed": "The pick was right and the 10-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 67% chance means the pick should lose roughly 33 times in 100, and this was one of the games where it held."
+    },
+    "401909307": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Cavaliers beat the Pacers 128–119 at home. Cavaliers made 46 of 95 shots and 19 of 44 threes; Pacers made 43 of 89 shots and 14 of 34 threes. James Harden led all scorers with 51 points for the Cavaliers.",
+      "right": "The model had the Cavaliers stronger on team strength (93 to 90.7) and in better form (about +0.6 a game against −4.5). Those reasons held up on the night.",
+      "missed": "The pick was right and the 9-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 78% chance means the pick should lose roughly 22 times in 100, and this was one of the games where it held."
+    },
+    "401909308": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Raptors beat the Pistons 105–102 on the road. Raptors made 42 of 77 shots and 9 of 28 threes; Pistons made 37 of 81 shots and 12 of 33 threes. The Raptors won the rebounding 40 to 33. Scottie Barnes led all scorers with 29 points for the Raptors.",
+      "right": "The model had the Pistons stronger on team strength (91.8 to 84.9) and in better form (about +6.1 a game against −1.5). Those reasons were sensible on paper but did not show up in this game.",
+      "missed": "We picked the Pistons at 76% and that was wrong. The Raptors had the edge on the boards (40 to 33).",
+      "why": "A 76% pick still loses roughly 24 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401909306": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Magic beat the Nets 113–111 on the road. Magic made 39 of 81 shots and 19 of 43 threes; Nets made 38 of 86 shots and 12 of 38 threes. Franz Wagner led all scorers with 35 points for the Magic.",
+      "right": "The model had the Magic about level with the Nets on team strength (84.9 to 85.4) and in better form (about −1.4 a game against −10.0). With strength level, form and the rest of the model decided it and the pick came through.",
+      "missed": "The pick was right, but it was close: 2 points separated the teams, so it was nearer than the 62% chance suggests. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 62% chance means the pick should lose roughly 38 times in 100, and this was one of the games where it held."
+    },
+    "401909309": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Wizards beat the Bulls 98–94 on the road. Wizards made 40 of 90 shots and 9 of 26 threes; Bulls made 36 of 88 shots and 9 of 33 threes. The Wizards won the rebounding 46 to 42. Anthony Davis led all scorers with 36 points for the Wizards.",
+      "right": "The model had the Bulls weaker on team strength (88.4 to 89.6) and in better form (about −5.2 a game against −9.7).",
+      "missed": "We picked the Bulls at 66% and that was wrong. The Wizards had the edge on the boards (46 to 42).",
+      "why": "A 66% pick still loses roughly 34 games in 100. This was one of those, and a single result does not change how we read the model."
+    },
+    "401909310": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Thunder beat the Pelicans 126–120 at home. Thunder made 49 of 92 shots and 14 of 36 threes; Pelicans made 42 of 93 shots and 17 of 39 threes. Shai Gilgeous-Alexander led all scorers with 40 points for the Thunder.",
+      "right": "The model had the Thunder weaker on team strength (89.9 to 92.6) and in better form (about +5.0 a game against −9.0). Team strength pointed the other way, so this win rested on form and the rest of the model.",
+      "missed": "The pick was right and the 6-point margin was comfortable. The Pelicans actually made more threes (17 to 14), a sign the model's view of this matchup is not the whole story. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 78% chance means the pick should lose roughly 22 times in 100, and this was one of the games where it held."
+    },
+    "401909311": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Suns beat the Jazz 111–101 on the road. Suns made 10 of 34 threes; Jazz made 35 of 84 shots and 10 of 39 threes. Devin Booker led all scorers with 23 points for the Suns.",
+      "right": "The model had the Suns stronger on team strength (89.8 to 86.8) and in better form (about −0.4 a game against −5.8). Those reasons held up on the night.",
+      "missed": "The pick was right and the 10-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "A 63% chance means the pick should lose roughly 37 times in 100, and this was one of the games where it held."
+    },
+    "401909312": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Nuggets beat the Rockets 133–124 at home. Nuggets made 47 of 86 shots and 13 of 30 threes; Rockets made 46 of 83 shots and 9 of 27 threes. Alperen Sengun led all scorers with 28 points for the Rockets.",
+      "right": "This was close to a coin flip: the model leaned Nuggets at 50%, with team strength 95.7 to 94.9 and recent form about +1.8 against +7.3 a game.",
+      "missed": "The pick was right and the 9-point margin was comfortable. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "At 50% this was never a confident call. Results this close to even are close to a toss-up, and this one fell our way."
+    },
+    "401909313": {
+      "updated_utc": "2026-11-22T06:15:19Z",
+      "happened": "The Lakers beat the Kings 106–104 at home. Lakers made 39 of 78 shots and 11 of 36 threes; Kings made 41 of 90 shots and 13 of 37 threes. The Kings won the rebounding 44 to 35. De'Andre Hunter led all scorers with 30 points for the Kings.",
+      "right": "The model had the Lakers stronger on team strength (95.6 to 83.8) and in better form (about +4.4 a game against −13.6). Those reasons held up on the night.",
+      "missed": "The pick was right, but it was close: 2 points separated the teams, so it was nearer than the 89% chance suggests. The model calls a winner, not a margin or a scoring pattern.",
+      "why": "An 89% chance means the pick should lose roughly 11 times in 100, and this was one of the games where it held."
     }
   }
 }
