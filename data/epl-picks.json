@@ -798,5 +798,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401879221",
+    "round": 13,
+    "start_utc": "2026-12-01T20:00:00Z",
+    "home": "Coventry City",
+    "away": "Ipswich Town",
+    "p_home": 0.408,
+    "p_draw": 0.25,
+    "p_away": 0.341,
+    "pick": "home",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
