@@ -1638,6 +1638,55 @@
       "right": "The model had the Lakers stronger on team strength (95.6 to 83.8) and in better form (about +4.4 a game against −13.6). Those reasons held up on the night.",
       "missed": "The pick was right, but it was close: 2 points separated the teams, so it was nearer than the 89% chance suggests. The model calls a winner, not a margin or a scoring pattern.",
       "why": "An 89% chance means the pick should lose roughly 11 times in 100, and this was one of the games where it held."
+    },
+    "401909305": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Hawks beat the Hornets 111–97 at home. Atlanta made 43 of 84 shots; Charlotte made 38 of 94. Jalen Johnson led the Hawks with 26 points, and Moussa Diabaté had 21 points and 15 rebounds for Charlotte.",
+      "right": "The model had Atlanta stronger on team strength (88.6 to 78.9) and in better recent form (about +1.0 a game against −5.7). The Hawks' 14-point win fits that picture.",
+      "missed": "Nothing in the result went against the pick. One thing the model does not capture: Charlotte out-rebounded Atlanta 49 to 37 and took 10 more shots, yet still lost by 14 because they shot much worse.",
+      "why": "A 71% chance still loses roughly 3 times in 10. This was one of the times it held, and the shooting gap decided it."
+    },
+    "401910023": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The 76ers beat the Bucks 132–129 at home. Tyler Herro scored 50 for Milwaukee, and Joel Embiid had 26 points, 17 rebounds and 9 assists for Philadelphia. The 76ers made 33 of 37 free throws against 17 of 18 for the Bucks, and the Bucks made more threes (16 of 44 against 9 of 28).",
+      "right": "The model had Philadelphia stronger on team strength (89.7 to 84.5) and in much better form (about +1.4 a game against −12.5), and the 76ers did win.",
+      "missed": "The pick was right, but the model's 83% chance did not suggest a three-point game. Milwaukee shot 48 of 101 and were in it until the end, with one player scoring 50.",
+      "why": "An 83% chance still loses about 17 times in 100. A close finish like this is a reminder of how little separates the result from a loss, even when the pick is right."
+    },
+    "401910024": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Knicks beat the Trail Blazers 97–96 at home. New York made 19 of 42 threes against 11 of 38 for Portland. Jalen Brunson scored 30 for the Knicks; Donovan Clingan had 22 points and 13 rebounds for Portland.",
+      "right": "The model leaned on recent form, where New York was ahead (about +7.9 a game against +5.0). The Knicks' hot shooting from three kept them just ahead.",
+      "missed": "Team strength actually favoured Portland by a wide margin (92.2 to 76.0), and Portland out-rebounded New York 47 to 42. The pick landed, but only by one point, and the model's reasons were mixed rather than clear.",
+      "why": "At 53% this was close to a coin flip. The model never said this was an easy pick, and the one-point result shows that."
+    },
+    "401910025": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Mavericks beat the Clippers 110–100 at home. Dallas made 23 of 34 free throws to 19 of 24 for Los Angeles, and shot 37 of 90 from the field to the Clippers' 33 of 86. Kyrie Irving scored 25 and Cooper Flagg 22 for Dallas.",
+      "right": "The model had Dallas stronger on team strength (91.7 to 86.3) and slightly ahead on form (about −3.1 a game against −5.3). Dallas did win by 10.",
+      "missed": "Both teams shot poorly, and the model's form numbers for each side were negative, so it was a modest edge. Rebounds were level at 53 each, so nothing there separated them.",
+      "why": "A 61% chance is a lean, not a certainty. It lost about 4 times in 10 over the long run, and here it held."
+    },
+    "401910027": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Spurs beat the Pelicans 114–91 at home. Victor Wembanyama scored 50 points. San Antonio made 19 of 56 threes against 8 of 35 for New Orleans, and had 30 assists to 11. Jeremiah Fears led the Pelicans with 29.",
+      "right": "The model had San Antonio in much better form (about +10.5 a game against −8.5), and that showed. The Spurs won by 23.",
+      "missed": "The two teams were almost level on team strength (91.1 to 90.1), so form was doing the work. The model could not have anticipated a 50-point night from one player.",
+      "why": "An 88% chance means the pick loses roughly 12 times in 100. This one was not close."
+    },
+    "401910026": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Timberwolves beat the Grizzlies 104–95 at home. Minnesota made 43 of 74 shots; Memphis made 38 of 89 and just 8 of 32 threes. Jaden McDaniels scored 25 for the Timberwolves and Cedric Coward 23 for Memphis.",
+      "right": "The pick was right. Minnesota's shooting efficiency was the difference, with a much better shooting rate than Memphis on a lower number of attempts.",
+      "missed": "The headline numbers did not point clearly to Minnesota: Memphis was slightly stronger on team strength (92.4 to 90.1) and the form numbers were close (about +5.9 against +5.2). The box score does not show us why the model's chance sat at 67%.",
+      "why": "A 67% chance still loses about a third of the time, and the model's reasons for this one were not strong on the figures we can show."
+    },
+    "401910028": {
+      "updated_utc": "2026-11-23T06:09:28Z",
+      "happened": "The Kings beat the Celtics 97–96 at home. Boston took 101 shots and made 34, including 13 of 58 threes. Sacramento made 26 of 32 free throws to Boston's 15 of 25. Domantas Sabonis had 15 points and 17 rebounds for the Kings.",
+      "right": "Boston's better recent form (about +9.8 a game against −12.5 for Sacramento) was the main thing in the pick's favour.",
+      "missed": "The model was wrong here. It had Boston at 80%, but Sacramento was stronger on team strength (83.9 to 80.1) and Boston made only 13 of 58 threes. Form was not enough on the night.",
+      "why": "An 80% chance still loses 1 time in 5. This was one of those, decided by a single point, and it counts as a miss."
     }
   }
 }
