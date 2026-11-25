@@ -942,5 +942,21 @@
     "home_score": null,
     "away_score": null,
     "result": null
+  },
+  {
+    "game_id": "401878749",
+    "round": 13,
+    "start_utc": "2026-12-03T20:00:00Z",
+    "home": "Tottenham Hotspur",
+    "away": "Fulham",
+    "p_home": 0.42,
+    "p_draw": 0.286,
+    "p_away": 0.294,
+    "pick": "home",
+    "light": "RED",
+    "status": "pre",
+    "home_score": null,
+    "away_score": null,
+    "result": null
   }
 ]
