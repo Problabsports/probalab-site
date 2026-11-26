@@ -1806,6 +1806,27 @@
       "right": "The pick was right: the Lakers won. Both inputs leaned the Lakers' way: team strength (95.1 to 84.5) and recent form (about +4.0 a game against −6.2).",
       "missed": "Nothing in the numbers we can show points to a clear miss here; the model's main reasons held up.",
       "why": "An 88% chance is not a certainty, and the margin was comfortable, though a pick at this level still loses roughly 1 in 10."
+    },
+    "401909314": {
+      "updated_utc": "2026-11-26T06:15:00Z",
+      "happened": "The Pistons beat the Magic 104–86 on the road. Pistons made 39 of 79 shots; Magic made 34 of 83. From three, Pistons were 15 of 36 and Magic 12 of 36. Isaiah Joe scored 21 for the Pistons.",
+      "right": "The pick was right: the Pistons won. The pick leaned on recent form (about +4.1 a game against −2.2), as the Magic had the better team strength rating (85 to 82.3).",
+      "missed": "The model's reasons were not all one-sided here, and the result does not show which input mattered most. The box score gives us no clean way to tell.",
+      "why": "A 55% chance is not a certainty, and the margin was comfortable, though a pick at this level still loses roughly 4 in 10."
+    },
+    "401909315": {
+      "updated_utc": "2026-11-26T06:15:00Z",
+      "happened": "The Celtics beat the Wizards 131–116 on the road. Celtics made 46 of 100 shots; Wizards made 41 of 92. From three, Celtics were 22 of 51 and Wizards 12 of 36. Jayson Tatum had the most points in the game, 41 for the Celtics.",
+      "right": "The pick was right: the Celtics won. The pick leaned on recent form (about +8.5 a game against −6.3), as the Wizards had the better team strength rating (90 to 89.3).",
+      "missed": "The model's reasons were not all one-sided here, and the result does not show which input mattered most. The box score gives us no clean way to tell.",
+      "why": "A 75% chance is not a certainty, and the margin was comfortable, though a pick at this level still loses roughly 2 in 10."
+    },
+    "401909316": {
+      "updated_utc": "2026-11-26T06:15:00Z",
+      "happened": "The Mavericks beat the Nuggets 120–101 on the road. Mavericks made 48 of 98 shots; Nuggets made 34 of 85. From three, Mavericks were 11 of 37 and Nuggets 12 of 39. Cooper Flagg had the most points in the game, 24 for the Mavericks.",
+      "right": "Both inputs leaned the Nuggets' way: team strength (98.4 to 93) and recent form (about +2.7 a game against −1.6).",
+      "missed": "The model was wrong here: it had the Nuggets at 75% and they lost. The Mavericks shot better (48 of 98 to 34 of 85).",
+      "why": "A 75% chance still loses about 2 times in 10, and this was one of those. It counts as a miss."
     }
   }
 }
