@@ -1827,6 +1827,69 @@
       "right": "Both inputs leaned the Nuggets' way: team strength (98.4 to 93) and recent form (about +2.7 a game against −1.6).",
       "missed": "The model was wrong here: it had the Nuggets at 75% and they lost. The Mavericks shot better (48 of 98 to 34 of 85).",
       "why": "A 75% chance still loses about 2 times in 10, and this was one of those. It counts as a miss."
+    },
+    "401909317": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The 76ers beat the Heat 111–104 at home. The Heat made 39 of 86 shots and the 76ers made 42 of 89. Giannis Antetokounmpo led the Heat with 32 points and Tyrese Maxey led the 76ers with 30.",
+      "right": "Going in, the Heat rated stronger on team strength (100.1 to 92.8), and recent form favoured the Heat (+3.1 a game against -0.3). It was close: 7 points at the end.",
+      "missed": "The model was wrong here: it had the Heat at 51% and they lost. The 76ers shot better (42 of 89 to 39 of 86), made more threes (14 to 8).",
+      "why": "A 51% chance is close to a coin flip, so a miss is not surprising. It counts as a miss."
+    },
+    "401909318": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Bulls beat the Hornets 107–105 on the road. The Bulls made 39 of 78 shots and the Hornets made 36 of 87. Matas Buzelis led the Bulls with 24 points and Brandon Miller led the Hornets with 35.",
+      "right": "Going in, the Bulls rated slightly stronger on team strength (87.0 to 79.5), and recent form favoured the Bulls (-4.1 a game against -6.3). It was close: 2 points at the end.",
+      "missed": "The model was wrong here: it had the Hornets at 58% and they lost. The Bulls shot better (39 of 78 to 36 of 87), made more threes (13 to 11).",
+      "why": "A 58% chance still loses about 4 times in 10, and this was one of those. It counts as a miss."
+    },
+    "401909319": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Knicks beat the Cavaliers 121–102 at home. The Cavaliers made 35 of 85 shots and the Knicks made 46 of 90. Donovan Mitchell led the Cavaliers with 30 points and Jose Alvarado led the Knicks with 21.",
+      "right": "The model had the Knicks at 68% and they won, by 19. Going in, the Cavaliers rated slightly stronger on team strength (91.3 to 88.4), and recent form favoured the Knicks (+6.9 a game against +0.1).",
+      "missed": "The model's pre-game read was not unanimous: the Cavaliers rated slightly stronger on team strength (91.3 to 88.4), and the Knicks still won.",
+      "why": "A 68% chance is not a certainty, and this one went the way the model expected. It counts as a hit."
+    },
+    "401909320": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Timberwolves beat the Thunder 113–106 on the road. The Timberwolves made 40 of 88 shots and the Thunder made 42 of 94. Jaden McDaniels led the Timberwolves with 32 points and Shai Gilgeous-Alexander led the Thunder with 32.",
+      "right": "Going in, the two teams rated almost level on team strength (90.9 to 91.6), and recent form favoured the Timberwolves (+6.7 a game against +3.4). It was close: 7 points at the end.",
+      "missed": "The model was wrong here: it had the Thunder at 55% and they lost. The Timberwolves shot better (40 of 88 to 42 of 94), won the rebounds 50–40 and made more threes (17 to 11).",
+      "why": "A 55% chance is close to a coin flip, so a miss is not surprising. It counts as a miss."
+    },
+    "401909322": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Nets beat the Bucks 104–97 on the road. The Nets made 37 of 89 shots and the Bucks made 38 of 89. Julius Randle led the Nets with 28 points and Tyler Herro led the Bucks with 28.",
+      "right": "Going in, the two teams rated almost level on team strength (85.2 to 85.7), and recent form favoured the Bucks (-9.9 a game against -10.7). It was close: 7 points at the end.",
+      "missed": "The model was wrong here: it had the Bucks at 57% and they lost. The Nets won the rebounds 52–44.",
+      "why": "A 57% chance is close to a coin flip, so a miss is not surprising. It counts as a miss."
+    },
+    "401909321": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Grizzlies beat the Clippers 115–97 at home. The Clippers made 33 of 85 shots and the Grizzlies made 46 of 94. Brandon Ingram led the Clippers with 18 points and Jaylen Wells led the Grizzlies with 19.",
+      "right": "The model had the Grizzlies at 72% and they won, by 18. Going in, the Grizzlies rated stronger on team strength (94.7 to 86.2), and recent form favoured the Grizzlies (+5.1 a game against -5.8).",
+      "missed": "The Grizzlies shot better (46 of 94 to 33 of 85), which is what the model needed. Brandon Ingram still scored 18 for the Clippers.",
+      "why": "A 72% chance is not a certainty, and this one went the way the model expected. It counts as a hit."
+    },
+    "401909323": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Rockets beat the Suns 116–104 at home. The Suns made 38 of 91 shots and the Rockets made 44 of 90. Devin Booker led the Suns with 25 points and Alperen Sengun led the Rockets with 23.",
+      "right": "The model had the Rockets at 73% and they won, by 12. Going in, the Rockets rated stronger on team strength (95.8 to 89.7), and recent form favoured the Rockets (+6.4 a game against +1.2).",
+      "missed": "The Rockets shot better (44 of 90 to 38 of 91), which is what the model needed. Devin Booker still scored 25 for the Suns.",
+      "why": "A 73% chance is not a certainty, and this one went the way the model expected. It counts as a hit."
+    },
+    "401909325": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Trail Blazers beat the Spurs 116–111 at home. The Spurs made 39 of 90 shots and the Trail Blazers made 37 of 94. Victor Wembanyama led the Spurs with 44 points and Deni Avdija led the Trail Blazers with 33.",
+      "right": "Going in, the Trail Blazers rated slightly stronger on team strength (92.3 to 91.5), and recent form favoured the Spurs (+11.9 a game against +5.9). It was close: 5 points at the end.",
+      "missed": "The model was wrong here: it had the Spurs at 56% and they lost. The Trail Blazers made more threes (19 to 10).",
+      "why": "A 56% chance is close to a coin flip, so a miss is not surprising. It counts as a miss."
+    },
+    "401909324": {
+      "updated_utc": "2026-11-27T06:20:00Z",
+      "happened": "The Warriors beat the Kings 129–110 at home. The Kings made 41 of 87 shots and the Warriors made 49 of 92. Domantas Sabonis led the Kings with 27 points and De'Anthony Melton led the Warriors with 24.",
+      "right": "The model had the Warriors at 75% and they won, by 19. Going in, the Warriors rated stronger on team strength (85.6 to 81.1), and recent form favoured the Warriors (-3.3 a game against -12.1).",
+      "missed": "The Warriors shot better (49 of 92 to 41 of 87), which is what the model needed. Domantas Sabonis still scored 27 for the Kings.",
+      "why": "A 75% chance is not a certainty, and this one went the way the model expected. It counts as a hit."
     }
   }
 }
