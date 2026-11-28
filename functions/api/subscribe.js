@@ -1,5 +1,8 @@
 // POST /api/subscribe — newsletter sign-up. Accepts JSON (site JS) or a plain form post (no JS).
-// Guards: Cloudflare Turnstile (fail closed), honeypot field `website`, email checks + IP throttle in Supabase.
+// Guards: honeypot field `website`, email checks + IP throttle in Supabase, and Cloudflare Turnstile when it is
+// configured. TURNSTILE_SECRET set → a valid token is required (fail closed; no token = blocked, so bots can't skip it).
+// TURNSTILE_SECRET missing → Turnstile is skipped and the honeypot + Supabase throttle guard the form, so a missing
+// key never blocks real visitors. TURNSTILE_HOSTNAMES is optional: when set, the token's hostname must match.
 // After those pass: consent backup in Supabase, then beehiiv with double opt-in (confirm-your-email).
 // Existing beehiiv subscribers are not re-blasted a welcome email (send_welcome_email stays false).
 const TARGET = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-subscribe";
@@ -17,10 +20,14 @@ function hostnameAllowed(hostname, allowCsv) {
   return allowed.some((a) => hostname === a || hostname.endsWith("." + a));
 }
 
-async function verifyTurnstile(env, token, ip) {
-  const secret = env.TURNSTILE_SECRET;
+export function turnstileConfigured(env) {
+  return !!String(env?.TURNSTILE_SECRET || "").trim();
+}
+
+export async function verifyTurnstile(env, token, ip) {
+  const secret = String(env.TURNSTILE_SECRET || "").trim();
   const allowCsv = env.TURNSTILE_HOSTNAMES || "";
-  if (!secret || !String(allowCsv).trim()) return { ok: false };
+  if (!secret) return { ok: false };
   if (typeof token !== "string" || token.length === 0 || token.length > 2048) return { ok: false };
   let result;
   try {
@@ -41,7 +48,7 @@ async function verifyTurnstile(env, token, ip) {
     !result ||
     result.success !== true ||
     result.action !== EXPECTED_ACTION ||
-    !hostnameAllowed(result.hostname, allowCsv)
+    (String(allowCsv).trim() && !hostnameAllowed(result.hostname, allowCsv))
   ) {
     return { ok: false };
   }
@@ -84,7 +91,7 @@ export async function onRequestPost(ctx) {
     });
   }
 
-  const turned = await verifyTurnstile(env, token, ip);
+  const turned = turnstileConfigured(env) ? await verifyTurnstile(env, token, ip) : { ok: true, skipped: true };
   if (!turned.ok) {
     const out = { ok: false, error: TURNSTILE_ERR };
     if (!isForm) return new Response(JSON.stringify(out), { status: 403, headers: { "content-type": "application/json", "cache-control": "no-store" } });

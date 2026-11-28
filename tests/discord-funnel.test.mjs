@@ -47,7 +47,7 @@ assert.equal((idx.match(/data-discord-join="home-hero"/g) || []).length, 0, "hom
 assert.equal((idx.match(/id="newsletter"/g) || []).length, 1, "index footer block keeps #newsletter anchor");
 // Home callout: one builder, slotted under the top pick in the skeleton and in renderHome.
 assert.equal((idx.match(/<div id="homeSignupSlot"><\/div>/g) || []).length, 2, "signup slot under top pick (skeleton + renderHome)");
-assert.match(idx, /Get daily \+EV alerts, full Closing Line Value recaps & early Founding Member access free/);
+assert.ok(idx.includes("Join Discord for live daily +EV & Closing Line alerts, plus get our free Tue & Fri ProbaLab newsletter recaps & early Founding Member access."), "callout copy matches the real schedule");
 assert.match(idx, /fetch\("\/api\/subscribe"/);
 assert.match(idx, /turnstile\/v0\/api\.js\?render=explicit/, "Turnstile loads lazily, explicit render");
 assert.doesNotMatch(idx, /<script[^>]+challenges\.cloudflare\.com/, "no eager Turnstile script tag");

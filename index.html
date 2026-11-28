@@ -802,7 +802,7 @@ select.season { font: 600 12px var(--f-mono); letter-spacing: 0.06em; color: var
 <nav class="sports" id="sportBar" aria-label="Sports">
   <div class="wrap">
     <a class="sport on" href="#nba-predictions" data-sport="nba">NBA <small>Live</small></a>
-    <a class="sport" href="/epl" data-sport="epl">EPL <small>Live</small></a>
+    <a class="sport" href="/epl" data-sport="epl">EPL <small>Beta</small></a>
     <a class="sport" href="#nfl-predictions" data-sport="nfl">NFL <small>Live</small></a>
     <a class="sport" href="/nhl" data-sport="nhl">NHL <small>Live</small></a>
     <button type="button" class="sport more-btn" id="moreSportsBtn" aria-expanded="false" aria-controls="moreSports">More sports<span class="cur" id="moreSportsCur"></span><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
@@ -983,8 +983,10 @@ function mountDiscordCtas() {
 // ---------- free email + Discord callout (under Today's top pick) ----------
 // Posts to /api/subscribe (functions/api/subscribe.js: Turnstile → Supabase newsletter_signups → beehiiv double opt-in).
 // Turnstile loads only when someone focuses the form, and renders on submit (interaction-only: invisible unless challenged).
+// If the widget can't load, errors or stalls, the form still posts (no token): the server only demands a token when
+// TURNSTILE_SECRET is configured, so a missing/broken key never blocks a real visitor.
 const TURNSTILE_SITEKEY = "0x4AAAAAAF1-8hWamb8_PqUn";
-const SIGNUP_HEADLINE = "Get daily +EV alerts, full Closing Line Value recaps & early Founding Member access free";
+const SIGNUP_HEADLINE = "Join Discord for live daily +EV & Closing Line alerts, plus get our free Tue & Fri ProbaLab newsletter recaps & early Founding Member access.";
 function homeSignupHtml(where) {
   const id = `hs-email-${where}`;
   const discord = discordInviteConfigured()
@@ -997,13 +999,13 @@ function homeSignupHtml(where) {
     <form class="hs-form" action="/api/subscribe" method="post" data-signup novalidate>
       <div class="srow">
         <input id="${id}" type="email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-label="Email address">
-        <button type="submit">Get free alerts</button>
+        <button type="submit">Get the free newsletter</button>
       </div>
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <input type="hidden" name="source" value="${esc(where)}">
       <div class="hs-ts"></div>
       <p class="msg" role="status" aria-live="polite"></p>
-      <p class="hs-fine">Free. Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p>
+      <p class="hs-fine">Newsletter every Tuesday &amp; Friday. Free. Unsubscribe any time. 18+. <a href="/privacy">Privacy</a></p>
     </form>
     ${discord}
   </section>`;
@@ -1031,7 +1033,7 @@ function loadTurnstile() {
   });
 }
 function turnstileToken(form) {
-  return loadTurnstile().then((ts) => new Promise((res, rej) => {
+  const widget = loadTurnstile().then((ts) => new Promise((res, rej) => {
     const box = form.querySelector(".hs-ts");
     if (form._tsId != null) { try { ts.remove(form._tsId); } catch (_) {} }
     box.innerHTML = "";
@@ -1040,8 +1042,9 @@ function turnstileToken(form) {
       callback: res, "error-callback": () => rej(new Error("turnstile")), "timeout-callback": () => rej(new Error("turnstile")),
     });
   }));
+  const giveUp = new Promise((res) => setTimeout(() => res(""), 12000));
+  return Promise.race([widget, giveUp]).catch(() => "");
 }
-const TS_ERR = "Please complete the security check and try again.";
 document.addEventListener("focusin", (e) => { if (e.target.closest?.("form[data-signup]")) loadTurnstile().catch(() => {}); });
 document.addEventListener("submit", (e) => {
   const f = e.target.closest?.("form[data-signup]"); if (!f) return;
@@ -1051,7 +1054,6 @@ document.addEventListener("submit", (e) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { m.textContent = "Please enter a valid email address."; f.email.focus(); return; }
   b.disabled = true; m.textContent = "Signing you up…";
   turnstileToken(f)
-    .catch(() => { throw new Error(TS_ERR); })
     .then((token) => fetch("/api/subscribe", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ email, website: f.website.value, source: f.source.value, "cf-turnstile-response": token }),
@@ -1060,7 +1062,7 @@ document.addEventListener("submit", (e) => {
       m.textContent = j.ok ? (j.message || "Check your inbox to confirm your email. You're not on the list until you click the link.") : (j.error || "Something went wrong. Please try again.");
       if (j.ok) f.email.value = "";
     })
-    .catch((err) => { m.textContent = err && err.message === TS_ERR ? TS_ERR : "Something went wrong. Please try again."; })
+    .catch(() => { m.textContent = "Something went wrong. Please try again."; })
     .finally(() => { b.disabled = false; });
 });
 // NBA/NFL feeds come only through /api/feed (functions/api/feed.js, 90s Cloudflare edge cache),
@@ -1655,7 +1657,7 @@ function renderHome() {
         <span class="info">${dayGames.length ? `<span><b>${dayGames.length}</b> games ${dayLabel}</span>` : ""}${f ? `<span>Top pick <b>${esc(featured(DATA)?.pick ?? "")} ${featured(DATA) ? chance(featured(DATA).pick_p) : ""}</b></span>` : ""}<span>Record <b>${done.length ? `${w}–${done.length - w}` : "starts soon"}</b></span></span>
         <span class="go">Predictions →</span></a>`
     : code === "EPL"
-    ? `<a class="sport-tile live" href="/epl">${ICON[code]}<span class="st">● Live</span><span class="nm">${code}</span><span class="lg">${lg}</span>
+    ? `<a class="sport-tile live" href="/epl">${ICON[code]}<span class="st">● Beta</span><span class="nm">${code}</span><span class="lg">${lg}</span>
         <span class="info"><span>Home, draw and away chances</span><span>Every match, every round</span></span>
         <span class="go">Predictions →</span></a>`
     : `<div class="sport-tile soon" aria-disabled="true">${ICON[code]}<span class="st">Soon</span><span class="nm">${code}</span><span class="lg">${lg}</span><span class="info"><span>In the lab</span></span></div>`;

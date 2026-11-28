@@ -146,8 +146,10 @@ function section(id, name, games, links, extra, showMkt = true) {
 }
 
 const HOW_TO = `<section class="panel howto compact" id="how-to-read">
-  <p class="legend-line" aria-label="How to read this">${chip("GREEN")} ${scaleText("nba").GREEN} · ${chip("SUPER")} NBA, below the green range · <span class="bv-tag">Best value</span> tag on a green pick: the price also beats our fair price · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes (all sports except tennis). <a href="/lights">How to read the lights →</a></p>
+  <p class="legend-line" aria-label="How to read this">${chip("GREEN")} ${scaleText("nba").GREEN} · ${chip("SUPER")} NBA, below the green range · <span class="bv-tag">Best value</span> tag on a green pick: the price also beats our fair price · ${chip("ORANGE")} lean · ${chip("RED")} coin flip · <span class="injury-watch-label">⚠️ Injury watch</span> key players uncertain / may miss or play fewer minutes. <a href="/lights">How to read the lights →</a></p>
 </section>`;
+
+export const PAUSED_TODAY = new Set(["championship", "tennis"]);
 
 export async function onRequestGet(ctx) {
   const now = Date.now();
@@ -387,7 +389,14 @@ export async function onRequestGet(ctx) {
     marketNote = `Odds as of ${esc(when)} from prices already on file (no live book lookup).`;
   }
 
+  // Paused sports (2026-11-28): Championship and tennis are off on the backend, so /today leaves out their
+  // sections, jump links and filter chips, even if leftover fixtures are still in the data files.
+  // Their finished picks stay on /results. Remove an id from PAUSED to bring a sport back.
+  for (let i = sections.length - 1; i >= 0; i--) if (PAUSED_TODAY.has(sections[i].id)) { total -= (sections[i].games || []).length; sections.splice(i, 1); }
   const available = new Set(sections.filter((s) => s.games && s.games.length).map((s) => s.id));
+  const jump = [["nba", "NBA"], ["nfl", "NFL"], ["nhl", "NHL"], ["epl", "Premier League"], ["championship", "Championship"], ["tennis", "Tennis"]]
+    .filter(([id]) => !PAUSED_TODAY.has(id))
+    .map(([id, name]) => `<a href="#${id}">${name}</a>`).join(" · ");
   const filteredSections = [];
   let shown = 0;
   for (const s of sections) {
@@ -414,7 +423,7 @@ export async function onRequestGet(ctx) {
   <h1>Today's predictions: every sport</h1>
   <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
   Filter by sport and light colour — same idea as the members desk. Default is Green + Best value, matching <a href="/results">Results</a>.</p>
-  <nav class="crumbs" aria-label="Jump to sport"><a href="#nba">NBA</a> · <a href="#nfl">NFL</a> · <a href="#nhl">NHL</a> · <a href="#epl">Premier League</a> · <a href="#championship">Championship</a> · <a href="#tennis">Tennis</a> · <a href="/accuracy">Accuracy →</a></nav>
+  <nav class="crumbs" aria-label="Jump to sport">${jump} · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}
   ${filterBar}
   ${bodyList}
@@ -422,8 +431,8 @@ export async function onRequestGet(ctx) {
   <p class="note">Probabilities come from ProbaLab's own model. They are for entertainment, not advice.</p>`;
 
   return html(shell({
-    title: "Today's Predictions: NBA, NFL, NHL, EPL, Championship & Tennis | ProbaLab",
-    description: "Win chances, fair prices and value % for every NBA, NFL, NHL, Premier League, Championship and tennis match starting in the next 24 hours.",
+    title: "Today's Predictions: NBA, NFL, NHL & EPL | ProbaLab",
+    description: "Win chances, fair prices and value % for every NBA, NFL and NHL game, plus the Premier League (beta), starting in the next 24 hours.",
     path: "/today",
     body,
   }), 200, todayCachePlan(ctx.request.url).ttl); // default view: short shared cache; a filtered view: no-cache, always fresh
