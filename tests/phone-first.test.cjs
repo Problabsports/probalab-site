@@ -173,7 +173,8 @@ assert.equal(rowsOf("epl")[0], "Green:55%+");
 assert.equal(rowsOf("championship")[0], "Green:55%+");
 assert.equal(rowsOf("tennis")[0], "Green:70%+");
 assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Green", "Best value", "Orange", "Red", "Injury watch"]);
-assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League, Championship.*70%\+ Tennis/);
+assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League</); // live sports only
+assert.doesNotMatch(P.gameKeyRows("all")[0].rangeHtml, /Championship|Tennis/, "paused sports left out of the key");
 // props have their own scale, and it never appears in a game key
 assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55–59%", "Red:under 55%"]);
 for (const sp of ["nba", "nfl", "nhl", "epl", "championship", "tennis", "all"]) {

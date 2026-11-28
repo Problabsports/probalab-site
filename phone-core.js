@@ -468,7 +468,9 @@
 
   // ---------------------------------------------------------------- stacked lights key
   // Game scales: the live cut-offs from lights.json (same as /lights and record-pages.js). Props have their own scale.
-  var GREEN_LINES = L.greenSummary({ short: true });
+  // Key shows live sports only (Championship and tennis are paused; their records keep their own cut-offs).
+  var KEY_SPORTS = ["nba", "nfl", "nhl", "epl"];
+  var GREEN_LINES = L.greenSummary({ short: true, sports: KEY_SPORTS });
   var GAME_SCALE = {};
   L.gameSports().forEach(function (s) { GAME_SCALE[s] = L.keyText(s); });
   GAME_SCALE.all = { GREEN: GREEN_LINES.join(" · "), ORANGE: "Lean", RED: "Coin flip" };

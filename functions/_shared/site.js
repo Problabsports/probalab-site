@@ -21,20 +21,24 @@ const TTL = 90;
 export const NBA_TEAMS = { ATL: "Atlanta Hawks", BOS: "Boston Celtics", BKN: "Brooklyn Nets", CHA: "Charlotte Hornets", CHI: "Chicago Bulls", CLE: "Cleveland Cavaliers", DAL: "Dallas Mavericks", DEN: "Denver Nuggets", DET: "Detroit Pistons", GS: "Golden State Warriors", HOU: "Houston Rockets", IND: "Indiana Pacers", LAC: "LA Clippers", LAL: "Los Angeles Lakers", MEM: "Memphis Grizzlies", MIA: "Miami Heat", MIL: "Milwaukee Bucks", MIN: "Minnesota Timberwolves", NO: "New Orleans Pelicans", NY: "New York Knicks", OKC: "Oklahoma City Thunder", ORL: "Orlando Magic", PHI: "Philadelphia 76ers", PHX: "Phoenix Suns", POR: "Portland Trail Blazers", SAC: "Sacramento Kings", SA: "San Antonio Spurs", TOR: "Toronto Raptors", UTAH: "Utah Jazz", WSH: "Washington Wizards" };
 
 // ------------------------------------------------------------------ data
-export async function getFeed(ctx, sport) {
+// The one place that talks to Supabase probalab-feed. /api/feed and every server-rendered page go
+// through here, sharing one edge cache entry per sport (key /api/feed?sport=…, TTL 90s).
+export const FEED_SPORTS = new Set(["nba", "nfl"]);
+export async function cachedFeedText(ctx, sport) {
   const cache = caches.default;
   const key = new Request(new URL(`/api/feed?sport=${sport}`, ctx.request.url).toString(), { method: "GET" });
   const hit = await cache.match(key);
-  let feed;
-  if (hit) feed = await hit.json();
-  else {
-    const base = ctx.env?.FEED_BASE || FEED;
-    const up = await fetch(`${base}?sport=${sport}`, { headers: { accept: "application/json" } });
-    if (!up.ok) throw new Error(`feed ${sport} ${up.status}`);
-    const body = await up.text();
-    ctx.waitUntil(cache.put(key, new Response(body, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${TTL}` } })));
-    feed = JSON.parse(body);
-  }
+  if (hit) return hit.text();
+  const base = ctx.env?.FEED_BASE || FEED;
+  const up = await fetch(`${base}?sport=${sport}`, { headers: { accept: "application/json" } });
+  if (!up.ok) throw new Error(`feed ${sport} ${up.status}`);
+  const body = await up.text();
+  ctx.waitUntil(cache.put(key, new Response(body, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${TTL}` } })));
+  return body;
+}
+
+export async function getFeed(ctx, sport) {
+  const feed = JSON.parse(await cachedFeedText(ctx, sport));
   try { feed.__hostname = new URL(ctx.request.url).hostname; } catch (_) {}
   // Attach injury_warning/note for sports the feed does not yet ship (NFL now; NBA keeps feed fields).
   try {
@@ -232,8 +236,6 @@ export const NAV_SPORTS = [
   ["/nhl", "NHL"],
   ["/props/nhl", "Player props", "nav-sub"],
   ["/epl", "EPL"],
-  ["/championship", "Championship"],
-  ["/tennis", "Tennis"],
 ];
 
 // Overflow tabs, kept in the More dropdown (and the drawer on phones).
@@ -338,7 +340,7 @@ ${body}
   <p><b>Predictions for entertainment, not advice.</b></p>
   <p class="small"><b>18+ only. Gamble responsibly.</b> <a href="/responsible-gambling">Responsible gambling</a>. For free and confidential support call <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener" target="_blank">gamblinghelponline.org.au</a>.</p>
   <p class="small">${AMAZON_DISCLOSURE}</p>
-  <p class="links"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/backtest">Backtest</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/championship">Championship</a><a href="/tennis">Tennis</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/refund">Refunds</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
+  <p class="links"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/backtest">Backtest</a><a href="/results">Results</a><a href="/lights">How the lights work</a><a href="/faq">FAQ</a><a href="/nba">NBA</a><a href="/nfl">NFL</a><a href="/nhl">NHL</a><a href="/epl">Premier League</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/refund">Refunds</a><a href="/contact">Contact</a><a href="/tools">Odds tools</a></p>
   <p>© ${new Date().getUTCFullYear()} ProbaLab · probalabsports.com · Not affiliated with the NBA, the NFL, the NHL, the Premier League or any team.</p>
 </div></footer>
 <script>

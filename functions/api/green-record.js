@@ -1,5 +1,5 @@
 // Public green-record summary for the home page. Same grading as /results.
-import { SPORT_ORDER, loadSportRecord, lightTally } from "../_shared/record-pages.js";
+import { SPORT_ORDER, loadSportRecord, lightTally, unitsTally } from "../_shared/record-pages.js";
 import { sportName } from "../_shared/site.js";
 import { labelLong } from "../_shared/lights.js";
 
@@ -26,6 +26,7 @@ function resultsUpdatedAt(views) {
 export async function onRequestGet(ctx) {
   const views = await Promise.all(SPORT_ORDER.map((sport) => loadSportRecord(ctx, sport)));
   const sports = [];
+  const allRows = [];
   let gW = 0, gN = 0, sW = 0, sN = 0;
   for (const v of views) {
     if (v.error) {
@@ -35,17 +36,22 @@ export async function onRequestGet(ctx) {
     const g = lightTally(v.rows, "GREEN");
     const s = lightTally(v.rows, "SUPER");
     gW += g.w; gN += g.n; sW += s.w; sN += s.n;
+    allRows.push(...(v.rows || []));
     sports.push({
       sport: v.sport,
       name: v.name || sportName(v.sport),
       green: { w: g.w, n: g.n, pct: pct(g.w, g.n) },
       super: s.n ? { w: s.w, n: s.n, pct: pct(s.w, s.n) } : null,
+      units: unitsTally(v.rows || []),
     });
   }
   const body = {
     generated_at: resultsUpdatedAt(views),
     green: { w: gW, n: gN, pct: pct(gW, gN) },
     super: sN ? { w: sW, n: sN, pct: pct(sW, sN), label: labelLong("SUPER"), note: "NBA only" } : null,
+    // Flat 1u on finished Green + Best value picks with a posted price (same as the Results units chart).
+    // { priced_picks, w, l, pnl_u, roi_pct } with roi_pct = pnl_u / priced_picks * 100.
+    units: unitsTally(allRows),
     sports,
   };
   return new Response(JSON.stringify(body), {

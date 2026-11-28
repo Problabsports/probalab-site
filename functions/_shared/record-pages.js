@@ -298,6 +298,34 @@ export function lightTally(rows, light) {
   return { n: xs.length, w: xs.filter((r) => r.won).length };
 }
 
+/**
+ * Flat 1-unit staking on finished Green + Best value picks that have a recorded posted price
+ * (same set as the Results units chart). Win pays price − 1, loss costs 1.
+ * roi_pct = pnl_u / priced_picks * 100.
+ */
+export function unitsTally(rows) {
+  const priced = rows.filter((r) => isGreenLight(r.light) && r.won != null && r.posted_price != null && Number(r.posted_price) > 1);
+  let pnl = 0, w = 0;
+  for (const r of priced) {
+    if (r.won) { pnl += Number(r.posted_price) - 1; w += 1; } else pnl -= 1;
+  }
+  const n = priced.length;
+  return {
+    priced_picks: n,
+    w,
+    l: n - w,
+    pnl_u: Math.round(pnl * 100) / 100,
+    roi_pct: n ? Math.round((pnl / n) * 1000) / 10 : null,
+  };
+}
+
+const signed = (v, digits) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(digits)}`;
+/** "+12.4u · ROI +6.1% · 31–17 (48 priced, 1u flat)" or "" when nothing is priced. */
+export function unitsLine(u) {
+  if (!u || !u.priced_picks) return "";
+  return `${signed(u.pnl_u, 2)}u · ROI ${signed(u.roi_pct, 1)}% · ${u.w}–${u.l} (${u.priced_picks} priced, 1u flat)`;
+}
+
 export function parseResultsFilters(url) {
   const u = typeof url === "string" ? new URL(url, "https://probalabsports.com") : new URL(url);
   const sportRaw = (u.searchParams.get("sport") || "all").toLowerCase();
@@ -415,6 +443,7 @@ function sportGreenCard(v) {
   const t = tally(v.rows);
   const g = lightTally(v.rows, "GREEN");
   const s = lightTally(v.rows, "SUPER");
+  const u = unitsTally(v.rows);
   const href = resultsHref({ sport: v.sport, light: "green" });
   const superLine = s.n
     ? `<p class="super-line">${chip("SUPER")} ${esc(labelLong("SUPER"))} below the green range: ${esc(rateLine(s.w, s.n))}. NBA only; the bookmaker price beat our fair price. Green picks that were also Best value are in the green record.</p>
@@ -426,6 +455,7 @@ function sportGreenCard(v) {
     <p class="record-hero green-hero"><b>${esc(wl(g.w, g.n))}</b> <span>(${g.n ? pct(g.w / g.n) : "—"})</span></p>
     <p>${g.n ? `${g.w} of ${g.n} green picks were right` : "No green picks yet"}.</p>
     ${superLine}
+    ${u.priced_picks ? `<p class="units-line small">Units <b class="${u.pnl_u >= 0 ? "pos" : "neg"}">${esc(unitsLine(u))}</b></p>` : ""}
     <p class="small">All picks ${esc(rateLine(t.w, t.n))} · ${esc(v.season)}</p>
   </article>`;
 }
@@ -586,6 +616,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   const gAll = lightTally(allRows, "GREEN");
   const sAll = lightTally(allRows, "SUPER");
   const topW = gAll.w + sAll.w, topN = gAll.n + sAll.n;
+  const uAll = unitsTally(allRows);
   const tShown = tally(shown);
   const listTitle = filters.light === "green"
     ? greenViewLabel(filters.sport)
@@ -609,6 +640,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
     <p>If you are coming to us for predictions, the green results are the ones to focus on. Every pick still stays on the record, including orange and red.</p>
     <p class="record-hero green-hero"><b>${esc(wl(gAll.w, gAll.n))}</b> <span>green (${gAll.n ? pct(gAll.w / gAll.n) : "—"})</span></p>
     <p>Green picks, on each sport's own scale: <b>${esc(rateLine(gAll.w, gAll.n))}</b>.</p>
+    ${uAll.priced_picks ? `<p class="units-line">Units, Green + Best value at posted price: <b class="${uAll.pnl_u >= 0 ? "pos" : "neg"}">${esc(unitsLine(uAll))}</b>.</p>` : ""}
     ${sAll.n ? `<p>${esc(labelLong("SUPER"))} below the green range (NBA only, where the bookmaker price beat our fair price): <b>${esc(rateLine(sAll.w, sAll.n))}</b>. Green + Best value: <b>${esc(rateLine(topW, topN))}</b>. A green pick that was also Best value counts once, as green.</p>` : ""}
     <p class="small">It is fair to add the green totals because each pick is already marked green on that sport's own cut-off — ${esc(greenSummary().replace(/; /g, ", "))} — not because those cut-offs are the same. <a href="/lights">How the lights work</a> · <a href="/how-it-works">How it works</a></p>
     <p class="small">All picks, every light: ${esc(rateLine(tAll.w, tAll.n))}. Units below are 1 unit per pick at the recorded posted price — a way to track the record, not a staking plan.</p>

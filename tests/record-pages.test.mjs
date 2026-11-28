@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { rowsFromFeed, rowsFromNhl, rowsFromSoccer, rowsFromTennis, tally, EPL_LIGHTS_FROM, renderRecordCsv, renderResultsCsv, renderResultsPage, renderLightsPage, parseResultsFilters, filterResultRows, resultsHref, lightTally, seasonLabel } from "../functions/_shared/record-pages.js";
+import { rowsFromFeed, rowsFromNhl, rowsFromSoccer, rowsFromTennis, tally, EPL_LIGHTS_FROM, renderRecordCsv, renderResultsCsv, renderResultsPage, renderLightsPage, parseResultsFilters, filterResultRows, resultsHref, lightTally, seasonLabel, unitsTally, unitsLine } from "../functions/_shared/record-pages.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const load = async (name) => JSON.parse(await readFile(join(root, "data", name), "utf8"));
@@ -120,9 +120,9 @@ const [tenPicks, tenMarket] = [await load("tennis-picks.json"), await load("tenn
 const tennis = rowsFromTennis({ picks: tenPicks, market: tenMarket });
 const tenT = tally(tennis);
 const tenE = expectTennis(tenPicks);
-assert.ok(tenE.length > 0, "tennis data has finished matches");
+// Tennis is paused (2026-11-28): its data file may hold no finished matches. Counts must still agree.
 sameCounts(tenT, tenE, ["GREEN", "ORANGE", "RED"], "Tennis");
-assert.equal(tenT.close.n, marketCount(tenMarket, tenE), "Tennis: picks with a closing price");
+if (tenE.length) assert.equal(tenT.close.n, marketCount(tenMarket, tenE), "Tennis: picks with a closing price");
 
 // Green headlines as the page should print them, from the data files.
 const greenOf = (items) => count(items, "GREEN");
@@ -162,7 +162,7 @@ assert.match(combinedCsv, /^sport,game_id,/);
 assert.match(combinedCsv, /^nhl,/m);
 assert.match(combinedCsv, /^epl,/m);
 assert.match(combinedCsv, /^championship,/m);
-assert.match(combinedCsv, /^tennis,/m);
+if (tennis.length) assert.match(combinedCsv, /^tennis,/m); // tennis paused: may have no rows
 // CSV keeps every pick, including non-green.
 assert.match(combinedCsv, /,RED,/);
 assert.match(combinedCsv, /,ORANGE,/);
@@ -194,6 +194,28 @@ assert.ok(htmlNba.includes("Denver Nuggets")); // Best value (SUPER) included in
 assert.ok(!htmlNba.includes("Miami Heat") || htmlNba.indexOf("Miami Heat") < htmlNba.indexOf("<tbody>") === False);
 // The RED Miami pick should not appear as a list row in the default green view.
 assert.doesNotMatch(htmlNba.split("record-picks")[1] ?? "", />Miami Heat</);
+
+// Flat 1u ROI: Green + Best value, finished, with a posted price > 1. roi_pct = pnl_u / priced_picks * 100.
+{
+  const rows = [
+    { light: "GREEN", won: true, posted_price: 1.8 },   // +0.8
+    { light: "SUPER", won: false, posted_price: 2.4 },  // −1
+    { light: "GREEN", won: true, posted_price: 1.5 },   // +0.5
+    { light: "GREEN", won: true, posted_price: null },  // no price: excluded
+    { light: "ORANGE", won: true, posted_price: 2.0 },  // not green: excluded
+    { light: "GREEN", won: null, posted_price: 1.9 },   // not finished: excluded
+  ];
+  const u = unitsTally(rows);
+  assert.deepEqual(u, { priced_picks: 3, w: 2, l: 1, pnl_u: 0.3, roi_pct: 10 });
+  assert.equal(unitsLine(u), "+0.30u · ROI +10.0% · 2–1 (3 priced, 1u flat)");
+  assert.deepEqual(unitsTally([]), { priced_picks: 0, w: 0, l: 0, pnl_u: 0, roi_pct: null });
+  assert.equal(unitsLine(unitsTally([])), "");
+  const neg = unitsTally([{ light: "GREEN", won: false, posted_price: 1.7 }]);
+  assert.equal(neg.roi_pct, -100);
+  assert.match(unitsLine(neg), /^−1\.00u · ROI −100\.0%/);
+  const page = renderResultsPage([{ sport: "nba", name: "NBA", season: "2026–27", rows: rows.map((r, i) => ({ ...r, id: String(i), sport: "nba", start_utc: "2026-11-0" + (i + 1) + "T00:00:00Z", home: "A", away: "B", pick: "A", pick_p: 0.7, score: "1–0", href: "/nba/x" })) }]);
+  assert.ok(page.includes("ROI +10.0%"), "Results headline + card show ROI");
+}
 
 console.log("Record pages: assertions passed");
 console.log(`NHL ${nhlT.w}/${nhlT.n} GREEN ${nhlT.byLight.GREEN.w}/${nhlT.byLight.GREEN.n}`);
