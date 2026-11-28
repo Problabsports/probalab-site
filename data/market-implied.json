@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-28T14:48:46Z",
+  "generated_utc": "2026-11-28T19:22:03Z",
   "note": "Market chances only (no book names or prices). Built from local comparison CSVs and Odds API caches; no new Odds API call.",
   "gaps": [],
   "games": [
@@ -9,8 +9,8 @@
       "away": "ORL",
       "home": "WSH",
       "start_utc": "2026-11-28T22:00:00Z",
-      "market_home": 0.3922,
-      "market_away": 0.6078
+      "market_home": 0.399,
+      "market_away": 0.601
     },
     {
       "sport": "nba",
@@ -18,8 +18,8 @@
       "away": "BKN",
       "home": "CHA",
       "start_utc": "2026-11-28T23:00:00Z",
-      "market_home": 0.6809,
-      "market_away": 0.3191
+      "market_home": 0.6887,
+      "market_away": 0.3113
     },
     {
       "sport": "nba",
@@ -27,8 +27,8 @@
       "away": "IND",
       "home": "CHI",
       "start_utc": "2026-11-29T01:00:00Z",
-      "market_home": 0.5682,
-      "market_away": 0.4318
+      "market_home": 0.5707,
+      "market_away": 0.4293
     },
     {
       "sport": "nba",
@@ -36,8 +36,17 @@
       "away": "OKC",
       "home": "MIL",
       "start_utc": "2026-11-29T01:00:00Z",
-      "market_home": 0.1759,
-      "market_away": 0.8241
+      "market_home": 0.185,
+      "market_away": 0.815
+    },
+    {
+      "sport": "nba",
+      "game_id": "401910050",
+      "away": "PHI",
+      "home": "HOU",
+      "start_utc": "2026-11-29T01:30:00Z",
+      "market_home": 0.8089,
+      "market_away": 0.1911
     },
     {
       "sport": "nfl",
@@ -72,8 +81,8 @@
       "away": "ATL",
       "home": "MIN",
       "start_utc": "2026-11-29T18:00:00Z",
-      "market_home": 0.7359,
-      "market_away": 0.2641
+      "market_home": 0.7333,
+      "market_away": 0.2667
     },
     {
       "sport": "nfl",
@@ -117,8 +126,8 @@
       "away": "SEA",
       "home": "SF",
       "start_utc": "2026-11-29T21:25:00Z",
-      "market_home": 0.4781,
-      "market_away": 0.5219
+      "market_home": 0.4692,
+      "market_away": 0.5308
     },
     {
       "sport": "nfl",
@@ -140,52 +149,13 @@
     },
     {
       "sport": "epl",
-      "game_id": "401879227",
-      "away": "Coventry",
-      "home": "Leeds",
-      "start_utc": "2026-11-28T15:00:00Z",
-      "market_home": 0.6464,
-      "market_draw": 0.2189,
-      "market_away": 0.1347,
-      "odds_game_id": "EPL_2627_20261128_LEE_COV",
-      "home_name": "Leeds United",
-      "away_name": "Coventry City"
-    },
-    {
-      "sport": "epl",
-      "game_id": "401879226",
-      "away": "Brentford",
-      "home": "Man United",
-      "start_utc": "2026-11-28T15:00:00Z",
-      "market_home": 0.4239,
-      "market_draw": 0.2532,
-      "market_away": 0.3228,
-      "odds_game_id": "EPL_2627_20261128_MUN_BRE",
-      "home_name": "Manchester United",
-      "away_name": "Brentford"
-    },
-    {
-      "sport": "epl",
-      "game_id": "401878752",
-      "away": "Aston Villa",
-      "home": "Ipswich",
-      "start_utc": "2026-11-28T17:30:00Z",
-      "market_home": 0.2784,
-      "market_draw": 0.2577,
-      "market_away": 0.4639,
-      "odds_game_id": "EPL_2627_20261128_IPS_AST",
-      "home_name": "Ipswich Town",
-      "away_name": "Aston Villa"
-    },
-    {
-      "sport": "epl",
       "game_id": "401879229",
       "away": "Liverpool",
       "home": "Everton",
       "start_utc": "2026-11-29T12:00:00Z",
-      "market_home": 0.2018,
-      "market_draw": 0.2478,
-      "market_away": 0.5504,
+      "market_home": 0.2009,
+      "market_draw": 0.2471,
+      "market_away": 0.5521,
       "odds_game_id": "EPL_2627_20261129_EVE_LIV",
       "home_name": "Everton",
       "away_name": "Liverpool"
@@ -222,9 +192,9 @@
       "away": "Bournemouth",
       "home": "Fulham",
       "start_utc": "2026-11-29T14:05:00Z",
-      "market_home": 0.3403,
-      "market_draw": 0.2763,
-      "market_away": 0.3834,
+      "market_home": 0.3395,
+      "market_draw": 0.2767,
+      "market_away": 0.3838,
       "odds_game_id": "EPL_2627_20261129_FUL_BOU",
       "home_name": "Fulham",
       "away_name": "AFC Bournemouth"
@@ -235,9 +205,9 @@
       "away": "Tottenham",
       "home": "Sunderland",
       "start_utc": "2026-11-29T14:05:00Z",
-      "market_home": 0.2294,
-      "market_draw": 0.2766,
-      "market_away": 0.494,
+      "market_home": 0.235,
+      "market_draw": 0.2797,
+      "market_away": 0.4853,
       "odds_game_id": "EPL_2627_20261129_SUN_TOT",
       "home_name": "Sunderland",
       "away_name": "Tottenham Hotspur"
@@ -267,6 +237,110 @@
       "odds_game_id": "EPL_2627_20261201_COV_IPS",
       "home_name": "Coventry City",
       "away_name": "Ipswich Town"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879222",
+      "away": "Crystal Palace",
+      "home": "Chelsea",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "market_home": 0.5761,
+      "market_draw": 0.2216,
+      "market_away": 0.2023,
+      "odds_game_id": "EPL_2627_20261202_CHE_CRY",
+      "home_name": "Chelsea",
+      "away_name": "Crystal Palace"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879220",
+      "away": "Nott'm Forest",
+      "home": "Hull",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "market_home": 0.2298,
+      "market_draw": 0.2628,
+      "market_away": 0.5074,
+      "odds_game_id": "EPL_2627_20261202_HUL_NFF",
+      "home_name": "Hull City",
+      "away_name": "Nottingham Forest"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879219",
+      "away": "Sunderland",
+      "home": "Liverpool",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "market_home": 0.6691,
+      "market_draw": 0.1923,
+      "market_away": 0.1385,
+      "odds_game_id": "EPL_2627_20261202_LIV_SUN",
+      "home_name": "Liverpool",
+      "away_name": "Sunderland"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879218",
+      "away": "Leeds",
+      "home": "Man City",
+      "start_utc": "2026-12-02T19:30:00Z",
+      "market_home": 0.5953,
+      "market_draw": 0.2165,
+      "market_away": 0.1882,
+      "odds_game_id": "EPL_2627_20261202_MCI_LEE",
+      "home_name": "Manchester City",
+      "away_name": "Leeds United"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401878751",
+      "away": "Everton",
+      "home": "Aston Villa",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "market_home": 0.4862,
+      "market_draw": 0.2576,
+      "market_away": 0.2562,
+      "odds_game_id": "EPL_2627_20261202_AST_EVE",
+      "home_name": "Aston Villa",
+      "away_name": "Everton"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879223",
+      "away": "Brighton",
+      "home": "Bournemouth",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "market_home": 0.3879,
+      "market_draw": 0.2651,
+      "market_away": 0.347,
+      "odds_game_id": "EPL_2627_20261202_BOU_BRI",
+      "home_name": "AFC Bournemouth",
+      "away_name": "Brighton & Hove Albion"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401878750",
+      "away": "Arsenal",
+      "home": "Brentford",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "market_home": 0.2266,
+      "market_draw": 0.2532,
+      "market_away": 0.5202,
+      "odds_game_id": "EPL_2627_20261202_BRE_ARS",
+      "home_name": "Brentford",
+      "away_name": "Arsenal"
+    },
+    {
+      "sport": "epl",
+      "game_id": "401879217",
+      "away": "Man United",
+      "home": "Newcastle",
+      "start_utc": "2026-12-02T20:15:00Z",
+      "market_home": 0.4101,
+      "market_draw": 0.2462,
+      "market_away": 0.3437,
+      "odds_game_id": "EPL_2627_20261202_NEW_MUN",
+      "home_name": "Newcastle United",
+      "away_name": "Manchester United"
     },
     {
       "sport": "nhl",
