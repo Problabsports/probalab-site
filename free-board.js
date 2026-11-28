@@ -16,7 +16,7 @@
   var SITEKEY = "0x4AAAAAAF1-8hWamb8_PqUn";
   var FREE_PER_SPORT = 2;
   var HEADLINE = "Unlock today’s full NBA, NFL & NHL fair-odds board — 100% Free";
-  var SUBTEXT = "Enter your email once for instant full-board access on this device, Tue & Fri Closing Line Value recaps, and our free Discord link.";
+  var SUBTEXT = "Enter your email once for instant full-board access on this device, our free Discord live-alert link, and ProbaLab recap updates.";
   var DONE_BTN = "Board Unlocked — Join Free Discord for Live Alerts";
 
   var store = {
@@ -182,7 +182,7 @@
   function doneHtml() {
     return '<p class="plu-eyebrow">✓ Board unlocked on this device</p>' +
       '<a class="plu-discord" href="' + DISCORD + '" target="_blank" rel="noopener noreferrer">' + esc(DONE_BTN) + "</a>" +
-      '<p class="plu-fine">Tue &amp; Fri recaps are on their way to your inbox.</p>';
+      '<p class="plu-fine">Your free Discord link is on its way to your inbox too.</p>';
   }
 
   var observer = null, timer = null, active = false;

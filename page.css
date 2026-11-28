@@ -137,7 +137,7 @@ ul.games.today-games > li:first-child { border-top: 0; }
 ul.games.today-games > li.head,
 ul.games.today-games > li:not(.head) {
   display: grid;
-  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 64px 58px 64px;
+  grid-template-columns: 108px minmax(160px, 1.6fr) minmax(120px, 1fr) 150px 64px 58px 64px;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
@@ -148,7 +148,7 @@ ul.games.today-games > li:not(.head) > a.row-rest { display: contents; color: in
 ul.games.today-games > li:not(.head) > .d a { color: inherit; text-decoration: none; }
 ul.games.today-games > li > a:not(.row-rest) {
   display: grid;
-  grid-template-columns: 108px minmax(140px, 1.4fr) minmax(120px, 1fr) 64px 64px 58px 64px;
+  grid-template-columns: 108px minmax(160px, 1.6fr) minmax(120px, 1fr) 150px 64px 58px 64px;
   align-items: center;
   column-gap: 10px;
   padding: 10px 0;
@@ -203,7 +203,7 @@ ul.games.today-games .best-tag, .best-tag {
   ul.games.today-games > li.head,
   ul.games.today-games > li:not(.head),
   ul.games.today-games > li > a:not(.row-rest) {
-    grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 56px 60px 52px 58px;
+    grid-template-columns: 92px minmax(120px, 1.3fr) minmax(100px, 1fr) 112px 60px 52px 58px;
     column-gap: 8px;
   }
 }
@@ -224,7 +224,7 @@ ul.games.today-games .best-tag, .best-tag {
   ul.games.today-games .d { grid-area: time; }
   ul.games.today-games .m { grid-area: match; }
   ul.games.today-games .p { grid-area: pick; }
-  ul.games.today-games .chip, ul.games.today-games .chip-slot, ul.games.today-games .chip-with-warn { grid-area: chip; }
+  ul.games.today-games .chip, ul.games.today-games .chip-slot, ul.games.today-games .chip-with-warn { grid-area: chip; flex-wrap: wrap; }
   ul.games.today-games .fp { grid-area: fair; text-align: left; }
   ul.games.today-games .mk { grid-area: market; text-align: left; }
   ul.games.today-games .gap { grid-area: value; text-align: left; }
@@ -488,7 +488,9 @@ table.record-picks a:hover { color: var(--cyan); }
 .chip-with-warn {
   display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
-ul.games.today-games .chip-with-warn { grid-area: chip; justify-self: start; }
+ul.games.today-games .chip-with-warn { justify-self: start; flex-wrap: wrap; row-gap: 4px; } /* fixed 150px column: every row lines up */
+/* Team links inside the match cell stay inline (the generic "ul.games a" flex + padding stacked them into 3 lines). */
+ul.games.today-games .m a.team-link, ul.games.today-games .d a { display: inline; padding: 0; }
 ul.games.today-games .chip-with-warn .chip { grid-area: auto; }
 ul.games.today-games .injury-watch,
 ul.games .injury-watch {

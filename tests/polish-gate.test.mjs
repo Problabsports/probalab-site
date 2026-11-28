@@ -46,7 +46,7 @@ assert.doesNotMatch(pr, /href="\/tennis#game-t"/);
 const fb = read("free-board.js");
 for (const s of [
   "Unlock today’s full NBA, NFL & NHL fair-odds board — 100% Free",
-  "Enter your email once for instant full-board access on this device, Tue & Fri Closing Line Value recaps, and our free Discord link.",
+  "Enter your email once for instant full-board access on this device, our free Discord live-alert link, and ProbaLab recap updates.",
   "Board Unlocked — Join Free Discord for Live Alerts",
   'var KEY = "pl_free_unlocked";',
   "var FREE_PER_SPORT = 2;",

@@ -421,7 +421,7 @@ export async function onRequestGet(ctx) {
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Today's games</span></nav>
   <p class="eyebrow">// next 24 hours · Australia/Sydney</p>
   <h1>Today's predictions: every sport</h1>
-  <p>${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}
+  <p><span class="today-count">${total ? `${total} game${total === 1 ? "" : "s"} tip off in the next 24 hours.` : "No games tip off in the next 24 hours."}</span>
   Filter by sport and light colour — same idea as the members desk. Default is Green + Best value, matching <a href="/results">Results</a>.</p>
   <nav class="crumbs" aria-label="Jump to sport">${jump} · <a href="/accuracy">Accuracy →</a></nav>
   ${HOW_TO}

@@ -6,15 +6,20 @@
 // valid token is required (fail closed; no token = blocked, so bots can't skip it). TURNSTILE_SECRET missing →
 // Turnstile is skipped and the honeypot + Supabase throttle guard the form, so a missing key never blocks visitors.
 // TURNSTILE_HOSTNAMES is optional: when set, the token's hostname must match.
-// Optional welcome email via Resend: only when RESEND_API_KEY and RESEND_FROM_EMAIL are set. It runs after the
-// response (ctx.waitUntil) and never blocks or fails the sign-up.
+// Welcome email via Resend, single opt-in: same RESEND_API_KEY and sender (FROM_EMAIL, hello@probalabsports.com,
+// verified in Resend) as the members emails in _shared/membership.js. Sent only when RESEND_API_KEY is set, and on
+// preview/non-production hosts only to the test inbox (shouldSendWelcomeTo, same rule as members). It runs after
+// the response (ctx.waitUntil) and never blocks or fails the sign-up. Every email carries a signed 1-click
+// unsubscribe link + List-Unsubscribe / List-Unsubscribe-Post headers (RFC 8058) → /api/unsubscribe.
 import { DISCORD_INVITE_URL } from "../_shared/discord.js";
+import { FROM_EMAIL, shouldSendWelcomeTo } from "../_shared/membership.js";
+import { unsubscribeUrl } from "../_shared/unsubscribe-token.js";
 
 const TARGET = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-subscribe";
 const TURNSTILE_VERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const RESEND_URL = "https://api.resend.com/emails";
 const EXPECTED_ACTION = "subscribe";
-export const OK_MSG = "You're in. The full free board is unlocked on this device, and the Tue & Fri recaps will come to your inbox.";
+export const OK_MSG = "You're in. The full free board is unlocked on this device, and your free Discord link is on its way to your inbox.";
 const TURNSTILE_ERR = "Please complete the security check and try again.";
 
 function hostnameAllowed(hostname, allowCsv) {
@@ -61,11 +66,15 @@ export async function verifyTurnstile(env, token, ip) {
 }
 
 export function resendConfigured(env) {
-  return !!(String(env?.RESEND_API_KEY || "").trim() && String(env?.RESEND_FROM_EMAIL || "").trim());
+  return !!String(env?.RESEND_API_KEY || "").trim();
+}
+/** Sender: the verified members sender unless RESEND_FROM_EMAIL overrides it. */
+export function fromAddress(env) {
+  return String(env?.RESEND_FROM_EMAIL || "").trim() || FROM_EMAIL;
 }
 
-/** Welcome email: Discord invite + what Green and Best value mean. Plain, inline-styled HTML. */
-export function welcomeEmail(to) {
+/** Welcome email: Discord invite, what Green and Best value mean, unsubscribe link. Plain, inline-styled HTML. */
+export function welcomeEmail(to, unsubUrl = "") {
   const subject = "You're in: your free ProbaLab board + Discord link";
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#07080f;color:#e8ecf5;font-family:Arial,Helvetica,sans-serif">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#07080f"><tr><td align="center" style="padding:24px 12px">
@@ -73,18 +82,19 @@ export function welcomeEmail(to) {
 <tr><td style="padding:24px">
 <p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#19e3ff">ProbaLab</p>
 <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#ffffff">You're in. The full free board is unlocked.</h1>
-<p style="margin:0 0 16px;font-size:15px;line-height:1.5">Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. Our free Tue &amp; Fri recaps will land here, with the week's results and how our posted prices compared with the closing line.</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.5">Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. Here's your free Discord link for live alerts, and we'll send ProbaLab recap updates to this address.</p>
 <p style="margin:0 0 20px"><a href="${DISCORD_INVITE_URL}" style="display:inline-block;background:#19e3ff;color:#07080f;text-decoration:none;font-weight:bold;padding:12px 18px;border-radius:8px">Join our free Discord for live alerts</a></p>
 <h2 style="margin:0 0 8px;font-size:16px;color:#ffffff">How to read the lights</h2>
 <p style="margin:0 0 8px;font-size:14px;line-height:1.5"><b style="color:#2fd7a0">Green</b> means our model gives the pick a 65%+ win chance (NBA, NFL and NHL). These are the model's stronger calls, and the green record is kept in public, losses included.</p>
 <p style="margin:0 0 16px;font-size:14px;line-height:1.5"><b style="color:#b56cff">Best value</b> (NBA only) is a value flag, not a stronger green: the best available price is longer than our fair price (1 ÷ our win chance), so the bet is +EV against our number. A green pick can also carry a Best value tag.</p>
 <p style="margin:0 0 4px;font-size:13px;line-height:1.5;color:#8a96ab">Every pick is timestamped before the start and kept on the record: <a href="https://probalabsports.com/results" style="color:#19e3ff">probalabsports.com/results</a></p>
-<p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:#8a96ab">Predictions for entertainment, not advice. 18+. Gamble responsibly. To stop these emails, reply with "unsubscribe".</p>
+<p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:#8a96ab">Predictions for entertainment, not advice. 18+. Gamble responsibly.</p>
+<p style="margin:8px 0 0;font-size:12px;line-height:1.5;color:#8a96ab">You're getting this because you signed up at probalabsports.com. ProbaLab Sports · hello@probalabsports.com · <a href="${unsubUrl || "https://probalabsports.com"}" style="color:#8a96ab">Unsubscribe</a></p>
 </td></tr></table></td></tr></table></body></html>`;
   const text = [
     "You're in. The full free board is unlocked.",
     "",
-    "Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. Free Tue & Fri recaps will land here.",
+    "Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. We'll send ProbaLab recap updates to this address.",
     "",
     `Join our free Discord for live alerts: ${DISCORD_INVITE_URL}`,
     "",
@@ -92,23 +102,32 @@ export function welcomeEmail(to) {
     "Best value (NBA only): the best available price is longer than our fair price (1 / our win chance), so it is +EV against our number. A value flag, not a stronger green.",
     "",
     "Every result: https://probalabsports.com/results",
-    "Predictions for entertainment, not advice. 18+. Reply \"unsubscribe\" to stop these emails.",
+    "Predictions for entertainment, not advice. 18+.",
+    "",
+    "You're getting this because you signed up at probalabsports.com. ProbaLab Sports, hello@probalabsports.com",
+    `Unsubscribe: ${unsubUrl || "reply \"unsubscribe\""}`,
   ].join("\n");
   return { to, subject, html, text };
 }
 
 /** Fire-and-forget welcome email. Never throws; returns true when Resend accepted it. */
-export async function sendWelcome(env, to) {
+export async function sendWelcome(env, to, { hostname = "probalabsports.com", origin = "https://probalabsports.com" } = {}) {
   if (!resendConfigured(env)) return false;
-  const from = String(env.RESEND_FROM_EMAIL).trim();
-  const mail = welcomeEmail(to);
+  if (!shouldSendWelcomeTo(to, hostname, env)) return false; // previews: test inbox only
+  const from = fromAddress(env);
+  const mailbox = from.replace(/^.*<|>.*$/g, "");
   try {
+    let unsub = "";
+    try { unsub = await unsubscribeUrl(env, to, origin); } catch { unsub = ""; }
+    const mail = welcomeEmail(to, unsub);
     const r = await fetch(RESEND_URL, {
       method: "POST",
       headers: { authorization: `Bearer ${String(env.RESEND_API_KEY).trim()}`, "content-type": "application/json" },
       body: JSON.stringify({
-        from, to: [mail.to], subject: mail.subject, html: mail.html, text: mail.text,
-        headers: { "List-Unsubscribe": `<mailto:${from.replace(/^.*<|>.*$/g, "")}?subject=unsubscribe>` },
+        from, to: [mail.to], subject: mail.subject, html: mail.html, text: mail.text, reply_to: mailbox,
+        headers: unsub
+          ? { "List-Unsubscribe": `<${unsub}>, <mailto:${mailbox}?subject=unsubscribe>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" }
+          : { "List-Unsubscribe": `<mailto:${mailbox}?subject=unsubscribe>` },
       }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -175,7 +194,8 @@ export async function onRequestPost(ctx) {
   if (out && out.ok) {
     // Non-blocking: the visitor gets their answer now; the welcome email goes out after the response.
     if (resendConfigured(env)) {
-      const p = sendWelcome(env, email);
+      const u = new URL(req.url);
+      const p = sendWelcome(env, email, { hostname: u.hostname, origin: u.origin });
       if (ctx.waitUntil) ctx.waitUntil(p); else await p;
     }
     return reply({ ok: true, message: OK_MSG }, 200);

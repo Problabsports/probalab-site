@@ -217,6 +217,7 @@
 
   /* ---------------------------------------------------------------- /today */
   html.pf.pf-today ul.today-games, html.pf.pf-today .oddsfmt-bar { display: none !important; }
+  html.pf .today-count { display: none; } /* phone shows its own count line (pf-count) above the intro */
   html.pf.pf-today main.wrap > h1 { font-size: 26px; line-height: 1.1; }
   html.pf.pf-today section.panel[id] { padding: 14px 12px; border-radius: var(--pf-r); }
   html.pf.pf-today section.panel[id] > h2 { margin: 2px 2px 12px; }
