@@ -3,3 +3,5 @@ node_modules/
 tools/__pycache__/
 .turnstile-sitekey
 tests/__pycache__/
+__pycache__/
+tools/mini_lights/**/__pycache__/
