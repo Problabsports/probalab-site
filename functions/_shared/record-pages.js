@@ -8,6 +8,8 @@ import { LIGHTS as LIGHTS_CFG, gameLight, shownLight, scaleText, sportCfg, gameS
 
 export const EPL_LIGHTS_FROM = LIGHTS_CFG.games.epl.lights_from; // lights.json: EPL matches before this have no light
 
+// Paused sports keep their rows on /results but without a link (their pages show a paused notice).
+const PAUSED_LINKLESS = new Set(["championship", "tennis"]);
 export const SPORT_ORDER = ["nba", "nfl", "nhl", "epl", "championship", "tennis"];
 
 const NHLN = { ANA: "Anaheim Ducks", BOS: "Boston Bruins", BUF: "Buffalo Sabres", CGY: "Calgary Flames", CAR: "Carolina Hurricanes", CHI: "Chicago Blackhawks", COL: "Colorado Avalanche", CBJ: "Columbus Blue Jackets", DAL: "Dallas Stars", DET: "Detroit Red Wings", EDM: "Edmonton Oilers", FLA: "Florida Panthers", LAK: "Los Angeles Kings", MIN: "Minnesota Wild", MTL: "Montréal Canadiens", NSH: "Nashville Predators", NJD: "New Jersey Devils", NYI: "New York Islanders", NYR: "New York Rangers", OTT: "Ottawa Senators", PHI: "Philadelphia Flyers", PIT: "Pittsburgh Penguins", SJS: "San Jose Sharks", SEA: "Seattle Kraken", STL: "St. Louis Blues", TBL: "Tampa Bay Lightning", TOR: "Toronto Maple Leafs", UTA: "Utah Mammoth", VAN: "Vancouver Canucks", VGK: "Vegas Golden Knights", WSH: "Washington Capitals", WPG: "Winnipeg Jets" };
@@ -319,6 +321,44 @@ export function unitsTally(rows) {
   };
 }
 
+/**
+ * Closing-line tracking for finished picks (any light): how many have both the posted price (timestamped before
+ * the start) and the closing price on file. beat = posted price longer than the close; mean = average vs close.
+ */
+export function clvCoverage(rows) {
+  const done = rows.filter((r) => r.won != null);
+  const tracked = done.filter((r) => r.posted_price != null && r.close_price != null && r.vs_close != null);
+  const n = done.length, t = tracked.length;
+  return {
+    picks: n,
+    tracked: t,
+    pct: n ? Math.floor((1000 * t) / n) / 10 : null, // floored: never rounds 99.96% up to 100%
+    beat: tracked.filter((r) => r.vs_close > 0).length,
+    mean: t ? Math.round((tracked.reduce((a, r) => a + r.vs_close, 0) / t) * 10000) / 10000 : null,
+  };
+}
+export const CLV_SPORTS = ["nba", "nfl"]; // sports whose feed carries posted + closing prices
+
+/** /results proof panel: closing-line tracking per sport + what Green and Best value mean. */
+export function clvProofPanel(views) {
+  const lines = CLV_SPORTS.map((sp) => {
+    const v = views.find((x) => x.sport === sp && !x.error);
+    if (!v) return "";
+    const c = clvCoverage(v.rows || []);
+    if (!c.picks) return "";
+    return `<li><b>${esc(v.name || sp.toUpperCase())}</b>: ${c.tracked} of ${c.picks} finished picks (${c.pct}%) have the posted price and the closing price on file.</li>`;
+  }).filter(Boolean).join("");
+  return `<section class="panel proof-panel" id="proof">
+    <h2>How we keep it honest</h2>
+    <p>Every pick is <b>timestamped before the start</b> with the price available at that moment, then frozen. At the start we record the market's <b>closing price</b> for the same side. The gap between the two is the pick's closing line value (CLV): positive means the market moved toward our pick after we posted it, negative means it moved away. Each pick's figure is in the table below and in the CSV, good or bad.</p>
+    ${lines ? `<ul class="proof-list">${lines}</ul>` : ""}
+    <div class="proof-defs">
+      <p>${chip("GREEN")} <b>Green</b> is about confidence: our model gives the pick a <b>${esc(scaleText("nba").GREEN)}</b> win chance (NBA, NFL and NHL; the Premier League uses its own cut-off). These are the model's stronger calls.</p>
+      <p>${chip("SUPER")} <b>${esc(labelLong("SUPER"))}</b> is about price, NBA only: the best available price is longer than our fair price (1 ÷ our win chance), so the bet is +EV against our number. It is a value flag, not a stronger green, and a green pick can carry the tag too.</p>
+    </div>
+  </section>`;
+}
+
 const signed = (v, digits) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(digits)}`;
 /** "+12.4u · ROI +6.1% · 31–17 (48 priced, 1u flat)" or "" when nothing is priced. */
 export function unitsLine(u) {
@@ -605,7 +645,7 @@ export function trustStrip({ compact = false } = {}) {
   return `<aside class="${cls}" aria-label="How we keep the record honest">
     <a class="trust-item" href="/results"><span class="trust-ico" aria-hidden="true">⏱</span><span>Every pick is timestamped before tip-off</span></a>
     <a class="trust-item" href="/results.csv"><span class="trust-ico" aria-hidden="true">⬇</span><span>Download the full results CSV — losses included</span></a>
-    <a class="trust-item" href="/results#picks"><span class="trust-ico" aria-hidden="true">◎</span><span>Each pick shows vs close (CLV) when we have a price</span></a>
+    <a class="trust-item" href="/results#proof"><span class="trust-ico" aria-hidden="true">◎</span><span>Every NBA &amp; NFL pick is checked against the closing line (CLV)</span></a>
   </aside>`;
 }
 
@@ -653,6 +693,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
   ${overall}
   ${allRows.length ? discordCta("results") : ""}
   ${trustStrip()}
+  ${allRows.length ? clvProofPanel(views) : ""}
   ${resultsGrowthChart(allRows, filters)}
   <div class="record-grid">${views.map(sportGreenCard).join("")}</div>
   <section class="panel" id="picks">
@@ -669,7 +710,7 @@ export function renderResultsPage(views, filters = { sport: "all", light: "green
         <td>${timeCell(g.start_utc)}</td>
         <td>${timeCell(g.posted_utc, g.posted_note)}</td>
         <td><a href="${esc(resultsHref({ sport: g.sport, light: filters.light }))}">${esc(sportName(g.sport))}</a></td>
-        <td>${g.href ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
+        <td>${g.href && !PAUSED_LINKLESS.has(g.sport) ? `<a href="${esc(g.href)}">${esc(matchLabel(g))}</a>` : esc(matchLabel(g))}${g.extra ? `<br><small>${esc(g.extra)}</small>` : ""}</td>
         <td>${esc(g.pick)}</td>
         <td class="n">${chanceText(g.pick_p)}</td>
         <td>${g.light ? chip(g.light) + bvTag(g) : "—"}</td>

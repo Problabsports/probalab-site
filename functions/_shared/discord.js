@@ -71,7 +71,7 @@ export function socialFooterStack() {
 
 // Discord join block: replaces the old email newsletter sign-up everywhere on the site.
 // The newsletter itself now goes out in Discord. Old /#newsletter links land on the footer block.
-export const DISCORD_JOIN_LINE = "Free picks, results and the weekly newsletter in our Discord.";
+export const DISCORD_JOIN_LINE = "Free picks, live alerts and results in our Discord.";
 
 /** "Join our Discord" block. `id` is set only on the one block per page that /#newsletter should land on. */
 export function discordJoin(source = "page", { id = "" } = {}) {

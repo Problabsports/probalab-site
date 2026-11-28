@@ -8,7 +8,7 @@ import { shell, signupMain, signupForm, renderHeader } from "../functions/_share
 
 const root = new URL("../", import.meta.url);
 const read = (p) => readFileSync(new URL(p, root), "utf8");
-const LINE = "Free picks, results and the weekly newsletter in our Discord.";
+const LINE = "Free picks, live alerts and results in our Discord.";
 const BAD = [/action="\/api\/subscribe"/, /api\/subscribe/, /cf-turnstile/, /challenges\.cloudflare\.com\/turnstile/, /data-signup/, /type="email"[^>]*name="email"[^>]*placeholder="you@example\.com"[\s\S]{0,400}data-signup/, /data-nl\b/];
 
 assert.equal(DISCORD_INVITE_URL, "https://discord.gg/B8Q2hH26hV");
@@ -47,9 +47,13 @@ assert.equal((idx.match(/data-discord-join="home-hero"/g) || []).length, 0, "hom
 assert.equal((idx.match(/id="newsletter"/g) || []).length, 1, "index footer block keeps #newsletter anchor");
 // Home callout: one builder, slotted under the top pick in the skeleton and in renderHome.
 assert.equal((idx.match(/<div id="homeSignupSlot"><\/div>/g) || []).length, 2, "signup slot under top pick (skeleton + renderHome)");
-assert.ok(idx.includes("Join Discord for live daily +EV & Closing Line alerts, plus get our free Tue & Fri ProbaLab newsletter recaps & early Founding Member access."), "callout copy matches the real schedule");
-assert.match(idx, /fetch\("\/api\/subscribe"/);
-assert.match(idx, /turnstile\/v0\/api\.js\?render=explicit/, "Turnstile loads lazily, explicit render");
+assert.ok(idx.includes("Enter your email once for instant full-board access on this device, our free Discord live-alert link, and ProbaLab recap updates."), "callout copy matches what we actually send");
+assert.ok(!/Tue & Fri|Tuesday &amp; Friday|weekly newsletter/.test(idx), "no newsletter schedule promised while the sender is paused");
+assert.match(idx, /window\.PLSignup\.submit\(f\)/, "home callout posts through the shared sign-up");
+assert.match(idx, /<script src="\/free-board\.js"><\/script>/);
+const fb = read("free-board.js");
+assert.match(fb, /fetch\("\/api\/subscribe"/);
+assert.match(fb, /turnstile\/v0\/api\.js\?render=explicit/, "Turnstile loads lazily, explicit render");
 assert.doesNotMatch(idx, /<script[^>]+challenges\.cloudflare\.com/, "no eager Turnstile script tag");
 assert.match(idx, /Join our free Discord/);
 assert.ok(read("phone.js").includes('PL_homeSignupHtml("phone-home")'), "phone home shows the callout under top greens");
@@ -58,8 +62,13 @@ const faq = read("functions/faq.js");
 assert.ok(faq.includes("DISCORD_INVITE_URL") && !faq.includes("signup form"), "FAQ points to Discord");
 assert.ok(!read("site-nav.js").includes("data-nl"), "Newsletter tab handler removed");
 
-// beehiiv code stays in the repo, unused.
+// Supabase newsletter_signups is the single store; beehiiv is gone everywhere.
 assert.ok(existsSync(new URL("functions/api/subscribe.js", root)), "subscribe endpoint kept");
-assert.ok(read("functions/api/subscribe.js").includes("beehiiv"), "beehiiv code kept");
+for (const f of ["functions/api/subscribe.js", "index.html", "functions/_shared/site.js", "free-board.js"]) assert.ok(!/beehiiv/i.test(read(f)), `${f}: no beehiiv`);
+// One Discord invite everywhere (desktop, phone, /today, emails, free-board unlock).
+for (const f of ["index.html", "404.html", "contact.html", "privacy.html", "terms.html", "free-board.js", "functions/_shared/discord.js"]) {
+  const invites = read(f).match(/discord\.(?:gg|com\/invite)\/[A-Za-z0-9]+/g) || [];
+  for (const u of invites) assert.equal("https://" + u, DISCORD_INVITE_URL, `${f}: ${u}`);
+}
 
 console.log("discord-funnel tests passed");

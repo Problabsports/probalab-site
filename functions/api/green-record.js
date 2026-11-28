@@ -1,5 +1,5 @@
 // Public green-record summary for the home page. Same grading as /results.
-import { SPORT_ORDER, loadSportRecord, lightTally, unitsTally } from "../_shared/record-pages.js";
+import { SPORT_ORDER, loadSportRecord, lightTally, unitsTally, clvCoverage, CLV_SPORTS } from "../_shared/record-pages.js";
 import { sportName } from "../_shared/site.js";
 import { labelLong } from "../_shared/lights.js";
 
@@ -43,6 +43,7 @@ export async function onRequestGet(ctx) {
       green: { w: g.w, n: g.n, pct: pct(g.w, g.n) },
       super: s.n ? { w: s.w, n: s.n, pct: pct(s.w, s.n) } : null,
       units: unitsTally(v.rows || []),
+      ...(CLV_SPORTS.includes(v.sport) ? { clv: clvCoverage(v.rows || []) } : {}),
     });
   }
   const body = {
@@ -52,6 +53,8 @@ export async function onRequestGet(ctx) {
     // Flat 1u on finished Green + Best value picks with a posted price (same as the Results units chart).
     // { priced_picks, w, l, pnl_u, roi_pct } with roi_pct = pnl_u / priced_picks * 100.
     units: unitsTally(allRows),
+    // Closing-line tracking per sport (posted + closing price on file): { picks, tracked, pct, beat, mean }.
+    clv: Object.fromEntries(sports.filter((s) => s.clv).map((s) => [s.sport, s.clv])),
     sports,
   };
   return new Response(JSON.stringify(body), {

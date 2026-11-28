@@ -1,15 +1,25 @@
-// POST /api/subscribe — newsletter sign-up. Accepts JSON (site JS) or a plain form post (no JS).
-// Guards: honeypot field `website`, email checks + IP throttle in Supabase, and Cloudflare Turnstile when it is
-// configured. TURNSTILE_SECRET set → a valid token is required (fail closed; no token = blocked, so bots can't skip it).
-// TURNSTILE_SECRET missing → Turnstile is skipped and the honeypot + Supabase throttle guard the form, so a missing
-// key never blocks real visitors. TURNSTILE_HOSTNAMES is optional: when set, the token's hostname must match.
-// After those pass: consent backup in Supabase, then beehiiv with double opt-in (confirm-your-email).
-// Existing beehiiv subscribers are not re-blasted a welcome email (send_welcome_email stays false).
+// POST /api/subscribe — free newsletter / free-board sign-up. Accepts JSON (site JS) or a plain form post (no JS).
+// Single source of truth: Supabase `newsletter_signups`, written by the `probalab-subscribe` edge function
+// (email format check, 5 sign-ups per IP per hour, salted IP hash, consent text; an existing email returns ok
+// without revealing that it exists, so a returning visitor can still unlock the free board).
+// Guards here: honeypot field `website`, and Cloudflare Turnstile when it is configured. TURNSTILE_SECRET set → a
+// valid token is required (fail closed; no token = blocked, so bots can't skip it). TURNSTILE_SECRET missing →
+// Turnstile is skipped and the honeypot + Supabase throttle guard the form, so a missing key never blocks visitors.
+// TURNSTILE_HOSTNAMES is optional: when set, the token's hostname must match.
+// Welcome email via Resend, single opt-in: same RESEND_API_KEY and sender (FROM_EMAIL, hello@probalabsports.com,
+// verified in Resend) as the members emails in _shared/membership.js. Sent only when RESEND_API_KEY is set, and on
+// preview/non-production hosts only to the test inbox (shouldSendWelcomeTo, same rule as members). It runs after
+// the response (ctx.waitUntil) and never blocks or fails the sign-up. Every email carries a signed 1-click
+// unsubscribe link + List-Unsubscribe / List-Unsubscribe-Post headers (RFC 8058) → /api/unsubscribe.
+import { DISCORD_INVITE_URL } from "../_shared/discord.js";
+import { FROM_EMAIL, shouldSendWelcomeTo } from "../_shared/membership.js";
+import { unsubscribeUrl } from "../_shared/unsubscribe-token.js";
+
 const TARGET = "https://zwdpsereqicvzbtfrrnd.supabase.co/functions/v1/probalab-subscribe";
-const BEEHIIV = "https://api.beehiiv.com/v2/publications";
 const TURNSTILE_VERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const RESEND_URL = "https://api.resend.com/emails";
 const EXPECTED_ACTION = "subscribe";
-const CONFIRM_MSG = "Check your inbox to confirm your email. You're not on the list until you click the link.";
+export const OK_MSG = "You're in. The full free board is unlocked on this device, and your free Discord link is on its way to your inbox.";
 const TURNSTILE_ERR = "Please complete the security check and try again.";
 
 function hostnameAllowed(hostname, allowCsv) {
@@ -55,8 +65,82 @@ export async function verifyTurnstile(env, token, ip) {
   return { ok: true };
 }
 
+export function resendConfigured(env) {
+  return !!String(env?.RESEND_API_KEY || "").trim();
+}
+/** Sender: the verified members sender unless RESEND_FROM_EMAIL overrides it. */
+export function fromAddress(env) {
+  return String(env?.RESEND_FROM_EMAIL || "").trim() || FROM_EMAIL;
+}
+
+/** Welcome email: Discord invite, what Green and Best value mean, unsubscribe link. Plain, inline-styled HTML. */
+export function welcomeEmail(to, unsubUrl = "") {
+  const subject = "You're in: your free ProbaLab board + Discord link";
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#07080f;color:#e8ecf5;font-family:Arial,Helvetica,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#07080f"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#0f1220;border:1px solid #2a3150;border-radius:12px">
+<tr><td style="padding:24px">
+<p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#19e3ff">ProbaLab</p>
+<h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#ffffff">You're in. The full free board is unlocked.</h1>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.5">Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. Here's your free Discord link for live alerts, and we'll send ProbaLab recap updates to this address.</p>
+<p style="margin:0 0 20px"><a href="${DISCORD_INVITE_URL}" style="display:inline-block;background:#19e3ff;color:#07080f;text-decoration:none;font-weight:bold;padding:12px 18px;border-radius:8px">Join our free Discord for live alerts</a></p>
+<h2 style="margin:0 0 8px;font-size:16px;color:#ffffff">How to read the lights</h2>
+<p style="margin:0 0 8px;font-size:14px;line-height:1.5"><b style="color:#2fd7a0">Green</b> means our model gives the pick a 65%+ win chance (NBA, NFL and NHL). These are the model's stronger calls, and the green record is kept in public, losses included.</p>
+<p style="margin:0 0 16px;font-size:14px;line-height:1.5"><b style="color:#b56cff">Best value</b> (NBA only) is a value flag, not a stronger green: the best available price is longer than our fair price (1 ÷ our win chance), so the bet is +EV against our number. A green pick can also carry a Best value tag.</p>
+<p style="margin:0 0 4px;font-size:13px;line-height:1.5;color:#8a96ab">Every pick is timestamped before the start and kept on the record: <a href="https://probalabsports.com/results" style="color:#19e3ff">probalabsports.com/results</a></p>
+<p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:#8a96ab">Predictions for entertainment, not advice. 18+. Gamble responsibly.</p>
+<p style="margin:8px 0 0;font-size:12px;line-height:1.5;color:#8a96ab">You're getting this because you signed up at probalabsports.com. ProbaLab Sports · hello@probalabsports.com · <a href="${unsubUrl || "https://probalabsports.com"}" style="color:#8a96ab">Unsubscribe</a></p>
+</td></tr></table></td></tr></table></body></html>`;
+  const text = [
+    "You're in. The full free board is unlocked.",
+    "",
+    "Every NBA, NFL and NHL win chance and fair price is now open on the device you signed up on. We'll send ProbaLab recap updates to this address.",
+    "",
+    `Join our free Discord for live alerts: ${DISCORD_INVITE_URL}`,
+    "",
+    "Green: our model gives the pick a 65%+ win chance (NBA, NFL, NHL).",
+    "Best value (NBA only): the best available price is longer than our fair price (1 / our win chance), so it is +EV against our number. A value flag, not a stronger green.",
+    "",
+    "Every result: https://probalabsports.com/results",
+    "Predictions for entertainment, not advice. 18+.",
+    "",
+    "You're getting this because you signed up at probalabsports.com. ProbaLab Sports, hello@probalabsports.com",
+    `Unsubscribe: ${unsubUrl || "reply \"unsubscribe\""}`,
+  ].join("\n");
+  return { to, subject, html, text };
+}
+
+/** Fire-and-forget welcome email. Never throws; returns true when Resend accepted it. */
+export async function sendWelcome(env, to, { hostname = "probalabsports.com", origin = "https://probalabsports.com" } = {}) {
+  if (!resendConfigured(env)) return false;
+  if (!shouldSendWelcomeTo(to, hostname, env)) return false; // previews: test inbox only
+  const from = fromAddress(env);
+  const mailbox = from.replace(/^.*<|>.*$/g, "");
+  try {
+    let unsub = "";
+    try { unsub = await unsubscribeUrl(env, to, origin); } catch { unsub = ""; }
+    const mail = welcomeEmail(to, unsub);
+    const r = await fetch(RESEND_URL, {
+      method: "POST",
+      headers: { authorization: `Bearer ${String(env.RESEND_API_KEY).trim()}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        from, to: [mail.to], subject: mail.subject, html: mail.html, text: mail.text, reply_to: mailbox,
+        headers: unsub
+          ? { "List-Unsubscribe": `<${unsub}>, <mailto:${mailbox}?subject=unsubscribe>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" }
+          : { "List-Unsubscribe": `<mailto:${mailbox}?subject=unsubscribe>` },
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!r.ok) console.log("resend welcome failed", r.status);
+    return r.ok;
+  } catch {
+    console.log("resend welcome error");
+    return false;
+  }
+}
+
 function htmlPage(ok, msg) {
-  const title = ok ? "Check your inbox" : "Not quite";
+  const title = ok ? "You're in" : "Not quite";
   const safe = String(msg || "").replace(/</g, "&lt;");
   return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Newsletter | ProbaLab</title><link rel="stylesheet" href="/page.css"><main class="wrap"><h1>${title}</h1><section class="panel"><p>${safe}</p><p><a href="/">Back to ProbaLab</a></p></section></main>`;
 }
@@ -81,79 +165,40 @@ export async function onRequestPost(ctx) {
   const website = String(body.website ?? "");
   const token = body["cf-turnstile-response"] ?? body.turnstileToken ?? "";
   const ip = req.headers.get("cf-connecting-ip") || "";
+  const reply = (out, status) => (!isForm
+    ? new Response(JSON.stringify(out), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } })
+    : new Response(htmlPage(!!out.ok, out.ok ? (out.message || OK_MSG) : (out.error || "Something went wrong.")), {
+      status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+    }));
 
-  // Honeypot: bots that fill the hidden field get a fake success and never reach beehiiv / Turnstile.
-  if (website) {
-    const out = { ok: true };
-    if (!isForm) return new Response(JSON.stringify(out), { status: 200, headers: { "content-type": "application/json", "cache-control": "no-store" } });
-    return new Response(htmlPage(true, "Thanks, you're on the list. Watch your inbox for our predictions and results twice a week."), {
-      status: 200, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
-    });
-  }
+  // Honeypot: bots that fill the hidden field get a fake success and never reach Supabase / Turnstile / Resend.
+  if (website) return reply({ ok: true, message: OK_MSG }, 200);
 
   const turned = turnstileConfigured(env) ? await verifyTurnstile(env, token, ip) : { ok: true, skipped: true };
-  if (!turned.ok) {
-    const out = { ok: false, error: TURNSTILE_ERR };
-    if (!isForm) return new Response(JSON.stringify(out), { status: 403, headers: { "content-type": "application/json", "cache-control": "no-store" } });
-    return new Response(htmlPage(false, TURNSTILE_ERR), {
-      status: 403, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
-    });
-  }
+  if (!turned.ok) return reply({ ok: false, error: TURNSTILE_ERR }, 403);
 
-  let res, out;
+  let status, out;
   try {
-    res = await fetch(env.SUBSCRIBE_URL || TARGET, {
+    const res = await fetch(env.SUBSCRIBE_URL || TARGET, {
       method: "POST",
       headers: { "content-type": "application/json", "x-client-ip": ip },
       body: JSON.stringify({ email, website: "", source: String(body.source ?? "") }),
     });
+    status = res.status;
     out = await res.json();
   } catch {
-    res = { status: 502 };
+    status = 502;
     out = { ok: false, error: "Something went wrong. Please try again." };
   }
 
-  if (out.ok) {
-    if (!env.BEEHIIV_API_KEY || !env.BEEHIIV_PUBLICATION_ID) {
-      // Preview without beehiiv still shows the confirm UX so the form copy can be checked.
-      out = { ...out, mode: "preview", pending_confirm: true, message: CONFIRM_MSG };
-    } else {
-      try {
-        const b = await fetch(`${BEEHIIV}/${env.BEEHIIV_PUBLICATION_ID}/subscriptions`, {
-          method: "POST",
-          headers: { authorization: `Bearer ${env.BEEHIIV_API_KEY}`, "content-type": "application/json" },
-          body: JSON.stringify({
-            email,
-            reactivate_existing: true,
-            send_welcome_email: false,
-            double_opt_override: "on",
-            utm_source: "probalabsports",
-            utm_medium: "website",
-          }),
-        });
-        if (b.ok) {
-          out = { ...out, mode: "beehiiv", pending_confirm: true, message: CONFIRM_MSG };
-        } else {
-          out = { ...out, mode: "backup-only", pending_confirm: true, message: CONFIRM_MSG };
-          console.log("beehiiv subscribe failed", b.status);
-        }
-      } catch {
-        out = { ...out, mode: "backup-only", pending_confirm: true, message: CONFIRM_MSG };
-        console.log("beehiiv subscribe error");
-      }
+  if (out && out.ok) {
+    // Non-blocking: the visitor gets their answer now; the welcome email goes out after the response.
+    if (resendConfigured(env)) {
+      const u = new URL(req.url);
+      const p = sendWelcome(env, email, { hostname: u.hostname, origin: u.origin });
+      if (ctx.waitUntil) ctx.waitUntil(p); else await p;
     }
+    return reply({ ok: true, message: OK_MSG }, 200);
   }
-
-  if (!isForm) {
-    return new Response(JSON.stringify(out), {
-      status: res.status, headers: { "content-type": "application/json", "cache-control": "no-store" },
-    });
-  }
-  const msg = out.ok
-    ? (out.message || CONFIRM_MSG)
-    : (out.error || "Something went wrong.");
-  return new Response(htmlPage(!!out.ok, msg), {
-    status: out.ok ? 200 : res.status,
-    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
-  });
+  return reply({ ok: false, error: (out && out.error) || "Something went wrong. Please try again." }, status >= 400 ? status : 500);
 }
