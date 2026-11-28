@@ -172,6 +172,8 @@
   html.pf .pf-rec-lab { font-family: var(--f-mono, monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--pf-green); }
   html.pf .pf-record b { font-family: var(--f-mono, monospace); font-size: 20px; color: var(--pf-green); }
   html.pf .pf-rec-pct { font-family: var(--f-mono, monospace); font-size: 14px; color: var(--pf-ink); }
+  html.pf .pf-rec-roi { font-family: var(--f-mono, monospace); font-size: 12.5px; font-weight: 700; color: var(--pf-green); white-space: nowrap; }
+  html.pf .pf-rec-roi.neg { color: var(--pf-red); }
   html.pf .pf-rec-go { margin-left: auto; font-size: 22px; color: var(--pf-green); }
   html.pf .pf-yest { display: block !important; margin-top: 8px; }
   html.pf .pf-yest[hidden] { display: none !important; }
@@ -424,6 +426,7 @@
   html.pf .pf-lkey li.pf-lkey-long span a { color: var(--pf-cyan); }
   html.pf .pf-lkey-link { justify-self: start; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font-size: 13px; color: var(--pf-cyan); }
   html.pf.pf-today .howto.compact { padding: 4px 12px; }
+  html.pf #pf-home .home-signup { margin-top: 16px; }
   html.pf #pf-home .pf-lkey { margin-top: 18px; }
 
   /* light filter chips: a tidy wrapped grid instead of a row running off the screen */

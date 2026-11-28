@@ -89,9 +89,9 @@
 
     function gameSports() { return Object.keys(games); }
     // sports grouped by the same value of key, in config order: [[value, [sport, ...]], ...]
-    function groups(key) {
+    function groups(key, only) {
       var out = [], seen = {};
-      gameSports().forEach(function (s) {
+      gameSports().filter(function (s) { return !only || only.indexOf(s) >= 0; }).forEach(function (s) {
         var v = key(games[s]);
         if (!(v in seen)) { seen[v] = out.length; out.push([v, []]); }
         out[seen[v]][1].push(s);
@@ -106,9 +106,10 @@
       return art ? art + " " + txt : txt;
     }
     /** "65%+ in the NBA, NFL and NHL; 55%+ in the Premier League and Championship; 70%+ in tennis".
-     *  opts.short: ["65%+ NBA, NFL, NHL", "55%+ Premier League, Championship", "70%+ Tennis"] (an array). */
+     *  opts.short: ["65%+ NBA, NFL, NHL", "55%+ Premier League, Championship", "70%+ Tennis"] (an array).
+     *  opts.sports: only these sports (e.g. the ones currently live); default every game sport. */
     function greenSummary(opts) {
-      var gs = groups(function (c) { return pct(c.green_min); });
+      var gs = groups(function (c) { return pct(c.green_min); }, opts && opts.sports);
       if (opts && opts.short) return gs.map(function (g) { return g[0] + "%+ " + names(g[1], ", "); });
       return gs.map(function (g) { return g[0] + "%+ in " + names(g[1]); }).join("; ");
     }

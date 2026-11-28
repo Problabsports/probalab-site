@@ -223,6 +223,7 @@
       '<a class="pf-record" id="pfRecord" href="/results"><span class="pf-rec-dot" aria-hidden="true"></span><span>Green record · see Results</span></a></div>' +
       '<div class="pf-greens" id="pfGreens" aria-live="polite">' + skeleton(2) + "</div>" +
       '<a class="pf-more" href="/today">All of today\'s games<span aria-hidden="true">→</span></a>' +
+      (typeof window.PL_homeSignupHtml === "function" ? window.PL_homeSignupHtml("phone-home") : "") +
       P.stackedKeyHtml(P.gameKeyRows("all", { best: true, injury: true }), { title: "Light key", kind: "home", link: "/lights" }) +
       '<div class="pf-yest" id="pfYest" hidden></div>' +
       '<h2 class="pf-h2">Go to</h2>' +
@@ -262,6 +263,13 @@
         box.innerHTML = '<div class="pf-empty"><b>Today\'s picks are loading slowly.</b><span>Open Today for every game.</span></div>';
       });
   }
+  // Flat 1u ROI at posted price, Green + Best value (from /api/green-record units).
+  function roiHtml(u) {
+    if (!u || !(u.priced_picks > 0) || u.roi_pct == null) return "";
+    var sg = function (v, dp) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(dp); };
+    return '<span class="pf-rec-roi ' + (u.pnl_u >= 0 ? "pos" : "neg") + '" title="' + esc(u.priced_picks) + ' priced picks, 1 unit each">' +
+      esc(sg(u.pnl_u, 2)) + "u · ROI " + esc(sg(u.roi_pct, 1)) + "%</span>";
+  }
   function loadRecord() {
     fetch("/api/green-record", { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -270,7 +278,7 @@
         if (g.n == null || g.w == null) return;
         var el = document.getElementById("pfRecord");
         el.innerHTML = '<span class="pf-rec-dot" aria-hidden="true"></span><span class="pf-rec-lab">Green record</span><b>' + esc(g.w) + "–" + esc(g.n - g.w) + "</b>" +
-          (g.pct != null ? '<span class="pf-rec-pct">' + esc(g.pct) + "%</span>" : "") + '<span class="pf-rec-go" aria-hidden="true">›</span>';
+          (g.pct != null ? '<span class="pf-rec-pct">' + esc(g.pct) + "%</span>" : "") + roiHtml(d.units) + '<span class="pf-rec-go" aria-hidden="true">›</span>';
       })
       .catch(function () {});
   }

@@ -1,5 +1,6 @@
-// Email newsletter sign-up is retired: every sign-up spot is a "Join our Discord" block.
-// No page posts to /api/subscribe or loads Turnstile; the beehiiv endpoint file is kept (unused).
+// Every sign-up spot is a "Join our Discord" block. The one exception is the home page (index.html):
+// a free email + Discord callout right under Today's top pick posts to /api/subscribe (Turnstile on submit).
+// Static pages and server-rendered pages stay Discord-only.
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { DISCORD_INVITE_URL, DISCORD_JOIN_LINE, discordJoin } from "../functions/_shared/discord.js";
@@ -13,12 +14,13 @@ const BAD = [/action="\/api\/subscribe"/, /api\/subscribe/, /cf-turnstile/, /cha
 assert.equal(DISCORD_INVITE_URL, "https://discord.gg/B8Q2hH26hV");
 assert.equal(DISCORD_JOIN_LINE, LINE);
 
-function checkBlock(html, where) {
+function checkBlock(html, where, { allowHomeSignup = false } = {}) {
   assert.ok(html.includes('class="discord-join'), `${where}: has Discord block`);
   assert.ok(html.includes(`href="${DISCORD_INVITE_URL}"`), `${where}: links the invite`);
   assert.ok(html.includes(">Join our Discord<"), `${where}: button text`);
   assert.ok(html.includes(LINE), `${where}: short line`);
   assert.ok(/18\+/.test(html), `${where}: 18+ note`);
+  if (allowHomeSignup) return;
   for (const re of BAD) assert.ok(!re.test(html), `${where}: no email sign-up (${re})`);
 }
 
@@ -38,10 +40,19 @@ assert.doesNotMatch(page, /discord-cta-footer/, "no duplicate footer Discord lin
 const noSignup = shell({ title: "T", description: "D", path: "/members", body: "", signup: false });
 for (const re of BAD) assert.ok(!re.test(noSignup), `signup:false page: ${re}`);
 
-for (const f of ["index.html", "404.html", "contact.html", "privacy.html", "terms.html"]) checkBlock(read(f), f);
+for (const f of ["404.html", "contact.html", "privacy.html", "terms.html"]) checkBlock(read(f), f);
 const idx = read("index.html");
-assert.equal((idx.match(/data-discord-join="home-hero"/g) || []).length, 2, "both home hero copies swapped");
+checkBlock(idx, "index.html", { allowHomeSignup: true });
+assert.equal((idx.match(/data-discord-join="home-hero"/g) || []).length, 0, "home hero Discord block moved into the top-pick callout");
 assert.equal((idx.match(/id="newsletter"/g) || []).length, 1, "index footer block keeps #newsletter anchor");
+// Home callout: one builder, slotted under the top pick in the skeleton and in renderHome.
+assert.equal((idx.match(/<div id="homeSignupSlot"><\/div>/g) || []).length, 2, "signup slot under top pick (skeleton + renderHome)");
+assert.ok(idx.includes("Join Discord for live daily +EV & Closing Line alerts, plus get our free Tue & Fri ProbaLab newsletter recaps & early Founding Member access."), "callout copy matches the real schedule");
+assert.match(idx, /fetch\("\/api\/subscribe"/);
+assert.match(idx, /turnstile\/v0\/api\.js\?render=explicit/, "Turnstile loads lazily, explicit render");
+assert.doesNotMatch(idx, /<script[^>]+challenges\.cloudflare\.com/, "no eager Turnstile script tag");
+assert.match(idx, /Join our free Discord/);
+assert.ok(read("phone.js").includes('PL_homeSignupHtml("phone-home")'), "phone home shows the callout under top greens");
 
 const faq = read("functions/faq.js");
 assert.ok(faq.includes("DISCORD_INVITE_URL") && !faq.includes("signup form"), "FAQ points to Discord");

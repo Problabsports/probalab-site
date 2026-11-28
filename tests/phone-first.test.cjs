@@ -173,7 +173,8 @@ assert.equal(rowsOf("epl")[0], "Green:55%+");
 assert.equal(rowsOf("championship")[0], "Green:55%+");
 assert.equal(rowsOf("tennis")[0], "Green:70%+");
 assert.deepEqual(rowsOf("all", { best: true, injury: true }).map((r) => r.split(":")[0]), ["Green", "Best value", "Orange", "Red", "Injury watch"]);
-assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League, Championship.*70%\+ Tennis/);
+assert.match(P.gameKeyRows("all")[0].rangeHtml, /65%\+ NBA, NFL, NHL.*55%\+ Premier League</); // live sports only
+assert.doesNotMatch(P.gameKeyRows("all")[0].rangeHtml, /Championship|Tennis/, "paused sports left out of the key");
 // props have their own scale, and it never appears in a game key
 assert.deepEqual(P.propsKeyRows().map((r) => `${r.label}:${r.range}`), ["Green:60%+", "Orange:55–59%", "Red:under 55%"]);
 for (const sp of ["nba", "nfl", "nhl", "epl", "championship", "tennis", "all"]) {
@@ -193,7 +194,9 @@ assert.equal(P.sportCounts(board, "all").nba.shown, 3);
 const chipsHtml = P.sportChipsHtml(cg, "all", "green");
 assert.match(chipsHtml, /href="\/today\?sport=nba">NBA<span class="pf-sc-n">2<\/span>/);
 assert.match(chipsHtml, /pf-sc-dim" data-pf-sport="nfl">NFL<span class="pf-sc-n">0<\/span>/);
-for (const name of ["All", "NBA", "NFL", "NHL", "Premier League", "Championship", "Tennis"]) assert.ok(chipsHtml.includes(`>${name}<span`), name);
+for (const name of ["All", "NBA", "NFL", "NHL", "Premier League"]) assert.ok(chipsHtml.includes(`>${name}<span`), name);
+for (const name of ["Championship", "Tennis"]) assert.ok(!chipsHtml.includes(`>${name}<`), `paused ${name} hidden`);
+assert.ok(!P.sportChipsHtml(P.sportCounts([{ sport: "tennis", light: "GREEN" }], "green"), "all", "green").includes(">Tennis<"), "paused sport hidden even with leftover games");
 assert.match(P.sportChipsHtml(P.sportCounts(board, "orange", { nfl: false }), "all", "orange"), /NFL<\/a>/, "a sport that failed to load shows no count and stays a link");
 assert.equal(P.todayHref("nhl", "all"), "/today?sport=nhl&light=all");
 assert.equal(P.todayHref("all", "green"), "/today");

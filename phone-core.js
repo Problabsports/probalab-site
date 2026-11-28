@@ -468,7 +468,9 @@
 
   // ---------------------------------------------------------------- stacked lights key
   // Game scales: the live cut-offs from lights.json (same as /lights and record-pages.js). Props have their own scale.
-  var GREEN_LINES = L.greenSummary({ short: true });
+  // Key shows live sports only (Championship and tennis are paused; their records keep their own cut-offs).
+  var KEY_SPORTS = ["nba", "nfl", "nhl", "epl"];
+  var GREEN_LINES = L.greenSummary({ short: true, sports: KEY_SPORTS });
   var GAME_SCALE = {};
   L.gameSports().forEach(function (s) { GAME_SCALE[s] = L.keyText(s); });
   GAME_SCALE.all = { GREEN: GREEN_LINES.join(" · "), ORANGE: "Lean", RED: "Coin flip" };
@@ -512,6 +514,7 @@
   }
 
   // ---------------------------------------------------------------- Today: sport chips with counts
+  var PAUSED_SPORTS = { championship: 1, tennis: 1 }; // backend paused 2026-11-28
   var TODAY_SPORTS = [["nba", "NBA"], ["nfl", "NFL"], ["nhl", "NHL"], ["epl", "Premier League"], ["championship", "Championship"], ["tennis", "Tennis"]];
   /** Same rule as the server's light filter (functions/_shared/game-filters.js). l: a row ({light, bestValue}) or a
    *  light name. The Best value filter takes every Best value tag, green ones included. */
@@ -553,8 +556,10 @@
       }
       return '<a class="pf-sc' + (on ? " pf-sc-on" : "") + '" href="' + esc(todayHref(id, light)) + '"' + (on ? ' aria-current="true"' : "") + ">" + esc(label) + num + "</a>";
     };
+    // Paused sports (Championship, tennis): no chip, even if leftover fixtures are still on the board.
+    var visible = TODAY_SPORTS.filter(function (s) { return !PAUSED_SPORTS[s[0]]; });
     return '<nav class="pf-sportchips pf-only" aria-label="Filter by sport">' + chip("all", "All") +
-      TODAY_SPORTS.map(function (s) { return chip(s[0], s[1]); }).join("") + "</nav>";
+      visible.map(function (s) { return chip(s[0], s[1]); }).join("") + "</nav>";
   }
   var LIGHT_WORD = { green: "green", super: "Best value", orange: "orange", red: "red", all: "" };
   /** Message for a dimmed (0) chip. nextIso: the next start we have on file, if any. */
