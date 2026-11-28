@@ -131,7 +131,7 @@
   function rowsFromToday(doc) {
     var out = [];
     $$("section.panel[id]", doc).forEach(function (sec) {
-      $$("ul.today-games > li:not(.head)", sec).forEach(function (li) {
+      $$("ul.today-games > li:not(.head):not(.pl-unlock-wrap)", sec).forEach(function (li) {
         var m = $(".m", li), links = m ? $$(".team-link", m) : [];
         var mc = m ? m.cloneNode(true) : null;
         if (mc) $$(".best-tag, .held-note, small, br", mc).forEach(function (x) { x.remove(); });
@@ -220,7 +220,8 @@
     el.innerHTML =
       '<div class="pf-hello"><p class="pf-eyebrow">// today\'s top greens</p>' +
       '<h1 class="pf-h1">Who wins. <em>How likely.</em></h1>' +
-      '<a class="pf-record" id="pfRecord" href="/results"><span class="pf-rec-dot" aria-hidden="true"></span><span>Green record · see Results</span></a></div>' +
+      '<a class="pf-record" id="pfRecord" href="/results"><span class="pf-rec-dot" aria-hidden="true"></span><span>Green record · see Results</span></a>' +
+      '<a class="pf-proof" href="/results#proof">⏱ Timestamped before every start · ◎ Closing line tracked · Every result kept</a></div>' +
       '<div class="pf-greens" id="pfGreens" aria-live="polite">' + skeleton(2) + "</div>" +
       '<a class="pf-more" href="/today">All of today\'s games<span aria-hidden="true">→</span></a>' +
       (typeof window.PL_homeSignupHtml === "function" ? window.PL_homeSignupHtml("phone-home") : "") +
@@ -985,7 +986,7 @@
     if (!intro || $(".pf-count")) return;
     var m = intro.textContent.match(/(\d+) games? tip off/);
     var total = m ? Number(m[1]) : 0;
-    var shown = $$("section.panel[id] ul.today-games > li:not(.head)").length;
+    var shown = $$("section.panel[id] ul.today-games > li:not(.head):not(.pl-unlock-wrap)").length;
     var q = new URLSearchParams(location.search);
     var light = (q.get("light") || "green").toLowerCase(), sport = (q.get("sport") || "all").toLowerCase();
     intro.insertAdjacentHTML("beforebegin", '<p class="pf-count pf-only">' + esc(P.todayCountLine(total, shown, light, sport)) + "</p>");

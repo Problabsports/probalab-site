@@ -174,6 +174,7 @@
   html.pf .pf-rec-pct { font-family: var(--f-mono, monospace); font-size: 14px; color: var(--pf-ink); }
   html.pf .pf-rec-roi { font-family: var(--f-mono, monospace); font-size: 12.5px; font-weight: 700; color: var(--pf-green); white-space: nowrap; }
   html.pf .pf-rec-roi.neg { color: var(--pf-red); }
+  html.pf .pf-proof { display: block; margin-top: 8px; font-size: 12px; line-height: 1.4; color: var(--pf-muted, #8a96ab); text-decoration: none; }
   html.pf .pf-rec-go { margin-left: auto; font-size: 22px; color: var(--pf-green); }
   html.pf .pf-yest { display: block !important; margin-top: 8px; }
   html.pf .pf-yest[hidden] { display: none !important; }

@@ -212,7 +212,7 @@ function nflPreview(g, rec) {
 }
 
 // Email newsletter sign-up retired: every sign-up spot is now a "Join our Discord" block.
-// The beehiiv endpoint (functions/api/subscribe.js) is left in place but nothing posts to it.
+// Only the home page callout and the free-board unlock card post to /api/subscribe (Supabase newsletter_signups).
 // signupMain / signupForm keep their names so existing callers swap over without changes.
 export const signupMain = (source) => discordJoin(source);
 export const signupForm = (source) => discordJoin(source, { id: "newsletter" });
@@ -352,6 +352,7 @@ document.querySelectorAll("time[data-local]").forEach(function (t) {
 <script src="/site-nav.js"></script>
 <script src="/lights.js"></script>
 <script src="/phone-core.js"></script>
+<script src="/free-board.js"></script>
 <script src="/phone.js"></script>
 <script src="/odds.js"></script>
 <script src="/injury-warning.js"></script>

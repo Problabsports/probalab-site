@@ -410,6 +410,15 @@ table.record-picks a:hover { color: var(--cyan); }
 .trust-strip .trust-item:hover { border-color: var(--green); color: var(--green); }
 .trust-ico { color: var(--green); font-size: 16px; line-height: 1.2; }
 .trust-strip.compact { margin: 10px 0 14px; }
+/* /results: how we keep it honest (closing-line tracking + Green vs Best value) */
+.proof-panel, #growth, #picks { scroll-margin-top: 84px; }
+.proof-panel .proof-list { margin: 10px 0 12px; padding-left: 18px; }
+.proof-panel .proof-list li { margin: 4px 0; line-height: 1.45; }
+.proof-panel .proof-defs { display: grid; gap: 10px; margin-top: 8px; }
+.proof-panel .proof-defs p { margin: 0; padding: 12px 14px; border: 1px solid var(--line-hi); border-radius: 10px; background: rgba(25, 227, 255, .04); line-height: 1.45; }
+@media (min-width: 800px) { .proof-panel .proof-defs { grid-template-columns: 1fr 1fr; } }
+/* paused sport notice (/championship, /tennis) */
+.paused-notice .cta { display: flex; flex-wrap: wrap; gap: 10px; }
 .units-tiles {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0 14px;
 }
