@@ -1,6 +1,6 @@
 {
  "note": "NHL pre-puck-drop records. Pick and chance as frozen at puck drop (same values as pretip_snapshots), lights GREEN 65%+, ORANGE 55-65%, RED under 55%; result from the official NHL API. Auto-updated hourly by the box job export_nhl_pretip.py; rows are locked once written.",
- "exported_utc": "2026-11-27T19:42:07Z",
+ "exported_utc": "2026-11-28T09:37:39Z",
  "games": {
   "2026020154": {
    "pick": "BOS",
@@ -1482,25 +1482,91 @@
    "pick": "BOS",
    "pick_p": 0.6251,
    "light": "ORANGE",
-   "won": null
+   "won": false
   },
   "2026020401": {
    "pick": "NJD",
    "pick_p": 0.6847,
    "light": "GREEN",
-   "won": null
+   "won": true
   },
   "2026020402": {
    "pick": "NSH",
    "pick_p": 0.5005,
    "light": "RED",
-   "won": null
+   "won": false
   },
   "2026020403": {
    "pick": "DAL",
    "pick_p": 0.5069,
    "light": "RED",
-   "won": null
+   "won": false
+  },
+  "2026020404": {
+   "pick": "TBL",
+   "pick_p": 0.5345,
+   "light": "RED",
+   "won": false
+  },
+  "2026020405": {
+   "pick": "PHI",
+   "pick_p": 0.6838,
+   "light": "GREEN",
+   "won": true
+  },
+  "2026020406": {
+   "pick": "WSH",
+   "pick_p": 0.5038,
+   "light": "RED",
+   "won": false
+  },
+  "2026020407": {
+   "pick": "CBJ",
+   "pick_p": 0.5152,
+   "light": "RED",
+   "won": false
+  },
+  "2026020408": {
+   "pick": "COL",
+   "pick_p": 0.5127,
+   "light": "RED",
+   "won": true
+  },
+  "2026020409": {
+   "pick": "ANA",
+   "pick_p": 0.5453,
+   "light": "RED",
+   "won": false
+  },
+  "2026020410": {
+   "pick": "VGK",
+   "pick_p": 0.6862,
+   "light": "GREEN",
+   "won": false
+  },
+  "2026020411": {
+   "pick": "NYR",
+   "pick_p": 0.6061,
+   "light": "ORANGE",
+   "won": false
+  },
+  "2026020412": {
+   "pick": "NYI",
+   "pick_p": 0.5119,
+   "light": "RED",
+   "won": false
+  },
+  "2026020413": {
+   "pick": "BUF",
+   "pick_p": 0.5882,
+   "light": "ORANGE",
+   "won": false
+  },
+  "2026020414": {
+   "pick": "EDM",
+   "pick_p": 0.6313,
+   "light": "ORANGE",
+   "won": false
   }
  }
 }

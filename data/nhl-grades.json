@@ -1720,5 +1720,110 @@
   "away_score": 0,
   "result": "home",
   "correct": true
+ },
+ "2026020400": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 3,
+  "result": "away",
+  "correct": false
+ },
+ "2026020401": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 3,
+  "result": "home",
+  "correct": true
+ },
+ "2026020402": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 6,
+  "result": "away",
+  "correct": false
+ },
+ "2026020403": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 3,
+  "result": "home",
+  "correct": false
+ },
+ "2026020404": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 6,
+  "result": "away",
+  "correct": false
+ },
+ "2026020405": {
+  "graded": true,
+  "home_score": 5,
+  "away_score": 2,
+  "result": "home",
+  "correct": true
+ },
+ "2026020406": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 3,
+  "result": "away",
+  "correct": false
+ },
+ "2026020407": {
+  "graded": true,
+  "home_score": 0,
+  "away_score": 2,
+  "result": "away",
+  "correct": false
+ },
+ "2026020408": {
+  "graded": true,
+  "home_score": 3,
+  "away_score": 4,
+  "result": "away",
+  "correct": true
+ },
+ "2026020409": {
+  "graded": true,
+  "home_score": 3,
+  "away_score": 5,
+  "result": "away",
+  "correct": false
+ },
+ "2026020410": {
+  "graded": true,
+  "home_score": 4,
+  "away_score": 1,
+  "result": "home",
+  "correct": false
+ },
+ "2026020411": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 1,
+  "result": "home",
+  "correct": false
+ },
+ "2026020412": {
+  "graded": true,
+  "home_score": 1,
+  "away_score": 3,
+  "result": "away",
+  "correct": false
+ },
+ "2026020413": {
+  "graded": true,
+  "home_score": 3,
+  "away_score": 6,
+  "result": "away",
+  "correct": false
+ },
+ "2026020414": {
+  "graded": true,
+  "home_score": 2,
+  "away_score": 4,
+  "result": "away",
+  "correct": false
  }
 }
